@@ -1,0 +1,63 @@
+{
+  "$comment": [
+    "Stage 0 benchmark definitions (task S0-01).",
+    "Three niche x metro searches chosen to match the beachhead described in the",
+    "product document: AI automation agencies selling to clinics and trades.",
+    "",
+    "Category values are REAL Overture `categories.primary` values, discovered by",
+    "scanning the 2026-08-19.0 release rather than guessed. `primary` is the tight",
+    "set that defines the niche; `expanded` is the 'suggested related types' pool",
+    "the product document describes, kept separate so coverage can be reported both",
+    "ways.",
+    "",
+    "Radius follows the product document's default city radius of 25 miles."
+  ],
+  "overture_release": "2026-08-19.0",
+  "radius_miles": 25,
+  "markets": [
+    {
+      "id": "med-spa-dallas",
+      "niche": "med_spa",
+      "metro": "Dallas, TX",
+      "center": { "lat": 32.7767, "lon": -96.797 },
+      "categories": {
+        "primary": ["medical_spa"],
+        "expanded": ["spas", "day_spa", "health_spa", "float_spa", "skin_care_clinic"]
+      },
+      "search": "Med spas in Dallas that offer Botox and don't have online booking",
+      "criteria": [
+        { "id": "offers_botox", "type": "presence", "text": "offers Botox" },
+        { "id": "no_online_booking", "type": "absence", "text": "has no online booking" }
+      ]
+    },
+    {
+      "id": "dental-phoenix",
+      "niche": "dental",
+      "metro": "Phoenix, AZ",
+      "center": { "lat": 33.4484, "lon": -112.074 },
+      "categories": {
+        "primary": ["dentist", "general_dentistry", "cosmetic_dentist", "pediatric_dentist"],
+        "expanded": ["orthodontist", "endodontist", "periodontist", "oral_surgeon", "prosthodontist"]
+      },
+      "search": "Dental clinics in Phoenix with no online booking",
+      "criteria": [
+        { "id": "no_online_booking", "type": "absence", "text": "has no online booking" }
+      ]
+    },
+    {
+      "id": "hvac-tampa",
+      "niche": "hvac",
+      "metro": "Tampa, FL",
+      "center": { "lat": 27.9506, "lon": -82.4572 },
+      "categories": {
+        "primary": ["hvac_services"],
+        "expanded": ["contractor", "plumbing", "air_duct_cleaning"]
+      },
+      "search": "HVAC firms in Tampa that do commercial work and have no quote form",
+      "criteria": [
+        { "id": "does_commercial", "type": "presence", "text": "does commercial work" },
+        { "id": "no_quote_form", "type": "absence", "text": "has no quote form" }
+      ]
+    }
+  ]
+}

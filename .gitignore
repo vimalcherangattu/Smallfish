@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node
+node_modules/
+.next/
+dist/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Stage 0 working data — regenerate with the scripts in stage0/src/.
+# Summaries and reports are committed; bulk candidate sets are not.
+stage0/data/*.parquet
+stage0/data/*.jsonl
+stage0/data/cache/
+
+# OS
+.DS_Store
