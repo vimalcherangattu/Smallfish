@@ -33,16 +33,25 @@ plan is `docs/critique.md`.
 
 | Metric | Target | Measured | Date |
 |---|---|---|---|
-| Open-data coverage vs Google, per niche | ≥ 70% | — | — |
+| Open-data candidates per metro niche | — | 2,435–3,126 | 2026-09-19 |
+| Candidates with a website | — | 82.7–93.1% | 2026-09-19 |
+| Open-data coverage vs Google, per niche | ≥ 70% | — *(blocked: needs Places key)* | — |
+| **Couldn't-tell floor** (unreadable sites) | ≤ 25% | **39.6–43.1%** ⚠ | 2026-09-19 |
+| — of which bot-blocked (403/429) | — | 11.3–16.9% | 2026-09-19 |
+| Booking signal found, judgeable sites | — | 36.7–63.2% | 2026-09-19 |
+| Booking found only beyond the homepage | — | 0.0–1.6% | 2026-09-19 |
 | Match precision, blended | ≥ 90% | — | — |
 | Match precision, absence criteria only | ≥ 90% | — | — |
 | Known-match recall | ≥ 60% | — | — |
-| Couldn't-tell rate | ≤ 25% | — | — |
 | Cold cost per business | ≤ $0.010 | — | — |
 | Warm cost per business | ≤ $0.002 | — | — |
 | Blended cost per match | ≤ $0.04 | — | — |
 | Weekly profile change rate (drives alert cost) | measure | — | — |
 | p95 time to first match, cold market | measure | — | — |
+
+⚠ **The couldn't-tell target is not reachable as written.** The measured floor — sites
+that yield no readable text at all, before any judgment is attempted — is ~40% against a
+≤25% target. See `docs/stage0-coverage-report.md` §2 and tasks S0-26 / S0-27.
 
 ---
 
@@ -85,13 +94,12 @@ wins rather than abandoning — that is the response the founding documents alre
 
 ### S0.A — Coverage (runs first, no model spend)
 
-- [ ] **S0-01 · Choose benchmark markets and niches.** Three niches × three metros, chosen
-  to match the beachhead. Proposed: med spas (Dallas), dental clinics (Phoenix), HVAC
-  (Tampa). *Done when:* written into `stage0/fixtures/benchmarks.json` with geometry and
-  category mappings.
-- [ ] **S0-02 · Pull Overture Places for each market.** Query the public S3 parquet by
-  bounding box and category. *Done when:* per-market candidate sets land in `stage0/data/`
-  with counts and a reproducible command.
+- [x] **S0-01 · Choose benchmark markets and niches.** Med spas (Dallas), dental clinics
+  (Phoenix), HVAC (Tampa), in `stage0/fixtures/benchmarks.json`. Category values are real
+  Overture values discovered by scanning the release, not guessed.
+- [x] **S0-02 · Pull Overture Places for each market.** `overture_extract.py` reads the
+  public parquet release over HTTPS with DuckDB; bbox row-group pruning makes a
+  metro-sized query take 6–10s against 10.5 GB. Results: 3,009 / 3,126 / 2,435 candidates.
 - [ ] **S0-03 · Pull Foursquare OS Places for each market** and dedupe against Overture by
   domain, phone and address proximity. *Done when:* merged candidate set with a documented
   dedupe rate.
@@ -99,19 +107,40 @@ wins rather than abandoning — that is the response the founding documents alre
   metro, storing place IDs only, to answer "what fraction of Google's businesses does open
   data see?". *Done when:* a coverage percentage per niche, with the query cost recorded.
   *Blocked on:* a Google Places API key.
-- [ ] **S0-05 · Measure website presence and readability.** For the merged candidate set:
-  what share have a website, what share return usable text on a plain fetch, what share
-  need rendering, what share are social-only. *Done when:* the readability table is filled
-  in — this sets the realistic ceiling on couldn't-tell.
+- [x] **S0-05 · Measure website presence and readability.** `site_probe.py`, 200 sites per
+  market, homepage plus 3 link-selected pages, robots-respecting and throttled.
+  **Judgeable 56.9–60.4%, so the couldn't-tell floor is ~40%.** Largest addressable
+  bucket is bot-blocking (403/429) at 11–17%.
 - [ ] **S0-06 · Write the coverage report** with the gap-fill cost implication per niche.
-  *Done when:* `docs/stage0-coverage-report.md` exists and the Live numbers table above is
-  updated. **This is gate item 1.**
+  *Partial:* `docs/stage0-coverage-report.md` covers supply and readability; the Google
+  baseline is missing, so **gate item 1 is still unanswered**. Blocked on S0-04.
+- [ ] **S0-26 · Recover bot-blocked sites.** The single biggest lever on the couldn't-tell
+  floor. Crawler identity and contact page, exponential backoff on 429, honouring
+  `Retry-After`, retry scheduling across days, and measuring what a different egress path
+  recovers. *Done when:* the blocked share is re-measured and the recovery rate reported.
+- [ ] **S0-27 · Restate the couldn't-tell target from measured data.** Move no-website and
+  social-only businesses out of the denominator and into their own answer (the product
+  document already proposes the toggle), then set a launch target the engine can actually
+  hit. *Done when:* the product document's ≤25% is replaced by a defended number.
+- [ ] **S0-28 · Per-niche booking detector catalogues.** Vendor concentration within a
+  niche is high (Vagaro/Boulevard/Square for med spas; NexHealth/Dentrix for dental;
+  ServiceTitan/HousecallPro/Jobber for HVAC), so a short per-niche list covers most of the
+  market. This is the cheapest precision available. *Done when:* catalogues exist and the
+  detected share is re-measured.
 
 ### S0.B — Engine
 
 - [ ] **S0-07 · Search parser.** Plain English → location geometry, categories, must-have
   and must-not-have criteria, plus a per-criterion check plan (what proves it, what
   disproves it, which pages to read).
+- [ ] **S0-29 · Geometry module.** The product document names five location shapes — city,
+  radius, county, state and drawn polygon — in a single half-sentence, with no further
+  detail anywhere. All five resolve to one interface: a polygon plus a candidate-count
+  estimate. Radius is already proven in `overture_extract.py` (bbox prune plus exact
+  haversine); polygons drop in via DuckDB `ST_Within` against the same bbox prune. County
+  and state need boundary geometries — Overture Divisions carries them, so no new data
+  source. *Done when:* all five shapes return candidates and an estimated count from one
+  function.
 - [ ] **S0-08 · Polite fetcher.** robots.txt honoured, identified user agent, per-domain
   throttling, homepage plus up to three check-plan-selected pages, conditional requests and
   content hashing for the change check.
@@ -178,6 +207,16 @@ Features 1–6 from the product document, plus the corrections above.
 
 - [ ] **S1-01 · Search box and criteria confirmation** with editable chips, per-criterion
   "how this is checked" lines, and one clarifying question for vague terms.
+- [ ] **S1-20 · Map region picker.** The visual half of S0-29: a map that opens on the
+  parsed location, a draggable radius, presets for city, county and state, and freehand
+  polygon drawing. Shows the live candidate count as the region changes, because the
+  region is what drives cost — this is the screen where a user can casually draw half a
+  state and create a 20,000-candidate scan. *Depends on:* S0-29.
+- [ ] **S1-21 · Area cost guardrail.** When a region's candidate estimate exceeds the scan
+  budget, say so before anything is spent: show the estimate, offer to tighten the region,
+  and make progressive unlock (strongest matches first, stop any time) the default for
+  large areas. The product document promises this behaviour for huge areas but ties it to
+  no UI. *Depends on:* S1-20.
 - [ ] **S1-02 · Free match count** from a sample, streaming and tightening, with three
   proven samples shown free. Anonymous limits set from the S0 cost model, not from the
   founding document's 5/day (Critique 5).
@@ -304,3 +343,6 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-19 | Day-90 MRR restated to $4–4.5K | `docs/critique.md` §6 |
 | 2026-09-19 | Launch with 6 automations, not 22 | `docs/critique.md` §12 |
 | 2026-09-19 | Source documents kept as PDFs of record in `docs/source/`, not re-authored as markdown, to avoid a second diverging copy | Single source of truth |
+| 2026-09-19 | Critique finding 3 (absence criteria need deep crawls) **downgraded** | Measured: booking signals appear only beyond the homepage in 0–1.6% of cases. Concern stands only for booking with no vendor fingerprint, which S0-16 must find. |
+| 2026-09-19 | Couldn't-tell ≤25% declared unreachable as written | Measured floor of ~40% before any judgment. S0-26 attacks it, S0-27 restates it. |
+| 2026-09-19 | Map region selection promoted from a half-sentence to explicit scope (S0-29, S1-20, S1-21) | It was named in the product document but had no tasks, no UI detail and no cost treatment, while being the main driver of scan cost. |
