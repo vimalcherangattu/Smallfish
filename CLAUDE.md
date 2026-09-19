@@ -76,13 +76,67 @@ not being tested.
 pip install duckdb "httpx[http2]"
 ```
 
-Keys are read from the environment; nothing is committed:
+### API keys arrive as egress credentials, not environment variables
 
-| Variable | Needed for |
-|---|---|
-| `ANTHROPIC_API_KEY` | Profile extraction and criteria judgment (S0-11, S0-12) — gates the whole accuracy benchmark |
-| `GOOGLE_PLACES_API_KEY` | The coverage baseline (S0-04) — gates Stage 0 gate item 1 |
+**There is no `ANTHROPIC_API_KEY` or `GOOGLE_PLACES_API_KEY` in the environment, and there
+should not be.** Both keys are stored as cloud-environment **API credentials**. Anthropic's
+agent proxy attaches them to outbound requests *after* they leave this VM, so the key
+never appears in the sandbox, in `env`, or in anything Claude can read.
+
+Two consequences, both learned the hard way:
+
+1. **Do not put the Anthropic key in environment variables.** The platform strips it —
+   the environment dialog says so: *"ANTHROPIC_API_KEY won't be used to authenticate
+   requests."* The variables box is also plainly labelled as visible to anyone using the
+   environment, so no secret belongs there.
+2. **The official `anthropic` Python SDK expects a local key and there isn't one.** Before
+   writing pipeline code against it, test whether `anthropic.Anthropic(api_key="placeholder")`
+   works — the proxy must *replace* the `x-api-key` header rather than duplicate it. If it
+   duplicates, call `POST https://api.anthropic.com/v1/messages` directly with `httpx`,
+   sending no auth header at all and letting the proxy supply the only one. Decide this by
+   testing, not by assuming. `engine/llm.py` currently assumes the SDK path and will need
+   adjusting.
+
+Credential shapes, for reference if they ever need re-adding — note the **empty prefix**
+on both; `Authorization` + `Bearer` is the wrong shape and fails validation:
+
+| API | Allowed website | Header | Prefix |
+|---|---|---|---|
+| Anthropic | `api.anthropic.com` | `x-api-key` | *(empty)* |
+| Google Places | `places.googleapis.com` | `X-Goog-Api-Key` | *(empty)* |
+
+### Verify before running anything that spends money
+
+Credentials attach only to sessions **started after** they were created; an older session's
+proxy config is frozen without them. Check first:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" -X POST https://api.anthropic.com/v1/messages \
+  -H "content-type: application/json" -H "anthropic-version: 2023-06-01" \
+  -d '{"model":"claude-haiku-4-5","max_tokens":16,"messages":[{"role":"user","content":"ok"}]}'
+```
+
+`401` means this session predates the credential — say so and ask for a fresh session
+rather than trying to work around it. `200` means the proxy is attaching the key.
+
+The equivalent for Places is a `places:searchText` POST; `403 PERMISSION_DENIED` with
+*"callers without established identity"* is the same story.
 
 ## Git
 
 Work goes to `main`. `claude/eager-archimedes-qdetjj` is kept pointing at the same commit.
+
+## Next up
+
+Once a session confirms the credentials are attaching, in this order:
+
+1. **S0-04 — the Google coverage baseline.** The cheapest remaining gate item and the one
+   that can still invalidate the plan on cost grounds. Text Search per niche × metro,
+   storing place IDs only. A few hundred calls, well under $10.
+2. **Resolve the SDK-vs-proxy question above**, then finish **S0-11** (profile extraction)
+   and **S0-12** (criteria judgment).
+3. **S0-16 / S0-17** — hand-label the benchmark set and run it, for the first real
+   precision, recall and cost-per-match figures.
+
+Everything before that point is done and measured; see the Live numbers table in
+`PROJECT_PLAN.md` and `docs/stage0-coverage-report.md`.
