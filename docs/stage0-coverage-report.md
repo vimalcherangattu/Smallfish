@@ -60,21 +60,62 @@ The product document targets a couldn't-tell rate of **≤ 25% at launch**. The 
 model or extraction improvement can go below it, because these sites did not yield
 readable text at all.
 
-The target is not reachable as written. Three responses, in order of value:
+The target is not reachable as written. Two responses remain, and the one that looked most
+promising has been tested and does not work — see §2a.
 
-1. **Attack `blocked` first.** It is the single largest bucket (11–17% of every market)
-   and it is the most addressable: 403 and 429 mean a server answered and refused us, not
-   that the business has no site. Better crawler identity, backoff, retry scheduling and
-   in some cases a different egress path recover much of this. Every point recovered here
-   comes straight off the floor.
+1. ~~Attack `blocked` first.~~ **Tested and largely refuted.** See §2a.
 2. **Count `social_only` and `no website` as a product feature, not a failure.** The
    product document already proposes an "include no-website businesses" toggle, which web
    agencies value. Those businesses should leave the couldn't-tell denominator and become
    their own answer.
-3. **Restate the target.** Even with `blocked` fully solved, the floor lands near 25%,
-   leaving no headroom for genuine judgment uncertainty. A launch target of ≤ 30%, falling
-   to ≤ 20% by year 1, is defensible. Publishing an honest 30% is on-brand for a product
-   whose third principle is that uncertainty is shown, not hidden.
+3. **Restate the target.** With `blocked` now known to be mostly unrecoverable, this stops
+   being the fallback and becomes the main response. A launch target of ≤ 35%, falling to
+   ≤ 25% by year 1, is what the data supports. Publishing an honest number is on-brand for
+   a product whose third principle is that uncertainty is shown, not hidden.
+
+## 2a. Bot-blocked sites are mostly unrecoverable — a second correction
+
+`python3 stage0/src/coverage/blocked_recovery.py`
+
+The earlier version of this report, and `docs/critique.md` behind it, called bot-blocking
+"the most addressable" part of the floor. **That was wrong, and the test says so.** Five
+strategies against all 78 blocked hosts:
+
+| Strategy | Recovered any content | Fully readable |
+|---|---|---|
+| A · baseline (bot UA, minimal headers) | 1.3% | 1.3% |
+| B · bot UA + complete browser header set | 0.0% | 0.0% |
+| C · as B over HTTP/2 | 0.0% | 0.0% |
+| D · as C after a 20s delay | 1.3% | 1.3% |
+| E · presenting as Chrome *(measurement only)* | 6.4% | **1.3%** |
+
+**75 of 78 hosts (96.2%) stay blocked under every honest strategy.** These are
+Cloudflare-class challenge walls, not politeness failures: they do not care about header
+completeness, protocol version or patience.
+
+Strategy E is the important row, and it is weaker than it first looks. It exists only to
+price what principle 7 costs, and the answer is: almost nothing. Presenting as Chrome got
+past 5 of 78 walls, but **4 of those 5 landed in a JavaScript shell** with no readable
+text — so they would still need headless rendering at higher cost. Exactly **one site in
+78** became genuinely readable by abandoning honest identification. That is not a trade
+worth making, and the principle stays.
+
+### What this changes
+
+Bot-blocking moves from "workstream" to "cost of doing business". Roughly 11–17% of every
+market is simply not readable by anyone who crawls politely, and the couldn't-tell floor
+is therefore closer to a fact about the web than a bug to engineer away.
+
+Three things follow:
+
+1. **S0-26 narrows.** Keep honouring `Retry-After`, keep backoff, keep the crawler
+   identity and contact page — they are correct and cheap — but stop expecting a recovery
+   rate from them.
+2. **The target restatement (S0-27) is now the primary response**, not the fallback.
+3. **Blocked deserves its own user-facing status**, distinct from "couldn't tell". "This
+   site blocks automated reading" is a specific, honest answer a user can act on — they
+   can open it themselves — and it is a better experience than an unexplained shrug. It
+   may even be a weak buying signal for web agencies.
 
 ### Site quality varies by niche in ways that matter
 

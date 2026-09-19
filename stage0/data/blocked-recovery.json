@@ -1,0 +1,101 @@
+{
+  "blocked_hosts_tested": 78,
+  "strategies": [
+    {
+      "strategy": "A",
+      "name": "baseline",
+      "note": "What site_probe.py does today: bot UA, minimal headers, HTTP/1.1.",
+      "attempted": 78,
+      "scored": 78,
+      "recovered_any_content": 1,
+      "recovered_pct": 1.3,
+      "fully_readable": 1,
+      "fully_readable_pct": 1.3,
+      "outcomes": {
+        "blocked": 76,
+        "ok": 1,
+        "timeout": 1
+      }
+    },
+    {
+      "strategy": "B",
+      "name": "complete headers",
+      "note": "Bot UA kept, but the full header set a browser sends. Honest and cheap.",
+      "attempted": 78,
+      "scored": 77,
+      "recovered_any_content": 0,
+      "recovered_pct": 0.0,
+      "fully_readable": 0,
+      "fully_readable_pct": 0.0,
+      "outcomes": {
+        "blocked": 77,
+        "probe_error": 1
+      }
+    },
+    {
+      "strategy": "C",
+      "name": "complete headers + HTTP/2",
+      "note": "As B over HTTP/2. Some WAFs score HTTP/1.1 requests as automated.",
+      "attempted": 78,
+      "scored": 78,
+      "recovered_any_content": 0,
+      "recovered_pct": 0.0,
+      "fully_readable": 0,
+      "fully_readable_pct": 0.0,
+      "outcomes": {
+        "blocked": 78
+      }
+    },
+    {
+      "strategy": "D",
+      "name": "patient retry",
+      "note": "As C after a delay, to separate rate limiting from a standing block.",
+      "attempted": 78,
+      "scored": 77,
+      "recovered_any_content": 1,
+      "recovered_pct": 1.3,
+      "fully_readable": 1,
+      "fully_readable_pct": 1.3,
+      "outcomes": {
+        "blocked": 76,
+        "ok": 1,
+        "probe_error": 1
+      }
+    },
+    {
+      "strategy": "E",
+      "name": "browser user-agent",
+      "note": "Measurement only. Presents as Chrome, which contradicts principle 7 (respect the businesses we read) and the promise to identify the crawler. Included to price what that principle costs, not to adopt.",
+      "attempted": 78,
+      "scored": 78,
+      "recovered_any_content": 5,
+      "recovered_pct": 6.4,
+      "fully_readable": 1,
+      "fully_readable_pct": 1.3,
+      "outcomes": {
+        "blocked": 73,
+        "js_shell": 4,
+        "ok": 1
+      }
+    }
+  ],
+  "hard_blocked_under_honest_strategies": 75,
+  "hard_blocked_pct": 96.2,
+  "hard_blocked_sample": [
+    "www.midtownewellnessaesthetics.com",
+    "ijtvy.myaestheticrecord.com",
+    "www.backtomyhealth.com",
+    "bellezacolombianaspa.com",
+    "Www.millenniawellmd.com",
+    "pay.withcherry.com",
+    "bdruz.myaestheticrecord.com",
+    "bodyscribepro.com",
+    "www.luxeimagemedspa.com",
+    "primeivhydration.com",
+    "www.viomedspa.com",
+    "www.bellezacolombianaspa.com",
+    "elase.com",
+    "www.sculptcenter.com",
+    "www.integrativemedicinedallas.com"
+  ]
+}

@@ -38,6 +38,7 @@ plan is `docs/critique.md`.
 | Open-data coverage vs Google, per niche | ≥ 70% | — *(blocked: needs Places key)* | — |
 | **Couldn't-tell floor** (unreadable sites) | ≤ 25% | **39.6–43.1%** ⚠ | 2026-09-19 |
 | — of which bot-blocked (403/429) | — | 11.3–16.9% | 2026-09-19 |
+| — bot-blocked recoverable, honest strategies | — | **3.8%** (75/78 stay blocked) | 2026-09-19 |
 | Booking signal found, judgeable sites | — | 36.7–63.2% | 2026-09-19 |
 | Booking found only beyond the homepage | — | 0.0–1.6% | 2026-09-19 |
 | Match precision, blended | ≥ 90% | — | — |
@@ -114,14 +115,25 @@ wins rather than abandoning — that is the response the founding documents alre
 - [ ] **S0-06 · Write the coverage report** with the gap-fill cost implication per niche.
   *Partial:* `docs/stage0-coverage-report.md` covers supply and readability; the Google
   baseline is missing, so **gate item 1 is still unanswered**. Blocked on S0-04.
-- [ ] **S0-26 · Recover bot-blocked sites.** The single biggest lever on the couldn't-tell
-  floor. Crawler identity and contact page, exponential backoff on 429, honouring
-  `Retry-After`, retry scheduling across days, and measuring what a different egress path
-  recovers. *Done when:* the blocked share is re-measured and the recovery rate reported.
-- [ ] **S0-27 · Restate the couldn't-tell target from measured data.** Move no-website and
-  social-only businesses out of the denominator and into their own answer (the product
-  document already proposes the toggle), then set a launch target the engine can actually
-  hit. *Done when:* the product document's ≤25% is replaced by a defended number.
+- [x] **S0-26 · Test what recovers bot-blocked sites.** Five strategies against all 78
+  blocked hosts. **96.2% stay blocked under every honest strategy**; complete browser
+  headers and HTTP/2 recover nothing, patience recovers nothing. Presenting as Chrome —
+  measured only, to price principle 7 — got past 5 walls, but 4 landed in JS shells, so
+  exactly 1 site in 78 became readable by abandoning honest identification. **The
+  principle stays and bot-blocking is reclassified from workstream to cost of doing
+  business.**
+- [ ] **S0-30 · Keep the cheap, correct parts of polite crawling** even though they buy no
+  recovery: honour `Retry-After`, exponential backoff on 429, a crawler identity page at
+  the URL in our user agent. Correct behaviour, not a recovery strategy.
+- [ ] **S0-31 · Give "blocked" its own user-facing status**, separate from couldn't-tell.
+  "This site blocks automated reading" is specific, honest and actionable — the user can
+  open it themselves — and may be a weak buying signal for web agencies.
+- [ ] **S0-27 · Restate the couldn't-tell target from measured data.** Now the *primary*
+  response to the floor rather than the fallback, since S0-26 refuted the recovery route.
+  Move no-website and social-only businesses out of the denominator and into their own
+  answer (the product document already proposes the toggle), then set a launch target the
+  engine can hit. Current evidence supports ≤ 35% at launch, ≤ 25% by year 1. *Done when:*
+  the product document's ≤25% is replaced by a defended number.
 - [ ] **S0-28 · Per-niche booking detector catalogues.** Vendor concentration within a
   niche is high (Vagaro/Boulevard/Square for med spas; NexHealth/Dentrix for dental;
   ServiceTitan/HousecallPro/Jobber for HVAC), so a short per-niche list covers most of the
@@ -346,3 +358,5 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-19 | Critique finding 3 (absence criteria need deep crawls) **downgraded** | Measured: booking signals appear only beyond the homepage in 0–1.6% of cases. Concern stands only for booking with no vendor fingerprint, which S0-16 must find. |
 | 2026-09-19 | Couldn't-tell ≤25% declared unreachable as written | Measured floor of ~40% before any judgment. S0-26 attacks it, S0-27 restates it. |
 | 2026-09-19 | Map region selection promoted from a half-sentence to explicit scope (S0-29, S1-20, S1-21) | It was named in the product document but had no tasks, no UI detail and no cost treatment, while being the main driver of scan cost. |
+| 2026-09-19 | Bot-blocking reclassified from workstream to cost of doing business; the critique's "most addressable" claim **retracted** | Measured: 96.2% stay blocked under every honest strategy. Presenting as a browser recovers 1 readable site in 78 — not a trade worth making. |
+| 2026-09-19 | Restating the couldn't-tell target (S0-27) becomes the primary response to the ~40% floor | The recovery route it was meant to back up has been refuted. |
