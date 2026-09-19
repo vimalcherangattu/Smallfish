@@ -40,7 +40,7 @@ plan wins and the Decision log records why.
 |---|---|---|---|
 | Open-data candidates per metro niche | — | 2,435–3,126 | 2026-09-19 |
 | Candidates with a website | — | 82.7–93.1% | 2026-09-19 |
-| Open-data coverage vs Google, per niche | ≥ 70% | — *(blocked: needs Places key)* | — |
+| Open-data coverage vs Google, per niche | ≥ 70% | — *(blocked: Places API (New) not enabled on the GCP project — key is valid)* | — |
 | **Couldn't-tell floor** (unreadable sites) | ≤ 25% | **39.6–43.1%** ⚠ | 2026-09-19 |
 | — of which bot-blocked (403/429) | — | 11.3–16.9% | 2026-09-19 |
 | — bot-blocked recoverable, honest strategies | — | **3.8%** (75/78 stay blocked) | 2026-09-19 |
@@ -114,7 +114,11 @@ wins rather than abandoning — that is the response the founding documents alre
 - [ ] **S0-04 · Establish the Google baseline count.** Places API Text Search per niche ×
   metro, storing place IDs only, to answer "what fraction of Google's businesses does open
   data see?". *Done when:* a coverage percentage per niche, with the query cost recorded.
-  *Blocked on:* a Google Places API key.
+  *Blocked on:* **Places API (New) being enabled on Google Cloud project `74590284143`.**
+  No longer blocked on a key — one is present and valid as of 2026-09-19, but every call
+  returns `PERMISSION_DENIED` / `SERVICE_DISABLED` because the API is not enabled on the
+  project. A Console change, not a code change. Verify with
+  `python3 stage0/src/engine/preflight.py`.
 - [x] **S0-05 · Measure website presence and readability.** `site_probe.py`, 200 sites per
   market, homepage plus 3 link-selected pages, robots-respecting and throttled.
   **Judgeable 56.9–60.4%, so the couldn't-tell floor is ~40%.** Largest addressable
@@ -202,7 +206,10 @@ wins rather than abandoning — that is the response the founding documents alre
   criteria per Change 2.
 - [ ] **S0-17 · Benchmark harness.** Runs the engine over the labelled set and reports
   precision (blended and per criterion type), recall, couldn't-tell rate, proof validity,
-  and cost.
+  and cost. *Preflight exists* — `engine/preflight.py` answers "can the benchmark run?"
+  in one command and exits non-zero until it can. On 2026-09-19 it reports **8 blockers**:
+  both credentials, plus S0-08, S0-11, S0-12, S0-14 and S0-16 unbuilt. The benchmark is
+  five tasks away from a number, not one command.
 - [ ] **S0-18 · Regression gate in CI.** Any prompt, model or extraction change re-runs the
   benchmark; a precision drop > 1 point fails the build.
 - [ ] **S0-19 · Competitor side-by-side.** Same searches through Scrap.io and Exa Websets:
@@ -392,3 +399,7 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-19 | Map region selection promoted from a half-sentence to explicit scope (S0-29, S1-20, S1-21) | It was named in the product document but had no tasks, no UI detail and no cost treatment, while being the main driver of scan cost. |
 | 2026-09-19 | Bot-blocking reclassified from workstream to cost of doing business; the critique's "most addressable" claim **retracted** | Measured: 96.2% stay blocked under every honest strategy. Presenting as a browser recovers 1 readable site in 78 — not a trade worth making. |
 | 2026-09-19 | Restating the couldn't-tell target (S0-27) becomes the primary response to the ~40% floor | The recovery route it was meant to back up has been refuted. |
+| 2026-09-19 | `CLAUDE.md`'s account of how API keys arrive **retracted in part** | Measured: `api.anthropic.com` is on the agent proxy's `noProxy` list, so no credential can be attached at egress on that path, and the prescribed 401 curl returns 401 whether or not a credential exists — an unfalsifiable probe. A `GOOGLE_PLACES_API_KEY` *is* in the environment, contradicting "there is none and there should not be". |
+| 2026-09-19 | SDK-vs-proxy question **closed**: `engine/llm.py` keeps the ordinary SDK path | Tested four ways. An `x-api-key: placeholder` returns `invalid x-api-key`, proving the header reaches Anthropic unmodified — the proxy neither injects nor replaces. A real `ANTHROPIC_API_KEY` in the environment is the only mechanism observed to work here. |
+| 2026-09-19 | Credential verification becomes a tested script, not a pasted curl | The hand-rolled probe was wrong for a session and read as "this session predates the credential" when it meant nothing at all. `engine/preflight.py` distinguishes the five states that have different remedies, and 12 tests pin the classification. |
+| 2026-09-19 | S0-04 blocker restated from "needs a key" to "needs the API enabled" | The key is present and valid; Places API (New) is not enabled on project `74590284143`. Different owner, different fix. |
