@@ -42,6 +42,7 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "stage0" / "src"))
 
 from engine import tech_signals  # noqa: E402
+from engine.check_plan import plan_for_search  # noqa: E402
 
 FIXTURES = ROOT / "stage0" / "fixtures" / "benchmarks.json"
 DATA = ROOT / "stage0" / "data"
@@ -84,20 +85,12 @@ CANDIDATE_PATHS = [
     "/appointments",
 ]
 
-# Anchor text and href keywords that mark a page worth reading for the criteria
-# in `benchmarks.json`, highest value first. Used to pick real links off the
-# homepage rather than guessing URLs.
-LINK_KEYWORDS: list[tuple[str, int]] = [
-    ("book", 10),
-    ("appointment", 10),
-    ("schedule", 9),
-    ("reserve", 7),
-    ("quote", 8),
-    ("estimate", 8),
-    ("contact", 6),
+# Link keywords are NOT hardcoded here. They come from the search's own criteria
+# via `engine.check_plan`, so the probe works for any vertical without a
+# catalogue. This fallback is used only when a market defines no criteria.
+FALLBACK_LINK_KEYWORDS: list[tuple[str, int]] = [
     ("services", 5),
-    ("treatments", 5),
-    ("pricing", 3),
+    ("contact", 4),
     ("about", 2),
 ]
 
@@ -119,12 +112,19 @@ def count_scripts(html: str) -> int:
     return len(re.findall(r"<script\b", html, re.I))
 
 
-def select_links(html: str, base_url: str, limit: int) -> list[str]:
+def select_links(
+    html: str,
+    base_url: str,
+    limit: int,
+    keywords: list[tuple[str, int]] | None = None,
+) -> list[str]:
     """Pick the pages most likely to carry criterion evidence, off the homepage.
 
-    Scores same-host links by keywords in the href and the anchor text, which is
-    what the engine's check plan does. Returns at most `limit` distinct URLs.
+    `keywords` comes from the search's check plan, so what counts as a promising
+    page is decided by the criteria the user typed, not by a fixed list. Scores
+    same-host links by keyword hits in the href and the anchor text.
     """
+    keywords = keywords or FALLBACK_LINK_KEYWORDS
     base_host = urllib.parse.urlsplit(base_url).netloc.lower().removeprefix("www.")
     scored: dict[str, int] = {}
 
@@ -141,7 +141,7 @@ def select_links(html: str, base_url: str, limit: int) -> list[str]:
             continue
 
         haystack = f"{parts.path.lower()} {visible_text(anchor).lower()}"
-        score = sum(weight for word, weight in LINK_KEYWORDS if word in haystack)
+        score = sum(weight for word, weight in keywords if word in haystack)
         if score:
             scored[clean] = max(scored.get(clean, 0), score)
 
@@ -336,6 +336,7 @@ async def probe_site(
     throttle: DomainThrottle,
     sem: asyncio.Semaphore,
     extra_pages: int,
+    link_keywords: list[tuple[str, int]] | None = None,
 ) -> SiteResult:
     url = normalise_url(row["website"])
     site = SiteResult(
@@ -366,7 +367,7 @@ async def probe_site(
         # Only walk further when the homepage was readable. This mirrors the
         # engine's check plan: go to the pages a criterion needs, no further.
         if site.outcome in ("ok", "thin") and extra_pages:
-            targets = select_links(html, url, extra_pages)
+            targets = select_links(html, url, extra_pages, link_keywords)
             site.links_from_homepage = len(targets)
             if not targets:
                 targets = [
@@ -474,9 +475,24 @@ def summarise(market_id: str, results: list[SiteResult]) -> dict:
     }
 
 
-async def run_market(market_id: str, sample: int, seed: int, extra_pages: int) -> dict:
+async def run_market(
+    market_id: str,
+    sample: int,
+    seed: int,
+    extra_pages: int,
+    criteria: list[dict] | None = None,
+) -> dict:
     records = load_sample(market_id, sample, seed)
-    print(f"→ {market_id}: probing {len(records)} sites", flush=True)
+
+    # What counts as a promising page comes from this search's criteria.
+    plan = plan_for_search(criteria) if criteria else None
+    keywords = plan.link_keywords if plan else None
+    if plan:
+        top = ", ".join(w for w, _ in plan.link_keywords[:6])
+        print(f"→ {market_id}: probing {len(records)} sites")
+        print(f"   check plan targets: {top}", flush=True)
+    else:
+        print(f"→ {market_id}: probing {len(records)} sites", flush=True)
 
     robots = RobotsCache()
     throttle = DomainThrottle()
@@ -487,7 +503,8 @@ async def run_market(market_id: str, sample: int, seed: int, extra_pages: int) -
         follow_redirects=True, limits=limits, verify=True
     ) as client:
         tasks = [
-            probe_site(client, r, robots, throttle, sem, extra_pages) for r in records
+            probe_site(client, r, robots, throttle, sem, extra_pages, keywords)
+            for r in records
         ]
         results: list[SiteResult] = []
         for i, coro in enumerate(asyncio.as_completed(tasks), 1):
@@ -516,7 +533,11 @@ async def main_async(args) -> int:
     summaries = []
     for market in markets:
         summary = await run_market(
-            market["id"], args.sample, args.seed, args.extra_pages
+            market["id"],
+            args.sample,
+            args.seed,
+            args.extra_pages,
+            market.get("criteria"),
         )
         summaries.append(summary)
         print(

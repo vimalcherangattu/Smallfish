@@ -74,6 +74,8 @@ These are deliberate departures, each traced to a finding in `docs/critique.md`.
 | 10 | **Internal API exists from week 5** (not months 6–18) because GTM channel 4 depends on it; the *public* API still ships at Stage 3. | Critique 10 — the three documents disagreed. |
 | 11 | **Cold-market UX is a designed state**, and time-to-first-match is a tracked metric. | Critique 8 — at launch every market is cold. |
 | 12 | **Referral bonus requires a card on file and pays on first paid event.** | Critique 11 — the current design prints free matches. |
+| 13 | **ICP discovery added as a second front door** (S1-22 – S1-26). | Every flow in the product document assumes a user who can already name their vertical, geography and gap; the research describes a buyer who cannot. It also shares an implementation with GTM automation A2, so it is far cheaper than it looks. `docs/icp-discovery.md`. |
+| 14 | **Check plans derived from the search's own criteria, not a fixed keyword list** (S0-32). | The technology catalogue is vertical-specific by nature. Building on it alone would make Small Fish a booking-widget detector rather than a relevance engine. Measured: an uncatalogued vertical (vets) scored best of four markets on judgeability. |
 
 ---
 
@@ -134,6 +136,13 @@ wins rather than abandoning — that is the response the founding documents alre
   answer (the product document already proposes the toggle), then set a launch target the
   engine can hit. Current evidence supports ≤ 35% at launch, ≤ 25% by year 1. *Done when:*
   the product document's ≤25% is replaced by a defended number.
+- [x] **S0-32 · Criteria-driven check plans.** `engine/check_plan.py` derives what pages
+  to read from the search's own criteria, so any vertical works with no catalogue.
+  Recognised criteria additionally get technology families as an *optimisation*, never a
+  precondition; absence criteria are never settleable without a model. Validated on vet
+  clinics in Columbus — a vertical sharing no vendors or keywords with the other three —
+  which scored **65.5% judgeable, the best of four markets**, with only 2 of 22 booking
+  detections matching a known vendor. 12 tests in `stage0/tests/test_check_plan.py`.
 - [ ] **S0-28 · Per-niche booking detector catalogues.** Vendor concentration within a
   niche is high (Vagaro/Boulevard/Square for med spas; NexHealth/Dentrix for dental;
   ServiceTitan/HousecallPro/Jobber for HVAC), so a short per-niche list covers most of the
@@ -224,6 +233,22 @@ Features 1–6 from the product document, plus the corrections above.
   polygon drawing. Shows the live candidate count as the region changes, because the
   region is what drives cost — this is the screen where a user can casually draw half a
   state and create a 20,000-candidate scan. *Depends on:* S0-29.
+- [ ] **S1-22 · ICP discovery — read the seller's own site.** Point the existing fetcher
+  and extraction at the user's URL to get what they sell, who they serve, their problem
+  language and their geography. Shares its implementation with GTM automation A2, which
+  needs the same capability aimed at prospects. Design: `docs/icp-discovery.md`.
+- [ ] **S1-23 · ICP inference.** From the offer, derive what must be *observably true on a
+  business's website* for that offer to be needed. Must refuse unprovable criteria before
+  proposing them, and must show its reasoning, not just its answer. *Depends on:* S1-22.
+- [ ] **S1-24 · Three candidate ICPs with live counts**, side by side, free. Reuses the
+  free match count. Requires an account and costs one logged-in free count, not three, or
+  it becomes the cheapest way to abuse the free tier. *Depends on:* S1-23.
+- [ ] **S1-25 · Hand off to the normal search.** The chosen ICP becomes the standard
+  criteria object on the normal confirm screen. No parallel system, nothing downstream
+  needs to know the flow exists. *Depends on:* S1-24.
+- [ ] **S1-26 · ICP discovery as the rare-search empty state.** When a search returns
+  almost nothing, offer three related ICPs with more matches instead of a dead end.
+  *Depends on:* S1-24.
 - [ ] **S1-21 · Area cost guardrail.** When a region's candidate estimate exceeds the scan
   budget, say so before anything is spent: show the estimate, offer to tighten the region,
   and make progressive unlock (strongest matches first, stop any time) the default for

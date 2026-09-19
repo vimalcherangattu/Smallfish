@@ -1,146 +1,29 @@
 [
   {
-    "market": "med-spa-dallas",
-    "sampled": 200,
-    "scored": 192,
-    "excluded_probe_errors": 8,
+    "market": "vet-columbus",
+    "sampled": 120,
+    "scored": 119,
+    "excluded_probe_errors": 1,
     "outcomes": {
-      "social_only": 8,
-      "dead": 12,
-      "http_error": 11,
-      "probe_error": 8,
-      "ok": 114,
-      "blocked": 22,
-      "js_shell": 7,
-      "robots_blocked": 3,
-      "thin": 11,
-      "timeout": 4
-    },
-    "judgeable_pct": 59.4,
-    "couldnt_tell_floor_pct": 40.6,
-    "booking": {
-      "sites_considered": 125,
-      "booking_signal_found": 79,
-      "booking_signal_pct": 63.2,
-      "found_only_beyond_homepage": 2,
-      "homepage_only_false_match_pct": 1.6,
-      "top_vendors": [
-        [
-          "vagaro",
-          10
-        ],
-        [
-          "boulevard",
-          3
-        ],
-        [
-          "square",
-          3
-        ],
-        [
-          "mindbody",
-          3
-        ],
-        [
-          "tebra",
-          2
-        ],
-        [
-          "jane",
-          2
-        ],
-        [
-          "yocale",
-          1
-        ],
-        [
-          "acuity",
-          1
-        ],
-        [
-          "athenahealth",
-          1
-        ]
-      ]
-    },
-    "quote_form_signal_pct": 24.0,
-    "chat_signal_pct": 4.8,
-    "top_cms": [
-      [
-        "wordpress",
-        52
-      ],
-      [
-        "wix",
-        17
-      ],
-      [
-        "godaddy_website_builder",
-        13
-      ],
-      [
-        "squarespace",
-        9
-      ],
-      [
-        "shopify",
-        6
-      ],
-      [
-        "webflow",
-        4
-      ],
-      [
-        "weebly",
-        3
-      ],
-      [
-        "hubspot_cms",
-        1
-      ]
-    ],
-    "mean_homepage_text_chars": 4012,
-    "link_selection": {
-      "sites_with_matching_links": 102,
-      "mean_links_selected": 2.2
-    },
-    "total_pages_fetched": 418,
-    "detail": "stage0/data/siteprobe-med-spa-dallas.jsonl"
-  },
-  {
-    "market": "dental-phoenix",
-    "sampled": 200,
-    "scored": 197,
-    "excluded_probe_errors": 3,
-    "outcomes": {
-      "dead": 18,
-      "ok": 119,
-      "thin": 11,
-      "blocked": 31,
-      "robots_blocked": 1,
+      "ok": 78,
+      "blocked": 16,
+      "dead": 11,
+      "thin": 6,
+      "js_shell": 2,
+      "http_error": 4,
       "social_only": 1,
-      "probe_error": 3,
-      "http_error": 10,
-      "timeout": 4,
-      "js_shell": 2
+      "probe_error": 1,
+      "timeout": 1
     },
-    "judgeable_pct": 60.4,
-    "couldnt_tell_floor_pct": 39.6,
+    "judgeable_pct": 65.5,
+    "couldnt_tell_floor_pct": 34.5,
     "booking": {
-      "sites_considered": 130,
-      "booking_signal_found": 57,
-      "booking_signal_pct": 43.8,
-      "found_only_beyond_homepage": 1,
-      "homepage_only_false_match_pct": 0.8,
+      "sites_considered": 84,
+      "booking_signal_found": 22,
+      "booking_signal_pct": 26.2,
+      "found_only_beyond_homepage": 6,
+      "homepage_only_false_match_pct": 7.1,
       "top_vendors": [
-        [
-          "nexhealth",
-          3
-        ],
-        [
-          "dentrix",
-          2
-        ],
         [
           "calendly",
           1
@@ -151,122 +34,44 @@
         ]
       ]
     },
-    "quote_form_signal_pct": 23.1,
-    "chat_signal_pct": 6.2,
+    "quote_form_signal_pct": 16.7,
+    "chat_signal_pct": 6.0,
     "top_cms": [
       [
         "wordpress",
-        55
+        13
       ],
       [
         "wix",
-        9
-      ],
-      [
-        "webflow",
         8
       ],
       [
-        "godaddy_website_builder",
-        6
-      ],
-      [
         "squarespace",
-        5
-      ],
-      [
-        "hubspot_cms",
-        2
-      ],
-      [
-        "shopify",
         2
       ],
       [
         "weebly",
-        1
-      ]
-    ],
-    "mean_homepage_text_chars": 6423,
-    "link_selection": {
-      "sites_with_matching_links": 109,
-      "mean_links_selected": 2.3
-    },
-    "total_pages_fetched": 425,
-    "detail": "stage0/data/siteprobe-dental-phoenix.jsonl"
-  },
-  {
-    "market": "hvac-tampa",
-    "sampled": 200,
-    "scored": 195,
-    "excluded_probe_errors": 5,
-    "outcomes": {
-      "dead": 24,
-      "blocked": 33,
-      "ok": 111,
-      "http_error": 13,
-      "thin": 9,
-      "js_shell": 4,
-      "robots_blocked": 1,
-      "probe_error": 5
-    },
-    "judgeable_pct": 56.9,
-    "couldnt_tell_floor_pct": 43.1,
-    "booking": {
-      "sites_considered": 120,
-      "booking_signal_found": 44,
-      "booking_signal_pct": 36.7,
-      "found_only_beyond_homepage": 0,
-      "homepage_only_false_match_pct": 0.0,
-      "top_vendors": [
-        [
-          "servicetitan",
-          15
-        ],
-        [
-          "housecallpro",
-          12
-        ],
-        [
-          "jobber",
-          2
-        ],
-        [
-          "mindbody",
-          1
-        ]
-      ]
-    },
-    "quote_form_signal_pct": 45.8,
-    "chat_signal_pct": 6.7,
-    "top_cms": [
-      [
-        "wordpress",
-        56
-      ],
-      [
-        "wix",
-        6
-      ],
-      [
-        "godaddy_website_builder",
-        4
-      ],
-      [
-        "shopify",
         2
       ],
       [
-        "squarespace",
+        "webflow",
+        1
+      ],
+      [
+        "godaddy_website_builder",
+        1
+      ],
+      [
+        "shopify",
         1
       ]
     ],
-    "mean_homepage_text_chars": 3905,
+    "mean_homepage_text_chars": 6815,
     "link_selection": {
-      "sites_with_matching_links": 100,
-      "mean_links_selected": 2.2
+      "sites_with_matching_links": 73,
+      "mean_links_selected": 2.3
     },
-    "total_pages_fetched": 402,
-    "detail": "stage0/data/siteprobe-hvac-tampa.jsonl"
+    "total_pages_fetched": 274,
+    "detail": "stage0/data/siteprobe-vet-columbus.jsonl"
   }
 ]

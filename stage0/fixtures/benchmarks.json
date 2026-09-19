@@ -19,45 +19,132 @@
       "id": "med-spa-dallas",
       "niche": "med_spa",
       "metro": "Dallas, TX",
-      "center": { "lat": 32.7767, "lon": -96.797 },
+      "center": {
+        "lat": 32.7767,
+        "lon": -96.797
+      },
       "categories": {
-        "primary": ["medical_spa"],
-        "expanded": ["spas", "day_spa", "health_spa", "float_spa", "skin_care_clinic"]
+        "primary": [
+          "medical_spa"
+        ],
+        "expanded": [
+          "spas",
+          "day_spa",
+          "health_spa",
+          "float_spa",
+          "skin_care_clinic"
+        ]
       },
       "search": "Med spas in Dallas that offer Botox and don't have online booking",
       "criteria": [
-        { "id": "offers_botox", "type": "presence", "text": "offers Botox" },
-        { "id": "no_online_booking", "type": "absence", "text": "has no online booking" }
+        {
+          "id": "offers_botox",
+          "type": "presence",
+          "text": "offers Botox"
+        },
+        {
+          "id": "no_online_booking",
+          "type": "absence",
+          "text": "has no online booking"
+        }
       ]
     },
     {
       "id": "dental-phoenix",
       "niche": "dental",
       "metro": "Phoenix, AZ",
-      "center": { "lat": 33.4484, "lon": -112.074 },
+      "center": {
+        "lat": 33.4484,
+        "lon": -112.074
+      },
       "categories": {
-        "primary": ["dentist", "general_dentistry", "cosmetic_dentist", "pediatric_dentist"],
-        "expanded": ["orthodontist", "endodontist", "periodontist", "oral_surgeon", "prosthodontist"]
+        "primary": [
+          "dentist",
+          "general_dentistry",
+          "cosmetic_dentist",
+          "pediatric_dentist"
+        ],
+        "expanded": [
+          "orthodontist",
+          "endodontist",
+          "periodontist",
+          "oral_surgeon",
+          "prosthodontist"
+        ]
       },
       "search": "Dental clinics in Phoenix with no online booking",
       "criteria": [
-        { "id": "no_online_booking", "type": "absence", "text": "has no online booking" }
+        {
+          "id": "no_online_booking",
+          "type": "absence",
+          "text": "has no online booking"
+        }
       ]
     },
     {
       "id": "hvac-tampa",
       "niche": "hvac",
       "metro": "Tampa, FL",
-      "center": { "lat": 27.9506, "lon": -82.4572 },
+      "center": {
+        "lat": 27.9506,
+        "lon": -82.4572
+      },
       "categories": {
-        "primary": ["hvac_services"],
-        "expanded": ["contractor", "plumbing", "air_duct_cleaning"]
+        "primary": [
+          "hvac_services"
+        ],
+        "expanded": [
+          "contractor",
+          "plumbing",
+          "air_duct_cleaning"
+        ]
       },
       "search": "HVAC firms in Tampa that do commercial work and have no quote form",
       "criteria": [
-        { "id": "does_commercial", "type": "presence", "text": "does commercial work" },
-        { "id": "no_quote_form", "type": "absence", "text": "has no quote form" }
+        {
+          "id": "does_commercial",
+          "type": "presence",
+          "text": "does commercial work"
+        },
+        {
+          "id": "no_quote_form",
+          "type": "absence",
+          "text": "has no quote form"
+        }
       ]
+    },
+    {
+      "id": "vet-columbus",
+      "niche": "veterinary",
+      "metro": "Columbus, OH",
+      "center": {
+        "lat": 39.9612,
+        "lon": -82.9988
+      },
+      "categories": {
+        "primary": [
+          "veterinarian"
+        ],
+        "expanded": [
+          "animal_hospital",
+          "pet_services",
+          "emergency_pet_hospital"
+        ]
+      },
+      "search": "Independent vet clinics in Ohio offering exotic-pet care, not part of a group",
+      "criteria": [
+        {
+          "id": "exotic_pet_care",
+          "type": "presence",
+          "text": "offers exotic-pet care"
+        },
+        {
+          "id": "independent",
+          "type": "absence",
+          "text": "not part of a group"
+        }
+      ],
+      "$comment": "Generalisation check (S0-32): a vertical with no vendor catalogue, whose criteria share no keywords with med spa, dental or HVAC."
     }
   ]
 }

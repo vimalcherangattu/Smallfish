@@ -211,6 +211,51 @@ the knowledge base is warm — so there is no reason to charge before showing it
 County and state boundaries come from Overture Divisions, the same release as the places,
 so no new data source is introduced. Boundaries are cached locally after first lookup.
 
+## 5a. Does any of this generalise beyond the three niches?
+
+A fair objection to everything above: med spa, dental and HVAC all have vendor
+catalogues behind them, so of course they work. The test is a vertical with no
+catalogue at all.
+
+**Vet clinics, Columbus OH**, searching for *"independent vet clinics offering
+exotic-pet care, not part of a group"* — criteria that share no keywords and no vendors
+with the other three markets. 404 candidates found, 120 probed.
+
+| | Vet · Columbus |
+|---|---|
+| Judgeable | 65.5% — **the best of the four markets** |
+| Sites where the plan found matching links | 73 of 84 |
+| Booking vendors recognised | 2 (Calendly, Acuity) of 22 detections |
+
+The crawler went to services, treatments, about and locations pages — derived from the
+criteria's own words, with no catalogue consulted. It worked at least as well as the
+catalogued markets.
+
+The vendor column is the honest part: only 2 of 22 booking detections matched a known
+vendor, because veterinary booking runs on Vetstoria, PetDesk and Weave, none of which
+are in our list. **The generic layer carried the unknown vertical, exactly as intended.**
+
+### An important nuance about the homepage finding in §4
+
+Vets showed booking *only* beyond the homepage in **7.1%** of cases — four to nine times
+the 0–1.6% seen in the other three markets. The cause is not that vets are different: it
+is that the vet check plan targets services and locations pages, because that is what the
+user asked about, so booking was only ever found incidentally.
+
+The lesson is precise, and it validates the check-plan design rather than undermining it:
+
+> The 0–1.6% figure in §4 holds **when the criterion is booking and the plan targets
+> booking pages.** When the crawl is aimed elsewhere, the same signal hides four to nine
+> times more often.
+
+So a shallow crawl is only safe if it is a *criterion-targeted* shallow crawl. A fixed
+page list — which is what the probe originally used — would have been unsafe for any
+criterion it was not written for. That is the whole argument for S0-32.
+
+It is also a caution against over-generalising from four markets: the rate at which
+evidence hides below the homepage is a property of the vertical and the criterion
+together, and it must be re-measured whenever either changes.
+
 ## 6. What this changes
 
 | Finding | Consequence |
