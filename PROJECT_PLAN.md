@@ -182,10 +182,12 @@ wins rather than abandoning — that is the response the founding documents alre
 - [ ] **S0-12 · Criteria judge.** Cheap signals first, then a small model, with a stronger
   model on borderline cases and a random audit sample. Returns verdict, proof quote,
   confidence word.
-- [ ] **S0-13 · Absence-proof rule.** A "no X" verdict requires that the X-relevant pages
-  were actually read and no positive signal was found; otherwise couldn't tell. *Done
-  when:* unit-tested against fixtures including the hard cases (widget in an iframe,
-  booking link only on a location sub-page, script-injected widget).
+- [x] **S0-13 · Absence-proof rule.** `engine/absence.py`. A "no X" verdict requires the
+  X-relevant pages to have been read, something competent to have looked, and nothing to
+  have been found. Defaults to couldn't tell on every other path. 15 tests in
+  `stage0/tests/test_absence.py`, including an exhaustive sweep of the decision space
+  asserting no input reaches MATCH without relevant pages read — a bug here produces a
+  confident false match, which is the one failure that destroys trust *and* gets billed.
 - [ ] **S0-14 · Proof validator.** Every quote is verified verbatim on its linked page
   before display; failures become couldn't tell. *Done when:* proof validity is 100% on the
   benchmark set.
