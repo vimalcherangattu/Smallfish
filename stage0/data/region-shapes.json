@@ -1,0 +1,44 @@
+[
+  {
+    "shape": "radius 25mi",
+    "label": "Dallas, TX (25 mi radius)",
+    "candidates": 3009,
+    "bbox_area_sq_miles": 1963,
+    "seconds": 8.1
+  },
+  {
+    "shape": "radius 5mi",
+    "label": "Dallas, TX (5 mi radius)",
+    "candidates": 304,
+    "bbox_area_sq_miles": 79,
+    "seconds": 2.0
+  },
+  {
+    "shape": "city",
+    "label": "Dallas, US-TX (division)",
+    "candidates": 820,
+    "bbox_area_sq_miles": 882,
+    "seconds": 9.6
+  },
+  {
+    "shape": "county",
+    "label": "Dallas County, US-TX (division)",
+    "candidates": 1476,
+    "bbox_area_sq_miles": 928,
+    "seconds": 3.5
+  },
+  {
+    "shape": "state",
+    "label": "Texas, US-TX (division)",
+    "candidates": 14789,
+    "bbox_area_sq_miles": 570714,
+    "seconds": 22.6
+  },
+  {
+    "shape": "drawn polygon",
+    "label": "North DFW (polygon)",
+    "candidates": 2851,
+    "bbox_area_sq_miles": 1348,
+    "seconds": 2.7
+  }
+]

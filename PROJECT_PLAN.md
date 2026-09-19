@@ -133,14 +133,14 @@ wins rather than abandoning — that is the response the founding documents alre
 - [ ] **S0-07 · Search parser.** Plain English → location geometry, categories, must-have
   and must-not-have criteria, plus a per-criterion check plan (what proves it, what
   disproves it, which pages to read).
-- [ ] **S0-29 · Geometry module.** The product document names five location shapes — city,
-  radius, county, state and drawn polygon — in a single half-sentence, with no further
-  detail anywhere. All five resolve to one interface: a polygon plus a candidate-count
-  estimate. Radius is already proven in `overture_extract.py` (bbox prune plus exact
-  haversine); polygons drop in via DuckDB `ST_Within` against the same bbox prune. County
-  and state need boundary geometries — Overture Divisions carries them, so no new data
-  source. *Done when:* all five shapes return candidates and an estimated count from one
-  function.
+- [x] **S0-29 · Geometry module.** `engine/geometry.py` resolves all five shapes — radius,
+  city, county, state and drawn polygon — through one interface, each returning candidates
+  and a pre-spend count. Radius uses bbox pruning plus exact haversine; polygons and
+  divisions use bbox pruning plus `ST_Within`. Boundaries come from Overture Divisions
+  (same release as places, no new data source) and are cached after first lookup.
+  Cross-validates: the 25-mile radius returns 3,009, matching `overture_extract.py`
+  exactly. **A Texas-wide search is 14,789 candidates ≈ $148 of cold reads on a $79/month
+  plan** — see S1-21.
 - [ ] **S0-08 · Polite fetcher.** robots.txt honoured, identified user agent, per-domain
   throttling, homepage plus up to three check-plan-selected pages, conditional requests and
   content hashing for the change check.

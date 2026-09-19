@@ -137,7 +137,40 @@ a fixed path list and 18 of 24 guesses returned 404, which would have made this 
 look artificially reassuring. Selecting links off the homepage raised extra-page success
 to 41 of 48.
 
-## 5. What this changes
+## 5. Location shapes and why the area guardrail matters
+
+`python3 stage0/src/coverage/region_demo.py`
+
+All five location shapes the product document names resolve through one interface and
+report a candidate count before anything is spent. Med spa categories, Dallas:
+
+| Shape | Region | Candidates | ~Area (sq mi) | Query |
+|---|---|---|---|---|
+| Radius 5 mi | Dallas, TX | 304 | 79 | 2.0s |
+| City | Dallas, US-TX | 820 | 882 | 9.6s |
+| County | Dallas County, US-TX | 1,476 | 928 | 3.5s |
+| Drawn polygon | North DFW | 2,851 | 1,348 | 2.7s |
+| Radius 25 mi | Dallas, TX | 3,009 | 1,963 | 8.1s |
+| **State** | **Texas, US-TX** | **14,789** | **570,714** | **22.6s** |
+
+The 25-mile radius count matches `overture_extract.py` exactly at 3,009, which
+cross-validates the two independent query paths.
+
+**The state row is the argument for the area guardrail (S1-21).** One Texas-wide med spa
+search is 14,789 candidates. At the planned ~$0.01 cold cost per business, that is roughly
+**$148 of scanning for a single search**, on a plan that sells for $79 a month. Nothing in
+the search box stops a user from asking for it, and the product document's promise to
+"count from a sample and unlock progressively" has no screen attached to it.
+
+The guardrail therefore needs to be part of the region picker rather than a later safety
+net: show the candidate estimate as the region changes, and make progressive unlock the
+default above a threshold. The estimate is cheap — 2–23 seconds here, and far less once
+the knowledge base is warm — so there is no reason to charge before showing it.
+
+County and state boundaries come from Overture Divisions, the same release as the places,
+so no new data source is introduced. Boundaries are cached locally after first lookup.
+
+## 6. What this changes
 
 | Finding | Consequence |
 |---|---|
@@ -147,8 +180,9 @@ to 41 of 48.
 | Match rates of 37–63% on the flagship searches | Unit economics likely better than the 15% typical case — verify against precision before relying on it |
 | Vendor concentration is high within a niche | Per-niche detector catalogues are worth building; they are the cheapest precision available |
 | Open data serves a metro in 6–10s for free | Candidate supply is not the bottleneck; completeness (S0-04) still might be |
+| A state-wide search is 14,789 candidates (~$148 cold) | The area guardrail must live in the region picker, not behind it |
 
-## 6. Outstanding before gate item 1 can be answered
+## 7. Outstanding before gate item 1 can be answered
 
 - **S0-04** — Google Places baseline count per niche × metro. Needs an API key. Until then
   we know how many businesses open data *has*, not what share of reality that is.
