@@ -14,9 +14,16 @@ never guessed.
 | Path | What it is |
 |---|---|
 | `PROJECT_PLAN.md` | **Start here.** Stages, gates, every task, live measurements. |
+| `CLAUDE.md` | Working rules, and links to the founding documents. |
 | `docs/critique.md` | Review of the founding documents; the reasoning behind the plan's departures from them. |
-| `docs/source/` | The three founding documents as PDFs of record — product, PMM foundations, GTM. |
+| `docs/stage0-coverage-report.md` | Measured results from Stage 0. |
+| `docs/icp-discovery.md` | Design for the ICP discovery flow. Not built. |
 | `stage0/` | Stage 0 "prove it" work: coverage measurement, the engine, the accuracy benchmark. |
+
+The three founding documents — product, PMM foundations and GTM — are **live Claude Docs**,
+not files in this repo. Their links are in `CLAUDE.md`. Strategy lives in the docs; numbers
+and decisions live in `PROJECT_PLAN.md`, and where they disagree the plan wins and records
+why.
 
 ## Current stage
 

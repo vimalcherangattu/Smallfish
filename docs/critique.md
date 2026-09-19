@@ -1,8 +1,15 @@
 # Critique of the Small Fish plan
 
-Review of the three founding documents (`docs/source/`), dated 2026-09-19. Ranked by
-expected damage, not by document order. Each finding names the fix that is folded into
-`PROJECT_PLAN.md`.
+Review of the three founding documents (linked from `CLAUDE.md`) **as they stood on
+2026-09-19**. Ranked by expected damage, not by document order. Each finding names the fix
+that is folded into `PROJECT_PLAN.md`.
+
+The documents are live and may have moved on since. The versions reviewed here are the
+PDF snapshots in git history at commit `79fe6cb`.
+
+**Finding 3 has since been measured and downgraded** — see §4 and §5a of
+`docs/stage0-coverage-report.md`. The related claim that bot-blocking was the most
+addressable part of the readability floor was also tested and retracted (§2a).
 
 ## 1. The alert engine is an unpriced, unbounded liability
 

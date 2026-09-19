@@ -1,8 +1,12 @@
 # Small Fish — Project Plan
 
 The single source of truth for what is being built, in what order, and what must be true
-before moving on. Founding documents live in `docs/source/`; the review that reshaped this
-plan is `docs/critique.md`.
+before moving on. The founding documents are **live Claude Docs**, linked from
+`CLAUDE.md` and read through the Claude Docs connector; the review that reshaped this plan
+is `docs/critique.md`.
+
+Strategy lives in those docs. Numbers and decisions live here. Where they disagree, this
+plan wins and the Decision log records why.
 
 **Last updated:** 2026-09-19 · **Stage:** 0 — Prove it
 
@@ -16,8 +20,9 @@ plan is `docs/critique.md`.
   it starts because the gate passed. A failed gate is a decision point, not a delay.
 - Numbers in this plan are *targets to be replaced by measurements*. When a real number
   arrives, edit the plan and note it in the Decision log.
-- Anything that contradicts `docs/source/` deliberately is listed in **Changes from the
-  founding documents** with the reason.
+- Anything that deliberately contradicts a founding document is listed in **Changes from
+  the founding documents** with the reason. Raise it as a comment on the doc too — the
+  docs are not edited from here.
 
 ## Status dashboard
 
@@ -379,7 +384,7 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-19 | Stage 0 runs coverage before precision | `docs/critique.md` §4 |
 | 2026-09-19 | Day-90 MRR restated to $4–4.5K | `docs/critique.md` §6 |
 | 2026-09-19 | Launch with 6 automations, not 22 | `docs/critique.md` §12 |
-| 2026-09-19 | Source documents kept as PDFs of record in `docs/source/`, not re-authored as markdown, to avoid a second diverging copy | Single source of truth |
+| 2026-09-19 | ~~Source documents kept as PDFs of record in `docs/source/`~~ **Superseded:** the founding documents are live Claude Docs, read through the connector and linked from `CLAUDE.md`. The PDF snapshots are removed; git history at `79fe6cb` holds the 2026-09-19 versions the critique was written against. | A snapshot in the repo goes stale the moment a doc is edited, which is the failure the PDFs were meant to avoid. The connector reads the current version. |
 | 2026-09-19 | Critique finding 3 (absence criteria need deep crawls) **downgraded** | Measured: booking signals appear only beyond the homepage in 0–1.6% of cases. Concern stands only for booking with no vendor fingerprint, which S0-16 must find. |
 | 2026-09-19 | Couldn't-tell ≤25% declared unreachable as written | Measured floor of ~40% before any judgment. S0-26 attacks it, S0-27 restates it. |
 | 2026-09-19 | Map region selection promoted from a half-sentence to explicit scope (S0-29, S1-20, S1-21) | It was named in the product document but had no tasks, no UI detail and no cost treatment, while being the main driver of scan cost. |
