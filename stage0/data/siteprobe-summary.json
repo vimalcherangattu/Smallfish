@@ -1,29 +1,166 @@
 [
   {
-    "market": "vet-columbus",
-    "sampled": 120,
-    "scored": 119,
-    "excluded_probe_errors": 1,
+    "market": "med-spa-dallas",
+    "sampled": 200,
+    "scored": 193,
+    "excluded_probe_errors": 7,
     "outcomes": {
-      "ok": 78,
-      "blocked": 16,
-      "dead": 11,
-      "thin": 6,
-      "js_shell": 2,
-      "http_error": 4,
-      "social_only": 1,
-      "probe_error": 1,
-      "timeout": 1
+      "blocked": 22,
+      "social_only": 8,
+      "http_error": 9,
+      "ok": 102,
+      "js_shell": 7,
+      "dead": 14,
+      "probe_error": 7,
+      "thin": 9,
+      "robots_blocked": 2,
+      "timeout": 20
     },
-    "judgeable_pct": 65.5,
-    "couldnt_tell_floor_pct": 34.5,
+    "judgeable_pct": 52.8,
+    "couldnt_tell_floor_pct": 47.2,
     "booking": {
-      "sites_considered": 84,
-      "booking_signal_found": 22,
-      "booking_signal_pct": 26.2,
-      "found_only_beyond_homepage": 6,
-      "homepage_only_false_match_pct": 7.1,
+      "sites_considered": 111,
+      "booking_signal_found": 71,
+      "booking_signal_pct": 64.0,
+      "found_only_beyond_homepage": 0,
+      "homepage_only_false_match_pct": 0.0,
       "top_vendors": [
+        [
+          "aesthetic_record",
+          14
+        ],
+        [
+          "vagaro",
+          8
+        ],
+        [
+          "zenoti",
+          6
+        ],
+        [
+          "square",
+          3
+        ],
+        [
+          "patientnow",
+          3
+        ],
+        [
+          "boulevard",
+          3
+        ],
+        [
+          "mindbody",
+          2
+        ],
+        [
+          "acuity",
+          1
+        ],
+        [
+          "athenahealth",
+          1
+        ],
+        [
+          "meevo",
+          1
+        ]
+      ]
+    },
+    "quote_form_signal_pct": 22.5,
+    "chat_signal_pct": 4.5,
+    "top_cms": [
+      [
+        "wordpress",
+        45
+      ],
+      [
+        "wix",
+        16
+      ],
+      [
+        "godaddy_website_builder",
+        11
+      ],
+      [
+        "squarespace",
+        5
+      ],
+      [
+        "shopify",
+        5
+      ],
+      [
+        "weebly",
+        3
+      ],
+      [
+        "webflow",
+        3
+      ],
+      [
+        "hubspot_cms",
+        1
+      ]
+    ],
+    "mean_homepage_text_chars": 3602,
+    "link_selection": {
+      "sites_with_matching_links": 90,
+      "mean_links_selected": 2.3
+    },
+    "total_pages_fetched": 369,
+    "detail": "stage0/data/siteprobe-med-spa-dallas.jsonl"
+  },
+  {
+    "market": "dental-phoenix",
+    "sampled": 200,
+    "scored": 198,
+    "excluded_probe_errors": 2,
+    "outcomes": {
+      "blocked": 32,
+      "probe_error": 2,
+      "dead": 17,
+      "ok": 98,
+      "http_error": 6,
+      "thin": 8,
+      "js_shell": 2,
+      "robots_blocked": 2,
+      "timeout": 32,
+      "social_only": 1
+    },
+    "judgeable_pct": 49.5,
+    "couldnt_tell_floor_pct": 50.5,
+    "booking": {
+      "sites_considered": 106,
+      "booking_signal_found": 51,
+      "booking_signal_pct": 48.1,
+      "found_only_beyond_homepage": 0,
+      "homepage_only_false_match_pct": 0.0,
+      "top_vendors": [
+        [
+          "modento",
+          4
+        ],
+        [
+          "nexhealth",
+          3
+        ],
+        [
+          "adit",
+          3
+        ],
+        [
+          "solutionreach",
+          2
+        ],
+        [
+          "dentrix",
+          2
+        ],
+        [
+          "simplifeye",
+          1
+        ],
         [
           "calendly",
           1
@@ -31,19 +168,217 @@
         [
           "acuity",
           1
+        ],
+        [
+          "yapi",
+          1
         ]
       ]
     },
-    "quote_form_signal_pct": 16.7,
-    "chat_signal_pct": 6.0,
+    "quote_form_signal_pct": 22.6,
+    "chat_signal_pct": 3.8,
     "top_cms": [
       [
         "wordpress",
-        13
+        44
+      ],
+      [
+        "wix",
+        7
+      ],
+      [
+        "webflow",
+        7
+      ],
+      [
+        "godaddy_website_builder",
+        4
+      ],
+      [
+        "squarespace",
+        4
+      ],
+      [
+        "shopify",
+        2
+      ],
+      [
+        "hubspot_cms",
+        2
+      ],
+      [
+        "weebly",
+        1
+      ]
+    ],
+    "mean_homepage_text_chars": 5818,
+    "link_selection": {
+      "sites_with_matching_links": 87,
+      "mean_links_selected": 2.2
+    },
+    "total_pages_fetched": 343,
+    "detail": "stage0/data/siteprobe-dental-phoenix.jsonl"
+  },
+  {
+    "market": "hvac-tampa",
+    "sampled": 200,
+    "scored": 196,
+    "excluded_probe_errors": 4,
+    "outcomes": {
+      "blocked": 33,
+      "robots_blocked": 1,
+      "ok": 108,
+      "dead": 23,
+      "probe_error": 4,
+      "http_error": 9,
+      "js_shell": 6,
+      "thin": 10,
+      "timeout": 6
+    },
+    "judgeable_pct": 55.1,
+    "couldnt_tell_floor_pct": 44.9,
+    "booking": {
+      "sites_considered": 118,
+      "booking_signal_found": 48,
+      "booking_signal_pct": 40.7,
+      "found_only_beyond_homepage": 0,
+      "homepage_only_false_match_pct": 0.0,
+      "top_vendors": [
+        [
+          "servicetitan",
+          15
+        ],
+        [
+          "housecallpro",
+          12
+        ],
+        [
+          "thryv",
+          4
+        ],
+        [
+          "jobber",
+          2
+        ],
+        [
+          "mindbody",
+          1
+        ]
+      ]
+    },
+    "quote_form_signal_pct": 43.2,
+    "chat_signal_pct": 6.8,
+    "top_cms": [
+      [
+        "wordpress",
+        56
+      ],
+      [
+        "wix",
+        6
+      ],
+      [
+        "shopify",
+        2
+      ],
+      [
+        "godaddy_website_builder",
+        2
+      ],
+      [
+        "squarespace",
+        1
+      ]
+    ],
+    "mean_homepage_text_chars": 3752,
+    "link_selection": {
+      "sites_with_matching_links": 99,
+      "mean_links_selected": 2.2
+    },
+    "total_pages_fetched": 398,
+    "detail": "stage0/data/siteprobe-hvac-tampa.jsonl"
+  },
+  {
+    "market": "vet-columbus",
+    "sampled": 120,
+    "scored": 119,
+    "excluded_probe_errors": 1,
+    "outcomes": {
+      "ok": 78,
+      "blocked": 16,
+      "thin": 6,
+      "dead": 13,
+      "timeout": 2,
+      "js_shell": 2,
+      "social_only": 1,
+      "probe_error": 1,
+      "http_error": 1
+    },
+    "judgeable_pct": 65.5,
+    "couldnt_tell_floor_pct": 34.5,
+    "booking": {
+      "sites_considered": 84,
+      "booking_signal_found": 33,
+      "booking_signal_pct": 39.3,
+      "found_only_beyond_homepage": 5,
+      "homepage_only_false_match_pct": 6.0,
+      "top_vendors": [
+        [
+          "allydvm",
+          5
+        ],
+        [
+          "televet",
+          3
+        ],
+        [
+          "thryv",
+          3
+        ],
+        [
+          "covetrus",
+          2
+        ],
+        [
+          "ezyvet",
+          2
+        ],
+        [
+          "vetstoria",
+          2
+        ],
+        [
+          "calendly",
+          1
+        ],
+        [
+          "acuity",
+          1
+        ],
+        [
+          "petdesk",
+          1
+        ],
+        [
+          "idexx_neo",
+          1
+        ]
+      ]
+    },
+    "quote_form_signal_pct": 15.5,
+    "chat_signal_pct": 4.8,
+    "top_cms": [
+      [
+        "wordpress",
+        12
       ],
       [
         "wix",
         8
+      ],
+      [
+        "godaddy_website_builder",
+        3
       ],
       [
         "squarespace",
@@ -56,22 +391,14 @@
       [
         "webflow",
         1
-      ],
-      [
-        "godaddy_website_builder",
-        1
-      ],
-      [
-        "shopify",
-        1
       ]
     ],
-    "mean_homepage_text_chars": 6815,
+    "mean_homepage_text_chars": 6714,
     "link_selection": {
       "sites_with_matching_links": 73,
       "mean_links_selected": 2.3
     },
-    "total_pages_fetched": 274,
+    "total_pages_fetched": 279,
     "detail": "stage0/data/siteprobe-vet-columbus.jsonl"
   }
 ]

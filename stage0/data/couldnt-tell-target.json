@@ -1,0 +1,34 @@
+[
+  {
+    "market": "med-spa-dallas",
+    "scored": 193,
+    "everything_not_ok_pct": 47.2,
+    "blocked_pct": 12.4,
+    "no_site_pct": 4.1,
+    "genuine_couldnt_tell_pct": 31.9
+  },
+  {
+    "market": "dental-phoenix",
+    "scored": 198,
+    "everything_not_ok_pct": 50.5,
+    "blocked_pct": 17.2,
+    "no_site_pct": 0.5,
+    "genuine_couldnt_tell_pct": 33.0
+  },
+  {
+    "market": "hvac-tampa",
+    "scored": 196,
+    "everything_not_ok_pct": 44.9,
+    "blocked_pct": 17.3,
+    "no_site_pct": 0.0,
+    "genuine_couldnt_tell_pct": 27.6
+  },
+  {
+    "market": "vet-columbus",
+    "scored": 119,
+    "everything_not_ok_pct": 34.5,
+    "blocked_pct": 13.4,
+    "no_site_pct": 0.8,
+    "genuine_couldnt_tell_pct": 20.3
+  }
+]
