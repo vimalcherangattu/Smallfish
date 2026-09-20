@@ -109,8 +109,13 @@ wins rather than abandoning — that is the response the founding documents alre
   public parquet release over HTTPS with DuckDB; bbox row-group pruning makes a
   metro-sized query take 6–10s against 10.5 GB. Results: 3,009 / 3,126 / 2,435 candidates.
 - [ ] **S0-03 · Pull Foursquare OS Places for each market** and dedupe against Overture by
-  domain, phone and address proximity. *Done when:* merged candidate set with a documented
-  dedupe rate.
+  domain, phone and address proximity. **Blocked, and not the way the research assumed.**
+  Foursquare OS Places is still Apache-2.0, but distribution moved to Hugging Face and the
+  dataset is now `gated: auto` — it needs a free HF account that has accepted the terms,
+  and a token. The public S3 bucket `fsq-os-places-us-east-1` now contains only
+  `LICENSE.txt` and `NOTICE.txt`. *Unblock:* a `HF_TOKEN` in the environment. *Worth it
+  because:* Foursquare claims 106M+ places against Overture's 72M+, so it is the cheapest
+  remaining way to raise candidate coverage without paying Google.
 - [ ] **S0-04 · Establish the Google baseline count.** Places API Text Search per niche ×
   metro, storing place IDs only, to answer "what fraction of Google's businesses does open
   data see?". *Done when:* a coverage percentage per niche, with the query cost recorded.
@@ -412,5 +417,6 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-19 | Credential verification becomes a tested script, not a pasted curl | The hand-rolled probe was wrong for a session and read as "this session predates the credential" when it meant nothing at all. `engine/preflight.py` distinguishes the five states that have different remedies, and 12 tests pin the classification. |
 | 2026-09-19 | S0-04 blocker restated from "needs a key" to "needs the API enabled" | The key is present and valid; Places API (New) is not enabled on project `74590284143`. Different owner, different fix. |
 | 2026-09-20 | **Product build started before the Stage 0 gate passed.** | A deliberate departure. The remaining gate items are externally blocked, and the search box, region picker and results table are needed whatever precision turns out to be. What the gate still protects is *spending on acquisition*, not building. Model-dependent parts stay behind an interface so the engine drops in when keys land. |
+| 2026-09-20 | PMM Foundations lists Foursquare OS Places as "Free" with no caveat — **partly outdated** | Still Apache-2.0, but distribution moved to Hugging Face behind `gated: auto`, and the public S3 bucket is now empty of data. A free account and token are required, so "free" is true of the licence and not of the access. |
 | 2026-09-20 | The app serves **measured data only** | 8,974 real businesses and 720 real site probes, with verdicts from the absence-proof rule. Unread and not-yet-judged are shown as themselves rather than hidden, so the cold-market state the product document glosses over is visible: 200 of 3,009 read in the flagship market. |
 | 2026-09-20 | **Model-dependent Stage 0 work parked**, not abandoned: S0-04 (Google baseline), S0-11, S0-12, S0-16, S0-17. | The setup consumed more time than the work it was gating. Everything not needing a key is done. Two external unblocks are needed, neither fixable from this repo: `ANTHROPIC_API_KEY` as an environment variable, and Places API (New) enabled on Google project `74590284143`. Resume with `python3 stage0/src/engine/preflight.py`. *(An earlier version of this entry blamed session timing for the 401s; that reason was wrong — see the two entries below.)* |
