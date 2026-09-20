@@ -48,13 +48,13 @@ from engine.check_plan import plan_for_search  # noqa: E402
 FIXTURES = ROOT / "stage0" / "fixtures" / "benchmarks.json"
 DATA = ROOT / "stage0" / "data"
 
-# S0-30. The URL here must resolve to a page that explains what this crawler
-# is, or "identify honestly" is a claim with nothing behind it. It points at
-# `src/app/bot/page.tsx`; `SMALLFISH_BOT_URL` overrides it when the site moves
-# to a custom domain. `CONTACT` is still a placeholder and needs a real
-# address — see the note in that page.
+# S0-30. Both of these must be real, or "identify honestly" is a claim with
+# nothing behind it. The URL resolves to `src/app/bot/page.tsx`, which tells a
+# site owner what we fetch and how to stop us; the address is a monitored
+# inbox, because that page offers it as the way to have a business removed.
+# Overridable for a custom domain or a different inbox.
 BOT_URL = os.environ.get("SMALLFISH_BOT_URL", "https://smallfish-eta.vercel.app/bot")
-CONTACT = os.environ.get("SMALLFISH_BOT_CONTACT", "hello@smallfish.example")
+CONTACT = os.environ.get("SMALLFISH_BOT_CONTACT", "getsmallfish@gmail.com")
 USER_AGENT = (
     f"SmallFishBot/0.1 (+{BOT_URL}; "
     f"local business relevance research; contact: {CONTACT})"

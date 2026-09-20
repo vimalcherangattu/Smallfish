@@ -20,12 +20,11 @@ export const metadata: Metadata = {
 
 const UA = "SmallFishBot/0.1";
 
-/** **The one remaining placeholder, and it needs a real address before any
- *  further crawling.** The URL in the user agent now resolves to this page,
- *  which was the point of S0-30 — but a contact line nobody reads is the same
- *  failure one level down. Set this and `site_probe.py`'s `CONTACT` together;
+/** A real, monitored inbox. It has to be: this page tells site owners it is
+ *  how they get a business removed, and a removal route that bounces is worse
+ *  than not offering one. Set this and `site_probe.py`'s `CONTACT` together;
  *  they are asserted equal by `stage0/tests/test_crawler_identity.py`. */
-const CONTACT = "hello@smallfish.example";
+const CONTACT = "getsmallfish@gmail.com";
 
 function Section({
   title,

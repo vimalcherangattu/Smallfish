@@ -57,6 +57,16 @@ def main() -> int:
     check("the URL points at the identity page", url.endswith("/bot"), url)
     check("the user agent carries a contact", "contact:" in ua, ua)
 
+    contact_match = re.search(r"contact:\s*(\S+?)\)", ua)
+    check("the contact is an address, not a description", bool(contact_match), ua)
+    contact = contact_match.group(1) if contact_match else ""
+    check(
+        "the contact is not a placeholder address",
+        "@" in contact and not contact.endswith((".example", ".invalid", ".test")),
+        f"{contact} — the page offers this as the route to have a business "
+        f"removed, so a removal route that bounces is worse than none",
+    )
+
     # --- the page the URL points at actually exists in this repo
     check("the identity page exists", PAGE.exists(), str(PAGE))
     if not PAGE.exists():
