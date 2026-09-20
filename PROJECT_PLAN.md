@@ -268,18 +268,36 @@ Features 1–6 from the product document, plus the corrections above.
   and extraction at the user's URL to get what they sell, who they serve, their problem
   language and their geography. Shares its implementation with GTM automation A2, which
   needs the same capability aimed at prospects. Design: `docs/icp-discovery.md`.
-- [ ] **S1-23 · ICP inference.** From the offer, derive what must be *observably true on a
-  business's website* for that offer to be needed. Must refuse unprovable criteria before
-  proposing them, and must show its reasoning, not just its answer. *Depends on:* S1-22.
-- [ ] **S1-24 · Three candidate ICPs with live counts**, side by side, free. Reuses the
-  free match count. Requires an account and costs one logged-in free count, not three, or
-  it becomes the cheapest way to abuse the free tier. *Depends on:* S1-23.
-- [ ] **S1-25 · Hand off to the normal search.** The chosen ICP becomes the standard
-  criteria object on the normal confirm screen. No parallel system, nothing downstream
-  needs to know the flow exists. *Depends on:* S1-24.
-- [ ] **S1-26 · ICP discovery as the rare-search empty state.** When a search returns
-  almost nothing, offer three related ICPs with more matches instead of a dead end.
-  *Depends on:* S1-24.
+  *Blocked on:* `ANTHROPIC_API_KEY`. The rest of the flow (S1-23 – S1-26) is built and
+  runs on a typed description instead, so this upgrades the input without touching
+  anything downstream.
+- [x] **S1-23 · ICP inference.** Built on a *described* offer rather than a fetched one,
+  because S1-22 needs a model key. `src/lib/icp.ts` reads a free-text description for
+  observable signals and splits them in two: provable signals become proposed criteria,
+  unprovable ones come back in `refused` with what it would take to settle them, and are
+  never proposed. Both halves are shown. The named-offer chips are an optimisation over
+  the free-text path, never a precondition — same two-layer rule as `check_plan.py`.
+  *Does not depend on:* S1-22, which upgrades the input and changes nothing downstream.
+- [x] **S1-24 · Candidate ICPs with live counts**, side by side, free. Real tallies from
+  `public/data/index.json`, which now carries each market's criteria and counts (~1 KB
+  each) so three numbers cost 4 KB instead of four megabytes. Counts are presented as a
+  floor, not a total, because only ~200 sites per market have been read. The account gate
+  and the one-free-count-not-three rule land with S1-08.
+- [x] **S1-25 · Hand off to the normal search.** The chosen ICP sets the market and the
+  criterion and closes; from there it is an ordinary search. No parallel system, and
+  nothing downstream is told where it came from.
+- [x] **S1-26 · ICP discovery as the rare-search empty state.** A criterion with zero
+  matches in the current region offers the flow instead of an empty list. The region is
+  never widened silently to make the number look better — `docs/icp-discovery.md` open
+  question 3, answered the honest way.
+- [x] **S1-27 · Outreach note, icebreaker and likely pain point per lead.** `src/lib/
+  outreach.ts`, shown in the result detail panel with a copy button and exported as four
+  CSV columns. Derived from observed evidence only — no model runs, and the evidence each
+  sentence rests on travels with it in `basis`. It refuses far more than it writes: no
+  note for an unread site, an unreadable one, a business with no matched criterion, or a
+  gap the signal catalogue has no consequence for. `withheld` says which, and goes in its
+  own CSV column so a "not written: …" line can never be mail-merged into an email. When
+  a model does run it should *rewrite* these sentences, not add claims.
 - [x] **S1-21 · Area cost guardrail.** The scan cost for the current region is shown
   before anything is spent, split into unread and cached, with the warm-market figure
   alongside. Warns above 5,000 candidates.
@@ -437,3 +455,7 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-20 | PMM Foundations lists Foursquare OS Places as "Free" with no caveat — **partly outdated** | Still Apache-2.0, but distribution moved to Hugging Face behind `gated: auto`, and the public S3 bucket is now empty of data. A free account and token are required, so "free" is true of the licence and not of the access. |
 | 2026-09-20 | The app serves **measured data only** | 8,974 real businesses and 720 real site probes, with verdicts from the absence-proof rule. Unread and not-yet-judged are shown as themselves rather than hidden, so the cold-market state the product document glosses over is visible: 200 of 3,009 read in the flagship market. |
 | 2026-09-20 | **Model-dependent Stage 0 work parked**, not abandoned: S0-04 (Google baseline), S0-11, S0-12, S0-16, S0-17. | The setup consumed more time than the work it was gating. Everything not needing a key is done. Two external unblocks are needed, neither fixable from this repo: `ANTHROPIC_API_KEY` as an environment variable, and Places API (New) enabled on Google project `74590284143`. Resume with `python3 stage0/src/engine/preflight.py`. *(An earlier version of this entry blamed session timing for the 401s; that reason was wrong — see the two entries below.)* |
+| 2026-09-20 | Outreach copy is **derived, not generated**, and refuses by default | An outreach line is the only text in the product a user pastes into an email to a real business, so a plausible sentence with no evidence behind it is the most expensive thing here to get wrong. `src/lib/outreach.ts` writes nothing for an unread site, an unreadable one, a business with no matched criterion, or a gap with no catalogued consequence, and every clause it does write is listed with the evidence it rests on. A model, when one runs, should rewrite these sentences rather than add claims. |
+| 2026-09-20 | ICP discovery **built without S1-22**, on a typed offer instead of a fetched site | Reading the seller's own site needs a model key that is still blocked, but it is only the input step. Splitting the flow at that seam shipped S1-23 – S1-26 now and leaves S1-22 a drop-in upgrade. A named-offer chip list is an optimisation over free-text matching, not a precondition — the same two-layer rule `engine/check_plan.py` follows. |
+| 2026-09-20 | Unprovable ICP criteria are **listed and refused**, not hidden | Three of the seven catalogued signals cannot be settled today (contact form, mobile-ready, stale site). Dropping them silently would make the flow look better and deliver ICPs the engine cannot serve; showing them with what it would take makes the gap a roadmap instead of a surprise. `docs/icp-discovery.md` rule 1. |
+| 2026-09-20 | `public/data/index.json` now carries each market's criteria and tallies | The ICP flow shows live counts for several candidate ICPs at once. Reading them from the market files would cost four megabytes to display three numbers, in the one place the product promises the count is free. ~1 KB per market in the index instead. |

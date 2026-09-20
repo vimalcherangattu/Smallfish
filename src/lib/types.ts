@@ -72,9 +72,14 @@ export interface Market {
   businesses: Business[];
 }
 
+/** The index carries each market's criteria and tallies as well as its counts.
+ *  It is ~2 KB; the market files are over a megabyte each. The ICP flow shows
+ *  live match counts for three candidate ICPs side by side, and loading four
+ *  megabytes to display three numbers would make the free count expensive in
+ *  exactly the place the product promises it is free. */
 export interface MarketIndex {
   release: string;
-  markets: Array<Omit<Market, "businesses" | "criteria" | "tallies" | "checkPlanTargets">>;
+  markets: Array<Omit<Market, "businesses" | "checkPlanTargets">>;
 }
 
 export const VERDICT_LABEL: Record<VerdictKind, string> = {

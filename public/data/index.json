@@ -15,6 +15,35 @@
         "primary": 852,
         "withSite": 2440,
         "read": 200
+      },
+      "criteria": [
+        {
+          "id": "offers_botox",
+          "type": "presence",
+          "text": "offers Botox",
+          "explain": "Reads the services and treatments pages for the named service.",
+          "needsModel": true
+        },
+        {
+          "id": "no_online_booking",
+          "type": "absence",
+          "text": "has no online booking",
+          "explain": "Looks for a booking widget, a Book Now link, or booking software on the site.",
+          "needsModel": true
+        }
+      ],
+      "tallies": {
+        "offers_botox": {
+          "unread": 2809,
+          "needs_model": 200
+        },
+        "no_online_booking": {
+          "unread": 2864,
+          "couldnt_tell": 38,
+          "no_match": 57,
+          "match": 26,
+          "blocked": 24
+        }
       }
     },
     {
@@ -31,6 +60,24 @@
         "primary": 2654,
         "withSite": 2778,
         "read": 200
+      },
+      "criteria": [
+        {
+          "id": "no_online_booking",
+          "type": "absence",
+          "text": "has no online booking",
+          "explain": "Looks for a booking widget, a Book Now link, or booking software on the site.",
+          "needsModel": true
+        }
+      ],
+      "tallies": {
+        "no_online_booking": {
+          "unread": 2960,
+          "match": 42,
+          "no_match": 51,
+          "couldnt_tell": 39,
+          "blocked": 34
+        }
       }
     },
     {
@@ -47,6 +94,35 @@
         "primary": 700,
         "withSite": 2196,
         "read": 200
+      },
+      "criteria": [
+        {
+          "id": "does_commercial",
+          "type": "presence",
+          "text": "does commercial work",
+          "explain": "Reads the services and treatments pages for the named service.",
+          "needsModel": true
+        },
+        {
+          "id": "no_quote_form",
+          "type": "absence",
+          "text": "has no quote form",
+          "explain": "Looks for a quote or estimate request form or link on the site.",
+          "needsModel": true
+        }
+      ],
+      "tallies": {
+        "does_commercial": {
+          "needs_model": 200,
+          "unread": 2235
+        },
+        "no_quote_form": {
+          "no_match": 51,
+          "match": 58,
+          "couldnt_tell": 47,
+          "unread": 2245,
+          "blocked": 34
+        }
       }
     },
     {
@@ -63,6 +139,33 @@
         "primary": 275,
         "withSite": 354,
         "read": 120
+      },
+      "criteria": [
+        {
+          "id": "exotic_pet_care",
+          "type": "presence",
+          "text": "offers exotic-pet care",
+          "explain": "Reads the services and treatments pages for the named service.",
+          "needsModel": true
+        },
+        {
+          "id": "independent",
+          "type": "absence",
+          "text": "not part of a group",
+          "explain": "Reads the about and locations pages for ownership and group signals.",
+          "needsModel": true
+        }
+      ],
+      "tallies": {
+        "exotic_pet_care": {
+          "needs_model": 120,
+          "unread": 284
+        },
+        "independent": {
+          "couldnt_tell": 101,
+          "blocked": 16,
+          "unread": 287
+        }
       }
     }
   ]

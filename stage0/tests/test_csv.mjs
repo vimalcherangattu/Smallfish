@@ -9,48 +9,16 @@
  */
 
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { pathToFileURL } from "node:url";
+import { rmSync } from "node:fs";
+import { compileLib } from "./_tsmodules.mjs";
 
-const dir = mkdtempSync(join(tmpdir(), "sfcsv-"));
-
-// Compile csv.ts and its type-only dependency to plain ESM. A temp tsconfig is
-// used rather than CLI flags because the source imports through the project's
-// "@/*" path alias, which tsc only reads from a config file.
-const tsconfig = join(dir, "tsconfig.json");
-writeFileSync(
-  tsconfig,
-  JSON.stringify({
-    compilerOptions: {
-      outDir: dir,
-      // Without an explicit rootDir, tsc infers it from the common parent of
-      // the inputs, so the emitted path moves when the input list changes.
-      rootDir: process.cwd(),
-      module: "esnext",
-      target: "es2022",
-      moduleResolution: "bundler",
-      skipLibCheck: true,
-      noEmit: false,
-      baseUrl: process.cwd(),
-      paths: { "@/*": ["./src/*"] },
-    },
-    files: ["src/lib/csv.ts", "src/lib/types.ts"].map((f) =>
-      join(process.cwd(), f),
-    ),
-  }),
+// csv.ts pulls in outreach.ts for the three outreach columns, which pulls in
+// signals.ts; all of them have to be compiled together.
+const { dir, load } = compileLib(
+  ["src/lib/csv.ts", "src/lib/outreach.ts", "src/lib/signals.ts", "src/lib/types.ts"],
+  "sfcsv-",
 );
-execFileSync("npx", ["tsc", "-p", tsconfig], { stdio: "pipe" });
-
-// The compiled import specifiers use the "@/lib/..." alias; rewrite to relative.
-const csvPath = join(dir, "src", "lib", "csv.js");
-const src = (await import("node:fs")).readFileSync(csvPath, "utf8")
-  .replace(/from ["']@\/lib\/types["']/g, 'from "./types.js"');
-writeFileSync(csvPath, src);
-
-const { toCsv, whyItMatched } = await import(pathToFileURL(csvPath).href);
+const { toCsv, whyItMatched } = await load("csv");
 
 const criteria = [
   { id: "no_book", type: "absence", text: "has no online booking",
@@ -139,6 +107,39 @@ test("why_it_matched quotes the evidence and is usable as written", () => {
 test("why_it_matched is empty when nothing matched", () => {
   const b = { ...base, verdicts: { no_book: { verdict: "couldnt_tell", reason: "r" } } };
   assert.equal(whyItMatched(b, criteria), "");
+});
+
+test("the outreach columns carry a note only when one could be written", () => {
+  const head = toCsv([], criteria).split("\r\n")[0];
+  for (const col of ["likely_pain_point", "icebreaker", "outreach_note", "outreach_evidence"]) {
+    assert.ok(head.includes(col), `missing ${col}`);
+  }
+
+  // Read, matched → a note and its evidence.
+  const written = { ...base, site: "a.com", phone: "+1",
+    read: { outcome: "ok", pages: 3, chars: 900, booking: false,
+            vendors: [], quote: false, chat: false, cms: [] },
+    verdicts: { no_book: { verdict: "match", reason: "no sign of it" },
+                botox: { verdict: "match", reason: "found" } } };
+  const row = toCsv([written], criteria).split("\r\n")[1];
+  assert.ok(row.includes("a.com"));
+  assert.ok(/could not find|I saw on/.test(row), "an icebreaker should be written");
+
+  // Unread → the reason goes in the evidence column, never in the note.
+  const blank = toCsv([base], criteria).split("\r\n")[1];
+  assert.ok(blank.includes("not written:"), "the withheld reason must be exported");
+});
+
+test("a withheld reason can never land in a note column", () => {
+  // The columns are positional; a "not written: …" line in `outreach_note`
+  // would be mail-merged straight into someone's cold email. Splitting on
+  // commas is safe only because `base` has none in any field — the quoting
+  // itself is covered by the tests above.
+  const row = toCsv([base], criteria).split("\r\n")[1].split(",");
+  const head = toCsv([], criteria).split("\r\n")[0].split(",");
+  for (const col of ["likely_pain_point", "icebreaker", "outreach_note"]) {
+    assert.equal(row[head.indexOf(col)], "", `${col} must be empty when withheld`);
+  }
 });
 
 test("a UTF-8 BOM is present so Excel reads accents correctly", () => {

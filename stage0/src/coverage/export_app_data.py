@@ -251,6 +251,12 @@ def main() -> int:
                 "center": payload["center"],
                 "search": payload["search"],
                 "counts": c,
+                # The ICP flow shows live match counts for three candidate ICPs
+                # at once. Carrying criteria and tallies here costs ~1 KB per
+                # market; reading them from the market files would cost four
+                # megabytes to display three numbers.
+                "criteria": payload["criteria"],
+                "tallies": payload["tallies"],
             }
         )
 

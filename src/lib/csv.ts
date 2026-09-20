@@ -11,6 +11,7 @@
  *  the user can act on by opening it themselves.
  */
 
+import { outreachFor } from "@/lib/outreach";
 import {
   BILLABLE,
   VERDICT_LABEL,
@@ -56,6 +57,14 @@ export function toCsv(businesses: Business[], criteria: Criterion[]): string {
       `${c.id}__how_checked`,
     ]),
     "why_it_matched",
+    "likely_pain_point",
+    "icebreaker",
+    "outreach_note",
+    // The evidence each note rests on, or — when no note could be written
+    // honestly — the reason. It goes in its own column rather than in the note
+    // columns, so a "not written: …" line can never be pasted into an email by
+    // someone filling a mail-merge from this file.
+    "outreach_evidence",
     "pages_read",
     "site_outcome",
     "detected_technology",
@@ -102,6 +111,15 @@ export function toCsv(businesses: Business[], criteria: Criterion[]): string {
           ];
         }),
         whyItMatched(b, criteria),
+        ...((): string[] => {
+          const o = outreachFor(b, criteria);
+          return [
+            o.painPoint ?? "",
+            o.icebreaker ?? "",
+            o.note ?? "",
+            o.withheld ? `not written: ${o.withheld}` : o.basis.join(" | "),
+          ];
+        })(),
         b.read?.pages ?? 0,
         b.read?.outcome ?? "not read",
         (b.read?.vendors ?? []).join(" | "),

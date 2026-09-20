@@ -2,7 +2,9 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
+import IcpBuilder from "@/components/IcpBuilder";
 import Results, { VerdictDot } from "@/components/Results";
+import type { Candidate } from "@/lib/icp";
 import { bboxOf, contains, areaSqMiles, type Region } from "@/lib/geo";
 import { COST, compact, estimateCost, money } from "@/lib/cost";
 import { downloadCsv, toCsv } from "@/lib/csv";
@@ -35,6 +37,10 @@ export default function Page() {
   const [region, setRegion] = useState<Region | null>(null);
   const [drawing, setDrawing] = useState(false);
   const [criterionId, setCriterionId] = useState<string>("");
+  const [icpOpen, setIcpOpen] = useState(false);
+  /** Set when the ICP flow picks a market, so the criterion it chose survives
+   *  the market load that would otherwise overwrite it with `mostDecided`. */
+  const [pendingCriterion, setPendingCriterion] = useState<string | null>(null);
   const [show, setShow] = useState<Set<VerdictKind>>(
     new Set(["match", "couldnt_tell"]),
   );
@@ -68,7 +74,8 @@ export default function Page() {
         // Lead with the criterion that actually has verdicts today. `needsModel`
         // is true for every absence criterion by design, so it cannot be used
         // to pick one — count the decided verdicts instead.
-        setCriterionId(mostDecided(m));
+        setCriterionId(pendingCriterion ?? mostDecided(m));
+        setPendingCriterion(null);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -128,6 +135,19 @@ export default function Page() {
   }
 
   const matches = tally.match ?? 0;
+
+  /** Step 5 of the ICP flow: the chosen ICP becomes an ordinary search.
+   *  Nothing downstream is told where it came from. */
+  function adoptIcp(c: Candidate) {
+    setIcpOpen(false);
+    if (c.marketId === marketId) {
+      setCriterionId(c.criterionId);
+    } else {
+      // The market load picks a lead criterion of its own; hand it ours.
+      setPendingCriterion(c.criterionId);
+      setMarketId(c.marketId);
+    }
+  }
 
   return (
     <main className="flex h-dvh flex-col lg:flex-row">
@@ -194,7 +214,14 @@ export default function Page() {
       </section>
 
       {/* ---------------- Panel ---------------- */}
-      <section className="flex min-h-0 flex-1 flex-col border-t border-[var(--line)] bg-[var(--panel)] lg:w-[460px] lg:flex-none lg:border-l lg:border-t-0">
+      <section className="relative flex min-h-0 flex-1 flex-col border-t border-[var(--line)] bg-[var(--panel)] lg:w-[460px] lg:flex-none lg:border-l lg:border-t-0">
+        {icpOpen && (
+          <IcpBuilder
+            index={index}
+            onPick={adoptIcp}
+            onClose={() => setIcpOpen(false)}
+          />
+        )}
         <header className="border-b border-[var(--line)] px-4 py-3">
           <div className="flex items-baseline justify-between gap-2">
             <h1 className="text-[15px] font-semibold tracking-tight">
@@ -219,6 +246,15 @@ export default function Page() {
               </option>
             ))}
           </select>
+
+          {/* The second front door. The research persona cannot fill the box
+              above — they are still looking for an ICP, not refining one. */}
+          <button
+            onClick={() => setIcpOpen(true)}
+            className="mt-1.5 text-[11px] text-[var(--accent)] underline underline-offset-2"
+          >
+            Not sure who to target? Start from what you sell →
+          </button>
         </header>
 
         {loading || !market ? (
@@ -346,6 +382,22 @@ export default function Page() {
                 Export CSV with proof
               </button>
             </div>
+
+            {/* S1-26. A search that found almost nothing is where the product
+                usually loses someone; the honest move is to say the region is
+                thin and offer another way in, not to widen it silently. */}
+            {matches === 0 && (
+              <div className="border-b border-[var(--line)] bg-[var(--unsure-soft)] px-4 py-2.5 text-[11px] leading-snug text-[var(--unsure)]">
+                No matches for this criterion in this region.{" "}
+                <button
+                  onClick={() => setIcpOpen(true)}
+                  className="underline underline-offset-2"
+                >
+                  Work backwards from what you sell
+                </button>{" "}
+                to see which measured markets do have matches.
+              </div>
+            )}
 
             <div className="min-h-0 flex-1 overflow-y-auto">
               <Results
