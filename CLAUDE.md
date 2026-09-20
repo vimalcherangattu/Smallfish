@@ -76,29 +76,42 @@ not being tested.
 pip install duckdb "httpx[http2]"
 ```
 
-### API keys arrive as egress credentials, not environment variables
+### How the API keys actually arrive — measured 2026-09-19
 
-**There is no `ANTHROPIC_API_KEY` or `GOOGLE_PLACES_API_KEY` in the environment, and there
-should not be.** Both keys are stored as cloud-environment **API credentials**. Anthropic's
-agent proxy attaches them to outbound requests *after* they leave this VM, so the key
-never appears in the sandbox, in `env`, or in anything Claude can read.
+**Retraction.** This section previously stated that both keys arrive as egress credentials,
+that neither appears in `env`, and that a `401` from the curl below means "this session
+predates the credential". Two of those three are wrong, and the third is untestable as
+written. Measured results, all reproducible with `preflight.py`:
 
-Two consequences, both learned the hard way:
+| Claim (previous) | Measured |
+|---|---|
+| No `GOOGLE_PLACES_API_KEY` in the environment | **There is one** — a valid `AIza…` key, set as a plain environment variable |
+| The proxy attaches the Anthropic key at egress | **It does not.** `api.anthropic.com` is on the proxy's `noProxy` list, so the request never reaches the proxy |
+| `401` means the session predates the credential | **Unfalsifiable.** That probe returns 401 whether or not a credential exists |
 
-1. **Do not put the Anthropic key in environment variables.** The platform strips it —
-   the environment dialog says so: *"ANTHROPIC_API_KEY won't be used to authenticate
-   requests."* The variables box is also plainly labelled as visible to anyone using the
-   environment, so no secret belongs there.
-2. **The official `anthropic` Python SDK expects a local key and there isn't one.** Before
-   writing pipeline code against it, test whether `anthropic.Anthropic(api_key="placeholder")`
-   works — the proxy must *replace* the `x-api-key` header rather than duplicate it. If it
-   duplicates, call `POST https://api.anthropic.com/v1/messages` directly with `httpx`,
-   sending no auth header at all and letting the proxy supply the only one. Decide this by
-   testing, not by assuming. `engine/llm.py` currently assumes the SDK path and will need
-   adjusting.
+The mechanism: `curl -sS "$HTTPS_PROXY/__agentproxy/status"` shows `api.anthropic.com` in
+`noProxy`. Traffic to it goes direct, so no credential can be injected on that path —
+in this environment an egress credential for Anthropic may not be attachable at all.
 
-Credential shapes, for reference if they ever need re-adding — note the **empty prefix**
-on both; `Authorization` + `Bearer` is the wrong shape and fails validation:
+**The SDK-vs-proxy question is answered: neither path works without a real key.** Tested
+four ways, all 401:
+
+- no auth header, direct → `x-api-key header is required`
+- no auth header, forced through the proxy → `x-api-key header is required`
+- `x-api-key: placeholder`, direct and via proxy → `invalid x-api-key`
+- `anthropic.Anthropic(api_key="placeholder")` → `AuthenticationError`
+
+`invalid x-api-key` is the informative one: the placeholder **reached Anthropic
+unmodified**, which proves the proxy is not rewriting the header either. So `engine/llm.py`
+can keep the ordinary SDK path; it needs `ANTHROPIC_API_KEY` in the environment, which is
+currently the only mechanism observed to work here.
+
+The environment-variables box is still labelled as visible to anyone using the environment.
+That is a real trade-off, not a reason to disbelieve the measurement — the Places key is
+sitting in it today.
+
+Credential shapes, if egress credentials are attempted again — note the **empty prefix** on
+both; `Authorization` + `Bearer` is the wrong shape and fails validation:
 
 | API | Allowed website | Header | Prefix |
 |---|---|---|---|
@@ -107,20 +120,21 @@ on both; `Authorization` + `Bearer` is the wrong shape and fails validation:
 
 ### Verify before running anything that spends money
 
-Credentials attach only to sessions **started after** they were created; an older session's
-proxy config is frozen without them. Check first:
+Do not hand-roll the curl — it was wrong for a session. Run:
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}\n" -X POST https://api.anthropic.com/v1/messages \
-  -H "content-type: application/json" -H "anthropic-version: 2023-06-01" \
-  -d '{"model":"claude-haiku-4-5","max_tokens":16,"messages":[{"role":"user","content":"ok"}]}'
+python3 stage0/src/engine/preflight.py
 ```
 
-`401` means this session predates the credential — say so and ask for a fresh session
-rather than trying to work around it. `200` means the proxy is attaching the key.
+It exits 0 only when the benchmark could actually produce numbers, and separates the cases
+that have different fixes: no credential anywhere, a credential attached at egress, a key
+in the environment, a key that is valid but restricted, and an API that is not enabled on
+the project. It also reports which pipeline components exist, because working keys are only
+half of what `S0-17` needs.
 
-The equivalent for Places is a `places:searchText` POST; `403 PERMISSION_DENIED` with
-*"callers without established identity"* is the same story.
+Use `places:searchNearby` rather than `places:searchText` when diagnosing Google by hand:
+`searchText` returns a generic `API_KEY_SERVICE_BLOCKED`, while `searchNearby` returns
+`SERVICE_DISABLED` and names the project and the API to enable.
 
 ## Git
 
@@ -128,15 +142,28 @@ Work goes to `main`. `claude/eager-archimedes-qdetjj` is kept pointing at the sa
 
 ## Next up
 
-Once a session confirms the credentials are attaching, in this order:
+`python3 stage0/src/engine/preflight.py` reports **8 blockers** as of 2026-09-19. Two are
+credentials and neither is fixable from inside this repo:
 
-1. **S0-04 — the Google coverage baseline.** The cheapest remaining gate item and the one
-   that can still invalidate the plan on cost grounds. Text Search per niche × metro,
-   storing place IDs only. A few hundred calls, well under $10.
-2. **Resolve the SDK-vs-proxy question above**, then finish **S0-11** (profile extraction)
-   and **S0-12** (criteria judgment).
-3. **S0-16 / S0-17** — hand-label the benchmark set and run it, for the first real
-   precision, recall and cost-per-match figures.
+- **Anthropic:** no key by any path. Needs `ANTHROPIC_API_KEY` set as an environment
+  variable (the egress-credential route does not reach `api.anthropic.com` — see above).
+- **Google Places:** the key is valid, but **Places API (New) is not enabled on project
+  `74590284143`**. A Cloud Console change: enable the API and confirm billing is active.
+
+The other six are unbuilt code, and they are the real distance to a benchmark number —
+"run the benchmark" is not one command away, it is five tasks away:
+
+1. **S0-04 — the Google coverage baseline.** Unblocks the moment Places is enabled. The
+   cheapest remaining gate item and the one that can still invalidate the plan on cost
+   grounds. Text Search per niche × metro, storing place IDs only, well under $10.
+2. **S0-08** (polite fetcher as a pipeline component — `site_probe.py` is a measurement
+   tool, not the fetcher), then **S0-11** (profile extraction) and **S0-12** (criteria
+   judgment). These need the Anthropic key.
+3. **S0-14** (proof validator) and **S0-16** — hand-labelling 3 × 100 businesses is human
+   work and cannot be automated away; recall is unmeasurable without the full true-match
+   set.
+4. **S0-17** — the harness itself, which then reports precision, recall, couldn't-tell,
+   proof validity and cost.
 
 Everything before that point is done and measured; see the Live numbers table in
 `PROJECT_PLAN.md` and `docs/stage0-coverage-report.md`.
