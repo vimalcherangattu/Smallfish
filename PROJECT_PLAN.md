@@ -8,7 +8,7 @@ is `docs/critique.md`.
 Strategy lives in those docs. Numbers and decisions live here. Where they disagree, this
 plan wins and the Decision log records why.
 
-**Last updated:** 2026-09-19 · **Stage:** 0 — Prove it
+**Last updated:** 2026-09-20 · **Stage:** 0 — Prove it (model-dependent tasks parked, see Decision log)
 
 ---
 
@@ -392,3 +392,4 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-19 | Map region selection promoted from a half-sentence to explicit scope (S0-29, S1-20, S1-21) | It was named in the product document but had no tasks, no UI detail and no cost treatment, while being the main driver of scan cost. |
 | 2026-09-19 | Bot-blocking reclassified from workstream to cost of doing business; the critique's "most addressable" claim **retracted** | Measured: 96.2% stay blocked under every honest strategy. Presenting as a browser recovers 1 readable site in 78 — not a trade worth making. |
 | 2026-09-19 | Restating the couldn't-tell target (S0-27) becomes the primary response to the ~40% floor | The recovery route it was meant to back up has been refuted. |
+| 2026-09-20 | **Model-dependent Stage 0 work parked**, not abandoned: S0-04 (Google baseline), S0-11, S0-12, S0-16, S0-17. | The credentials are configured correctly but only attach to sessions started after they were created, and the setup consumed more time than the work it was gating. Everything not needing a key is done. Resume with a fresh session; `CLAUDE.md` § Environment has the verification snippet and the unresolved SDK-vs-proxy question. |
