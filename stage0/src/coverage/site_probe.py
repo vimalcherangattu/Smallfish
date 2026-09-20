@@ -186,21 +186,36 @@ class SiteResult:
 
 
 class DomainThrottle:
-    """One in-flight request per host, spaced by PER_DOMAIN_DELAY."""
+    """One in-flight request per host, spaced by a delay that grows on refusal.
+
+    A host that has just refused us or timed out gets more room before the next
+    request, rather than being walked at full speed for its remaining pages.
+    """
 
     def __init__(self) -> None:
         self._locks: dict[str, asyncio.Lock] = {}
         self._last: dict[str, float] = {}
+        self._delay: dict[str, float] = {}
 
     async def wait(self, host: str) -> None:
         lock = self._locks.setdefault(host, asyncio.Lock())
         async with lock:
+            delay_for_host = self._delay.get(host, PER_DOMAIN_DELAY)
             last = self._last.get(host)
             if last is not None:
-                delay = PER_DOMAIN_DELAY - (time.monotonic() - last)
+                delay = delay_for_host - (time.monotonic() - last)
                 if delay > 0:
                     await asyncio.sleep(delay)
             self._last[host] = time.monotonic()
+
+    def penalise(self, host: str) -> None:
+        """This host refused or timed out; give it more room next time."""
+        current = self._delay.get(host, PER_DOMAIN_DELAY)
+        self._delay[host] = min(current * HOST_BACKOFF_FACTOR, MAX_HOST_DELAY)
+
+    def respect_retry_after(self, host: str, seconds: float) -> None:
+        """The server named a wait; honour it rather than our own guess."""
+        self._delay[host] = min(max(seconds, PER_DOMAIN_DELAY), MAX_HOST_DELAY)
 
 
 class RobotsCache:
@@ -255,13 +270,56 @@ def is_social(url: str) -> bool:
     return any(host == s or host.endswith("." + s) for s in SOCIAL_HOSTS)
 
 
-# A timeout is the one outcome that is as likely to be ours as theirs, and it
-# arrives in correlated bursts when several markets are crawled back to back. A
-# run that recorded 4 timeouts on Monday recorded 32 on Tuesday over the same
-# sites, while blocked/dead/thin moved by at most 4 — so an unretried timeout
-# measures our load, not the business. Retry once before believing it.
-TIMEOUT_RETRIES = 1
-TIMEOUT_RETRY_DELAY = 3.0
+# Retrying a timeout was tried and made things worse: it doubles load on hosts
+# that are already struggling, and timeouts went 4 → 20 → 48 across three crawls
+# of the same sites. Timeouts are now classified as ours (OURS_NOT_THEIRS) rather
+# than retried.
+#
+# What *is* worth doing (S0-30) is the cheap, correct politeness that costs
+# nothing and is simply how a well-behaved crawler acts, even though S0-26
+# measured that it recovers almost no blocked sites:
+#
+#   - honour Retry-After when a server tells us when to come back
+#   - back off from a host that has just refused or timed out, rather than
+#     walking its remaining pages at full speed
+#
+# The second is also self-protective: it is the mechanism that would have damped
+# the timeout cascade instead of amplifying it.
+RETRY_AFTER_STATUSES = {429, 503}
+MAX_RETRY_AFTER_WAIT = 30.0
+# Multiplier applied to this host's delay after it refuses or times out.
+HOST_BACKOFF_FACTOR = 4.0
+MAX_HOST_DELAY = 20.0
+
+
+def parse_retry_after(value: str | None) -> float:
+    """Seconds to wait, from a Retry-After header in either allowed form.
+
+    RFC 9110 permits a delay in seconds or an HTTP date. A missing or
+    unparseable value falls back to our own per-host delay rather than zero,
+    because zero would mean hammering a server that just asked us to stop.
+    """
+    if not value:
+        return PER_DOMAIN_DELAY
+    value = value.strip()
+    try:
+        return max(float(value), 0.0)
+    except ValueError:
+        pass
+    try:
+        from email.utils import parsedate_to_datetime
+
+        when = parsedate_to_datetime(value)
+        if when is None:
+            return PER_DOMAIN_DELAY
+        import datetime as _dt
+
+        now = _dt.datetime.now(_dt.timezone.utc)
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=_dt.timezone.utc)
+        return max((when - now).total_seconds(), 0.0)
+    except (TypeError, ValueError):
+        return PER_DOMAIN_DELAY
 
 
 async def fetch_page(
@@ -269,7 +327,6 @@ async def fetch_page(
     url: str,
     robots: RobotsCache,
     throttle: DomainThrottle,
-    _attempt: int = 0,
 ) -> tuple[PageResult, str]:
     """Fetch one page. Returns the result and the raw HTML (empty on failure)."""
     result = PageResult(url=url)
@@ -282,6 +339,14 @@ async def fetch_page(
         resp = await client.get(url, headers=HEADERS, timeout=TIMEOUT)
         result.status = resp.status_code
         if resp.status_code >= 400:
+            # A server that names a wait is telling us how to behave; honour it
+            # rather than guessing. Anything else that refuses gets backed off.
+            if resp.status_code in RETRY_AFTER_STATUSES:
+                throttle.respect_retry_after(
+                    host, parse_retry_after(resp.headers.get("retry-after"))
+                )
+            else:
+                throttle.penalise(host)
             result.error = f"http_{resp.status_code}"
             return result, ""
         ctype = resp.headers.get("content-type", "")
@@ -294,9 +359,9 @@ async def fetch_page(
         result.signals = tech_signals.detect(html).as_dict()
         return result, html
     except httpx.TimeoutException:
-        if _attempt < TIMEOUT_RETRIES:
-            await asyncio.sleep(TIMEOUT_RETRY_DELAY)
-            return await fetch_page(client, url, robots, throttle, _attempt + 1)
+        # Not retried — that was measured and made things worse. But this host
+        # is clearly struggling, so give it room before its remaining pages.
+        throttle.penalise(host)
         result.error = "timeout"
     except httpx.ProxyError as exc:
         # Our own network path, not the site. Must not be counted against the
