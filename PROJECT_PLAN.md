@@ -297,8 +297,15 @@ Features 1–6 from the product document, plus the corrections above.
   one-click wrong-result reporting with automatic refund.
 - [ ] **S1-05 · Published contacts** — website, phone, public email, contact form, socials,
   each with provenance. Nothing invented.
-- [ ] **S1-06 · Export** to CSV and Google Sheets with proof columns and duplicate
-  protection.
+- [x] **S1-06 · Export to CSV with proof columns.** Every row carries, per criterion, the
+  verdict, the evidence and the one-line "how this is checked", plus a `why_it_matched`
+  sentence usable in a cold email as written, and a `billable` column so the pricing
+  promise is visible in the file itself. Non-matches export too, with their reason —
+  "this site blocks automated reading" is worth more to the user than a silently dropped
+  row. 10 tests cover the quoting, because a CSV bug does not raise, it silently shifts
+  every column of someone's spreadsheet.
+- [ ] **S1-06b · Google Sheets export and duplicate protection.** Needs accounts, so it
+  follows S1-08.
 - [ ] **S1-07 · Saved searches and alerts**, with the candidate-volume budget from S0-23
   enforced.
 - [ ] **S1-08 · Accounts, billing and plans** (Free, Starter, Growth) plus packs, on Stripe.

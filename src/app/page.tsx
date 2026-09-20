@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import Results, { VerdictDot } from "@/components/Results";
 import { bboxOf, contains, areaSqMiles, type Region } from "@/lib/geo";
 import { COST, compact, estimateCost, money } from "@/lib/cost";
+import { downloadCsv, toCsv } from "@/lib/csv";
 import {
   VERDICT_LABEL,
   type Market,
@@ -327,6 +328,23 @@ export default function Page() {
                   </span>
                 </button>
               ))}
+            </div>
+
+            <div className="flex items-center justify-between gap-2 border-b border-[var(--line)] px-4 py-2">
+              <span className="text-[11px] text-[var(--muted)]">
+                {compact(visible.length)} row{visible.length === 1 ? "" : "s"}{" "}
+                shown
+              </span>
+              <button
+                onClick={() => {
+                  const csv = toCsv(visible, market.criteria);
+                  downloadCsv(`smallfish-${market.id}.csv`, csv);
+                }}
+                disabled={!visible.length}
+                className="rounded-md border border-[var(--line)] px-2.5 py-1 text-[11px] font-medium hover:bg-[var(--accent-soft)] disabled:opacity-40"
+              >
+                Export CSV with proof
+              </button>
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto">
