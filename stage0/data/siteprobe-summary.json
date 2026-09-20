@@ -2,55 +2,56 @@
   {
     "market": "med-spa-dallas",
     "sampled": 200,
-    "scored": 193,
-    "excluded_probe_errors": 7,
+    "scored": 145,
+    "crawl_quality": {
+      "excluded_as_ours": 55,
+      "excluded_pct": 27.5,
+      "timeouts": 48,
+      "probe_errors": 7
+    },
     "outcomes": {
       "blocked": 22,
       "social_only": 8,
-      "http_error": 9,
-      "ok": 102,
-      "js_shell": 7,
-      "dead": 14,
+      "http_error": 8,
+      "ok": 82,
+      "js_shell": 6,
+      "dead": 9,
       "probe_error": 7,
-      "thin": 9,
+      "thin": 8,
       "robots_blocked": 2,
-      "timeout": 20
+      "timeout": 48
     },
-    "judgeable_pct": 52.8,
-    "couldnt_tell_floor_pct": 47.2,
+    "judgeable_pct": 56.6,
+    "couldnt_tell_floor_pct": 43.4,
     "booking": {
-      "sites_considered": 111,
-      "booking_signal_found": 71,
-      "booking_signal_pct": 64.0,
+      "sites_considered": 90,
+      "booking_signal_found": 57,
+      "booking_signal_pct": 63.3,
       "found_only_beyond_homepage": 0,
       "homepage_only_false_match_pct": 0.0,
       "top_vendors": [
         [
           "aesthetic_record",
-          14
+          12
         ],
         [
           "vagaro",
-          8
+          6
         ],
         [
           "zenoti",
-          6
+          5
         ],
         [
           "square",
           3
         ],
         [
-          "patientnow",
-          3
+          "mindbody",
+          2
         ],
         [
           "boulevard",
-          3
-        ],
-        [
-          "mindbody",
           2
         ],
         [
@@ -64,58 +65,67 @@
         [
           "meevo",
           1
+        ],
+        [
+          "jane",
+          1
         ]
       ]
     },
-    "quote_form_signal_pct": 22.5,
-    "chat_signal_pct": 4.5,
+    "quote_form_signal_pct": 22.2,
+    "chat_signal_pct": 3.3,
     "top_cms": [
       [
         "wordpress",
-        45
+        39
       ],
       [
         "wix",
-        16
+        12
       ],
       [
         "godaddy_website_builder",
-        11
-      ],
-      [
-        "squarespace",
-        5
+        8
       ],
       [
         "shopify",
-        5
+        4
+      ],
+      [
+        "squarespace",
+        3
       ],
       [
         "weebly",
-        3
+        2
       ],
       [
         "webflow",
-        3
+        2
       ],
       [
         "hubspot_cms",
         1
       ]
     ],
-    "mean_homepage_text_chars": 3602,
+    "mean_homepage_text_chars": 3901,
     "link_selection": {
-      "sites_with_matching_links": 90,
-      "mean_links_selected": 2.3
+      "sites_with_matching_links": 72,
+      "mean_links_selected": 2.2
     },
-    "total_pages_fetched": 369,
+    "total_pages_fetched": 307,
     "detail": "stage0/data/siteprobe-med-spa-dallas.jsonl"
   },
   {
     "market": "dental-phoenix",
     "sampled": 200,
-    "scored": 198,
-    "excluded_probe_errors": 2,
+    "scored": 166,
+    "crawl_quality": {
+      "excluded_as_ours": 34,
+      "excluded_pct": 17.0,
+      "timeouts": 32,
+      "probe_errors": 2
+    },
     "outcomes": {
       "blocked": 32,
       "probe_error": 2,
@@ -128,8 +138,8 @@
       "timeout": 32,
       "social_only": 1
     },
-    "judgeable_pct": 49.5,
-    "couldnt_tell_floor_pct": 50.5,
+    "judgeable_pct": 59.0,
+    "couldnt_tell_floor_pct": 41.0,
     "booking": {
       "sites_considered": 106,
       "booking_signal_found": 51,
@@ -211,7 +221,7 @@
         1
       ]
     ],
-    "mean_homepage_text_chars": 5818,
+    "mean_homepage_text_chars": 6940,
     "link_selection": {
       "sites_with_matching_links": 87,
       "mean_links_selected": 2.2
@@ -222,8 +232,13 @@
   {
     "market": "hvac-tampa",
     "sampled": 200,
-    "scored": 196,
-    "excluded_probe_errors": 4,
+    "scored": 190,
+    "crawl_quality": {
+      "excluded_as_ours": 10,
+      "excluded_pct": 5.0,
+      "timeouts": 6,
+      "probe_errors": 4
+    },
     "outcomes": {
       "blocked": 33,
       "robots_blocked": 1,
@@ -235,8 +250,8 @@
       "thin": 10,
       "timeout": 6
     },
-    "judgeable_pct": 55.1,
-    "couldnt_tell_floor_pct": 44.9,
+    "judgeable_pct": 56.8,
+    "couldnt_tell_floor_pct": 43.2,
     "booking": {
       "sites_considered": 118,
       "booking_signal_found": 48,
@@ -290,7 +305,7 @@
         1
       ]
     ],
-    "mean_homepage_text_chars": 3752,
+    "mean_homepage_text_chars": 3870,
     "link_selection": {
       "sites_with_matching_links": 99,
       "mean_links_selected": 2.2
@@ -301,8 +316,13 @@
   {
     "market": "vet-columbus",
     "sampled": 120,
-    "scored": 119,
-    "excluded_probe_errors": 1,
+    "scored": 117,
+    "crawl_quality": {
+      "excluded_as_ours": 3,
+      "excluded_pct": 2.5,
+      "timeouts": 2,
+      "probe_errors": 1
+    },
     "outcomes": {
       "ok": 78,
       "blocked": 16,
@@ -314,8 +334,8 @@
       "probe_error": 1,
       "http_error": 1
     },
-    "judgeable_pct": 65.5,
-    "couldnt_tell_floor_pct": 34.5,
+    "judgeable_pct": 66.7,
+    "couldnt_tell_floor_pct": 33.3,
     "booking": {
       "sites_considered": 84,
       "booking_signal_found": 33,
@@ -393,7 +413,7 @@
         1
       ]
     ],
-    "mean_homepage_text_chars": 6714,
+    "mean_homepage_text_chars": 6829,
     "link_selection": {
       "sites_with_matching_links": 73,
       "mean_links_selected": 2.3

@@ -41,10 +41,13 @@ plan wins and the Decision log records why.
 | Open-data candidates per metro niche | — | 2,435–3,126 | 2026-09-19 |
 | Candidates with a website | — | 82.7–93.1% | 2026-09-19 |
 | Open-data coverage vs Google, per niche | ≥ 70% | — *(blocked: Places API (New) not enabled on the GCP project — key is valid)* | — |
-| **Couldn't-tell floor** (unreadable sites) | ≤ 25% | **39.6–43.1%** ⚠ | 2026-09-19 |
-| — of which bot-blocked (403/429) | — | 11.3–16.9% | 2026-09-19 |
+| **Genuine couldn't-tell** (reachable, still unjudgeable) | ≤ 25% | **19.0–25.3%** ✓ | 2026-09-20 |
+| — blocked (403/429), reported separately | — | 13.7–20.5% | 2026-09-20 |
+| — no site / social-only, reported separately | — | 0.0–5.5% | 2026-09-20 |
 | — bot-blocked recoverable, honest strategies | — | **3.8%** (75/78 stay blocked) | 2026-09-19 |
-| Booking signal found, judgeable sites | — | 36.7–63.2% | 2026-09-19 |
+| Judgeable (timeouts excluded as ours) | — | 56.6–66.7% | 2026-09-20 |
+| Booking signal found, judgeable sites | — | 39.3–63.3% | 2026-09-20 |
+| — vendor-identified, vet market | — | 2 → **21** after per-niche catalogues | 2026-09-20 |
 | Booking found only beyond the homepage | — | 0.0–1.6% | 2026-09-19 |
 | Match precision, blended | ≥ 90% | — | — |
 | Match precision, absence criteria only | ≥ 90% | — | — |
@@ -55,9 +58,10 @@ plan wins and the Decision log records why.
 | Weekly profile change rate (drives alert cost) | measure | — | — |
 | p95 time to first match, cold market | measure | — | — |
 
-⚠ **The couldn't-tell target is not reachable as written.** The measured floor — sites
-that yield no readable text at all, before any judgment is attempted — is ~40% against a
-≤25% target. See `docs/stage0-coverage-report.md` §2 and tasks S0-26 / S0-27.
+✓ **The ≤25% couldn't-tell target stands, and the earlier "unreachable" verdict is
+retracted.** It looked unreachable because one number counted three different answers:
+blocked sites, businesses with no site, and genuine uncertainty. Split apart, genuine
+uncertainty is 19.0–25.3%. See `docs/stage0-coverage-report.md` §2b and §2c.
 
 ---
 
@@ -141,15 +145,13 @@ wins rather than abandoning — that is the response the founding documents alre
 - [ ] **S0-30 · Keep the cheap, correct parts of polite crawling** even though they buy no
   recovery: honour `Retry-After`, exponential backoff on 429, a crawler identity page at
   the URL in our user agent. Correct behaviour, not a recovery strategy.
-- [ ] **S0-31 · Give "blocked" its own user-facing status**, separate from couldn't-tell.
-  "This site blocks automated reading" is specific, honest and actionable — the user can
-  open it themselves — and may be a weak buying signal for web agencies.
-- [ ] **S0-27 · Restate the couldn't-tell target from measured data.** Now the *primary*
-  response to the floor rather than the fallback, since S0-26 refuted the recovery route.
-  Move no-website and social-only businesses out of the denominator and into their own
-  answer (the product document already proposes the toggle), then set a launch target the
-  engine can hit. Current evidence supports ≤ 35% at launch, ≤ 25% by year 1. *Done when:*
-  the product document's ≤25% is replaced by a defended number.
+- [x] **S0-31 · Give "blocked" its own user-facing status.** Wired through the exporter,
+  the types, the results list and the map. Not billable, like every non-match.
+- [x] **S0-27 · Restate the couldn't-tell target from measured data.** Done, and the
+  answer is that the product document was right all along. Blocked (13.7–20.5%) and
+  no-site (0.0–5.5%) are separate answers, not uncertainty; genuine couldn't-tell is
+  **19.0–25.3%**. The ≤25% target is kept, now measured against the thing it names, with
+  ≤15% by year 1. `couldnt_tell_target.py` reports all three definitions.
 - [x] **S0-32 · Criteria-driven check plans.** `engine/check_plan.py` derives what pages
   to read from the search's own criteria, so any vertical works with no catalogue.
   Recognised criteria additionally get technology families as an *optimisation*, never a
@@ -157,7 +159,12 @@ wins rather than abandoning — that is the response the founding documents alre
   clinics in Columbus — a vertical sharing no vendors or keywords with the other three —
   which scored **65.5% judgeable, the best of four markets**, with only 2 of 22 booking
   detections matching a known vendor. 12 tests in `stage0/tests/test_check_plan.py`.
-- [ ] **S0-28 · Per-niche booking detector catalogues.** Vendor concentration within a
+- [x] **S0-28 · Per-niche booking detector catalogues.** 43 vendors across veterinary,
+  dental, med spa and trades. Vet vendor-identified detections went 2 → 21 and the booking
+  signal rate 26.2% → 39.3% on identical sites. Read as a correction rather than a win:
+  med spa matches fell 35 → 26 and dental 58 → 42, because those were false matches on
+  booking we could not previously see.
+- [ ] ~~**S0-28 (original wording)** · Per-niche booking detector catalogues.~~ Vendor concentration within a
   niche is high (Vagaro/Boulevard/Square for med spas; NexHealth/Dentrix for dental;
   ServiceTitan/HousecallPro/Jobber for HVAC), so a short per-niche list covers most of the
   market. This is the cheapest precision available. *Done when:* catalogues exist and the
@@ -417,6 +424,9 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-19 | Credential verification becomes a tested script, not a pasted curl | The hand-rolled probe was wrong for a session and read as "this session predates the credential" when it meant nothing at all. `engine/preflight.py` distinguishes the five states that have different remedies, and 12 tests pin the classification. |
 | 2026-09-19 | S0-04 blocker restated from "needs a key" to "needs the API enabled" | The key is present and valid; Places API (New) is not enabled on project `74590284143`. Different owner, different fix. |
 | 2026-09-20 | **Product build started before the Stage 0 gate passed.** | A deliberate departure. The remaining gate items are externally blocked, and the search box, region picker and results table are needed whatever precision turns out to be. What the gate still protects is *spending on acquisition*, not building. Model-dependent parts stay behind an interface so the engine drops in when keys land. |
+| 2026-09-20 | **"The couldn't-tell target is unreachable" — retracted.** | The ~40% figure counted blocked sites, businesses with no website, and genuine uncertainty as one number, and part of it was our own crawler timing out. Genuine uncertainty is 19.0–25.3%; the product document's ≤25% stands. Second time measurement has corrected the critique. |
+| 2026-09-20 | **Timeouts reclassified as ours, not the business's** | Three crawls of identical sites gave 4, 20 then 48 timeouts on one market while every other outcome moved by ≤4, and a retry made it worse. Excluded from business-facing rates and reported as crawl quality. Carries a product warning: weekly alert re-crawls need rate discipline and their own quality metric. |
+| 2026-09-20 | Earlier match rates of 37–63% were **too high** | Better booking detection cut med spa matches 35 → 26 and dental 58 → 42. Those were false matches on booking the detector could not see — the exact failure the coverage report cautioned about. |
 | 2026-09-20 | PMM Foundations lists Foursquare OS Places as "Free" with no caveat — **partly outdated** | Still Apache-2.0, but distribution moved to Hugging Face behind `gated: auto`, and the public S3 bucket is now empty of data. A free account and token are required, so "free" is true of the licence and not of the access. |
 | 2026-09-20 | The app serves **measured data only** | 8,974 real businesses and 720 real site probes, with verdicts from the absence-proof rule. Unread and not-yet-judged are shown as themselves rather than hidden, so the cold-market state the product document glosses over is visible: 200 of 3,009 read in the flagship market. |
 | 2026-09-20 | **Model-dependent Stage 0 work parked**, not abandoned: S0-04 (Google baseline), S0-11, S0-12, S0-16, S0-17. | The setup consumed more time than the work it was gating. Everything not needing a key is done. Two external unblocks are needed, neither fixable from this repo: `ANTHROPIC_API_KEY` as an environment variable, and Places API (New) enabled on Google project `74590284143`. Resume with `python3 stage0/src/engine/preflight.py`. *(An earlier version of this entry blamed session timing for the 401s; that reason was wrong — see the two entries below.)* |

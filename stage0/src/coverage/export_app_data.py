@@ -105,11 +105,19 @@ def verdict_for(criterion: dict, probe: dict | None) -> dict:
         )
     )
     verdict = result.verdict.value
+    outcome = probe.get("outcome")
+
     # "This site blocks automated reading" is a specific, actionable answer the
     # user can act on by opening it themselves, and 11-17% of every market is in
     # this state (S0-26). Folding it into couldn't-tell throws that away.
-    if verdict == "couldnt_tell" and probe.get("outcome") in ("blocked", "robots_blocked"):
+    if verdict == "couldnt_tell" and outcome in ("blocked", "robots_blocked"):
         verdict = "blocked"
+    # A timeout or a proxy failure is our crawler, not the business — three
+    # crawls of identical sites gave 4, 20 then 48 timeouts (report §2b). Saying
+    # "couldn't tell" implies we looked and the site was unclear. We did not
+    # look. "Not read yet" is the honest answer, and it is equally unbillable.
+    elif verdict == "couldnt_tell" and outcome in ("timeout", "probe_error"):
+        verdict = "unread"
 
     return {
         "verdict": verdict,

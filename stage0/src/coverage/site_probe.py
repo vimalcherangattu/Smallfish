@@ -428,23 +428,41 @@ def load_sample(market_id: str, sample: int, seed: int) -> list[dict]:
     return records[:sample]
 
 
+# Outcomes that measure *us*, not the business, and are therefore excluded from
+# every business-facing rate. `probe_error` is our proxy failing outright.
+# `timeout` earned its place here empirically: three crawls of the identical
+# sites produced 4, then 20, then 48 timeouts on one market while every other
+# outcome moved by at most 4, and adding a retry made it worse rather than
+# better. A figure that grows twelvefold over unchanged input is measuring
+# crawler load. It is reported separately as crawl quality rather than hidden.
+OURS_NOT_THEIRS = {"probe_error", "timeout"}
+
+
 def summarise(market_id: str, results: list[SiteResult]) -> dict:
     outcomes = Counter(r.outcome for r in results)
 
-    # Sites our own environment failed on are excluded from every rate, so a
-    # proxy hiccup never shows up as a business having no readable website.
-    scored = [r for r in results if r.outcome != "probe_error"]
+    scored = [r for r in results if r.outcome not in OURS_NOT_THEIRS]
     n = len(scored)
     judgeable = outcomes["ok"]
     booking = [r for r in scored if r.outcome in ("ok", "thin")]
     with_booking = [r for r in booking if r.booking_signal]
     hidden = [r for r in booking if r.booking_only_beyond_homepage]
 
+    excluded = sum(outcomes.get(k, 0) for k in OURS_NOT_THEIRS)
     return {
         "market": market_id,
         "sampled": len(results),
         "scored": n,
-        "excluded_probe_errors": outcomes.get("probe_error", 0),
+        # Our own failures, kept visible so a bad crawl is obvious rather than
+        # silently depressing the judgeable rate.
+        "crawl_quality": {
+            "excluded_as_ours": excluded,
+            "excluded_pct": (
+                round(100 * excluded / len(results), 1) if results else 0.0
+            ),
+            "timeouts": outcomes.get("timeout", 0),
+            "probe_errors": outcomes.get("probe_error", 0),
+        },
         "outcomes": dict(outcomes),
         "judgeable_pct": round(100 * judgeable / n, 1) if n else 0.0,
         "couldnt_tell_floor_pct": round(100 * (n - judgeable) / n, 1) if n else 0.0,

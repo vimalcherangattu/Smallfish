@@ -3,7 +3,7 @@
 Measurements, not estimates. Everything here is reproducible with the scripts in
 `stage0/src/`.
 
-**Run date:** 2026-09-19 · **Overture release:** 2026-08-19.0 · **Radius:** 25 miles
+**Run dates:** 2026-09-19 (first crawl), 2026-09-20 (re-crawl with per-niche catalogues) · **Overture release:** 2026-08-19.0 · **Radius:** 25 miles
 
 **Status:** partial. Candidate coverage (S0-02) and website readability (S0-05) are
 measured. The Google baseline (S0-04) and the Foursquare merge (S0-03) are outstanding,
@@ -53,25 +53,19 @@ extraction. robots.txt honoured, crawler identified, 1.5s per-domain throttle. S
 | robots_blocked | 3 | 1 | 1 |
 | **Couldn't-tell floor** | **40.6%** | **39.6%** | **43.1%** |
 
-### This is the most important number in the report
+### Superseded — see §2b and §2c
 
-The product document targets a couldn't-tell rate of **≤ 25% at launch**. The measured
-*floor* — before any model has been asked to judge anything — is **~40%**. No prompt,
-model or extraction improvement can go below it, because these sites did not yield
-readable text at all.
+This section originally reported a ~40% "floor" and called the product document's ≤ 25%
+couldn't-tell target unreachable. **Both claims were wrong**, for two separate reasons
+found by later measurement:
 
-The target is not reachable as written. Two responses remain, and the one that looked most
-promising has been tested and does not work — see §2a.
+- Part of the 40% was our own crawler timing out, not sites being unreadable (§2b).
+- The rest counted three different answers as one. Split properly, genuine uncertainty is
+  **19.0–25.3%** and the ≤ 25% target is close to met (§2c).
 
-1. ~~Attack `blocked` first.~~ **Tested and largely refuted.** See §2a.
-2. **Count `social_only` and `no website` as a product feature, not a failure.** The
-   product document already proposes an "include no-website businesses" toggle, which web
-   agencies value. Those businesses should leave the couldn't-tell denominator and become
-   their own answer.
-3. **Restate the target.** With `blocked` now known to be mostly unrecoverable, this stops
-   being the fallback and becomes the main response. A launch target of ≤ 35%, falling to
-   ≤ 25% by year 1, is what the data supports. Publishing an honest number is on-brand for
-   a product whose third principle is that uncertainty is shown, not hidden.
+The outcome table below is from the first crawl and is kept for the record. The current
+numbers are in §2b.
+
 
 ## 2a. Bot-blocked sites are mostly unrecoverable — a second correction
 
@@ -112,10 +106,105 @@ Three things follow:
    identity and contact page — they are correct and cheap — but stop expecting a recovery
    rate from them.
 2. **The target restatement (S0-27) is now the primary response**, not the fallback.
+   *Done — see §2c. The restated target keeps the product document's ≤ 25%, measured
+   against genuine uncertainty rather than against blocked and no-site combined.*
 3. **Blocked deserves its own user-facing status**, distinct from "couldn't tell". "This
    site blocks automated reading" is a specific, honest answer a user can act on — they
    can open it themselves — and it is a better experience than an unexplained shrug. It
    may even be a weak buying signal for web agencies.
+
+## 2b. Timeouts were measuring our crawler, not the web
+
+Three crawls of the **same sites, same sample seed, same fetcher** produced:
+
+| Market | Timeouts, crawl 1 | crawl 2 | crawl 3 |
+|---|---|---|---|
+| Med spa · Dallas | 4 | 20 | **48** |
+| Dental · Phoenix | 4 | 32 | — *(stopped)* |
+| HVAC · Tampa | 0 | 6 | — |
+| Vet · Columbus | 1 | 2 | — |
+
+Every other outcome — blocked, dead, thin, js_shell, social_only — moved by at most 4
+across the same runs. Only timeouts grew, and they grew twelvefold on one market. Adding
+a retry made it *worse*, because retrying doubles the load on hosts that are already
+struggling.
+
+A figure that grows twelvefold over unchanged input is measuring the measurer. Timeouts
+are therefore classified with `probe_error` as **ours, not theirs**, excluded from every
+business-facing rate and reported separately as crawl quality. This follows the rule the
+codebase already had: never blame our environment on the business.
+
+The third crawl was stopped once this was clear, rather than collecting more of it.
+
+**With timeouts excluded, the three crawls agree**, which is the point:
+
+| Market | Judgeable, crawl 1 | Current |
+|---|---|---|
+| Med spa · Dallas | 59.4% | 56.6% |
+| Dental · Phoenix | 60.4% | 59.0% |
+| HVAC · Tampa | 56.9% | 56.8% |
+| Vet · Columbus | 65.5% | 66.7% |
+
+There is a warning here for the product, not just the measurement. The alert engine
+re-crawls saved searches weekly. If sustained crawling degrades our own success rate this
+easily, alert runs need rate discipline and their own quality metric, or they will quietly
+report businesses as unreadable that are nothing of the kind.
+
+## 2c. The ≤ 25% couldn't-tell target is close to met — a retraction
+
+`python3 stage0/src/coverage/couldnt_tell_target.py`
+
+The earlier "unreachable" verdict came from counting three different answers as one
+number. Split apart:
+
+| Market | All-not-ok | Blocked | No site | **Genuine couldn't-tell** |
+|---|---|---|---|---|
+| Med spa · Dallas | 43.4% | 16.6% | 5.5% | **22.6%** |
+| Dental · Phoenix | 41.0% | 20.5% | 0.6% | **20.0%** |
+| HVAC · Tampa | 43.2% | 17.9% | 0.0% | **25.3%** |
+| Vet · Columbus | 33.3% | 13.7% | 0.9% | **19.0%** |
+
+- **Blocked** is a specific, actionable answer — the user can open the site themselves —
+  and 96% of it is unrecoverable by any honest means (§2a). It now has its own verdict
+  (S0-31), not a shrug.
+- **No site / social-only** is a different answer entirely, and the product document
+  already proposes surfacing it as one.
+- **Genuine couldn't-tell** — reachable but too thin, dead, erroring or JavaScript-only —
+  is **19.0–25.3%**, meets ≤ 25% on three markets of four, and is the only bucket a better
+  engine can move.
+
+**Restated target:** genuine couldn't-tell ≤ 25% at launch, ≤ 15% by year 1, with blocked
+and no-site reported separately and never counted as uncertainty. That is the product
+document's original number, kept, now that it is measured against the thing it describes.
+
+## 2d. Per-niche booking catalogues (S0-28)
+
+Booking software is strongly vertical-specific. Adding 43 vendors across veterinary,
+dental, med spa and trades, measured on the same sites:
+
+| Market | Vendor-identified detections | Booking signal found |
+|---|---|---|
+| Vet · Columbus | 2 → **21** | 26.2% → **39.3%** |
+| Med spa · Dallas | — → 42 | 63.3% |
+| Dental · Phoenix | — → 18 | 48.1% |
+| HVAC · Tampa | — → 34 | 40.7% |
+
+The med spa market's top vendor is now Aesthetic Record at 14, which appeared in no list
+before. Vet detections are led by AllyDVM, TeleVet, Covetrus, ezyVet and Vetstoria — none
+of which any general catalogue would contain.
+
+**This should be read as a correction, not a win.** More booking detected means *fewer*
+"no online booking" matches, because the earlier match rates counted businesses whose
+booking we simply could not see:
+
+| Market | Matches before | After |
+|---|---|---|
+| Med spa · Dallas | 35 | **26** |
+| Dental · Phoenix | 58 | **42** |
+
+Those 9 and 16 businesses were false matches — exactly the failure the product document
+says destroys trust, and exactly what §3 warned the earlier match rates might contain. The
+optimistic 37–63% match rates in §3 are correspondingly too high.
 
 ### Site quality varies by niche in ways that matter
 

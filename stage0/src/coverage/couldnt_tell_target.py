@@ -36,9 +36,11 @@ BLOCKED = {"blocked", "robots_blocked"}
 # There is no readable site to judge — a different answer, not uncertainty.
 NO_SITE = {"social_only"}
 # Reachable but not judgeable. The only bucket engineering can move.
-GENUINE = {"dead", "http_error", "thin", "js_shell", "timeout"}
+GENUINE = {"dead", "http_error", "thin", "js_shell"}
 # Our own failures, never counted against a business.
-OURS = {"probe_error"}
+# Timeouts measure crawler load, not the site — see OURS_NOT_THEIRS in
+# site_probe.py for the three-run evidence.
+OURS = {"probe_error", "timeout"}
 
 
 def main() -> int:
