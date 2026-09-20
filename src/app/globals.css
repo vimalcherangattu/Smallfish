@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #fbfaf8;
+  --panel: #ffffff;
+  --ink: #16181d;
+  --muted: #646b78;
+  --line: #e4e2dd;
+  --accent: #0f6d5f;
+  --accent-soft: #e6f2ef;
+  --match: #0f6d5f;
+  --no: #8a8f9a;
+  --unsure: #a8690b;
+  --unsure-soft: #fdf3e2;
+  --unread: #9aa0ab;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101217;
+    --panel: #171a20;
+    --ink: #ecedef;
+    --muted: #99a0ad;
+    --line: #272b33;
+    --accent: #4fbfa8;
+    --accent-soft: #14312c;
+    --match: #4fbfa8;
+    --no: #757b86;
+    --unsure: #e0a44a;
+    --unsure-soft: #33280f;
+    --unread: #6b7280;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #101217;
+  --panel: #171a20;
+  --ink: #ecedef;
+  --muted: #99a0ad;
+  --line: #272b33;
+  --accent: #4fbfa8;
+  --accent-soft: #14312c;
+  --match: #4fbfa8;
+  --no: #757b86;
+  --unsure: #e0a44a;
+  --unsure-soft: #33280f;
+  --unread: #6b7280;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* MapLibre's own chrome, toned to the page. */
+.maplibregl-ctrl-attrib {
+  font-size: 10px;
+  background: color-mix(in srgb, var(--panel) 85%, transparent) !important;
+}
+.maplibregl-ctrl-group {
+  background: var(--panel) !important;
+  border: 1px solid var(--line) !important;
+}
+.maplibregl-ctrl-group button + button {
+  border-top: 1px solid var(--line) !important;
+}

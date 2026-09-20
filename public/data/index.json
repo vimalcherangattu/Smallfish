@@ -1,0 +1,69 @@
+{
+  "release": "2026-08-19.0",
+  "markets": [
+    {
+      "id": "med-spa-dallas",
+      "niche": "med_spa",
+      "metro": "Dallas, TX",
+      "center": {
+        "lat": 32.7767,
+        "lon": -96.797
+      },
+      "search": "Med spas in Dallas that offer Botox and don't have online booking",
+      "counts": {
+        "candidates": 3009,
+        "primary": 852,
+        "withSite": 2440,
+        "read": 200
+      }
+    },
+    {
+      "id": "dental-phoenix",
+      "niche": "dental",
+      "metro": "Phoenix, AZ",
+      "center": {
+        "lat": 33.4484,
+        "lon": -112.074
+      },
+      "search": "Dental clinics in Phoenix with no online booking",
+      "counts": {
+        "candidates": 3126,
+        "primary": 2654,
+        "withSite": 2778,
+        "read": 200
+      }
+    },
+    {
+      "id": "hvac-tampa",
+      "niche": "hvac",
+      "metro": "Tampa, FL",
+      "center": {
+        "lat": 27.9506,
+        "lon": -82.4572
+      },
+      "search": "HVAC firms in Tampa that do commercial work and have no quote form",
+      "counts": {
+        "candidates": 2435,
+        "primary": 700,
+        "withSite": 2196,
+        "read": 200
+      }
+    },
+    {
+      "id": "vet-columbus",
+      "niche": "veterinary",
+      "metro": "Columbus, OH",
+      "center": {
+        "lat": 39.9612,
+        "lon": -82.9988
+      },
+      "search": "Independent vet clinics in Ohio offering exotic-pet care, not part of a group",
+      "counts": {
+        "candidates": 404,
+        "primary": 275,
+        "withSite": 354,
+        "read": 120
+      }
+    }
+  ]
+}

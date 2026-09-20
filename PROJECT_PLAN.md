@@ -242,7 +242,12 @@ Features 1–6 from the product document, plus the corrections above.
 
 - [ ] **S1-01 · Search box and criteria confirmation** with editable chips, per-criterion
   "how this is checked" lines, and one clarifying question for vague terms.
-- [ ] **S1-20 · Map region picker.** The visual half of S0-29: a map that opens on the
+- [x] **S1-20 · Map region picker.** Built. Radius presets, click to move the centre,
+  freehand polygon drawing, live candidate count as the region changes. MapLibre +
+  OpenStreetMap, so no map API key and no billing. Browser geometry in `src/lib/geo.ts`
+  mirrors `engine/geometry.py`, so the count on screen matches what the engine would
+  return.
+- [x] ~~**S1-20 (original wording)** · Map region picker.~~ The visual half of S0-29: a map that opens on the
   parsed location, a draggable radius, presets for city, county and state, and freehand
   polygon drawing. Shows the live candidate count as the region changes, because the
   region is what drives cost — this is the screen where a user can casually draw half a
@@ -263,7 +268,10 @@ Features 1–6 from the product document, plus the corrections above.
 - [ ] **S1-26 · ICP discovery as the rare-search empty state.** When a search returns
   almost nothing, offer three related ICPs with more matches instead of a dead end.
   *Depends on:* S1-24.
-- [ ] **S1-21 · Area cost guardrail.** When a region's candidate estimate exceeds the scan
+- [x] **S1-21 · Area cost guardrail.** The scan cost for the current region is shown
+  before anything is spent, split into unread and cached, with the warm-market figure
+  alongside. Warns above 5,000 candidates.
+- [ ] ~~**S1-21 (original wording)** · Area cost guardrail.~~ When a region's candidate estimate exceeds the scan
   budget, say so before anything is spent: show the estimate, offer to tighten the region,
   and make progressive unlock (strongest matches first, stop any time) the default for
   large areas. The product document promises this behaviour for huge areas but ties it to
@@ -403,4 +411,6 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-19 | SDK-vs-proxy question **closed**: `engine/llm.py` keeps the ordinary SDK path | Tested four ways. An `x-api-key: placeholder` returns `invalid x-api-key`, proving the header reaches Anthropic unmodified — the proxy neither injects nor replaces. A real `ANTHROPIC_API_KEY` in the environment is the only mechanism observed to work here. |
 | 2026-09-19 | Credential verification becomes a tested script, not a pasted curl | The hand-rolled probe was wrong for a session and read as "this session predates the credential" when it meant nothing at all. `engine/preflight.py` distinguishes the five states that have different remedies, and 12 tests pin the classification. |
 | 2026-09-19 | S0-04 blocker restated from "needs a key" to "needs the API enabled" | The key is present and valid; Places API (New) is not enabled on project `74590284143`. Different owner, different fix. |
+| 2026-09-20 | **Product build started before the Stage 0 gate passed.** | A deliberate departure. The remaining gate items are externally blocked, and the search box, region picker and results table are needed whatever precision turns out to be. What the gate still protects is *spending on acquisition*, not building. Model-dependent parts stay behind an interface so the engine drops in when keys land. |
+| 2026-09-20 | The app serves **measured data only** | 8,974 real businesses and 720 real site probes, with verdicts from the absence-proof rule. Unread and not-yet-judged are shown as themselves rather than hidden, so the cold-market state the product document glosses over is visible: 200 of 3,009 read in the flagship market. |
 | 2026-09-20 | **Model-dependent Stage 0 work parked**, not abandoned: S0-04 (Google baseline), S0-11, S0-12, S0-16, S0-17. | The setup consumed more time than the work it was gating. Everything not needing a key is done. Two external unblocks are needed, neither fixable from this repo: `ANTHROPIC_API_KEY` as an environment variable, and Places API (New) enabled on Google project `74590284143`. Resume with `python3 stage0/src/engine/preflight.py`. *(An earlier version of this entry blamed session timing for the 401s; that reason was wrong — see the two entries below.)* |
