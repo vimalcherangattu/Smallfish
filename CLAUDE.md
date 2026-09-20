@@ -23,7 +23,7 @@ that panel if it reports "needs authentication".
 | `PROJECT_PLAN.md` | Stages, hard gates, every task with a definition of done, live measurements, decision log. |
 | `docs/critique.md` | Review of the founding documents and the reasoning behind the plan's departures from them. |
 | `docs/stage0-coverage-report.md` | Measured results: candidate supply, website readability, technology signals, location shapes. |
-| `docs/icp-discovery.md` | Design for the ICP flow (S1-22 – S1-26). Not built. |
+| `docs/icp-discovery.md` | Design for the ICP flow. S1-23 – S1-26 are built (`src/lib/icp.ts`); S1-22, reading the seller's own site, is blocked on a model key and the flow runs on a typed offer instead. |
 | `stage0/src/coverage/` | Candidate extraction and the site probe. |
 | `stage0/src/engine/` | Technology detection, check plans, geometry. |
 | `stage0/tests/` | `python3 stage0/tests/run_all.py` |

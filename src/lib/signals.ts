@@ -59,7 +59,9 @@ export const SIGNALS: ObservableSignal[] = [
     costsWhenMissing:
       "every appointment has to be taken by phone, so enquiries that arrive " +
       "outside opening hours wait for a call back",
-    inCriterion: /\b(online booking|book online|booking (widget|system|software)|appointment)\b/i,
+    // Plurals are explicit: `\breview\b` can never match "reviews", which is
+    // how a user would actually write it.
+    inCriterion: /\b(online bookings?|book online|booking (widget|system|software)s?|appointments?)\b/i,
     inOffer:
       /\b(booking|scheduling|schedul\w*|appointment|calendar|reception|receptionist|answer\w* (calls|the phone)|missed calls?|after[- ]hours)\b/i,
   },
@@ -75,7 +77,7 @@ export const SIGNALS: ObservableSignal[] = [
     costsWhenMissing:
       "a prospect who wants a price has to call during business hours, and the " +
       "ones who will not call reach whoever answers first instead",
-    inCriterion: /\b(quote|estimate|request a price|pricing form)\b/i,
+    inCriterion: /\b(quotes?|quote forms?|estimates?|request a price|pricing forms?)\b/i,
     inOffer: /\b(quote|estimate|lead (capture|form|gen\w*)|enquir\w+|inquir\w+|intake)\b/i,
   },
   {
@@ -89,7 +91,7 @@ export const SIGNALS: ObservableSignal[] = [
     presenceText: "has live chat",
     costsWhenMissing:
       "a question asked while nobody is at the phone has nowhere to land",
-    inCriterion: /\b(chat|messenger|live support)\b/i,
+    inCriterion: /\b(chats?|live chat|messenger|live support)\b/i,
     inOffer: /\b(chat\w*|chatbot|messaging|instant repl\w+|website assistant)\b/i,
   },
 
@@ -105,8 +107,8 @@ export const SIGNALS: ObservableSignal[] = [
     presenceText: "has a contact form",
     costsWhenMissing:
       "the site offers no written way to get in touch",
-    inCriterion: /\bcontact form\b/i,
-    inOffer: /\bcontact form\b/i,
+    inCriterion: /\bcontact forms?\b/i,
+    inOffer: /\bcontact forms?\b/i,
     wouldTake:
       "a form classifier that can tell a contact form from a newsletter box — " +
       "the bare <form> pattern was removed from the detector because it fired " +
@@ -152,7 +154,7 @@ export const SIGNALS: ObservableSignal[] = [
     absenceText: "collects no reviews on the site",
     presenceText: "shows reviews on the site",
     costsWhenMissing: "social proof lives entirely off-site, where it is not controlled",
-    inCriterion: /\b(review|testimonial|reputation)\b/i,
+    inCriterion: /\b(reviews?|testimonials?|reputation)\b/i,
     inOffer: /\b(review\w*|reputation|testimonial\w*)\b/i,
     wouldTake: "a review-widget catalogue in tech_signals.py, in the same shape as booking.",
   },

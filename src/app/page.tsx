@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import IcpBuilder from "@/components/IcpBuilder";
 import Results, { VerdictDot } from "@/components/Results";
+import SearchConfirm from "@/components/SearchConfirm";
 import type { Candidate } from "@/lib/icp";
 import { bboxOf, contains, areaSqMiles, type Region } from "@/lib/geo";
 import { COST, compact, estimateCost, money } from "@/lib/cost";
@@ -38,6 +39,7 @@ export default function Page() {
   const [drawing, setDrawing] = useState(false);
   const [criterionId, setCriterionId] = useState<string>("");
   const [icpOpen, setIcpOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   /** Set when the ICP flow picks a market, so the criterion it chose survives
    *  the market load that would otherwise overwrite it with `mostDecided`. */
   const [pendingCriterion, setPendingCriterion] = useState<string | null>(null);
@@ -136,18 +138,21 @@ export default function Page() {
 
   const matches = tally.match ?? 0;
 
-  /** Step 5 of the ICP flow: the chosen ICP becomes an ordinary search.
-   *  Nothing downstream is told where it came from. */
-  function adoptIcp(c: Candidate) {
+  /** Both front doors land here: a typed search and a chosen ICP produce the
+   *  same thing, an ordinary market plus criterion. Nothing downstream is told
+   *  which door it came through. */
+  function adopt(nextMarketId: string, nextCriterionId: string) {
     setIcpOpen(false);
-    if (c.marketId === marketId) {
-      setCriterionId(c.criterionId);
+    setSearchOpen(false);
+    if (nextMarketId === marketId) {
+      setCriterionId(nextCriterionId);
     } else {
       // The market load picks a lead criterion of its own; hand it ours.
-      setPendingCriterion(c.criterionId);
-      setMarketId(c.marketId);
+      setPendingCriterion(nextCriterionId);
+      setMarketId(nextMarketId);
     }
   }
+  const adoptIcp = (c: Candidate) => adopt(c.marketId, c.criterionId);
 
   return (
     <main className="flex h-dvh flex-col lg:flex-row">
@@ -222,6 +227,13 @@ export default function Page() {
             onClose={() => setIcpOpen(false)}
           />
         )}
+        {searchOpen && (
+          <SearchConfirm
+            index={index}
+            onRun={adopt}
+            onClose={() => setSearchOpen(false)}
+          />
+        )}
         <header className="border-b border-[var(--line)] px-4 py-3">
           <div className="flex items-baseline justify-between gap-2">
             <h1 className="text-[15px] font-semibold tracking-tight">
@@ -235,10 +247,22 @@ export default function Page() {
             Find local businesses by what they actually do, and prove every match.
           </p>
 
+          {/* The front door the product document specifies: one box. The
+              market list below is the Stage 0 reality — four measured
+              markets — and stays as a shortcut rather than a pretence that
+              typing anything will find data. */}
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="mt-2.5 flex w-full items-center gap-2 rounded-md border border-[var(--line)] bg-[var(--bg)] px-2 py-1.5 text-left text-[12px] text-[var(--muted)] hover:border-[var(--accent)]"
+          >
+            <span aria-hidden>⌕</span>
+            Describe what you&rsquo;re looking for…
+          </button>
+
           <select
             value={marketId}
             onChange={(e) => setMarketId(e.target.value)}
-            className="mt-2.5 w-full rounded-md border border-[var(--line)] bg-[var(--bg)] px-2 py-1.5 text-[12px]"
+            className="mt-1.5 w-full rounded-md border border-[var(--line)] bg-[var(--bg)] px-2 py-1.5 text-[12px]"
           >
             {index?.markets.map((m) => (
               <option key={m.id} value={m.id}>

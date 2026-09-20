@@ -252,8 +252,21 @@ Features 1–6 from the product document, plus the corrections above.
 
 ### Product
 
-- [ ] **S1-01 · Search box and criteria confirmation** with editable chips, per-criterion
-  "how this is checked" lines, and one clarifying question for vague terms.
+- [x] **S1-01 · Search box and criteria confirmation.** `src/lib/search.ts` parses a typed
+  query into where / what / must-have / must-not-have / preferences, and the confirm step
+  answers all eight situations the product document's *Search problems* table names —
+  before anything is counted, which is the point: a criterion the engine cannot settle is
+  cheapest to refuse while the user is still typing. Vague words get one multiple-choice
+  question whose options are all observable or "drop it". Unprovable criteria are refused
+  with a provable proxy, and the proxy says when it is not settleable today either.
+  People searches and owner-attribute criteria are declined outright. Contradictions and
+  the five-criterion cap block the count rather than warning about it, and a match rate
+  under 3% of the judged candidates warns before unlocking. Criteria the catalogue does
+  not cover still become criteria — the general layer — flagged as needing a model.
+  *Deferred to S0-12:* a model reading the query. The parser says `unrecognised` rather
+  than guessing, and being deterministic has one real advantage a model does not offer:
+  the confirm step is the contract, so two identical searches must not word it
+  differently.
 - [x] **S1-20 · Map region picker.** Built. Radius presets, click to move the centre,
   freehand polygon drawing, live candidate count as the region changes. MapLibre +
   OpenStreetMap, so no map API key and no billing. Browser geometry in `src/lib/geo.ts`
@@ -459,3 +472,6 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-20 | ICP discovery **built without S1-22**, on a typed offer instead of a fetched site | Reading the seller's own site needs a model key that is still blocked, but it is only the input step. Splitting the flow at that seam shipped S1-23 – S1-26 now and leaves S1-22 a drop-in upgrade. A named-offer chip list is an optimisation over free-text matching, not a precondition — the same two-layer rule `engine/check_plan.py` follows. |
 | 2026-09-20 | Unprovable ICP criteria are **listed and refused**, not hidden | Three of the seven catalogued signals cannot be settled today (contact form, mobile-ready, stale site). Dropping them silently would make the flow look better and deliver ICPs the engine cannot serve; showing them with what it would take makes the gap a roadmap instead of a surprise. `docs/icp-discovery.md` rule 1. |
 | 2026-09-20 | `public/data/index.json` now carries each market's criteria and tallies | The ICP flow shows live counts for several candidate ICPs at once. Reading them from the market files would cost four megabytes to display three numbers, in the one place the product promises the count is free. ~1 KB per market in the index instead. |
+| 2026-09-20 | The confirm step **blocks** on a contradiction or a declined term, rather than warning | The product document says "flags the conflict"; a flag next to a live count still invites the user to run a search whose answer is the empty intersection by definition. Blocking costs one click (each chip has a drop button) and removes a result that would look like a data gap. |
+| 2026-09-20 | Two plural bugs in the signal catalogue, **found by rendering the page, not by the tests** | `\breview\b` can never match "reviews" and `\bchristian\b` can never match "christians" — so a criterion silently vanished and a *sensitive-attribute refusal silently failed to fire*. The unit tests passed throughout: they used the singular. Every `inCriterion`, `PEOPLE` and `SENSITIVE` pattern now spells its plurals, and the tests use the plural forms a user would type. A refusal that quietly does not fire is worse than no refusal. |
+| 2026-09-20 | Query parsing is **deterministic today and stays useful when a model lands** | S0-12 will read the query properly. Until then the parser recognises what it has a rule for and reports `unrecognised` instead of guessing. Worth keeping either way: the confirm step is the contract the user agrees to, so two identical searches must not produce two different wordings of it. |
