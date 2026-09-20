@@ -104,8 +104,15 @@ def verdict_for(criterion: dict, probe: dict | None) -> dict:
             detector_covers_criterion=family is not None,
         )
     )
+    verdict = result.verdict.value
+    # "This site blocks automated reading" is a specific, actionable answer the
+    # user can act on by opening it themselves, and 11-17% of every market is in
+    # this state (S0-26). Folding it into couldn't-tell throws that away.
+    if verdict == "couldnt_tell" and probe.get("outcome") in ("blocked", "robots_blocked"):
+        verdict = "blocked"
+
     return {
-        "verdict": result.verdict.value,
+        "verdict": verdict,
         "reason": result.reason,
         **({"proof": result.proof} if result.proof else {}),
     }

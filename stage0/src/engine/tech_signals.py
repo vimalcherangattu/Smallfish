@@ -74,6 +74,83 @@ BOOKING_GENERIC: list[str] = [
     r"\bbook\s+(your\s+)?appointment\s+online\b",
 ]
 
+# --- Per-niche booking catalogues (task S0-28) -------------------------------
+# Booking software is strongly vertical-specific: the med spa list above says
+# almost nothing about a vet clinic. Measured in `docs/stage0-coverage-report.md`
+# §5a: in the veterinary market only 2 of 22 booking detections matched a known
+# vendor, because veterinary booking runs on software absent from every list.
+#
+# These are grouped by niche so the coverage is auditable, and merged into
+# BOOKING_VENDORS below. **Adding a niche is an optimisation, never a
+# precondition** — an uncatalogued vertical still works through the generic
+# affordances and the model (see `check_plan.py`). Vendors that never fire cost
+# nothing; the re-probe reports which ones actually do.
+
+BOOKING_VENDORS_BY_NICHE: dict[str, dict[str, list[str]]] = {
+    "veterinary": {
+        "vetstoria": [r"vetstoria\.com"],
+        "petdesk": [r"petdesk\.com"],
+        # Weave is covered by the base catalogue, scoped to /schedule. Weave is
+        # also a phone and messaging product, so a bare getweave.com match would
+        # claim booking on sites that have none.
+        "evetpractice": [r"evetpractice\.com"],
+        "ezyvet": [r"ezyvet\.com"],
+        "shepherd_vet": [r"shepherd\.vet", r"shepherdsoftware"],
+        "digitail": [r"digitail\.(com|io)"],
+        "instinct_vet": [r"instinct\.vet"],
+        "vetter": [r"vettersoftware\.com"],
+        "idexx_neo": [r"neo\.idexx\.com", r"idexxneo"],
+        "provet_cloud": [r"provet\.cloud"],
+        "televet": [r"televet\.com"],
+        "vitusvet": [r"vitusvet\.com"],
+        "allydvm": [r"allydvm\.com"],
+        "hippo_manager": [r"hippomanager\.com"],
+        "covetrus": [r"covetrus\.com"],
+    },
+    "dental": {
+        "curve_dental": [r"curvedental\.com", r"curvehero\.com"],
+        "denticon": [r"denticon\.com"],
+        "eaglesoft": [r"eaglesoft", r"patterson\.eaglesoft"],
+        "lighthouse360": [r"lighthouse360\.com"],
+        "revenuewell": [r"revenuewell\.com"],
+        "solutionreach": [r"solutionreach\.com"],
+        "dental_intelligence": [r"dentalintel\.com", r"dentalintelligence\.com"],
+        "adit": [r"adit\.com"],
+        "yapi": [r"yapiapp\.com"],
+        "modento": [r"modento\.io"],
+        "simplifeye": [r"simplifeye\.co"],
+        "flex_dental": [r"flexdental(solutions)?\.com"],
+    },
+    "med_spa": {
+        "aesthetic_record": [r"aestheticrecord\.com", r"myaestheticrecord\.com"],
+        "symplast": [r"symplast\.com"],
+        "patientnow": [r"patientnow\.com"],
+        "nextech": [r"nextech\.com"],
+        "zenoti": [r"zenoti\.com"],
+        "mangomint": [r"mangomint\.com"],
+        "meevo": [r"meevo\.com", r"millenniumsi\.com"],
+        "moxie": [r"moxie\.xyz"],
+    },
+    "trades": {
+        "fieldedge": [r"fieldedge\.com"],
+        "service_fusion": [r"servicefusion\.com"],
+        "workiz": [r"workiz\.com"],
+        "mhelpdesk": [r"mhelpdesk\.com"],
+        "service_autopilot": [r"serviceautopilot\.com"],
+        "thryv": [r"thryv\.com"],
+        "scheduling_engine": [r"schedulingengine\.com"],
+        "servicem8": [r"servicem8\.com"],
+    },
+}
+
+# Merge the per-niche catalogues into the main booking list. A name collision
+# would silently drop one, so assert rather than overwrite.
+for _niche, _vendors in BOOKING_VENDORS_BY_NICHE.items():
+    for _name, _patterns in _vendors.items():
+        assert _name not in BOOKING_VENDORS, f"duplicate booking vendor: {_name}"
+        BOOKING_VENDORS[_name] = _patterns
+
+
 # --- Quote / lead forms ------------------------------------------------------
 QUOTE_FORM_VENDORS: dict[str, list[str]] = {
     "hubspot_forms": [r"js\.hsforms\.net", r"hbspt\.forms"],

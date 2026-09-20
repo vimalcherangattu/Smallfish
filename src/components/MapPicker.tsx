@@ -29,6 +29,7 @@ const VERDICT_COLOR: Record<string, string> = {
   match: "#0f6d5f",
   no_match: "#8a8f9a",
   couldnt_tell: "#c9820f",
+  blocked: "#c2566a",
   needs_model: "#6f7bd0",
   unread: "#b9bec7",
 };

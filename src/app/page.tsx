@@ -21,6 +21,7 @@ const RADII = [5, 10, 25, 50];
 const ORDER: VerdictKind[] = [
   "match",
   "couldnt_tell",
+  "blocked",
   "needs_model",
   "no_match",
   "unread",

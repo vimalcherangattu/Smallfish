@@ -1,13 +1,15 @@
 /** Shapes of the measured data in `public/data/`, written by
  *  `stage0/src/coverage/export_app_data.py`. */
 
-/** Verdicts the engine can return. Five, not three — because "we haven't read
- *  this yet" and "nothing that can judge this has run" are honest answers that a
- *  three-state model would have to lie about. */
+/** Verdicts the engine can return. Six, not three: "we haven't read this yet",
+ *  "nothing that can judge this has run" and "the site refuses automated reading"
+ *  are all honest answers a three-state model would have to lie about. None of
+ *  the three is billable. */
 export type VerdictKind =
   | "match"
   | "no_match"
   | "couldnt_tell"
+  | "blocked"
   | "needs_model"
   | "unread";
 
@@ -79,6 +81,7 @@ export const VERDICT_LABEL: Record<VerdictKind, string> = {
   match: "Match",
   no_match: "No match",
   couldnt_tell: "Couldn't tell",
+  blocked: "Site blocks reading",
   needs_model: "Not yet judged",
   unread: "Not read yet",
 };
@@ -89,6 +92,7 @@ export const BILLABLE: Record<VerdictKind, boolean> = {
   match: true,
   no_match: false,
   couldnt_tell: false,
+  blocked: false,
   needs_model: false,
   unread: false,
 };

@@ -13,6 +13,7 @@ const DOT: Record<VerdictKind, string> = {
   match: "bg-[var(--match)]",
   no_match: "bg-[var(--no)]",
   couldnt_tell: "bg-[var(--unsure)]",
+  blocked: "bg-rose-400",
   needs_model: "bg-indigo-400",
   unread: "bg-[var(--unread)]",
 };

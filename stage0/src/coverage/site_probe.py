@@ -255,11 +255,21 @@ def is_social(url: str) -> bool:
     return any(host == s or host.endswith("." + s) for s in SOCIAL_HOSTS)
 
 
+# A timeout is the one outcome that is as likely to be ours as theirs, and it
+# arrives in correlated bursts when several markets are crawled back to back. A
+# run that recorded 4 timeouts on Monday recorded 32 on Tuesday over the same
+# sites, while blocked/dead/thin moved by at most 4 — so an unretried timeout
+# measures our load, not the business. Retry once before believing it.
+TIMEOUT_RETRIES = 1
+TIMEOUT_RETRY_DELAY = 3.0
+
+
 async def fetch_page(
     client: httpx.AsyncClient,
     url: str,
     robots: RobotsCache,
     throttle: DomainThrottle,
+    _attempt: int = 0,
 ) -> tuple[PageResult, str]:
     """Fetch one page. Returns the result and the raw HTML (empty on failure)."""
     result = PageResult(url=url)
@@ -284,6 +294,9 @@ async def fetch_page(
         result.signals = tech_signals.detect(html).as_dict()
         return result, html
     except httpx.TimeoutException:
+        if _attempt < TIMEOUT_RETRIES:
+            await asyncio.sleep(TIMEOUT_RETRY_DELAY)
+            return await fetch_page(client, url, robots, throttle, _attempt + 1)
         result.error = "timeout"
     except httpx.ProxyError as exc:
         # Our own network path, not the site. Must not be counted against the
@@ -547,9 +560,25 @@ async def main_async(args) -> int:
             flush=True,
         )
 
+    # Merge rather than replace: a single-market run used to blow away the other
+    # markets' entries, so the combined summary only ever reflected whichever
+    # market ran last.
     out = DATA / "siteprobe-summary.json"
-    out.write_text(json.dumps(summaries, indent=2) + "\n")
-    print(f"Summary → {out.relative_to(ROOT)}")
+    merged: dict[str, dict] = {}
+    if out.exists():
+        try:
+            for row in json.loads(out.read_text()):
+                merged[row["market"]] = row
+        except (json.JSONDecodeError, KeyError, TypeError):
+            merged = {}
+    for row in summaries:
+        merged[row["market"]] = row
+
+    order = [m["id"] for m in spec["markets"]]
+    ordered = sorted(merged.values(), key=lambda r: order.index(r["market"])
+                     if r["market"] in order else len(order))
+    out.write_text(json.dumps(ordered, indent=2) + "\n")
+    print(f"Summary → {out.relative_to(ROOT)} ({len(ordered)} markets)")
     return 0
 
 
