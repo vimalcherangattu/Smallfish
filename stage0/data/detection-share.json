@@ -1,0 +1,86 @@
+[
+  {
+    "market": "med-spa-dallas",
+    "criterion": "offers_botox",
+    "type": "presence",
+    "detector": false,
+    "attempted": 200,
+    "settled": 0,
+    "unsettled": 0,
+    "needs_model": 200,
+    "not_attempted": 2809,
+    "settled_pct": 0.0
+  },
+  {
+    "market": "med-spa-dallas",
+    "criterion": "no_online_booking",
+    "type": "absence",
+    "detector": true,
+    "attempted": 145,
+    "settled": 83,
+    "unsettled": 62,
+    "needs_model": 0,
+    "not_attempted": 2864,
+    "settled_pct": 57.2
+  },
+  {
+    "market": "dental-phoenix",
+    "criterion": "no_online_booking",
+    "type": "absence",
+    "detector": true,
+    "attempted": 166,
+    "settled": 93,
+    "unsettled": 73,
+    "needs_model": 0,
+    "not_attempted": 2960,
+    "settled_pct": 56.0
+  },
+  {
+    "market": "hvac-tampa",
+    "criterion": "does_commercial",
+    "type": "presence",
+    "detector": false,
+    "attempted": 200,
+    "settled": 0,
+    "unsettled": 0,
+    "needs_model": 200,
+    "not_attempted": 2235,
+    "settled_pct": 0.0
+  },
+  {
+    "market": "hvac-tampa",
+    "criterion": "no_quote_form",
+    "type": "absence",
+    "detector": true,
+    "attempted": 190,
+    "settled": 109,
+    "unsettled": 81,
+    "needs_model": 0,
+    "not_attempted": 2245,
+    "settled_pct": 57.4
+  },
+  {
+    "market": "vet-columbus",
+    "criterion": "exotic_pet_care",
+    "type": "presence",
+    "detector": false,
+    "attempted": 120,
+    "settled": 0,
+    "unsettled": 0,
+    "needs_model": 120,
+    "not_attempted": 284,
+    "settled_pct": 0.0
+  },
+  {
+    "market": "vet-columbus",
+    "criterion": "independent",
+    "type": "absence",
+    "detector": false,
+    "attempted": 117,
+    "settled": 0,
+    "unsettled": 117,
+    "needs_model": 0,
+    "not_attempted": 287,
+    "settled_pct": 0.0
+  }
+]

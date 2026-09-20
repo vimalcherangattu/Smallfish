@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
 import random
 import re
 import sys
@@ -47,9 +48,16 @@ from engine.check_plan import plan_for_search  # noqa: E402
 FIXTURES = ROOT / "stage0" / "fixtures" / "benchmarks.json"
 DATA = ROOT / "stage0" / "data"
 
+# S0-30. The URL here must resolve to a page that explains what this crawler
+# is, or "identify honestly" is a claim with nothing behind it. It points at
+# `src/app/bot/page.tsx`; `SMALLFISH_BOT_URL` overrides it when the site moves
+# to a custom domain. `CONTACT` is still a placeholder and needs a real
+# address — see the note in that page.
+BOT_URL = os.environ.get("SMALLFISH_BOT_URL", "https://smallfish-eta.vercel.app/bot")
+CONTACT = os.environ.get("SMALLFISH_BOT_CONTACT", "hello@smallfish.example")
 USER_AGENT = (
-    "SmallFishBot/0.1 (+https://smallfish.example/bot; "
-    "local business relevance research; contact: hello@smallfish.example)"
+    f"SmallFishBot/0.1 (+{BOT_URL}; "
+    f"local business relevance research; contact: {CONTACT})"
 )
 HEADERS = {"User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml"}
 

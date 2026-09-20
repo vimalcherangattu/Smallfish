@@ -49,6 +49,9 @@ plan wins and the Decision log records why.
 | Booking signal found, judgeable sites | — | 39.3–63.3% | 2026-09-20 |
 | — vendor-identified, vet market | — | 2 → **21** after per-niche catalogues | 2026-09-20 |
 | Booking found only beyond the homepage | — | 0.0–1.6% | 2026-09-19 |
+| **Criteria settled with no model call** (the cost lever, S0-10) | measure | **56.0–57.4%** where a detector exists | 2026-09-20 |
+| — across every criterion, detector or not | — | **25.0%** (285 of 1,138) | 2026-09-20 |
+| — benchmark criteria with no detector at all | — | **4 of 7**, settling nothing | 2026-09-20 |
 | Match precision, blended | ≥ 90% | — | — |
 | Match precision, absence criteria only | ≥ 90% | — | — |
 | Known-match recall | ≥ 60% | — | — |
@@ -142,9 +145,15 @@ wins rather than abandoning — that is the response the founding documents alre
   exactly 1 site in 78 became readable by abandoning honest identification. **The
   principle stays and bot-blocking is reclassified from workstream to cost of doing
   business.**
-- [ ] **S0-30 · Keep the cheap, correct parts of polite crawling** even though they buy no
-  recovery: honour `Retry-After`, exponential backoff on 429, a crawler identity page at
-  the URL in our user agent. Correct behaviour, not a recovery strategy.
+- [x] **S0-30 · Keep the cheap, correct parts of polite crawling** even though they buy no
+  recovery. `Retry-After` honoured on 429/503, exponential per-host backoff, and a crawler
+  identity page at `/bot` — the URL in the user agent, which until now was
+  `smallfish.example/bot` and **did not exist**. S0-26 measured that honest identification
+  costs one readable site in 78; a URL nobody can open spends that price and buys nothing.
+  The page states what is fetched, the real per-host delay, how to block us, and how to
+  have a business removed. 12 tests pin the page to the probe's actual behaviour, because
+  the failure is silent: the crawler keeps working while the identity it advertises rots.
+  *Remaining:* the contact address is still a placeholder and needs a real inbox.
 - [x] **S0-31 · Give "blocked" its own user-facing status.** Wired through the exporter,
   the types, the results list and the map. Not billable, like every non-match.
 - [x] **S0-27 · Restate the couldn't-tell target from measured data.** Done, and the
@@ -188,10 +197,14 @@ wins rather than abandoning — that is the response the founding documents alre
   content hashing for the change check.
 - [ ] **S0-09 · Headless rendering fallback**, triggered only when a plain fetch returns an
   empty shell, with a per-search cap.
-- [ ] **S0-10 · Technology detector.** Booking widgets (Calendly, Vagaro, Zocdoc, Mindbody,
-  Jane, Boulevard, Square, Acuity), chat widgets, CMS, ad pixels, quote forms. *Done when:*
-  detection settles a measured share of criteria with no model call — record that share, it
-  is the main cost lever.
+- [x] **S0-10 · Technology detector.** 79 vendors across booking, chat, CMS and quote
+  forms, with per-niche catalogues (S0-28). **The share is recorded:
+  `engine/detection_share.py` — 56.0–57.4% of criteria settled with no model call where a
+  detector exists, 25.0% across every criterion in every market.** The gap is the point:
+  four of seven benchmark criteria have no detector at all, and they settle nothing.
+  *Read with gate item 2, never alone:* this is the share answered without spending, not
+  the share answered correctly, and absence matches from detection alone are exactly what
+  that gate tests. A high share here with a low precision there is worse than a low share.
 - [ ] **S0-11 · Fact profile extraction.** One model pass per business → services,
   specialties, booking method, contact routes, staff count, locations, languages, ownership
   hints, and quotes with source URLs. Store the profile, never full page copies.
@@ -475,3 +488,6 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-20 | The confirm step **blocks** on a contradiction or a declined term, rather than warning | The product document says "flags the conflict"; a flag next to a live count still invites the user to run a search whose answer is the empty intersection by definition. Blocking costs one click (each chip has a drop button) and removes a result that would look like a data gap. |
 | 2026-09-20 | Two plural bugs in the signal catalogue, **found by rendering the page, not by the tests** | `\breview\b` can never match "reviews" and `\bchristian\b` can never match "christians" — so a criterion silently vanished and a *sensitive-attribute refusal silently failed to fire*. The unit tests passed throughout: they used the singular. Every `inCriterion`, `PEOPLE` and `SENSITIVE` pattern now spells its plurals, and the tests use the plural forms a user would type. A refusal that quietly does not fire is worse than no refusal. |
 | 2026-09-20 | Query parsing is **deterministic today and stays useful when a model lands** | S0-12 will read the query properly. Until then the parser recognises what it has a rule for and reports `unrecognised` instead of guessing. Worth keeping either way: the confirm step is the contract the user agrees to, so two identical searches must not produce two different wordings of it. |
+| 2026-09-20 | The crawler's user agent pointed at a **domain that does not exist**, for the whole of Stage 0 | `smallfish.example/bot` was a placeholder nobody noticed while 720 real sites were crawled. S0-26 measured that honest identification costs one readable site in 78 and kept the principle on that basis; a URL a site owner cannot open pays that price and buys nothing back. The page is now at `/bot` on the deployed site, and `test_crawler_identity.py` fails the build if the two drift apart. The contact address is still a placeholder and is the remaining half of the same problem. |
+| 2026-09-20 | S0-10's number, finally recorded: **56.0–57.4% settled without a model where a detector exists; 25.0% overall** | The task's definition of done was always a number, and the detector had been shipped and used for days without it. The overall figure is the honest one to plan cost against: four of seven benchmark criteria have no detector, so most criteria still need a model. |
+| 2026-09-20 | Found by recording that number: **`vet-columbus/independent` can never be settled** — couldn't-tell for all 117 attempted | An *absence* criterion with no detector does not report `needs_model`; the absence rule answers couldn't-tell instead. So it looks like a hard market rather than a missing detector, and nothing flags it. The first version of the measurement had the same blind spot and reported a meaningless 0.0–57.4% range. Uncoverable absence criteria are now called out by name. |
