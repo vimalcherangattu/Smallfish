@@ -161,6 +161,12 @@ class FetchCache:
         self.hits = 0
         self.misses = 0
         self.stale = 0
+        # Reads replayed with detection from a different pattern catalogue.
+        # Detection runs at fetch time, so a cache hit carries the verdicts the
+        # catalogue gave on the day it was crawled. Counting this is the only
+        # thing standing between a detector change and a frozen-corpus run that
+        # reports "no effect" because the change never ran.
+        self.stale_detection = 0
 
     def _path(self, url: str) -> Path:
         return self.dir / (hashlib.sha256(url.encode()).hexdigest()[:24] + ".json")
@@ -177,6 +183,21 @@ class FetchCache:
             self.misses += 1
             self.stale += 1
             return None
+        if raw.get("detector") != tech_signals.CATALOGUE_FINGERPRINT:
+            # Detection is baked in at fetch time and cannot be recomputed from
+            # what we keep — the cache stores extracted page text, not page
+            # copies, and the patterns match raw source. So the only way to
+            # re-run the catalogue is to fetch the page again.
+            #
+            # A live run therefore treats this as a miss: "give me the read the
+            # current code would produce" cannot be answered with another
+            # catalogue's verdicts. A frozen run replays it and counts it, and
+            # `benchmark/run.py` refuses to report a frozen run over stale
+            # detection unless that is stated to be the intent.
+            self.stale_detection += 1
+            if not self.ignore_version:
+                self.misses += 1
+                return None
         self.hits += 1
         return SiteRead(
             url=raw["url"],
@@ -194,6 +215,14 @@ class FetchCache:
         payload = asdict(read)
         payload["from_cache"] = False
         payload["v"] = CACHE_VERSION
+        # Which pattern catalogue produced `vendors` and `generic`. Stored
+        # separately from CACHE_VERSION because the two mean different things:
+        # a version bump says the cached *shape* is wrong and the entry must be
+        # re-fetched, while a fingerprint change says only that detection is
+        # out of date. A detector retune must not silently invalidate every
+        # cached page — crawling 100 sites again to re-run a regex is impolite
+        # — but it must not be invisible either.
+        payload["detector"] = tech_signals.CATALOGUE_FINGERPRINT
         self._path(read.url).write_text(json.dumps(payload))
 
 

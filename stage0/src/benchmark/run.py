@@ -42,6 +42,7 @@ from engine.check_plan import plan_for_search  # noqa: E402
 from engine.fetcher import FetchCache, read_many  # noqa: E402
 from engine.judge import judge_business  # noqa: E402
 from engine.llm import MODEL_WORKER, CostMeter, client  # noqa: E402
+from engine import tech_signals  # noqa: E402
 
 DATA = ROOT / "stage0" / "data"
 APP = ROOT / "public" / "data"
@@ -88,6 +89,32 @@ async def main_async(args) -> int:
     outcomes = Counter(r.outcome for r in reads.values())
     print(f"  fetch cache: {cache.hits} hits, {cache.misses} misses"
           + (f" ({cache.stale} stale, re-fetched)" if cache.stale else ""))
+
+    # Detection runs at fetch time and is stored with the read, so a cache hit
+    # replays the verdicts the pattern catalogue gave when the site was
+    # crawled. A frozen run over stale detection cannot evaluate a detector
+    # change: it reports the old behaviour and looks like "no effect". That
+    # exact mistake was made and written up once — see `tech_signals.
+    # CATALOGUE_FINGERPRINT` — so this refuses rather than warns. Judging is
+    # what costs money, and it has not started yet.
+    if cache.stale_detection:
+        print(f"  detector catalogue: {tech_signals.CATALOGUE_FINGERPRINT}")
+        print(f"\n  {cache.stale_detection} cached read(s) carried detection "
+              f"from a DIFFERENT pattern catalogue.")
+        if args.frozen and not args.allow_stale_detection:
+            raise SystemExit(
+                "\nRefusing to report a frozen run over stale detection.\n"
+                "  A detector change cannot be measured this way — the cached\n"
+                "  reads replay the old catalogue's verdicts, so the run will\n"
+                "  show no effect whether or not the change works.\n\n"
+                "  Drop --frozen to re-crawl (a live run treats stale\n"
+                "  detection as a cache miss, so the catalogue re-runs), or\n"
+                "  pass --allow-stale-detection if the change under test is in\n"
+                "  the judge and detection is deliberately being held fixed."
+            )
+        print("  Proceeding: detection is being held fixed on purpose."
+              if args.allow_stale_detection else
+              "  Re-fetching, so detection re-runs against the live catalogue.")
     failed_subpages = sum(len(r.fetch_failures) for r in reads.values())
     one_page = sum(1 for r in reads.values() if r.readable and r.whole_site)
     print(f"  sub-page fetch failures: {failed_subpages}"
@@ -232,7 +259,15 @@ def main() -> int:
         "--frozen", action="store_true",
         help="reuse cached pages whatever their version — judge-only re-run. "
              "Use this to A/B a judging change: re-crawling moves the corpus "
-             "under you and the run-to-run swing is as large as the effect.")
+             "under you and the run-to-run swing is as large as the effect. "
+             "It does NOT freeze the judge alone — detection is cached too, so "
+             "a detector change needs a re-crawl.")
+    ap.add_argument(
+        "--allow-stale-detection", action="store_true",
+        help="permit a frozen run whose cached detection predates the current "
+             "pattern catalogue. Correct when the change under test is in the "
+             "judge and detection is deliberately held fixed; wrong, and "
+             "silently so, when the change under test is the detector.")
     return asyncio.run(main_async(ap.parse_args()))
 
 

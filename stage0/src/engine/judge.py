@@ -212,6 +212,27 @@ def detector_verdict(criterion: dict, read) -> CriterionVerdict | None:
 
     This is the measured cost lever (S0-10): every verdict returned here is a
     model call not made.
+
+    **A generic signal does not settle anything — only a named vendor does.**
+    The generic patterns match an affordance *word*: an `/appointments/` href,
+    a "Schedule Now" button. Those words are what an appointment-*request* form
+    is labelled with too, and the two are opposite answers to "can a customer
+    book online". Measured on Wright Orthodontics, which the detector rejected
+    on `/appointments/` and a "Schedule Now" button; that page is a
+    GoHighLevel lead form whose own text reads "complete the following form to
+    request an appointment… availability will vary… your appointment will be
+    confirmed by phone". The hand label says no online booking, and it is right.
+
+    No URL word can tell those apart, but the page text can, and reading page
+    text is the model's job. Letting a word short-circuit the model is the
+    cheap layer overriding the general one, which is backwards — detection is
+    "a cheap optimisation over model judgment, never a precondition"
+    (`CLAUDE.md`). A vendor embed is different: a Calendly widget is the
+    booking, not a word about it.
+
+    The cost is real and was measured before making the change: 23 of 35
+    detector settles on dental-phoenix were generic-only, so this hands ~23
+    extra criteria per 100 businesses to the model.
     """
     if criterion.get("type") != "absence":
         return None
@@ -223,14 +244,10 @@ def detector_verdict(criterion: dict, read) -> CriterionVerdict | None:
         return None
 
     vendors = read.vendors.get(family) or []
-    generic = read.generic.get(family) or []
-    if not vendors and not generic:
+    if not vendors:
         return None
 
-    source = (
-        f"{vendors[0]} detected in the page source" if vendors
-        else "a booking or contact route was found in the page source"
-    )
+    source = f"{vendors[0]} detected in the page source"
     return CriterionVerdict(
         criterion_id=criterion["id"],
         verdict="no_match",
@@ -366,19 +383,18 @@ def judge_business(
         # the model said.
         if criterion.get("type") == "absence" and verdict == "match":
             # On a site with no other pages, the homepage is the page that
-            # would show X, so reading it *is* reading the relevant pages. The
-            # rule guards against "we did not look in the right place"; here
-            # there is nowhere else to look. Measured: this was the cause of
-            # most couldn't-tells on readable dental sites.
-            targeted = max(pages_read - 1, 0)
-            if targeted == 0 and getattr(read, "whole_site", False):
-                targeted = 1
+            # would show X, so reading it *is* reading the relevant pages. That
+            # fact is passed as itself: an earlier version fudged
+            # `targeted_pages_read` to 1 instead, which never fired, because a
+            # whole-site homepage has `pages_read == 1` and the rule's
+            # page-count check ran first. See `absence.py`.
             result = judge_absence(
                 AbsenceEvidence(
                     criterion_id=cid,
                     pages_read=pages_read,
                     site_outcome=read.outcome,
-                    targeted_pages_read=targeted,
+                    targeted_pages_read=max(pages_read - 1, 0),
+                    homepage_is_whole_site=bool(getattr(read, "whole_site", False)),
                     positive_signal_found=False,
                     positive_signal_source=None,
                     detector_covers_criterion=False,

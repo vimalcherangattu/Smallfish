@@ -16,6 +16,8 @@ err toward firing.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 from dataclasses import dataclass, field
 
@@ -253,6 +255,34 @@ _COMPILED_GENERIC = {
     "quote_form": _compile(QUOTE_FORM_GENERIC),
     "any_form": _compile(ANY_FORM_GENERIC),
 }
+
+
+# A fingerprint of every pattern in this file, so a catalogue change is
+# self-announcing. Detection runs at fetch time and its result is stored in the
+# fetch cache, which means a cached read replays whatever the catalogue said on
+# the day it was crawled. A frozen-corpus re-run therefore cannot evaluate a
+# detector change — it replays the old verdicts and reports "no effect".
+#
+# That is not hypothetical. A retune scoping practice-management vendors to
+# booking paths was measured on a frozen corpus, read as changing nothing, and
+# the finding was written up — while the new patterns had never run. Palm Valley
+# Pediatric Dentistry was still being rejected on a cached `dentrix` hit that
+# the live catalogue no longer produces.
+#
+# Hashing the patterns rather than hand-maintaining a version number is the
+# point: the number nobody remembers to bump is the number that fails. Callers
+# compare this against the value stored with a cached read; `benchmark/run.py`
+# refuses to report a frozen run whose detection is stale.
+CATALOGUE_FINGERPRINT = hashlib.sha256(
+    json.dumps(
+        [
+            BOOKING_VENDORS, BOOKING_GENERIC, BOOKING_VENDORS_BY_NICHE,
+            QUOTE_FORM_VENDORS, QUOTE_FORM_GENERIC, ANY_FORM_GENERIC,
+            CHAT_VENDORS, CMS_VENDORS, PIXEL_VENDORS,
+        ],
+        sort_keys=True,
+    ).encode()
+).hexdigest()[:12]
 
 
 @dataclass

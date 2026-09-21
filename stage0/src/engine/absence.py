@@ -49,6 +49,10 @@ UNREADABLE_OUTCOMES = {
 
 # A homepage alone is not enough to prove absence: it is one page, and the evidence
 # may live one click away. Measured hiding rates are low but not zero.
+#
+# Unless the homepage IS the site — see `homepage_is_whole_site`. The rule guards
+# against "we did not look in the right place"; when the site has nowhere else to
+# look, one page is the whole of it.
 MIN_PAGES_FOR_ABSENCE = 2
 
 
@@ -61,6 +65,17 @@ class AbsenceEvidence:
     site_outcome: str
     # Did the crawl reach pages the check plan considered relevant?
     targeted_pages_read: int = 0
+    # True when the homepage is the entire site — no internal links, nothing we
+    # failed to fetch. Then a one-page read is a complete read, and both the
+    # page-count and the targeted-page checks below are satisfied by it.
+    #
+    # This has to be its own field rather than a caller fudging
+    # `targeted_pages_read` to 1, which is what `judge.py` did. That fudge was
+    # dead code from the day it was written: a whole-site homepage has
+    # `pages_read == 1` by construction, so the page-count check below returned
+    # couldn't-tell before `targeted_pages_read` was ever consulted. The fix for
+    # one-page sites could not fire on a one-page site.
+    homepage_is_whole_site: bool = False
     # Any positive signal for the thing whose absence is claimed.
     positive_signal_found: bool = False
     positive_signal_source: str | None = None
@@ -106,15 +121,28 @@ def judge_absence(ev: AbsenceEvidence) -> AbsenceResult:
         )
 
     # 3. Did we look in enough places to trust the silence?
-    if ev.pages_read < MIN_PAGES_FOR_ABSENCE:
+    #    A complete one-page site passes both checks: there is no second page to
+    #    read and no other page the criterion could be hiding on. Anything short
+    #    of complete — an internal link we did not follow, a fetch that failed —
+    #    leaves `homepage_is_whole_site` false and the checks apply as normal.
+    if not ev.homepage_is_whole_site:
+        if ev.pages_read < MIN_PAGES_FOR_ABSENCE:
+            return AbsenceResult(
+                Verdict.COULDNT_TELL,
+                reason=f"only {ev.pages_read} page(s) read; too little to prove absence",
+            )
+        if ev.targeted_pages_read < 1:
+            return AbsenceResult(
+                Verdict.COULDNT_TELL,
+                reason="none of the pages the criterion needs were reached",
+            )
+    elif ev.pages_read < 1:
+        # Belt and braces: "the homepage is the whole site" cannot be true of a
+        # read with no pages in it, but the caller supplies both facts and they
+        # could disagree.
         return AbsenceResult(
             Verdict.COULDNT_TELL,
-            reason=f"only {ev.pages_read} page(s) read; too little to prove absence",
-        )
-    if ev.targeted_pages_read < 1:
-        return AbsenceResult(
-            Verdict.COULDNT_TELL,
-            reason="none of the pages the criterion needs were reached",
+            reason="no pages were read",
         )
 
     # 4. Was anything actually capable of noticing the thing?
@@ -138,10 +166,12 @@ def judge_absence(ev: AbsenceEvidence) -> AbsenceResult:
         checked_by.append("technology detection")
     if ev.model_found_positive is False:
         checked_by.append("page text")
+    where = (
+        "the whole site (one page, no others to read)"
+        if ev.homepage_is_whole_site
+        else f"{ev.targeted_pages_read} relevant page(s)"
+    )
     return AbsenceResult(
         Verdict.MATCH,
-        reason=(
-            f"{ev.targeted_pages_read} relevant page(s) read via "
-            f"{' and '.join(checked_by)}; no sign of it"
-        ),
+        reason=f"{where} read via {' and '.join(checked_by)}; no sign of it",
     )

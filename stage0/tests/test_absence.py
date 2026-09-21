@@ -95,6 +95,53 @@ def test_homepage_alone_cannot_prove_absence():
     assert "too little" in result.reason
 
 
+def test_one_page_site_can_prove_absence_when_it_is_the_whole_site():
+    """The rule guards against "we did not look in the right place". On a site
+    with one page and no internal links, there is nowhere else to look, so the
+    homepage is the whole of it and silence there is real silence.
+
+    This is the case the fix was written for and could never reach: a caller
+    was fudging `targeted_pages_read` to 1, but a whole-site homepage has
+    `pages_read == 1`, and the page-count check ran first and returned
+    couldn't-tell before the fudge was ever consulted. Dead from the day it
+    was written."""
+    result = judge_absence(
+        evidence(pages_read=1, targeted_pages_read=0, homepage_is_whole_site=True)
+    )
+    assert result.verdict is Verdict.MATCH
+    assert "whole site" in result.reason
+
+
+def test_whole_site_does_not_excuse_an_unreadable_or_empty_read():
+    """The flag says "there was nothing else to read", never "read nothing"."""
+    assert judge_absence(
+        evidence(pages_read=0, homepage_is_whole_site=True)
+    ).verdict is Verdict.COULDNT_TELL
+    assert judge_absence(
+        evidence(site_outcome="blocked", pages_read=1, homepage_is_whole_site=True)
+    ).verdict is Verdict.COULDNT_TELL
+
+
+def test_whole_site_still_loses_to_a_positive_signal():
+    """Reading all of a site and finding booking on it is a no_match, not a
+    match. The completeness of the read never overrides what was found."""
+    result = judge_absence(
+        evidence(pages_read=1, homepage_is_whole_site=True, positive_signal_found=True)
+    )
+    assert result.verdict is Verdict.NO_MATCH
+
+
+def test_a_one_page_read_of_a_larger_site_is_still_couldnt_tell():
+    """The distinction that makes the exemption safe. One page of a site that
+    has thirty is exactly the "we did not look" case; `whole_site` is false
+    whenever an internal link or a failed fetch says there is more."""
+    result = judge_absence(
+        evidence(pages_read=1, targeted_pages_read=1, homepage_is_whole_site=False)
+    )
+    assert result.verdict is Verdict.COULDNT_TELL
+    assert "too little" in result.reason
+
+
 def test_min_pages_threshold_is_enforced_exactly():
     assert judge_absence(evidence(pages_read=MIN_PAGES_FOR_ABSENCE)).verdict is Verdict.MATCH
     assert (
@@ -159,22 +206,33 @@ def test_no_path_returns_match_without_reading_relevant_pages():
     for outcome in ["ok", "thin"]:
         for pages in range(0, 4):
             for targeted in range(0, 3):
-                for detector in (True, False):
-                    for model in (True, False, None):
-                        for abstained in (True, False):
-                            result = judge_absence(
-                                evidence(
-                                    site_outcome=outcome,
-                                    pages_read=pages,
-                                    targeted_pages_read=targeted,
-                                    detector_covers_criterion=detector,
-                                    model_found_positive=model,
-                                    model_abstained=abstained,
+                for whole in (True, False):
+                    for detector in (True, False):
+                        for model in (True, False, None):
+                            for abstained in (True, False):
+                                result = judge_absence(
+                                    evidence(
+                                        site_outcome=outcome,
+                                        pages_read=pages,
+                                        targeted_pages_read=targeted,
+                                        homepage_is_whole_site=whole,
+                                        detector_covers_criterion=detector,
+                                        model_found_positive=model,
+                                        model_abstained=abstained,
+                                    )
                                 )
-                            )
-                            if result.verdict is Verdict.MATCH:
-                                assert pages >= MIN_PAGES_FOR_ABSENCE
-                                assert targeted >= 1
+                                if result.verdict is not Verdict.MATCH:
+                                    continue
+                                # The invariant is not "two pages were read".
+                                # It is "everywhere the evidence could be was
+                                # read" — satisfied either by reaching the
+                                # relevant pages, or by there being no other
+                                # page in existence.
+                                if whole:
+                                    assert pages >= 1
+                                else:
+                                    assert pages >= MIN_PAGES_FOR_ABSENCE
+                                    assert targeted >= 1
                                 assert not abstained
                                 assert detector or model is False
 
