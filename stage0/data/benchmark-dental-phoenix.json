@@ -3,40 +3,40 @@
   "model": "claude-haiku-4-5",
   "businesses": 100,
   "readable": 54,
-  "cold_fetched": 40,
+  "cold_fetched": 100,
   "verdicts": {
-    "no_match": 32,
-    "couldnt_tell": 64,
-    "match": 4
+    "no_match": 36,
+    "couldnt_tell": 63,
+    "match": 1
   },
   "settled_by": {
-    "detector": 31,
-    "absence_rule": 51,
-    "model": 18
+    "detector": 33,
+    "absence_rule": 48,
+    "model": 19
   },
   "couldnt_tell_readable": {
-    "no_match": 32,
-    "couldnt_tell": 18,
-    "match": 4
+    "no_match": 36,
+    "couldnt_tell": 17,
+    "match": 1
   },
-  "proof_checked": 1,
-  "proof_valid": 1,
-  "matches": 4,
+  "proof_checked": 3,
+  "proof_valid": 3,
+  "matches": 1,
   "errors": 0,
   "cost": {
-    "model_calls": 23,
+    "model_calls": 21,
     "businesses_judged": 100,
-    "matches": 4,
-    "total_usd": 0.1036,
-    "cost_per_business": 0.00104,
-    "cost_per_match": 0.0259,
+    "matches": 1,
+    "total_usd": 0.0932,
+    "cost_per_business": 0.00093,
+    "cost_per_match": 0.09319,
     "cache_read_share": 0.0,
     "by_stage": {
       "judge": {
-        "calls": 23,
-        "cost_usd": 0.103591,
-        "input": 85771,
-        "output": 3564,
+        "calls": 21,
+        "cost_usd": 0.093193,
+        "input": 78033,
+        "output": 3032,
         "cache_read": 0
       }
     }

@@ -319,12 +319,20 @@ def judge_business(
         # Rule 2: absence claims go through the absence rule regardless of what
         # the model said.
         if criterion.get("type") == "absence" and verdict == "match":
+            # On a site with no other pages, the homepage is the page that
+            # would show X, so reading it *is* reading the relevant pages. The
+            # rule guards against "we did not look in the right place"; here
+            # there is nowhere else to look. Measured: this was the cause of
+            # most couldn't-tells on readable dental sites.
+            targeted = max(pages_read - 1, 0)
+            if targeted == 0 and getattr(read, "whole_site", False):
+                targeted = 1
             result = judge_absence(
                 AbsenceEvidence(
                     criterion_id=cid,
                     pages_read=pages_read,
                     site_outcome=read.outcome,
-                    targeted_pages_read=max(pages_read - 1, 0),
+                    targeted_pages_read=targeted,
                     positive_signal_found=False,
                     positive_signal_source=None,
                     detector_covers_criterion=False,

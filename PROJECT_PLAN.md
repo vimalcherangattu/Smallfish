@@ -28,7 +28,7 @@ plan wins and the Decision log records why.
 
 | Stage | Status | Gate | Gate met? |
 |---|---|---|---|
-| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | items 1+4 answered; **2+3 need S0-16** |
+| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | item 1 answered; **2+3 need S0-16, 4 needs a bigger sample** |
 | 1 · Launch | Not started | 50 paying users; live precision ≥ 90% | — |
 | 2 · Grow | Not started | 300 paying; churn ≤ 6%; cost/match ≤ $0.04 | — |
 | 3 · Compound | Not started | 1,000 paying; ≥ 50% warm reads | — |
@@ -57,13 +57,14 @@ plan wins and the Decision log records why.
 | Match precision, blended | ≥ 90% | — | — |
 | Match precision, absence criteria only | ≥ 90% | — | — |
 | Known-match recall | ≥ 60% | — | — |
-| Cold cost per business | ≤ $0.010 | **$0.0011–0.0020 measured** (S0-17, 120 businesses, Haiku 4.5) ✓ | 2026-09-21 |
+| Cold cost per business | ≤ $0.010 | **$0.0009–0.0020 measured** (S0-17, 160 businesses, Haiku 4.5) ✓ | 2026-09-21 |
 | Warm cost per business | ≤ $0.002 | — | — |
-| **Blended cost per match** | ≤ $0.04 | **$0.033 measured** (dental, whole-business matches) · $0.012–0.029 modelled with gap-fill ✓ | 2026-09-21 |
+| **Blended cost per match** | ≤ $0.04 | **NOT ESTABLISHED.** Point estimates $0.026–0.093 across runs; the match rate's 95% CI puts it anywhere from $0.007 to $0.284. See Decision log — an earlier ✓ here was wrong | 2026-09-21 |
 | — Google gap-fill discovery, measured | — | **$0.0079 per business discovered** | 2026-09-21 |
 | — break-even cold read cost, worst market | — | $0.0043/business — **measured read is $0.0020, inside it** | 2026-09-21 |
 | Proof validity (quote found verbatim in fetched text) | high | **100%** (11 of 11 model verdicts) | 2026-09-21 |
-| Couldn't-tell on **readable** sites, live run | ≤ 25% | **38.9%** (dental) ✗ — worse than the probe-based 19–25% | 2026-09-21 |
+| Couldn't-tell on **readable** sites, live run | ≤ 25% | **31.5%** (dental) ✗ — down from 38.9% after the single-page-site fix, still failing | 2026-09-21 |
+| — of which: one-page reads | — | 8 of 17 remaining couldn't-tells | 2026-09-21 |
 | Weekly profile change rate (drives alert cost) | measure | — | — |
 | p95 time to first match, cold market | measure | — | — |
 
@@ -525,3 +526,7 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-21 | A test that hard-coded "S0-12 is not built" **failed on progress** | `test_preflight.py` froze the project state into an assertion and broke the moment `judge.py` was written. Rewritten to compare preflight's report against the filesystem. A test that breaks when work gets done is testing the calendar. |
 | 2026-09-21 | **Overture's `website` field is sometimes another company's site**, and the labelling tool now has an answer for it | Found by looking at the first business in the first generated labelling set: Overture lists "AAA Accurate Dental Care" against `advancedsmilescenter.com`. Every verdict about that row is about a different business. Without a distinct label the labeller would be forced into match / no-match / can't-tell, and a data-source defect would be scored as an engine defect. `score.py` excludes these and warns when they exceed 5% of a slice — they cap the precision this product can reach, because each one is a row a user receives about the wrong company. Rate unknown until labelling runs. |
 | 2026-09-21 | Labelling is **blind to the engine's verdict**, by construction | The verdict is not in the task JSON, not in the HTML, and not recoverable from either; `score.py` joins it on afterwards. A labeller who can see "the engine said match" agrees with it more often, which inflates precision by exactly the quantity the gate is trying to measure. |
+| 2026-09-21 | **Retraction: gate item 4 is NOT answered.** The "$0.033 per match ✓" recorded earlier today was one sample presented as settled | Cost per match = cost per business ÷ match rate. Cost per business is stable and measured ($0.0009–0.0020 over 160 businesses). The match rate is not: dental returned 4 matches of 60 on one run and 1 of 54 on the next. Wilson intervals on those rates (2.6–15.9% and 0.3–9.8%) put cost per match anywhere between **$0.007 and $0.284**. The budget is $0.04, so the interval straddles it and the gate cannot be called either way. Settling it needs enough matches for a tight rate — roughly 30+, which means a slice of several hundred businesses, not 100. |
+| 2026-09-21 | **Two bugs behind the failing couldn't-tell rate, found by diagnosing rather than assuming** | The rate is a page-count problem, not a judgment problem: one-page reads were 91% couldn't-tell, four-page reads 12%. Cause one — a site with no other internal pages was being told "you did not read the criterion-relevant pages" when the homepage *is* every page; the absence rule now accepts a whole-site read. Cause two — sub-page fetch failures were dropped silently, so "we tried /request-appointment and it failed" was indistinguishable from "there was nothing to read". Now recorded and reported (5 in the latest run). Result: 38.9% → **31.5%**, still above the ≤25% target. |
+| 2026-09-21 | The fetch cache is **versioned**, after nearly shipping a cache-shaped bug | Adding `internal_links` to a cached read meant every pre-existing one-page entry would deserialise with `internal_links = 0` and claim to be a complete single-page site, letting the absence rule settle criteria nobody had checked the links for. Entries whose version does not match are now treated as misses. Re-fetching costs a request; reading a stale shape with defaults costs a wrong verdict. |
+| 2026-09-21 | Remaining couldn't-tell cause, **not yet fixed**: 6 of 10 one-page reads have internal pages we never fetched | Either `select_links` scored none of them (its pattern rejects any href containing `#` and requires a closing `</a>`) or the fetch failed. Worth fixing before the next cost run, since cost per match depends on the match rate and every unsettled criterion suppresses it. |

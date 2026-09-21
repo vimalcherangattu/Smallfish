@@ -86,7 +86,12 @@ async def main_async(args) -> int:
     print("Reading sites…")
     reads = await read_many(businesses, plan, concurrency=args.concurrency, cache=cache)
     outcomes = Counter(r.outcome for r in reads.values())
-    print(f"  fetch cache: {cache.hits} hits, {cache.misses} misses")
+    print(f"  fetch cache: {cache.hits} hits, {cache.misses} misses"
+          + (f" ({cache.stale} stale, re-fetched)" if cache.stale else ""))
+    failed_subpages = sum(len(r.fetch_failures) for r in reads.values())
+    one_page = sum(1 for r in reads.values() if r.readable and r.whole_site)
+    print(f"  sub-page fetch failures: {failed_subpages}"
+          f"  ·  single-page sites: {one_page}")
     print(f"  outcomes: {dict(outcomes.most_common())}")
 
     meter = CostMeter()

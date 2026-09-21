@@ -29,7 +29,9 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import re
 import sys
+import urllib.parse
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
@@ -60,6 +62,13 @@ CACHE_DIR = DATA / "fetch-cache"
 # nothing and costs a request on every business.
 MAX_PAGES = 4
 
+# Bumped whenever a cached read gains a field the judge relies on. Entries
+# written by an older version are treated as misses rather than read with
+# defaults — the alternative bit once already in the making: an old one-page
+# entry has no `internal_links`, defaults to 0, and would claim to be a
+# complete single-page site when nobody ever counted its links.
+CACHE_VERSION = 2
+
 
 @dataclass
 class Page:
@@ -87,6 +96,27 @@ class SiteRead:
     # outright, with no model call (S0-10 measured this at 56-57%).
     vendors: dict = field(default_factory=dict)
     generic: dict = field(default_factory=dict)
+    # Distinct internal pages linked from the homepage, before any keyword
+    # filtering. Zero means the homepage IS the whole site, which changes what
+    # "we read the relevant pages" can mean — see `whole_site`.
+    internal_links: int = 0
+    # Pages the check plan asked for that we then failed to fetch. Recorded
+    # because without it a failed sub-page fetch is indistinguishable from a
+    # site that had nothing to fetch, and the two have opposite meanings: the
+    # first is our failure, the second is an answer.
+    fetch_failures: list = field(default_factory=list)
+
+    @property
+    def whole_site(self) -> bool:
+        """True when the homepage is the entire site.
+
+        The absence rule exists because "we did not look in the right place" is
+        not "it is not there". When a site has no other pages, we did look
+        everywhere there is to look, and a criterion can be settled from the
+        homepage alone. Measured on dental-phoenix: several one-page practice
+        sites were returning couldn't-tell for exactly this reason.
+        """
+        return self.readable and self.internal_links == 0 and not self.fetch_failures
 
     @property
     def readable(self) -> bool:
@@ -123,6 +153,7 @@ class FetchCache:
         self.dir.mkdir(parents=True, exist_ok=True)
         self.hits = 0
         self.misses = 0
+        self.stale = 0
 
     def _path(self, url: str) -> Path:
         return self.dir / (hashlib.sha256(url.encode()).hexdigest()[:24] + ".json")
@@ -132,8 +163,14 @@ class FetchCache:
         if not path.exists():
             self.misses += 1
             return None
-        self.hits += 1
         raw = json.loads(path.read_text())
+        if raw.get("v") != CACHE_VERSION:
+            # Stale shape. Re-fetching costs a request; reading it with
+            # defaults would cost a wrong verdict.
+            self.misses += 1
+            self.stale += 1
+            return None
+        self.hits += 1
         return SiteRead(
             url=raw["url"],
             outcome=raw["outcome"],
@@ -142,12 +179,41 @@ class FetchCache:
             followed=raw.get("followed", []),
             vendors=raw.get("vendors", {}),
             generic=raw.get("generic", {}),
+            internal_links=raw.get("internal_links", 0),
+            fetch_failures=raw.get("fetch_failures", []),
         )
 
     def put(self, read: SiteRead) -> None:
         payload = asdict(read)
         payload["from_cache"] = False
+        payload["v"] = CACHE_VERSION
         self._path(read.url).write_text(json.dumps(payload))
+
+
+_HREF = re.compile(r"""<a\b[^>]*href=["']([^"']+)["']""", re.I)
+
+
+def count_internal_links(html: str, base_url: str) -> int:
+    """Distinct internal pages linked from this page.
+
+    Deliberately looser than `select_links`' pattern, which requires a closing
+    </a> and rejects any href containing '#'. This only has to answer "are
+    there other pages at all", and being strict here would call a site
+    single-page when it is not — which would then let the absence rule settle a
+    criterion it should not.
+    """
+    host = urllib.parse.urlsplit(base_url).netloc.lower().removeprefix("www.")
+    found: set[str] = set()
+    for href in _HREF.findall(html):
+        parts = urllib.parse.urlsplit(urllib.parse.urljoin(base_url, href.strip()))
+        if parts.scheme not in ("http", "https"):
+            continue
+        if parts.netloc.lower().removeprefix("www.") != host:
+            continue
+        clean = urllib.parse.urlunsplit((parts.scheme, parts.netloc, parts.path, "", ""))
+        if clean.rstrip("/") != base_url.rstrip("/"):
+            found.add(clean)
+    return len(found)
 
 
 def _page(url: str, result, html: str) -> Page:
@@ -211,12 +277,18 @@ async def read_site(
         keywords = list(getattr(plan, "link_keywords", []) or [])
         targets = select_links(home_html, url, MAX_PAGES - 1, keywords)
         read.followed = [w for w, _ in keywords[:8]]
+        read.internal_links = count_internal_links(home_html, url)
 
         for target in targets:
             page, page_html = await fetch_page(client, target, robots, throttle)
             if page_html and (page.status or 0) < 400:
                 read.pages.append(_page(target, page, page_html))
                 html_seen.append(page_html)
+            else:
+                # Our failure, not the site's. Kept so a couldn't-tell can name
+                # the page it could not read.
+                read.fetch_failures.append(
+                    f"{target} ({page.error or page.status or 'no response'})")
 
         # Detection runs over every page fetched, not just the homepage: a
         # booking link in a footer on /contact counts the same as one on the
