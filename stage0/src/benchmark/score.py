@@ -72,7 +72,29 @@ def main() -> int:
             f"  python3 stage0/src/benchmark/labelling_set.py --market {args.market}\n"
             f"then label, Export, and save the download to that path."
         )
-    labels = json.loads(labels_path.read_text())["labels"]
+    labelled = json.loads(labels_path.read_text())
+    labels = labelled["labels"]
+
+    # Which sampling design produced these labels decides which metrics they
+    # can carry. A set enriched on the engine's positive calls measures
+    # precision correctly — that metric is already conditioned on the engine
+    # having said match — and cannot measure recall at all, because the
+    # businesses the engine missed are absent from it by construction. Recall
+    # computed from such a set is not noisy, it is structurally wrong, and it
+    # would read HIGH, which is the direction that gets believed.
+    #
+    # Read from the file rather than passed as a flag: the person running
+    # score.py months from now is not the person who chose the sampling, and a
+    # flag they forget produces a number nobody can tell is wrong by looking
+    # at it.
+    design = labelled.get("design") or {"sampling": "complete_slice"}
+    enriched = design.get("sampling") == "enriched_on_engine_positives"
+    if enriched:
+        print(f"Sampling: ENRICHED on the engine's positive calls "
+              f"({design.get('positives', '?')} positives + "
+              f"{design.get('filler', '?')} filler).")
+        print("  Precision below is valid. RECALL IS NOT REPORTED — the true "
+              "matches the\n  engine missed are not in this sample.\n")
 
     verdicts_path = DATA / f"verdicts-{args.market}.json"
     if not verdicts_path.exists():
@@ -179,7 +201,11 @@ def main() -> int:
     # engine abstained on is one the user did not get. Whether we said "no" or
     # said "not sure" is invisible to them.
     delivered_den = overall["tp"] + overall["fn"] + overall["abstained_on_match"]
-    if delivered_den:
+    if enriched:
+        print("Recall, DELIVERED    not computable from this sample — "
+              "enriched on engine positives")
+        print(f"  {design.get('why', '')}")
+    elif delivered_den:
         r = overall["tp"] / delivered_den
         lo, hi = wilson(overall["tp"], delivered_den)
         ok = "PASSES" if lo >= RECALL_TARGET else (
@@ -189,7 +215,7 @@ def main() -> int:
         print(f"  {overall['tp']} of {delivered_den} true matches reached the user; "
               f"{overall['abstained_on_match']} were abstained on, "
               f"{overall['fn']} wrongly rejected")
-    if rec_den:
+    if rec_den and not enriched:
         r = overall["tp"] / rec_den
         print(f"Recall, decided-only {100*r:.1f}%  "
               f"— diagnostic only: excludes abstentions, so it flatters an\n"
@@ -225,6 +251,8 @@ def main() -> int:
     out = DATA / f"score-{args.market}.json"
     out.write_text(json.dumps({
         "market": args.market,
+        "design": design,
+        "recall_reported": not enriched,
         "pairs": pairs,
         "by_type": {k: dict(v) for k, v in by_type.items()},
         "unscorable": dict(unscorable),

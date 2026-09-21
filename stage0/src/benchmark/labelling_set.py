@@ -19,6 +19,20 @@ answer from a sample of what the engine already flagged, because the misses are
 by definition not in it. So the set is *every* business in a sampled slice,
 including ones the engine called no-match, couldn't-tell, or never read.
 
+  …which makes precision ruinously expensive, because precision's denominator
+  is only the engine's positive calls and those are ~9% of a slice. Measured:
+  70 labels bought 6 positive calls and a 43.6–97.0% interval. Deciding the
+  90% gate at a true 95% needs ~127 positive calls — about 2,200 randomly
+  sampled businesses.
+
+  So there are **two sampling designs, and they are not interchangeable**.
+  `--enrich` oversamples the engine's positives, which is unbiased for
+  precision (that metric is already conditioned on the same thing) and
+  structurally inflates recall (the misses are absent by construction). The
+  design is recorded in the exported file and `score.py` refuses to report
+  recall from an enriched set, rather than relying on whoever runs it to
+  remember which file was which.
+
 **3. Unreadable sites are labelled too.** A business whose site we could not
 fetch still has a truth: it either matches or it does not. Labelling those is
 what separates "the engine was wrong" from "the engine could not see", and the
@@ -51,6 +65,7 @@ from engine.fetcher import FetchCache  # noqa: E402
 from coverage.site_probe import normalise_url  # noqa: E402
 
 APP = ROOT / "public" / "data"
+DATA = ROOT / "stage0" / "data"
 FIXTURES = ROOT / "stage0" / "fixtures"
 OUT_DIR = ROOT / "stage0" / "data" / "labelling"
 
@@ -59,7 +74,9 @@ OUT_DIR = ROOT / "stage0" / "data" / "labelling"
 EXCERPT_CHARS = 1200
 
 
-def build_tasks(market_id: str, n: int, seed: int) -> tuple[list[dict], list[dict]]:
+def build_tasks(
+    market_id: str, n: int, seed: int, enrich: bool = False
+) -> tuple[list[dict], list[dict], dict]:
     market = json.loads((APP / f"{market_id}.json").read_text())
     spec = json.loads((FIXTURES / "benchmarks.json").read_text())
     criteria = next(m for m in spec["markets"] if m["id"] == market_id)["criteria"]
@@ -70,6 +87,62 @@ def build_tasks(market_id: str, n: int, seed: int) -> tuple[list[dict], list[dic
     rng = random.Random(f"{seed}:{market_id}")
     rng.shuffle(pool)
     chosen = pool[:n]
+    design = {"sampling": "complete_slice", "n": len(chosen)}
+
+    if enrich:
+        # Precision's denominator is the businesses the engine CALLED a match,
+        # and at a ~9% positive rate a random slice spends eleven labels to buy
+        # one. Measured consequence: 70 labels bought 6 positive calls and a
+        # 43.6-97.0% interval. Deciding the 90% gate at a true 95% needs ~127
+        # positive calls, which is ~2,200 randomly sampled businesses and is
+        # not going to happen.
+        #
+        # So oversample the engine's positives. This is unbiased FOR PRECISION
+        # — that metric is already conditioned on "the engine said match", and
+        # conditioning the sample the same way changes nothing about it.
+        #
+        # It destroys recall, which needs a complete slice: the misses are by
+        # definition absent from the engine's positives. `score.py` reads the
+        # design recorded here and refuses to report recall from an enriched
+        # set rather than trusting whoever runs it to remember.
+        #
+        # Blindness survives only because of the filler. A labeller who knows
+        # every task is an engine match anchors on every task. The filler is
+        # drawn from the same pool, shuffled in, and the composition is not
+        # shown in the HTML.
+        verdicts_path = DATA / f"verdicts-{market_id}.json"
+        if not verdicts_path.exists():
+            raise SystemExit(
+                f"--enrich needs {verdicts_path.relative_to(ROOT)}: it samples "
+                f"the engine's positive calls, so the engine has to have run.\n"
+                f"  python3 stage0/src/benchmark/run.py --market {market_id} --limit 200"
+            )
+        engine = json.loads(verdicts_path.read_text())
+        positive_ids = {
+            bid for bid, verdicts in engine.items()
+            if verdicts and all(v == "match" for v in verdicts.values())
+        }
+        by_id = {b["id"]: b for b in pool}
+        positives = [by_id[i] for i in positive_ids if i in by_id]
+        filler = [b for b in pool if b["id"] not in positive_ids][: max(n - len(positives), 0)]
+        chosen = positives + filler
+        rng.shuffle(chosen)
+        design = {
+            "sampling": "enriched_on_engine_positives",
+            "n": len(chosen),
+            "positives": len(positives),
+            "filler": len(filler),
+            # Stated in the file so a future reader does not have to infer it
+            # from the counts, and so score.py's refusal has a reason to quote.
+            "valid_for": ["precision"],
+            "invalid_for": ["recall"],
+            "why": (
+                "Sampled on the engine's own positive calls. Precision is "
+                "already conditioned on that, so it is unaffected. Recall's "
+                "denominator is every true match, and the ones the engine "
+                "missed are absent from this set by construction."
+            ),
+        }
 
     cache = FetchCache()
     tasks = []
@@ -91,7 +164,7 @@ def build_tasks(market_id: str, n: int, seed: int) -> tuple[list[dict], list[dic
                 for p in (read.pages if read else [])
             ],
         })
-    return tasks, criteria
+    return tasks, criteria, design
 
 
 HTML = """<!doctype html>
@@ -178,6 +251,7 @@ HTML = """<!doctype html>
 const TASKS = __TASKS__;
 const CRITERIA = __CRITERIA__;
 const MARKET = "__MARKET__";
+const DESIGN = __DESIGN__;
 const KEY = "smallfish-labels-" + MARKET;
 const OPTIONS = [
   ["match", "Yes — it's true"],
@@ -262,7 +336,12 @@ function esc(s) {
 }
 
 function save() {
-  const out = { market: MARKET, labelled_at: new Date().toISOString(), labels: labels };
+  // The sampling design travels with the labels. score.py reads it and
+  // refuses to compute recall from a set that was enriched on the
+  // engine's positives — a number that would look like recall and be
+  // structurally inflated, because the misses are not in the sample.
+  const out = { market: MARKET, labelled_at: new Date().toISOString(),
+                design: DESIGN, labels: labels };
   const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -288,15 +367,23 @@ def main() -> int:
     ap.add_argument("--n", type=int, default=100)
     ap.add_argument("--seed", type=int, default=20260921,
                     help="must match the benchmark run's seed, or the slices diverge")
+    ap.add_argument(
+        "--enrich", action="store_true",
+        help="oversample the businesses the engine called a match, so the "
+             "labels buy precision instead of mostly buying no_match. "
+             "PRECISION ONLY: the resulting set cannot measure recall, and "
+             "score.py enforces that.")
     args = ap.parse_args()
 
-    tasks, criteria = build_tasks(args.market, args.n, args.seed)
+    tasks, criteria, design = build_tasks(
+        args.market, args.n, args.seed, enrich=args.enrich)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     html = (HTML
             .replace("__TASKS__", json.dumps(tasks))
             .replace("__CRITERIA__", json.dumps(
                 [{"id": c["id"], "text": c["text"]} for c in criteria]))
+            .replace("__DESIGN__", json.dumps(design))
             .replace("__MARKET__", args.market)
             .replace("__N__", str(len(tasks)))
             .replace("__C__", str(len(criteria))))
