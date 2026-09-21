@@ -11,6 +11,15 @@ prompt is a request and the gate needs a guarantee:
    is not found is not trusted prose to be cleaned up later — the verdict is
    downgraded to `couldnt_tell` and the failure is counted. This is S0-14's
    proof validator, applied at the point of judgment rather than after it.
+
+   What the quote *proves* differs by criterion type, and the first version of
+   this prompt got that wrong at real cost. It demanded a quote that "settles
+   the criterion" for every non-abstention — but an absence is settled by text
+   that is not there, so no such quote exists, and the model correctly followed
+   the instruction into `couldnt_tell` on 6 of 12 businesses that genuinely
+   matched. Measured recall was 6.7%. For an absence verdict the quote now
+   shows the model was *looking in the right place*, and `pages_checked`
+   carries the claim.
 2. **Absence still needs positive proof.** A model saying "no" is not a "no".
    The verdict passes through `engine/absence.py`, which requires that the
    criterion-relevant pages were actually read. A model's "no" on a site we
@@ -48,24 +57,38 @@ MAX_TOTAL_CHARS = 18000
 SYSTEM = """You judge whether local businesses meet criteria, from their own website text.
 
 You will be given the text of up to four pages from one business's website, and a
-list of criteria. For each criterion, decide:
+list of criteria. Each criterion is marked `presence` or `absence`, and the two
+take DIFFERENT evidence. This distinction is the whole job.
 
-- "match"        — the pages show the criterion is true
-- "no_match"     — the pages show the criterion is false
-- "couldnt_tell" — the pages do not settle it
+PRESENCE criteria — "offers Botox", "does commercial work"
+  match        the pages say so. Give the verbatim quote that says it.
+  no_match     the pages positively rule it out. Give the quote.
+  couldnt_tell no quote settles it.
 
-Rules you must follow:
+ABSENCE criteria — "has no online booking", "has no quote form"
+  These are proven by what is NOT on the pages, so there is usually no quote
+  saying "we have no online booking". Do not wait for one; it will not come.
 
-1. Quote verbatim. Every verdict that is not "couldnt_tell" must include a quote
-   copied exactly, character for character, from the page text you were given.
-   Do not paraphrase, do not fix typos, do not add ellipses.
-2. If you cannot find a verbatim quote that settles the criterion, the verdict is
-   "couldnt_tell". This is a normal, useful answer, not a failure.
-3. Absence is not proven by silence alone. Answer "match" for a "has no X"
-   criterion only when the pages you were given are the ones that would show X
-   and X is not there.
-4. Never infer from the business category, the name, or what is typical. Only the
-   text in front of you counts.
+  match        you read the pages where this WOULD appear if it existed, and it
+               is not there. Name those pages in `pages_checked`, and quote the
+               closest thing you did find — the contact instructions, the "call
+               us" line, the appointment paragraph. That quote shows you were
+               looking in the right place. It is not required to prove absence
+               by itself.
+  no_match     you found the thing. Quote it.
+  couldnt_tell you were not given the pages where it would appear, or the pages
+               are too thin to tell. Say which in `reason`.
+
+Rules for every verdict:
+
+1. Any quote you give must be copied exactly, character for character, from the
+   page text you were given. Do not paraphrase or add ellipses. A quote that is
+   not in the text invalidates the verdict.
+2. Never infer from the business category, the name, or what is typical. Only
+   the text in front of you counts.
+3. For an absence criterion, "I could not find it" is a `match`, not a
+   `couldnt_tell` — PROVIDED you were looking at the pages where it would be.
+   If you were not, that is what `couldnt_tell` is for.
 
 Return only the structured output requested."""
 
@@ -87,12 +110,27 @@ VERDICT_TOOL = {
                         },
                         "quote": {
                             "type": "string",
-                            "description": "Verbatim from the page text, or empty for couldnt_tell.",
+                            "description": (
+                                "Verbatim from the page text. For a presence match "
+                                "this is the proof; for an absence match it is the "
+                                "closest relevant text, showing you looked in the "
+                                "right place. Empty only for couldnt_tell."
+                            ),
+                        },
+                        "pages_checked": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": (
+                                "For an absence verdict: the page URLs you examined "
+                                "for this criterion. This is what makes the absence "
+                                "claim checkable."
+                            ),
                         },
                         "source_url": {"type": "string"},
                         "reason": {"type": "string"},
                     },
-                    "required": ["criterion_id", "verdict", "quote", "source_url", "reason"],
+                    "required": ["criterion_id", "verdict", "quote", "pages_checked",
+                                 "source_url", "reason"],
                     "additionalProperties": False,
                 },
             }
@@ -111,8 +149,15 @@ class CriterionVerdict:
     source_url: str = ""
     reason: str = ""
     # False when the model's quote could not be found in the fetched text.
+    pages_checked: list = field(default_factory=list)
     proof_valid: bool = True
     settled_by: str = "model"  # "detector" | "model" | "absence_rule"
+    # What the model said before the absence rule and the proof validator had
+    # their say. Without this, "the engine abstained" conflates three very
+    # different failures — the model was unsure, the model was sure but its
+    # quote did not verify, or the model was sure and the absence rule
+    # overrode it — and they need opposite fixes.
+    raw_model_verdict: str = ""
 
 
 @dataclass
@@ -306,6 +351,7 @@ def judge_business(
             continue
 
         verdict = raw.get("verdict", "couldnt_tell")
+        raw_verdict = verdict
         quote = raw.get("quote", "") or ""
         valid = verdict == "couldnt_tell" or verify_quote(quote, read.pages)
 
@@ -349,9 +395,11 @@ def judge_business(
                 verdict=verdict,
                 quote=quote if valid else "",
                 source_url=raw.get("source_url", ""),
+                pages_checked=raw.get("pages_checked", []) or [],
                 reason=raw.get("reason", ""),
                 proof_valid=valid,
                 settled_by=settled_by,
+                raw_model_verdict=raw_verdict,
             )
         )
 

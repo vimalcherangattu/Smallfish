@@ -1,42 +1,42 @@
 {
   "market": "dental-phoenix",
-  "model": "claude-haiku-4-5",
+  "model": "claude-opus-5",
   "businesses": 100,
   "readable": 57,
-  "cold_fetched": 100,
+  "cold_fetched": 0,
   "verdicts": {
-    "no_match": 35,
-    "couldnt_tell": 64,
-    "match": 1
+    "no_match": 37,
+    "couldnt_tell": 51,
+    "match": 12
   },
   "settled_by": {
     "detector": 35,
-    "absence_rule": 45,
-    "model": 20
+    "absence_rule": 58,
+    "model": 7
   },
   "couldnt_tell_readable": {
-    "no_match": 35,
-    "couldnt_tell": 21,
-    "match": 1
+    "no_match": 37,
+    "couldnt_tell": 8,
+    "match": 12
   },
-  "proof_checked": 0,
-  "proof_valid": 0,
-  "matches": 1,
+  "proof_checked": 2,
+  "proof_valid": 2,
+  "matches": 12,
   "errors": 0,
   "cost": {
     "model_calls": 22,
     "businesses_judged": 100,
-    "matches": 1,
-    "total_usd": 0.0991,
-    "cost_per_business": 0.00099,
-    "cost_per_match": 0.09915,
+    "matches": 12,
+    "total_usd": 0.7428,
+    "cost_per_business": 0.00743,
+    "cost_per_match": 0.0619,
     "cache_read_share": 0.0,
     "by_stage": {
       "judge": {
         "calls": 22,
-        "cost_usd": 0.099147,
-        "input": 81832,
-        "output": 3463,
+        "cost_usd": 0.742835,
+        "input": 117977,
+        "output": 6118,
         "cache_read": 0
       }
     }

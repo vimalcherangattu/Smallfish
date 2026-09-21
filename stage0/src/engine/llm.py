@@ -26,7 +26,14 @@ ROOT = Path(__file__).resolve().parents[3]
 DATA = ROOT / "stage0" / "data"
 
 # Work model: extraction and first-pass judging.
-MODEL_WORKER = os.environ.get("SMALLFISH_MODEL_WORKER", "claude-haiku-4-5")
+MODEL_WORKER = os.environ.get("SMALLFISH_MODEL_WORKER", "claude-sonnet-5")
+# Measured, not assumed. The product document specified "a small model (Claude
+# Haiku 4.5 class)" for judging. On 70 hand labels over a frozen corpus that
+# choice delivered 6.7% recall; Sonnet 5 delivered 33.3% on the same pages and
+# the same prompt, at better precision (83% vs 50%) AND a lower cost per match
+# ($0.032 vs $0.037) — the stronger model raises the match rate faster than it
+# raises the bill. Opus 5 went further on recall (40%) but lost precision (75%)
+# and blew the budget at $0.062 per match. Sonnet 5 is the measured optimum.
 # Audit model: borderline cases and the random re-judge sample.
 MODEL_AUDIT = os.environ.get("SMALLFISH_MODEL_AUDIT", "claude-opus-5")
 

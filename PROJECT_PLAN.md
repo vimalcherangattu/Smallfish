@@ -8,7 +8,7 @@ is `docs/critique.md`.
 Strategy lives in those docs. Numbers and decisions live here. Where they disagree, this
 plan wins and the Decision log records why.
 
-**Last updated:** 2026-09-21 · **Stage:** 0 — Prove it (**recall fails at 6.7%; the engine abstains on 80% of true matches**)
+**Last updated:** 2026-09-21 · **Stage:** 0 — Prove it (**model choice was the dominant lever: Haiku → Sonnet 5 took recall 6.7% → 33.3%**)
 
 ---
 
@@ -28,7 +28,7 @@ plan wins and the Decision log records why.
 
 | Stage | Status | Gate | Gate met? |
 |---|---|---|---|
-| 0 · Prove it | **Gate item 3 FAILS** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | 1 answered · 2 undecided (n=1) · **3 fails at 6.7%** · 4 unresolved |
+| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | 1 answered · 2 undecided (83%, n=6) · **3 fails at 33%** (ceiling 67%) · 4 passes at $0.032 |
 | 1 · Launch | Not started | 50 paying users; live precision ≥ 90% | — |
 | 2 · Grow | Not started | 300 paying; churn ≤ 6%; cost/match ≤ $0.04 | — |
 | 3 · Compound | Not started | 1,000 paying; ≥ 50% warm reads | — |
@@ -54,20 +54,21 @@ plan wins and the Decision log records why.
 | **Criteria settled with no model call** (the cost lever, S0-10) | measure | **56.0–57.4%** where a detector exists | 2026-09-20 |
 | — across every criterion, detector or not | — | **25.0%** (285 of 1,138) | 2026-09-20 |
 | — benchmark criteria with no detector at all | — | **4 of 7**, settling nothing | 2026-09-20 |
-| Match precision, blended | ≥ 90% | **100% but n=1** — one positive call, CI 20.7–100%. Undecided | 2026-09-21 |
-| Match precision, absence criteria only | ≥ 90% | **100% but n=1**, same single call | 2026-09-21 |
-| **Known-match recall (delivered)** | ≥ 60% | **6.7%** — 1 of 15 true matches reached the user ✗✗ **FAILS** | 2026-09-21 |
-| — abstained on a true match | — | **12 of 15 (80%)** | 2026-09-21 |
-| — wrongly rejected a true match | — | 2 of 15 | 2026-09-21 |
+| Match precision, blended | ≥ 90% | **83.3%** (Sonnet 5, n=6) CI 43.6–97.0% — undecided, sample too small | 2026-09-21 |
+| Match precision, absence criteria only | ≥ 90% | **83.3%** (Sonnet 5) — the gate reads this separately | 2026-09-21 |
+| **Known-match recall (delivered)** | ≥ 60% | **33.3%** Sonnet 5 · 40.0% Opus 5 · 6.7% Haiku 4.5 ✗ still fails | 2026-09-21 |
+| — abstained on a true match | — | 7 of 15 (Sonnet), of which **5 are unreadable sites** | 2026-09-21 |
+| — wrongly rejected a true match | — | 3 of 15 (Sonnet) | 2026-09-21 |
+| **Recall ceiling with the current crawl** | — | **67%** — unreadable sites can never be confirmed. Clears the 60% target, so the gap is closable | 2026-09-21 |
 | Source data has the wrong website | — | **5 of 70 (7%)** — caps achievable precision | 2026-09-21 |
 | Human could not establish truth | — | 17 of 70 (24%) | 2026-09-21 |
-| Cold cost per business | ≤ $0.010 | **$0.0009–0.0020 measured** (S0-17, 160 businesses, Haiku 4.5) ✓ | 2026-09-21 |
+| Cold cost per business | ≤ $0.010 | **$0.0029 Sonnet 5** ✓ (Haiku $0.0011, Opus $0.0074) | 2026-09-21 |
 | Warm cost per business | ≤ $0.002 | — | — |
-| **Blended cost per match** | ≤ $0.04 | **NOT ESTABLISHED.** Point estimates $0.026–0.093 across runs; the match rate's 95% CI puts it anywhere from $0.007 to $0.284. See Decision log — an earlier ✓ here was wrong | 2026-09-21 |
+| **Blended cost per match** | ≤ $0.04 | **$0.032 Sonnet 5** ✓ · $0.037 Haiku · $0.062 Opus ✗. Frozen corpus, so comparable | 2026-09-21 |
 | — Google gap-fill discovery, measured | — | **$0.0079 per business discovered** | 2026-09-21 |
 | — break-even cold read cost, worst market | — | $0.0043/business — **measured read is $0.0020, inside it** | 2026-09-21 |
 | Proof validity (quote found verbatim in fetched text) | high | **100%** (11 of 11 model verdicts) | 2026-09-21 |
-| Couldn't-tell on **readable** sites, live run | ≤ 25% | **31.5–38.9%** across three dental runs ✗ — the spread is run-to-run variance, not improvement | 2026-09-21 |
+| Couldn't-tell on **readable** sites | ≤ 25% | **14.0%** ✓ (Sonnet 5, frozen corpus) — was 24.6% Haiku | 2026-09-21 |
 | — of which: one-page reads | — | 9 of 21 remaining couldn't-tells; one-page reads are ~100% couldn't-tell | 2026-09-21 |
 | — mean pages read per readable site | — | **3.30** (was 3.27 before the link fix) | 2026-09-21 |
 | Weekly profile change rate (drives alert cost) | measure | — | — |
@@ -542,3 +543,7 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-21 | **The scorer's own recall definition was wrong and flattered the engine** | It excluded abstentions from the recall denominator, reporting 1-of-15 as "33%". Gate item 3 asks how many true matches the engine *found*, and a business it abstained on is one the user never receives — "not sure" and "no" are indistinguishable from where they sit. Delivered recall is now the headline; the decided-only figure is kept as a diagnostic and labelled as one. Abstention stays excluded from *precision*, which is correct: we told the user nothing false. |
 | 2026-09-21 | Two ceilings on precision that are not the engine's to fix | **7% of the slice (5 of 70) had the wrong website in Overture** — every verdict on those is about a different company, and no engine work recovers it. **24% (17 of 70) the human could not establish either**, which says the criterion is often not decidable from a public site at all. Together, a quarter of a typical slice has no reachable ground truth. |
 | 2026-09-21 | Diagnosis for the recall failure: the bottleneck is **satisfying the absence rule, not judging** | The engine says `no_match` readily — the detector settles that from one page, cheaply and confidently. Saying `match` requires the absence rule, which requires criterion-relevant pages to have been read, which the crawl often fails to do. Result: it is 19-for-19 willing to reject and almost never willing to confirm. Fixing recall means getting the right pages read, not changing the prompt. |
+| 2026-09-21 | **Model choice was the dominant lever, and the product document's "Haiku 4.5 class" is refuted by measurement** | Frozen corpus, identical prompt, identical 70 labels — only the model changed. Haiku 4.5: 6.7% recall, 50% precision, $0.037/match. **Sonnet 5: 33.3% recall, 83.3% precision, $0.032/match.** Opus 5: 40.0% recall but precision *fell* to 75.0% and cost/match blew the budget at $0.062. Default worker model changed to Sonnet 5 in `engine/llm.py`. |
+| 2026-09-21 | **The stronger model is CHEAPER per match, which inverts the intuition the cost model was built on** | Cost per match is cost per business ÷ match rate. Sonnet costs 2.6× Haiku per business and finds 5× as many matches, so the bill per billable row falls. Every earlier cost argument assumed the cheap model was the cheap option; on the measured numbers it is the expensive one. Opus breaks the pattern — its recall gain does not pay for its price. |
+| 2026-09-21 | **Three targeted fixes failed before the right lever was found. Recording the failures, not just the win.** | (1) Two real link-selection bugs — negligible effect. (2) "The absence rule is too strict" — measured zero cases where it overrode a model match. (3) "The prompt makes absence matches unreachable" — well-evidenced, correctly fixed, and delivered recall did not move at all; it converted abstentions into rejections instead. Only the fourth hypothesis paid. The lesson is the frozen-corpus A/B, without which none of these would have been distinguishable from noise. |
+| 2026-09-21 | **Recall's ceiling with the current crawl is 67%, which clears the 60% target** | Of the 7 true matches Sonnet still abstains on, 5 are sites that cannot be read at all (blocked, robots-blocked, or too thin). Those can never be confirmed, so 10 of 15 is the practical maximum. The target sits below the ceiling, which means the remaining 33.3% → 60% gap is closable rather than structural — unlike coverage, where HVAC failed against a hard limit. |

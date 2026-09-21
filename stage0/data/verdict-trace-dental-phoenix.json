@@ -1,0 +1,902 @@
+{
+  "fedb8667-cd94-4e97-a12f-147eefb58468": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "d231f421-5fc9-4cc1-922e-98bd6969b82e": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "bbc15188-f716-43dc-a54b-c08c5857da30": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "d807af57-1bff-4637-8514-221369acb0ec": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "4e5e1eb0-8b44-43a5-a4bd-bc943e390b98": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "3d74577b-b890-44fe-ba4f-9d83a23e0165": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "2c70ff9c-e807-42b3-a964-ea622bd0b25c": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "333d9124-164d-49d8-ab8f-f2fbe7d9dc97": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "model",
+      "raw_model": "couldnt_tell",
+      "proof_valid": true,
+      "quote": "Calendar icon Simplified monthly calendar Request Appointment Phone icon Simplistic phone handset without a cord Contact Us"
+    }
+  },
+  "7fd18f74-ed75-4e7c-904a-8fa78bfca8e0": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "0e10aebe-454d-4026-8bf8-952a90230969": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "193fcb02-3f68-4744-8ee6-5eb0f74173d6": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "d47e23c4-de80-4e47-93f3-9ca2475adbb5": {
+    "no_online_booking": {
+      "verdict": "match",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
+      "proof_valid": true,
+      "quote": "We make getting in touch with us simple. You can give us a call during office hours, or use our contact form for general inquiries, to request an appointment, o"
+    }
+  },
+  "79a889b9-6435-49c5-8e92-3edbbc19e7c9": {
+    "no_online_booking": {
+      "verdict": "match",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
+      "proof_valid": true,
+      "quote": "We look forward to seeing you! Give us a call or contact us via email to set up an appointment."
+    }
+  },
+  "c94b2452-c9a8-4bfc-800b-918b698dba6b": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "bdeec3b1-e825-43bd-85f2-452e9321658d": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "295ddb05-e82f-416c-8488-6a9fe56fc148": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "c0a55ace-2738-4171-b31c-dec8513912bb": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "model",
+      "raw_model": "couldnt_tell",
+      "proof_valid": true,
+      "quote": "Once you&#x27;ve reviewed your recommendations, you can schedule an in-person visit with the dentist."
+    }
+  },
+  "6cd782e2-4ffa-44a3-ae15-cdcd4ebac931": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "d29f3b76-f665-4b36-a096-0b255bee094d": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "359a049d-a28f-4a69-b09e-c4d9a6692405": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "b2c5a3df-8ef2-42be-82c8-c295dfd63c6d": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "model",
+      "raw_model": "no_match",
+      "proof_valid": true,
+      "quote": "(480) 443-1717 Make Appointment Visit New Website"
+    }
+  },
+  "922f4a3c-97e2-48e0-bea4-bafe86b1e4a6": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "74794b97-7f24-4741-9bc2-db803dcf18ed": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "972a80d8-74a2-4f60-93c4-67bf4e5c6d0f": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "c46750e7-1bd1-4517-8810-a69b91ff660b": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
+      "proof_valid": true,
+      "quote": "All you have to do is fill out the contact form, and our staff will reach out to you soon! We will set up your virtual or in-person consultation for you."
+    }
+  },
+  "fe779451-5352-4d18-9742-794e67e286c9": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "ec129524-f7e6-40ee-b77d-9beb6dd9c085": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "36422468-e6f8-4011-a6cb-8f944383b572": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "d2c8812d-588b-4272-a796-6a2df2b22840": {
+    "no_online_booking": {
+      "verdict": "match",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
+      "proof_valid": true,
+      "quote": "In-person tours By appointment Virtual tours Coming soon Request an in-person tour"
+    }
+  },
+  "efde0bfb-9e24-4fa1-a8e2-f5b64f53b79c": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "0e95dbb4-36aa-45bb-ae64-56819a494a2d": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "66ed0239-4cc4-47db-9bf5-41b9c9d896d9": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "56f8a09c-64e9-4605-9caf-5c8d9213cd0d": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "66b4e0a6-223a-41aa-9efd-fd6da69e67b2": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "a5baf3d5-2bb9-4228-b554-f381d46ceb86": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "8ff44589-7a9a-40dc-94e8-3e0f05681fc9": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "38445990-0149-4aeb-8a23-2d69b8fd1d2c": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "d24a0585-a389-4695-ad12-e9e072e83017": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "d4e70ec9-1c58-4d2d-9235-8ea5590bff97": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "7557c24c-0fb8-40b9-bc26-6e81515fee04": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
+      "proof_valid": true,
+      "quote": "Practicing the art of dentistry since 2000, Dr.&nbsp;Chen Yuan&nbsp;provides the finest quality dental care available today."
+    }
+  },
+  "aac74c3e-81e0-42cb-90a1-2a2991bdd82f": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "model",
+      "raw_model": "match",
+      "proof_valid": false,
+      "quote": ""
+    }
+  },
+  "f0ac265c-4204-4f7c-acf5-1d4e0f0cc3b2": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "f7091250-41b5-48e9-b786-2030acde54f2": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "model",
+      "raw_model": "couldnt_tell",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "dbe8c437-b416-4fcb-abe1-7ad20ba2958c": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "77b7273f-2d74-4000-9a9a-82bf17ad50b2": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "ef0c0ac3-9b09-4b70-9c09-d9549cdf1402": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "155fa83d-ee46-405c-b32e-b798c8dc42df": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "271fa5c2-7d24-41cf-b62e-641db7d3c212": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "da71a11d-decd-4ca1-bc56-49bb5eab3215": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "c89e9387-c45b-49cd-b09a-e5eb11fcfbac": {
+    "no_online_booking": {
+      "verdict": "match",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
+      "proof_valid": true,
+      "quote": "For after hours emergencies, please call 480-610-6544 and listen to our message."
+    }
+  },
+  "2963acd7-62ac-4f7a-b8d3-ed812cd8da78": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "model",
+      "raw_model": "couldnt_tell",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "c734c83f-e5ab-4b48-93ee-d94f9c2b88e4": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "ce006449-cf10-4ee6-af0e-b2c723498968": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "f10fd016-ae01-4ceb-9668-0aa38e1a4e26": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "60d12cd8-ff81-4f8b-b785-38b0543e6404": {
+    "no_online_booking": {
+      "verdict": "match",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
+      "proof_valid": true,
+      "quote": "You can call either of our offices directly during business hours. Our friendly staff will help you find a time that works for your schedule. You can also reque"
+    }
+  },
+  "4d8c3115-ce37-4c63-aecc-aedde194271d": {
+    "no_online_booking": {
+      "verdict": "match",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
+      "proof_valid": true,
+      "quote": "Phone Number (623) 932-0539 Opening Hours Monday, Tuesday, Wednesday, Thursday, Friday&nbsp; 8AM &ndash; 6PM"
+    }
+  },
+  "e2f724e1-2f90-41b7-b2cd-9674dde8f64b": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "b9303ec6-275f-4a36-a4cf-13177f33a4fa": {
+    "no_online_booking": {
+      "verdict": "match",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
+      "proof_valid": true,
+      "quote": "For more information or to schedule a consultation appointment, please call our office at (602) 279-7312"
+    }
+  },
+  "bafd8247-d09d-4541-b11d-2c040e526ff3": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "c238a26c-a56e-415f-af39-13cd0e909abc": {
+    "no_online_booking": {
+      "verdict": "match",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
+      "proof_valid": true,
+      "quote": "\u5982\u679c\u60a8\u6709\u4efb\u4f55\u95ee\u9898\u6216\u7591\u95ee\uff0c\u8bf7\u968f\u65f6\u4e0e\u6211\u4eec\u8054\u7cfb\uff01\uff0813042421638\uff09"
+    }
+  },
+  "7a66c8c0-d368-4ae3-a8d3-4a2d0a62b3a9": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "90033559-d832-44ae-be5c-74fd92cc0797": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "e4c3827e-0e61-4597-8ed8-727ac0e4d881": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "model",
+      "raw_model": "no_match",
+      "proof_valid": true,
+      "quote": "Book Your Appointment Today Experience comfortable, ethical, family-focused dentistry. Book Appointment"
+    }
+  },
+  "43434d79-dc03-4612-b008-bb92049a3384": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "73cf58f6-935f-4401-9622-6db48baa0171": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "831059bc-21dc-4bc5-ba87-29adf879193f": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "cbdc6424-454a-40b2-badf-5404fa330f37": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "dd17ab9f-96e2-4242-b581-f51f402ad5bc": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "c3c5d73f-034c-43a8-b946-a5b4c9833520": {
+    "no_online_booking": {
+      "verdict": "match",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
+      "proof_valid": true,
+      "quote": "In order to best serve you, we have created this form to facilitate scheduling an appointment that best fits your schedule. Please complete all of the following"
+    }
+  },
+  "cce06afb-3ae8-4e02-8640-eb97c06eac6f": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "4bc00972-d6fe-41ad-bcd9-bab88bc46630": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "8e5a6c5a-638b-47a1-930c-aa35205466f9": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "a106c989-2845-4dfd-96d9-b57232a3cec1": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "fd36ae9e-5efa-4b73-9395-c2ddd01aceb5": {
+    "no_online_booking": {
+      "verdict": "match",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
+      "proof_valid": true,
+      "quote": "Request an Appointment Please fill out the form below and we will contact you with an appointment time."
+    }
+  },
+  "c48cb403-fdce-4bf0-b7da-ec5bc64df65a": {
+    "no_online_booking": {
+      "verdict": "match",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
+      "proof_valid": true,
+      "quote": "Ready to book a cleaning or an appointment? Contact us today! (623) 842-1075"
+    }
+  },
+  "fbafa8ae-dbfe-4a1c-9a9b-6f59e24e1a5f": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
+      "proof_valid": true,
+      "quote": "About News Work with Us Contact Us Find a Practice PDS Health Foundation Site Map Accessibility Terms of Service Privacy Policy Trust &amp; Security Cookie Noti"
+    }
+  },
+  "e25be5ed-5b1a-4c52-816b-29f2ab07e83d": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "78e21780-e9e9-4f43-af7d-934126189d1a": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "7ad8ccb7-9180-4f01-9c89-ecf3b0c73fdc": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "135c8d5e-c2cd-4f9a-a3e6-73dd6d5ce003": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "c80d6c67-364c-478d-a4e8-8d614244c54d": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "a374fe39-d2ca-4ffc-b660-f8ce00ede7c8": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "9205d634-7f76-4949-985d-01143a9bc6aa": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "f86af414-ef03-44ce-8674-3b4e33004275": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "20292b48-9fc0-4e87-a67f-315b474e9f4b": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "c0ec7626-3b34-4b58-bbd0-03b84eaed526": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "1b5822e5-e5b0-4d72-89bb-94ff5b1e9de4": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "682d868e-4c98-40d8-9684-3de4efaea034": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "61fa33ae-44c6-49e1-a760-a03bd43a164d": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "40000a6e-06a8-4399-8896-644b9f4ba862": {
+    "no_online_booking": {
+      "verdict": "match",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
+      "proof_valid": true,
+      "quote": "Phone: 480-493-9816 Address: 11111 N Scottsdale Rd, Ste 120, Scottsdale, AZ, 85254 Send us mail Name * E-Mail * Message *"
+    }
+  },
+  "eea0da94-ce5c-4bcb-8668-235acc23029d": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "2c8b9817-4b9d-4662-8ea0-476eb36ca06e": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "0898bf2b-506a-470a-9400-990b47d3db48": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "3d569a3c-4ce8-4514-b4ac-9de77f35d9e0": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "f136203e-e6ef-4c0c-8f6b-08beba7a525c": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "dfe12a94-3c0d-4fcc-8643-a7c3e5c80398": {
+    "no_online_booking": {
+      "verdict": "no_match",
+      "settled_by": "detector",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "dfa99bd7-9884-4549-820f-676dea7a121b": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "40941166-f00c-40c2-950a-af0d25ce6ff5": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "2f399b04-8ee9-4d5f-87a8-a1ad227b4017": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  },
+  "e2814ad4-b7b6-43f2-b02d-cd974112419a": {
+    "no_online_booking": {
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
+      "proof_valid": true,
+      "quote": ""
+    }
+  }
+}

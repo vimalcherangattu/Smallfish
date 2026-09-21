@@ -206,6 +206,16 @@ async def main_async(args) -> int:
     verdicts_out.write_text(json.dumps(
         {j.business_id: {v.criterion_id: v.verdict for v in j.verdicts}
          for j in judgments}, indent=2) + "\n")
+
+    # The same verdicts with their provenance, for diagnosing *why* a verdict
+    # came out as it did. Separate file so score.py's join stays simple.
+    trace_out = DATA / f"verdict-trace-{args.market}.json"
+    trace_out.write_text(json.dumps(
+        {j.business_id: {v.criterion_id: {
+            "verdict": v.verdict, "settled_by": v.settled_by,
+            "raw_model": v.raw_model_verdict, "proof_valid": v.proof_valid,
+            "quote": v.quote[:160]} for v in j.verdicts}
+         for j in judgments}, indent=2) + "\n")
     print(f"→ {verdicts_out.relative_to(ROOT)}")
     print(f"\n→ {out.relative_to(ROOT)}")
     return 0
