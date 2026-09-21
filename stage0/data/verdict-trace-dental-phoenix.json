@@ -64,11 +64,11 @@
   },
   "333d9124-164d-49d8-ab8f-f2fbe7d9dc97": {
     "no_online_booking": {
-      "verdict": "couldnt_tell",
+      "verdict": "no_match",
       "settled_by": "model",
-      "raw_model": "couldnt_tell",
+      "raw_model": "no_match",
       "proof_valid": true,
-      "quote": "Calendar icon Simplified monthly calendar Request Appointment Phone icon Simplistic phone handset without a cord Contact Us"
+      "quote": "Request Appointment"
     }
   },
   "7fd18f74-ed75-4e7c-904a-8fa78bfca8e0": {
@@ -104,7 +104,7 @@
       "settled_by": "absence_rule",
       "raw_model": "match",
       "proof_valid": true,
-      "quote": "We make getting in touch with us simple. You can give us a call during office hours, or use our contact form for general inquiries, to request an appointment, o"
+      "quote": "You can give us a call during office hours, or use our contact form for general inquiries, to request an appointment, or to leave feedback on your patient exper"
     }
   },
   "79a889b9-6435-49c5-8e92-3edbbc19e7c9": {
@@ -149,7 +149,7 @@
       "settled_by": "model",
       "raw_model": "couldnt_tell",
       "proof_valid": true,
-      "quote": "Once you&#x27;ve reviewed your recommendations, you can schedule an in-person visit with the dentist."
+      "quote": ""
     }
   },
   "6cd782e2-4ffa-44a3-ae15-cdcd4ebac931": {
@@ -185,7 +185,7 @@
       "settled_by": "model",
       "raw_model": "no_match",
       "proof_valid": true,
-      "quote": "(480) 443-1717 Make Appointment Visit New Website"
+      "quote": "Make Appointment"
     }
   },
   "922f4a3c-97e2-48e0-bea4-bafe86b1e4a6": {
@@ -353,19 +353,19 @@
   "7557c24c-0fb8-40b9-bc26-6e81515fee04": {
     "no_online_booking": {
       "verdict": "couldnt_tell",
-      "settled_by": "absence_rule",
+      "settled_by": "model",
       "raw_model": "match",
-      "proof_valid": true,
-      "quote": "Practicing the art of dentistry since 2000, Dr.&nbsp;Chen Yuan&nbsp;provides the finest quality dental care available today."
+      "proof_valid": false,
+      "quote": ""
     }
   },
   "aac74c3e-81e0-42cb-90a1-2a2991bdd82f": {
     "no_online_booking": {
       "verdict": "couldnt_tell",
-      "settled_by": "model",
+      "settled_by": "absence_rule",
       "raw_model": "match",
-      "proof_valid": false,
-      "quote": ""
+      "proof_valid": true,
+      "quote": "Call Now: (480) 418-7215"
     }
   },
   "f0ac265c-4204-4f7c-acf5-1d4e0f0cc3b2": {
@@ -446,7 +446,7 @@
       "settled_by": "absence_rule",
       "raw_model": "match",
       "proof_valid": true,
-      "quote": "For after hours emergencies, please call 480-610-6544 and listen to our message."
+      "quote": "Our office attempts to schedule appointments at your convenience and when time is available."
     }
   },
   "2963acd7-62ac-4f7a-b8d3-ed812cd8da78": {
@@ -487,11 +487,11 @@
   },
   "60d12cd8-ff81-4f8b-b785-38b0543e6404": {
     "no_online_booking": {
-      "verdict": "match",
-      "settled_by": "absence_rule",
-      "raw_model": "match",
+      "verdict": "no_match",
+      "settled_by": "model",
+      "raw_model": "no_match",
       "proof_valid": true,
-      "quote": "You can call either of our offices directly during business hours. Our friendly staff will help you find a time that works for your schedule. You can also reque"
+      "quote": "You can also request an appointment through our website, and we will get back to you promptly."
     }
   },
   "4d8c3115-ce37-4c63-aecc-aedde194271d": {
@@ -500,7 +500,7 @@
       "settled_by": "absence_rule",
       "raw_model": "match",
       "proof_valid": true,
-      "quote": "Phone Number (623) 932-0539 Opening Hours Monday, Tuesday, Wednesday, Thursday, Friday&nbsp; 8AM &ndash; 6PM"
+      "quote": "Phone Number (623) 932-0539"
     }
   },
   "e2f724e1-2f90-41b7-b2cd-9674dde8f64b": {
@@ -563,7 +563,7 @@
       "settled_by": "model",
       "raw_model": "no_match",
       "proof_valid": true,
-      "quote": "Book Your Appointment Today Experience comfortable, ethical, family-focused dentistry. Book Appointment"
+      "quote": "Book Appointment"
     }
   },
   "43434d79-dc03-4612-b008-bb92049a3384": {
@@ -613,11 +613,11 @@
   },
   "c3c5d73f-034c-43a8-b946-a5b4c9833520": {
     "no_online_booking": {
-      "verdict": "match",
-      "settled_by": "absence_rule",
-      "raw_model": "match",
+      "verdict": "no_match",
+      "settled_by": "model",
+      "raw_model": "no_match",
       "proof_valid": true,
-      "quote": "In order to best serve you, we have created this form to facilitate scheduling an appointment that best fits your schedule. Please complete all of the following"
+      "quote": "We will check our calendar availability and call you to coordinate and confirm a convenient time for you."
     }
   },
   "cce06afb-3ae8-4e02-8640-eb97c06eac6f": {
@@ -658,9 +658,9 @@
   },
   "fd36ae9e-5efa-4b73-9395-c2ddd01aceb5": {
     "no_online_booking": {
-      "verdict": "match",
-      "settled_by": "absence_rule",
-      "raw_model": "match",
+      "verdict": "no_match",
+      "settled_by": "model",
+      "raw_model": "no_match",
       "proof_valid": true,
       "quote": "Request an Appointment Please fill out the form below and we will contact you with an appointment time."
     }
@@ -677,10 +677,10 @@
   "fbafa8ae-dbfe-4a1c-9a9b-6f59e24e1a5f": {
     "no_online_booking": {
       "verdict": "couldnt_tell",
-      "settled_by": "absence_rule",
-      "raw_model": "match",
+      "settled_by": "model",
+      "raw_model": "couldnt_tell",
       "proof_valid": true,
-      "quote": "About News Work with Us Contact Us Find a Practice PDS Health Foundation Site Map Accessibility Terms of Service Privacy Policy Trust &amp; Security Cookie Noti"
+      "quote": ""
     }
   },
   "e25be5ed-5b1a-4c52-816b-29f2ab07e83d": {
@@ -806,7 +806,7 @@
       "settled_by": "absence_rule",
       "raw_model": "match",
       "proof_valid": true,
-      "quote": "Phone: 480-493-9816 Address: 11111 N Scottsdale Rd, Ste 120, Scottsdale, AZ, 85254 Send us mail Name * E-Mail * Message *"
+      "quote": "Phone: 480-493-9816 Address: 11111 N Scottsdale Rd, Ste 120, Scottsdale, AZ, 85254 Send us mail"
     }
   },
   "eea0da94-ce5c-4bcb-8668-235acc23029d": {

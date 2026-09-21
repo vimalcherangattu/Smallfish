@@ -22,6 +22,24 @@ from dataclasses import dataclass, field
 # --- Booking -----------------------------------------------------------------
 # Vendor host names and script fingerprints. Matched against raw page source,
 # which catches embeds, iframes and script tags that a text-only view loses.
+# **A vendor hit must prove a customer can book, not that the business buys
+# software from someone.** The catalogue conflated those and it cost a real
+# recall point: Palm Valley Pediatric Dentistry was rejected because
+# `dentrix.com` appeared on its site. Dentrix is dental practice-management
+# software — the back office — and a footer "powered by" link says nothing
+# about whether a patient can book. The same category error ran through the
+# niche lists: dental_intelligence is analytics, solutionreach and
+# lighthouse360 are patient messaging, covetrus is distribution.
+#
+# Two rules now:
+#   - A practice-management, EHR or messaging vendor is scoped to a
+#     booking-ish path, so only a patient-facing route fires it.
+#   - Pure comms, marketing and analytics tools are not booking evidence at
+#     all, and are gone.
+#
+# A comment here already said exactly this about Weave — "a bare getweave.com
+# match would claim booking on sites that have none" — and the lesson was not
+# generalised. It is now.
 BOOKING_VENDORS: dict[str, list[str]] = {
     "calendly": [r"calendly\.com", r"calendly-badge", r"Calendly\.init"],
     "acuity": [r"acuityscheduling\.com", r"squarespacescheduling\.com"],
@@ -39,20 +57,20 @@ BOOKING_VENDORS: dict[str, list[str]] = {
     "styleseat": [r"styleseat\.com"],
     "booksy": [r"booksy\.com"],
     "phorest": [r"phorest\.com", r"phorest\.me"],
-    "dentrix": [r"dentrixascend\.com", r"dentrix\.com"],
+    "dentrix": [r"dentrix(ascend)?\.com/[\w/.?=&-]*(book|appointment|schedule|portal)"],
     "nexhealth": [r"nexhealth\.com"],
     "localmed": [r"localmed\.com"],
     "flexbooker": [r"flexbooker\.com"],
     "appointy": [r"appointy\.com"],
-    "housecallpro": [r"housecallpro\.com", r"hcp-booking"],
-    "servicetitan": [r"servicetitan\.com", r"st-scheduler"],
+    "housecallpro": [r"hcp-booking", r"housecallpro\.com/book"],
+    "servicetitan": [r"st-scheduler", r"servicetitan\.com/[\w/.?=&-]*(book|schedule)"],
     "jobber": [r"getjobber\.com", r"jobber\.com/online-booking"],
-    "opendental": [r"opendental\.com"],
-    "tebra": [r"tebra\.com", r"kareo\.com"],
-    "athenahealth": [r"athenahealth\.com"],
+    "opendental": [r"opendental\.com/[\w/.?=&-]*(book|appointment|schedule|portal)"],
+    "tebra": [r"(tebra|kareo)\.com/[\w/.?=&-]*(book|appointment|schedule|portal)"],
+    "athenahealth": [r"athenahealth\.com/[\w/.?=&-]*(book|appointment|schedule|portal)"],
     "healthiepatient": [r"gethealthie\.com"],
     "cliniko": [r"cliniko\.com"],
-    "practicefusion": [r"practicefusion\.com"],
+    "practicefusion": [r"practicefusion\.com/[\w/.?=&-]*(book|appointment|schedule|portal)"],
     "timely": [r"gettimely\.com"],
     "resurva": [r"resurva\.com"],
     "genbook": [r"genbook\.com"],
@@ -94,7 +112,7 @@ BOOKING_VENDORS_BY_NICHE: dict[str, dict[str, list[str]]] = {
         # also a phone and messaging product, so a bare getweave.com match would
         # claim booking on sites that have none.
         "evetpractice": [r"evetpractice\.com"],
-        "ezyvet": [r"ezyvet\.com"],
+        "ezyvet": [r"ezyvet\.com/[\w/.?=&-]*(book|appointment|schedule|portal)"],
         "shepherd_vet": [r"shepherd\.vet", r"shepherdsoftware"],
         "digitail": [r"digitail\.(com|io)"],
         "instinct_vet": [r"instinct\.vet"],
@@ -103,28 +121,21 @@ BOOKING_VENDORS_BY_NICHE: dict[str, dict[str, list[str]]] = {
         "provet_cloud": [r"provet\.cloud"],
         "televet": [r"televet\.com"],
         "vitusvet": [r"vitusvet\.com"],
-        "allydvm": [r"allydvm\.com"],
         "hippo_manager": [r"hippomanager\.com"],
-        "covetrus": [r"covetrus\.com"],
+        "covetrus": [r"covetrus\.com/[\w/.?=&-]*(book|appointment|schedule|portal)"],
     },
     "dental": {
-        "curve_dental": [r"curvedental\.com", r"curvehero\.com"],
-        "denticon": [r"denticon\.com"],
-        "eaglesoft": [r"eaglesoft", r"patterson\.eaglesoft"],
-        "lighthouse360": [r"lighthouse360\.com"],
-        "revenuewell": [r"revenuewell\.com"],
-        "solutionreach": [r"solutionreach\.com"],
-        "dental_intelligence": [r"dentalintel\.com", r"dentalintelligence\.com"],
+        "curve_dental": [r"curve(dental|hero)\.com/[\w/.?=&-]*(book|appointment|schedule|portal)"],
+        "denticon": [r"denticon\.com/[\w/.?=&-]*(book|appointment|schedule|portal)"],
+        "eaglesoft": [r"eaglesoft[\w/.?=&-]*(book|appointment|schedule|portal)"],
         "adit": [r"adit\.com"],
         "yapi": [r"yapiapp\.com"],
-        "modento": [r"modento\.io"],
         "simplifeye": [r"simplifeye\.co"],
         "flex_dental": [r"flexdental(solutions)?\.com"],
     },
     "med_spa": {
         "aesthetic_record": [r"aestheticrecord\.com", r"myaestheticrecord\.com"],
         "symplast": [r"symplast\.com"],
-        "patientnow": [r"patientnow\.com"],
         "nextech": [r"nextech\.com"],
         "zenoti": [r"zenoti\.com"],
         "mangomint": [r"mangomint\.com"],

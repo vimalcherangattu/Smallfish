@@ -3,12 +3,12 @@
   "pairs": 70,
   "by_type": {
     "absence": {
-      "tn": 16,
-      "engine_abstained": 22,
-      "fp": 2,
-      "tp": 6,
+      "tn": 18,
+      "engine_abstained": 21,
+      "fp": 1,
+      "tp": 5,
       "abstained_on_match": 7,
-      "fn": 2
+      "fn": 3
     }
   },
   "unscorable": {
