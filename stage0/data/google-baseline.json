@@ -1,0 +1,5454 @@
+[
+  {
+    "market": "med-spa-dallas",
+    "niche": "med_spa",
+    "cells_sampled": 60,
+    "cells_truncated": 0,
+    "off_niche_dropped": 32,
+    "strata": {
+      "dense": {
+        "cells_total": 209,
+        "cells_sampled": 40,
+        "google_places": 174,
+        "matched": 79,
+        "ambiguous": 59,
+        "off_niche_dropped": 29
+      },
+      "sparse": {
+        "cells_total": 116,
+        "cells_sampled": 20,
+        "google_places": 0,
+        "matched": 0,
+        "ambiguous": 0,
+        "off_niche_dropped": 3
+      }
+    },
+    "requests": 61,
+    "google_places": 174,
+    "matched": 79,
+    "ambiguous": 59,
+    "coverage_strict": 0.454,
+    "coverage_generous": 0.7931,
+    "ci95_strict": [
+      0.3818,
+      0.5282
+    ],
+    "places": [
+      {
+        "place_id": "ChIJG6aa1HeRToYRW8wrXnvSlFo",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJl5N0cy0dTIYRKyLKNq6uQwg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "72bc7271-7432-45d9-8d19-c882729d3393"
+      },
+      {
+        "place_id": "ChIJwYvFIuUdTIYRYuQ1TvKN8ek",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJSSfdDlQcTIYRuDN5UyabOMA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "90cf0597-0e6e-4f8d-bf67-d838e318b16a"
+      },
+      {
+        "place_id": "ChIJI1OyASchTIYR4TlxuxuIznA",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJNU14qfwcTIYRLHvUe8kdXwA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "bb7c68ef-ab31-4ee6-bfab-b7eb0aee9647"
+      },
+      {
+        "place_id": "ChIJaajKsCIdTIYR1jzzVODHNaQ",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "0da82a6b-bcae-4845-98af-cd9c42bbf437"
+      },
+      {
+        "place_id": "ChIJvblMkfoXTIYR8YwyLghqRW8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "77c86cd7-c95b-4786-b336-fc6fe994e84b"
+      },
+      {
+        "place_id": "ChIJgTO85FE9TIYR28wQCJgnehw",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ6YjY8gMXTIYRUA7tcTooX-8",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJFdRToXkXTIYR2-cD5GhrWBE",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJW8yrKcEiTIYRBKupHYmChcc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "41ae7423-28a2-446a-a566-289e0c6e5958"
+      },
+      {
+        "place_id": "ChIJzSQbGzQ9TIYR-hfrSL6-eaU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "bf6221c3-e051-4230-9bd0-622d5b5a61b2"
+      },
+      {
+        "place_id": "ChIJVVXlzUcXTIYR92RiE6v2CJM",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJU96mOHwlTIYRr0GaZD2GgZQ",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "59b0ced7-b4d9-4a82-b33b-93a86b7d2de4"
+      },
+      {
+        "place_id": "ChIJHdNmWFMjTIYRDXwPVwo3NsE",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJJ0_DvOmfToYR1UKF7wVvozo",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJNRZQOFefToYRoAIyBbPcbXI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "9903830e-760f-44c8-96f2-7e7e0f539b98"
+      },
+      {
+        "place_id": "ChIJZet6gJgXTIYRbvZjMgfZu10",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "549b5ac2-a5a6-4952-a291-74f8f3591452"
+      },
+      {
+        "place_id": "ChIJDZziHwGfToYREmevhjNwp1E",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "80b9e310-f46d-4611-aee6-b114e2428447"
+      },
+      {
+        "place_id": "ChIJNXQVM3efToYR8O_vz9dtJfs",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ3wDxl3afToYRNBc0qke9dhg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "01ba4649-225e-4c96-8ba6-b9b4d657cb9e"
+      },
+      {
+        "place_id": "ChIJo_L80uifToYRmY82xz8pKrg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "2e13ec07-e06b-440a-977e-90ae3116b180"
+      },
+      {
+        "place_id": "ChIJ7yVy21CfToYR-zPHYp9s4G4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ7zRj9mefToYRKXLw3X9dFm0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "00d3485a-5a2e-4540-8ca9-1c417d4a602a"
+      },
+      {
+        "place_id": "ChIJC-Wy2yafToYRHltOUocvoO8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "868106e4-31ae-42b3-b41e-74b090187330"
+      },
+      {
+        "place_id": "ChIJyziFRjGfToYRcR1Sq8Nd_l8",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJdaCd4EKeToYRXh3SxRxxbmE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "42f98f14-1000-4ab2-ae6a-64b1f990b33d"
+      },
+      {
+        "place_id": "ChIJR1DpC0WeToYRG_ftx0AndvM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d89d732b-dde1-49ad-9393-e5ef3259e70a"
+      },
+      {
+        "place_id": "ChIJ1SasE1KfToYR_boldzjViXM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "895e30fb-1ab7-446a-b965-903a995750de"
+      },
+      {
+        "place_id": "ChIJ3V1BFm6fToYR-SNWWa1Vl54",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "5ed34b60-373b-48d5-98da-6d7b0587617c"
+      },
+      {
+        "place_id": "ChIJp7idh3WfToYRWaIVB5BiTQ0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJSU5c10SeToYR9gBO92zJByo",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ7zGnaAKfToYRo_nUlQXx8jc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "5ae839e9-56b3-4ab9-8a88-59ab749a7028"
+      },
+      {
+        "place_id": "ChIJ-8421U6eToYRVhFy-4RtJ38",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "98ab8032-a55f-4e8f-9b40-7aaaf5267ed9"
+      },
+      {
+        "place_id": "ChIJT3dT6H-fToYRCnVX5fglBek",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJZ3xETWCeToYRLKaZruEn660",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJVRK6CUOeToYRnmaGrO7Bj6k",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJVYYzRXipToYRTSkKFedY1CU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJF2Lze0SeToYRuCoCIXoRN2E",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a4beb247-1cb5-4b8f-82d8-409c715d92ae"
+      },
+      {
+        "place_id": "ChIJaZazTfqfToYRe_G6az581as",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJRS07UcCfToYRGe4v3H90LUE",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ_02SMnSfToYRo3DOC8rJJnY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f4626ee2-0b1c-4d90-ae32-aac366594f10"
+      },
+      {
+        "place_id": "ChIJAacsSDGhToYR9b-GeygF6KQ",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "3d696a74-52bd-4743-8752-c6bf5e2457c6"
+      },
+      {
+        "place_id": "ChIJD7k8lUmhToYR541GuaE1OWI",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJizPN45-hToYRID7vYkBViy8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "5590e42c-c091-4352-8544-54b906494802"
+      },
+      {
+        "place_id": "ChIJMYQicvahToYRRHtGdX2Yn-Q",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJWZngp5oZTIYRSD8tsHSgKqM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8d2fa28e-22e8-489e-84ca-0b29a760b969"
+      },
+      {
+        "place_id": "ChIJc_gVQKofTIYRKQKTFctBymI",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJC3j01qoeTIYRM8mSsQul86s",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJt5RwIrEZTIYRPGVCeFrpjJ8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJabUxNjgfTIYRzqtMRGpULDU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "20b659a6-442a-45aa-84db-2affa2089fc9"
+      },
+      {
+        "place_id": "ChIJM8ofFoBlToYRht4QkhsNZJU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ_6z5HH1kToYRl5-sHLXJmrw",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJCyUBRfZhToYRK2DkfBGDuNg",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJoWxNUnhhToYRojq4n0qz2Gc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "80f9c150-d19e-4e8d-96d2-f97c2fee1005"
+      },
+      {
+        "place_id": "ChIJd182OKtjToYRuG3gB_2NGGQ",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJb6uHk3VhToYRWpnnPO0NWAE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e4d9fa44-9d09-4326-b4c3-6af60a71baf2"
+      },
+      {
+        "place_id": "ChIJwQpVpJV9ToYR1uMS4iL-Mpo",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJeWDmchOLToYROcqj6CPxK40",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJSRtfPfWLToYR_U73g3cG0MU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ6QAtYIp9ToYRAP9v0I_JZaM",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJKQxurGNhToYRcJu9cU4tpSM",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJsR9B4O9hToYRhYjwO8SSsyw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8c8e3472-dc8b-48d9-b139-7cb4be93888d"
+      },
+      {
+        "place_id": "ChIJa2n0sHspTIYRmOyiyt8uLTY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "877c1d54-6147-4922-9fed-a95685d74242"
+      },
+      {
+        "place_id": "ChIJsWmcJC8pTIYR88gMgpxW1yc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "05b85e1a-9ab0-4910-b9e8-9cb9da13c9b7"
+      },
+      {
+        "place_id": "ChIJBwSVj-UpTIYRVhe_tgkCg7Q",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "7a0c5627-e91f-44b2-8f8b-c68b37e1ee02"
+      },
+      {
+        "place_id": "ChIJE9DMdowpTIYRHOV52GytlbE",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ53_hFOIfTIYRv0rHvzN7kp0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJMzRe4VEpTIYREPQSJAbUDxY",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJV5RwU7MhTIYR64u5n693nO0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ6XNQGg0nTIYROudlttfI6BU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "92b7e497-bf9f-4535-bf99-1e4986e002ec"
+      },
+      {
+        "place_id": "ChIJZzBNtmonTIYRCVkdYfTTVO8",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJxU8Zu5knTIYRLJUuHTzO5SM",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ6zIgjOSbToYRYYm_EFp5sjI",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJl_dqm54nTIYRbVh6kleREao",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJlXVqCUknTIYRk7Ef-6hpMDA",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJv37w4i0hTIYRiIcrj0XndOQ",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b573165d-bc14-46f2-a5c5-a3a9b9147a26"
+      },
+      {
+        "place_id": "ChIJy46FNa0dTIYRtTC5b9y7ufY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "71f8f805-1821-4a43-9ce4-2fbbae86a3c4"
+      },
+      {
+        "place_id": "ChIJD5V4WBohTIYR5iZqm3vDqg8",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ88QQ7JUfTIYRpI5e5a9Nyaw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "5d361964-36c1-4083-bec3-d8e84a561cd9"
+      },
+      {
+        "place_id": "ChIJsSwQBMkhTIYRp-pD4zQcGfs",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJPYfTwdIvTIYR3hiLUSDU_0Y",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJL4yKfIolTIYR6j_4huq6YTM",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJHWl6ks4vTIYRb94lfUsND8U",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJU2iF0tshTIYR77SjFZUlcEw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "59c62cbd-96e2-4e37-b04e-13655fddc38f"
+      },
+      {
+        "place_id": "ChIJj2R7CNAhTIYR-jVvd4jqwYQ",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ6b57OykfTIYRroEUO1xQ6R4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "5f98b658-69b0-4f22-9dfe-d0ed9f177b36"
+      },
+      {
+        "place_id": "ChIJz3lQSPMhTIYRA3bY9tlwOIc",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJqwITXSChToYR-61vYiPg-gY",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJg6HQoCahToYR4g9v6Kte_HI",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJv9Xwy54ZTIYRZZTVh4qR9Y8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "fcf2d542-626f-4b3c-97eb-3fd350e6e6ec"
+      },
+      {
+        "place_id": "ChIJa2vQXv8fTIYRH9xIVwynXbo",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d264c462-06b1-473e-9ba8-5f68c530a321"
+      },
+      {
+        "place_id": "ChIJ3ecQlVQZTIYRM4WhOtc2fz0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJF-2GC1YZTIYRcO72TgGwRj4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e42dd0c8-53cb-45a3-bc8a-21942600e447"
+      },
+      {
+        "place_id": "ChIJo9QHPwkfTIYRbjV9Tz5ZSmU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "3eca744f-0295-4ca0-8512-3cffca7f5794"
+      },
+      {
+        "place_id": "ChIJYRKWi8ofTIYRGcOjCQvkUUo",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJbc6y-QAZTIYRM7r3uhjSbx0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "eb2d27e0-750f-461d-9438-ef73badd1c97"
+      },
+      {
+        "place_id": "ChIJrZ-_6qkZTIYRvLAcuXg_nPY",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJU5NXj6AjTIYREolzLZud0u4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJQ1pWs4YfTIYREOea6FU6VYc",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJK5WIqLAZTIYRqyBTUpwxSRU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6d31edba-f2c2-4862-b92d-1dc57e70fce9"
+      },
+      {
+        "place_id": "ChIJG3FBBiIjTIYRXIb_bXpyp2g",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJoe-TgA0ZTIYROAKi6YEd_Gs",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "291ef591-7de6-4bf7-bf98-f9b61f5c9442"
+      },
+      {
+        "place_id": "ChIJCdvI7HsZTIYRvU0aNO2dbjQ",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJIZU6LPAjTIYRo2gCqPJo4Mk",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJuaBvHRuGToYR_Funh5pM9j8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "aa2fb739-dd77-4ee0-902d-94c6dea2520e"
+      },
+      {
+        "place_id": "ChIJI4_17s6HToYR0nUAdfENXD4",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJjxoGJHyeToYR6Yq2dQEElwI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d6918d7e-fdb7-4662-8003-c8264c6defe7"
+      },
+      {
+        "place_id": "ChIJ61ZWs-afToYRKEmO0afTAgo",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8b63ae31-3bd2-4daa-8c9e-59359b2d9cb7"
+      },
+      {
+        "place_id": "ChIJp0L3I22fToYRl2qAm90DTUw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "3177e9ee-dc7c-40a3-912d-7c1dca5292b4"
+      },
+      {
+        "place_id": "ChIJE08lQlqdToYRsEvEryXNK0Q",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "9f706a85-3d43-4684-bf6f-f63568d7e304"
+      },
+      {
+        "place_id": "ChIJKULuVjGZToYRWn11sun-ysU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "358d4c5f-68d6-4ff9-9422-ed3fd54fd052"
+      },
+      {
+        "place_id": "ChIJUe7qd2GeToYR7hlRduCNHRE",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJFxDvocadToYR8HILupBzGAY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "470f4901-a408-47db-b623-588ebe607434"
+      },
+      {
+        "place_id": "ChIJoTlB5DufToYRGOUfTXw8wUE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4cd71f5e-6731-48ba-b1c9-89f0015faef4"
+      },
+      {
+        "place_id": "ChIJu6RhMQSfToYRqEzHud73eJ4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJH-DQTWaHToYRlRjCTeBmxso",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ceea9fe2-42f0-4934-8f8b-17c750b224cb"
+      },
+      {
+        "place_id": "ChIJm_-hrsRjToYRNjq_6Sj3VsY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4bf05eb5-1eee-415b-8868-05d52449604c"
+      },
+      {
+        "place_id": "ChIJxac-1zOHToYR5nHUNBQhyKY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b95d7b0e-6935-485a-9a2d-aa024b31e6d2"
+      },
+      {
+        "place_id": "ChIJS7wOx7F9ToYRpZQcRtQiW6s",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJmaZcUzh9ToYRFuoPIQ3L5AE",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJXQ7c0nl9ToYRKCIfRCBl_vY",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJObmU5x99ToYRpiiw7P_iDAM",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJo-LsSxmnToYRnDQhvGINaj8",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJEUFJ55R5ToYRiU-73mvyZbo",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJg0E319l5ToYRZUVEyjr0ZMY",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJH4pGuq6HToYRV0itc5p245I",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJB8VvFWgBTIYRxl5sqENMDRc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ea4a3e00-5463-4289-94af-45f86c81a224"
+      },
+      {
+        "place_id": "ChIJJTbVibklTIYR0_1WPglB5b4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "807463ad-cb87-4f64-b6b5-6be425ff8bf1"
+      },
+      {
+        "place_id": "ChIJKQK1PnsjTIYR8qa8k8uiAco",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJB5CFUOElTIYR1sxUucUwW8I",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ2exhVR0jTIYRlwTqVjME2Bk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "659e331a-f572-4c37-96b0-133e693b8d0a"
+      },
+      {
+        "place_id": "ChIJ10Ug1JqJToYReFdq_ANxYI4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f559d84b-fe8e-41cc-bfd4-51a59847c665"
+      },
+      {
+        "place_id": "ChIJmy1ablCFToYRURVzY8GM7hs",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ562jATs9TIYRhd9NDbTo9jI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "0bf365e1-393d-449b-9bf4-7677bf8167fa"
+      },
+      {
+        "place_id": "ChIJg8KwlXkhTIYRVfKSNRz2-N4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a17352a8-6d46-4de2-b9be-7a81ba1eaa5c"
+      },
+      {
+        "place_id": "ChIJgzeH6vYjTIYRP1Rbk8L1aQY",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJl8U5y_k7TIYRLwQeI8RIg-Q",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "595d3375-8f35-4375-a925-7d03542d01f9"
+      },
+      {
+        "place_id": "ChIJQywtycIjTIYRO6iq_l0-5mk",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJjSyeUxAhTIYRtilG0fx3WdE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "9a5cd097-77da-4b9e-86ab-86360a4b2c0b"
+      },
+      {
+        "place_id": "ChIJAYaxuHklTIYRuz0yH7FgV3A",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "2d69849b-13d2-405c-b883-48aa4c2c8d73"
+      },
+      {
+        "place_id": "ChIJJRXkyIAhTIYRAg0AEBkCh9A",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "58d9a7c2-736b-4bb0-9cd9-5200e91c44ef"
+      },
+      {
+        "place_id": "ChIJ6Zg4vkg5TIYRUwv8NyxO77Y",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "259bc8ea-c7f7-4a18-8435-4798589d6566"
+      },
+      {
+        "place_id": "ChIJjbsiaognTIYRAQcVOG4Nyek",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d33cfd95-26d4-49fe-bf99-df08ac2195bf"
+      },
+      {
+        "place_id": "ChIJmc7wdNYjTIYRSqVic8glJ-c",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6e784ea9-2808-440b-b058-f733562c6ed0"
+      },
+      {
+        "place_id": "ChIJe31QSLEjTIYRd_LtcS6hBGw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "30010358-d93d-4673-ad18-c14b3b736158"
+      },
+      {
+        "place_id": "ChIJy6UZwncjTIYRleVfAYvPIcs",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJy7la03QjTIYRwv6O0SLEfIQ",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJl-RaKD0jTIYRPV3FaNuqYR4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b0b9e6ae-88da-42e8-9022-8a1dedb9d0d3"
+      },
+      {
+        "place_id": "ChIJZWRg45cnTIYRPnDH3z_lAr0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJH34p8Zg1yWERv0tvmfiCdt4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJf4aMy-cjTIYRNY9QC7UrkYA",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJbTjR_sGfToYRN-SciV_Weys",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "afb076b3-ef5b-426c-9568-1adaf8dc982a"
+      },
+      {
+        "place_id": "ChIJGbrqAuRjToYRvi7FZp38I_A",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d3ededd4-db92-4635-9c0e-e578a155e818"
+      },
+      {
+        "place_id": "ChIJ0w_4Qj1jToYRJ3nPVSq1_C4",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJxaC4Ot9jToYRNnxWxu7p_f4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJg3EFqfJjToYRaGhOqAWIcGA",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJhTb1tUkpTIYRrU77jhXVLCs",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJoVu5SHGHToYR3UCoApcat_s",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "09d7bc22-69f6-4584-ae9f-85d382defb0e"
+      },
+      {
+        "place_id": "ChIJ7SvJ0ACHToYR9p-2GuyyMcU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJjW4ANpiHToYRTWCceqXBfK8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ5dQ6pzGHToYRH4-_MlkWQIg",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJMag05IvYWQMRUvWWEWEgkgc",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ1ZB7YCPVTYYRjfczWKxdRbg",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJAyeMguAtTIYR_QTTXHJLVjs",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d5205847-a4d5-449e-afad-a5ec7d20c677"
+      },
+      {
+        "place_id": "ChIJeyaFGqQrTIYRJ-zbS8Hl30U",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJhzPEn_ovTIYRm6_5Fp9UzMA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "9184f593-6cd9-467f-aeaa-4c73d099abc3"
+      },
+      {
+        "place_id": "ChIJrzDHXVfVTYYRjqjbffxDt_M",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "202473f6-ac35-47eb-afbc-a8d93151f41b"
+      },
+      {
+        "place_id": "ChIJL36wA2HVTYYRok5wzWQNBBs",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJjYZJBGyZToYRCrK0i0eunqQ",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJoYTWzs1gh4wRbIy4kIJOEXc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e02238c2-e6ee-42c1-8748-15d0fc3c3570"
+      },
+      {
+        "place_id": "ChIJW63q-QOVToYR2SvHKToYgm4",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJQQLGyJ6ZToYRBcBCrhVTGFs",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      }
+    ]
+  },
+  {
+    "market": "dental-phoenix",
+    "niche": "dental",
+    "cells_sampled": 60,
+    "cells_truncated": 2,
+    "off_niche_dropped": 82,
+    "strata": {
+      "dense": {
+        "cells_total": 176,
+        "cells_sampled": 40,
+        "google_places": 545,
+        "matched": 353,
+        "ambiguous": 169,
+        "off_niche_dropped": 80
+      },
+      "sparse": {
+        "cells_total": 149,
+        "cells_sampled": 20,
+        "google_places": 5,
+        "matched": 0,
+        "ambiguous": 0,
+        "off_niche_dropped": 2
+      }
+    },
+    "requests": 76,
+    "google_places": 550,
+    "matched": 353,
+    "ambiguous": 169,
+    "coverage_strict": 0.6378,
+    "coverage_generous": 0.9431,
+    "ci95_strict": [
+      0.6009,
+      0.6808
+    ],
+    "places": [
+      {
+        "place_id": "ChIJf_sVOAZpK4cRyNB_Fgxv-wA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "903e0e42-ba0c-4dd6-b46b-f200c07eaad2"
+      },
+      {
+        "place_id": "ChIJwyab4oVrK4cR8P2Z52koOvg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "986799c1-846a-41f7-9083-b14c8cfbbd68"
+      },
+      {
+        "place_id": "ChIJYYhldCtpK4cRcb4Z0S0RLKY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "dc9299c8-1d7a-4315-a7b9-ce21a835ea7d"
+      },
+      {
+        "place_id": "ChIJMfx5MUhoK4cRFKSnu7snxtI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "251a5cb6-a39e-4b9b-9f32-24237bdda8af"
+      },
+      {
+        "place_id": "ChIJycqCTf5oK4cRa-tNtUtVwr8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "bc3ee0ad-c7ed-45d4-a93a-4ed95f36ae57"
+      },
+      {
+        "place_id": "ChIJDwAT2JhpK4cRWkpnqocTflo",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8b0f0565-9fc0-44df-8d7d-751ee51a0443"
+      },
+      {
+        "place_id": "ChIJb6qpeEppK4cRPG4slnIjer8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJFzYrLUhoK4cRFE-Cu7cgXfY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "7b155840-0932-4719-9326-cbecfb5daa6f"
+      },
+      {
+        "place_id": "ChIJLVQU_LpCK4cRpk04B-Xr8ZI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4b165354-1cf6-48eb-862c-deb2ce2a1eda"
+      },
+      {
+        "place_id": "ChIJ0a0vs8lsK4cRR_X0hfLA12s",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJRXi5NzFoK4cRW7E8p2ylE9Y",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "802972c6-1708-4ef5-930a-a2c4bb24d124"
+      },
+      {
+        "place_id": "ChIJNX0MSU5oK4cREEcnlvtj2aI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ef7a3c86-283c-45ae-b9d7-9353784dd07f"
+      },
+      {
+        "place_id": "ChIJdYe8YnFpK4cRr7RGYOQkryI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "74aa9f5f-af39-44d1-9bd3-056dda956bc0"
+      },
+      {
+        "place_id": "ChIJQ7eGWZhpK4cRZpEEiVR9Xdk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "892a2742-8003-4c44-be63-77127bee0d59"
+      },
+      {
+        "place_id": "ChIJVWHs6DtoK4cRFxVURsdMkJ8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "448e6539-c3ba-468b-8790-f250d806924d"
+      },
+      {
+        "place_id": "ChIJGw809DJpK4cRhojBTx_iXL4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "9555371e-a00b-459c-bbeb-841e808f2e14"
+      },
+      {
+        "place_id": "ChIJNY2NbAFpK4cRaep9QxOmMok",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "cca24d84-3287-477a-9810-ff96dc5132cf"
+      },
+      {
+        "place_id": "ChIJF5RJWiJkwYcRyMI5EdMQH6A",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b7645f2d-ece7-40dd-99c7-4aef3daa5024"
+      },
+      {
+        "place_id": "ChIJNY2NbAFpK4cRi7v_Wt1CWI4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJtVN9Sr1pK4cRrAYXNLR4zSw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "baf2f669-b691-47cd-bae3-e3918781a4a3"
+      },
+      {
+        "place_id": "ChIJo0hobAFpK4cRRc71ZCwL0BE",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJE9u8ssNpK4cRwBO8TUUdYns",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "dd7615f9-c794-4cce-8cce-a4068447e745"
+      },
+      {
+        "place_id": "ChIJ_wc5_1FpK4cREPLGcjJCguY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "311ff179-f9fb-4144-9d3d-51c337777562"
+      },
+      {
+        "place_id": "ChIJQ7eGWZhpK4cRuZFhc7MRGM0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "831059bc-21dc-4bc5-ba87-29adf879193f"
+      },
+      {
+        "place_id": "ChIJGSGKBMlpK4cRWigOjc2ysuQ",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "9fc88384-5108-463f-9e6f-5b50ddefdb4c"
+      },
+      {
+        "place_id": "ChIJU2wA4VJpK4cRfjW2HwPi0ZQ",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJPamM53NpK4cRIft8BHNHrfU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ3dsh3floK4cRoJbI9g7sApg",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJAxLQPJhpK4cRHiRvvkMjeJ4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJY4usNmppK4cRiPMpiGsXn-8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJycqCTf5oK4cRaoqSWF8Mf3c",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJq6pBODFoK4cRJDRHNfWuvL8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ4bGcABRpK4cRJyszmv5V5_M",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d5cda410-67cd-4713-9750-c726c5e80e86"
+      },
+      {
+        "place_id": "ChIJBzS3pvloK4cR9L03W5vgRYY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8a8e816e-377e-42cd-87c3-39b5a9dd8b60"
+      },
+      {
+        "place_id": "ChIJnSwZduE_K4cRLv6C4Lp_fUM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "2990523f-32ef-42c3-9e4f-dba920777577"
+      },
+      {
+        "place_id": "ChIJWffN7wlAK4cRYlClD2swDx0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "44b3915a-8261-4236-ab82-36a1a538b63e"
+      },
+      {
+        "place_id": "ChIJGatea-w_K4cRXbXcno3Sr9k",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "7344a7af-5bdf-4d2a-a093-d53082f41313"
+      },
+      {
+        "place_id": "ChIJ91upJsA_K4cRJDEkgrzb3PQ",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "99db83d8-51af-44a3-95f5-4d6fd7a13a53"
+      },
+      {
+        "place_id": "ChIJux8Jhw4_K4cR1gdso_EVXD8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "68fffaf3-23fe-44c7-abad-21435710001e"
+      },
+      {
+        "place_id": "ChIJLTA9PF0VK4cRLvVmj4AfU3Q",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "5b3d6cfd-0cb6-45e9-819f-0348dd0010cc"
+      },
+      {
+        "place_id": "ChIJl9uypblpK4cRwPLCCJ3BbDU",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJW8vFY-s_K4cRt8WjktN2hfw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4fc58d19-7d4a-42f9-bbfd-f64ece496fe4"
+      },
+      {
+        "place_id": "ChIJtQNT5KcSK4cR6DaTFonEm5g",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJnSwZduE_K4cRnf6ct1Gx0-I",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJAQCQYes_K4cRMbdD3MZSbdA",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJhZ-2AEKlK4cRVZF2Ixu9UCc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "19fbc7d1-218a-4570-b794-e69d76036736"
+      },
+      {
+        "place_id": "ChIJDyatzialK4cR8_UgwkzI7Bc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "0b01f108-3a34-4909-a9ce-fb5812479889"
+      },
+      {
+        "place_id": "ChIJ35KEftalK4cROBR7HdJcTig",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJAUhNW6utK4cRgdAR_9RCQyE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "7927e517-08aa-44a4-b704-c5d6153e2030"
+      },
+      {
+        "place_id": "ChIJDyatzialK4cRYUTkrmrC7as",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJtwrHiiOlK4cRv3JmvOrySV8",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJtwrHiiOlK4cRsFBJZnQ5qcQ",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJp83RXiymK4cR5qmUtp_UFME",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJyTeRHQxzK4cRAfV-824wkfk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6873c01f-6b66-4b0f-aefe-457e2fd131fb"
+      },
+      {
+        "place_id": "ChIJT5Pz30VyK4cRyFBr0_olQyg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d16d9740-2075-4863-b797-35ee7957b7a2"
+      },
+      {
+        "place_id": "ChIJf8aXwORzK4cRNnJCjf7Ttlg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "70522d04-35ab-46e7-a60b-2a3cb8e4d341"
+      },
+      {
+        "place_id": "ChIJH_RRPA1zK4cRDftoIZlgUM4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a4797b5e-2b93-4db3-a982-491e60d8b392"
+      },
+      {
+        "place_id": "ChIJGRalZfdyK4cRHy4aXrS9aHA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e5e26d46-ba20-4057-866d-4dad47f09c45"
+      },
+      {
+        "place_id": "ChIJDe78VXRzK4cRXnzygORchGs",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ddd36cf3-8d80-4510-8f70-ae01dd068740"
+      },
+      {
+        "place_id": "ChIJWy2bUg8NK4cRIIuhL24SI4I",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJh9JISrBzK4cReQoAGChRyuw",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJL5E9Au9zK4cR1uMTAiJ5Bos",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJc6VAbQ1zK4cR4-gytr-kINU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJhRAS3cJzK4cRFGRYqb6VhYc",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ9Ys85WtzK4cRIYzKF1ZE4NE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b25fbbb7-353e-4eaf-a284-bbcf3e25614a"
+      },
+      {
+        "place_id": "ChIJIxurT-RzK4cRep-qYAoWBaQ",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d64cca6a-f737-4ca4-afd5-5defb0c7069a"
+      },
+      {
+        "place_id": "ChIJp3KmDgtzK4cRAiHEopyTjX4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJSwHPEhNzK4cREhCOY1Dt-CA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a510bfb8-7073-4837-82a9-0556ce4305d4"
+      },
+      {
+        "place_id": "ChIJdaCAAgxzK4cRZTiU7_AbxUY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "69b02152-b324-4609-9fc6-18835b282638"
+      },
+      {
+        "place_id": "ChIJH1qYosJzK4cRj1c0S7cr5w8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJlzcFYvhyK4cRdm95I8K7pLk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6023663b-820e-4401-bf1b-1a392ab53ea2"
+      },
+      {
+        "place_id": "ChIJZQ_0Hg1zK4cR34g8e9GwQb4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4492924b-a582-499a-a2fb-12244dc8f37e"
+      },
+      {
+        "place_id": "ChIJ___PPA1zK4cRiUxQ92DXdM8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJnYIkgFulK4cRjpMpyrrFcOo",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a05d9b08-64db-4813-9297-5ddbd3e6e05e"
+      },
+      {
+        "place_id": "ChIJ3y0ctA5zK4cRquIAJ0sp560",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "db9eaeb1-9c28-49df-9dba-5050d3d58d66"
+      },
+      {
+        "place_id": "ChIJA3UwCzdzK4cR1DTGdbzN1WE",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJHQ654gpzK4cRvf-d1Md1PO0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ3VCRHQxzK4cRrBAQ0NcDOhk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8dbdbfb1-3fbb-4f62-90b6-863d1a60fa8e"
+      },
+      {
+        "place_id": "ChIJayV-kfhyK4cROlWgbfsvsoI",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ55zpKuQ-K4cRfla5MkswZeM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f84ed8da-6948-4c2d-8ed5-8f3642fd86d1"
+      },
+      {
+        "place_id": "ChIJr0S2FAs_K4cR39QTSKYDPfw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "693ff9cf-4af1-4e26-9862-8bcd12ee7002"
+      },
+      {
+        "place_id": "ChIJxXGssvs_K4cRt0O41LTrzNA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a4cfbbc0-0e33-4ce3-87d6-a0e7f3c0de87"
+      },
+      {
+        "place_id": "ChIJc6WN7yw_K4cRjahKkEdtuiM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6e2624f0-09c0-449b-88f4-4fa7b8df443f"
+      },
+      {
+        "place_id": "ChIJHT8upqE_K4cR048gjajCV4g",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4547b986-d6e2-4b92-8755-3679acbef32f"
+      },
+      {
+        "place_id": "ChIJV1W-v7s_K4cRRJRyKRopzvY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d24a0585-a389-4695-ad12-e9e072e83017"
+      },
+      {
+        "place_id": "ChIJr0S2FAs_K4cR5Cn6WnqgaqY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e7d698de-0610-44e9-b699-9ab675dcddac"
+      },
+      {
+        "place_id": "ChIJK8PNRbs_K4cROiT1WaZo5DI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f3c9e5e2-e623-47c6-b739-f86c33565ddd"
+      },
+      {
+        "place_id": "ChIJr0S2FAs_K4cRRZHgvMjml8A",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJr0S2FAs_K4cRcEnCHcz2ywY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "32fad474-5e4f-4ede-83f1-cae50864417e"
+      },
+      {
+        "place_id": "ChIJr0S2FAs_K4cRNrcP7-jtwVE",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJr0S2FAs_K4cRv9_EbQYXBGs",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJUROAIAA_K4cRxZ87DzdtnFk",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJK8PNRbs_K4cRAkNGO_Ty7A8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJr0S2FAs_K4cRFxwBW90mn5c",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJJR5B56MRK4cRmOdhkn_bSyM",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJvWoXrSARK4cR7eP7I2qP6GY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f975a96c-10d4-4eaa-9913-c993223a76e0"
+      },
+      {
+        "place_id": "ChIJj_0_F9YQK4cRAqaOtnrKQrc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "25b23e98-1759-4a44-aaeb-77cb87a464d1"
+      },
+      {
+        "place_id": "ChIJQS8EIJMRK4cR-zPunOyaldk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "193fcb02-3f68-4744-8ee6-5eb0f74173d6"
+      },
+      {
+        "place_id": "ChIJAdQHX-kQK4cRcUfRSgN5cXs",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8812b436-c27a-4a4f-a64e-f7c711e85792"
+      },
+      {
+        "place_id": "ChIJq6rmy_MQK4cRryKzhVgSZDY",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJvUOKZukQK4cRD6sCB7HvYB0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJvUOKZukQK4cRhqj3UdoNzN4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJJ09QufMQK4cRvg3v2EWwiVA",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJj_0_F9YQK4cRH_9exyy9Xxs",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJK-3V4U5tK4cR8lwjQpGUHFg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a3106ab6-79e5-4f44-b6f1-79c99a584bc3"
+      },
+      {
+        "place_id": "ChIJRcJdWi9tK4cROlSCAji0sxo",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "88ebda8c-8d12-41b8-b4e3-191ea2450cbc"
+      },
+      {
+        "place_id": "ChIJFRubVU9tK4cRJ8jJ76MCLv4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4672a95f-8dc6-46d4-87b0-d8520688d5f2"
+      },
+      {
+        "place_id": "ChIJHT1lGnVtK4cRVsavwJxI8K0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "241357e5-9a5f-4d9a-a677-91e62e96ed17"
+      },
+      {
+        "place_id": "ChIJaxf7m6dtK4cRgoYLP1QnfQw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "aeb2b744-b5d9-4025-87e9-74c780cdc2a3"
+      },
+      {
+        "place_id": "ChIJyQamGRJuK4cR68t1nh7YVbM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "493692bc-0e45-41e9-8b09-c5c13ef0e278"
+      },
+      {
+        "place_id": "ChIJAx_BVCZtK4cRLDOFV0SbEn4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "788fde94-e3e7-4da4-a68e-17787a4a08da"
+      },
+      {
+        "place_id": "ChIJW1k8RgttK4cRT5pYZ-xEWEM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e3b97c7c-2a5e-4278-81c2-960deed04098"
+      },
+      {
+        "place_id": "ChIJAx_BVCZtK4cRAEcJW0wXhI4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "74fd2c04-aa1a-438a-b5a2-941570fd9098"
+      },
+      {
+        "place_id": "ChIJcWVLWKdtK4cRuF4X7sjxyug",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8f074032-feee-4a1c-a643-3e196d49791f"
+      },
+      {
+        "place_id": "ChIJRysRD3VtK4cRE8acq3T2--8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "738c0b07-0605-44f4-9387-03b1777d1d0a"
+      },
+      {
+        "place_id": "ChIJC_m0EBJuK4cRBQ3T0Bs4Nt0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "277ddcf2-7279-4c0d-9b56-f7e2fca92492"
+      },
+      {
+        "place_id": "ChIJw3JRVSZtK4cRa62i2qM9FEg",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJtX6P5rJtK4cRPtOoMbO5eEo",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJAQAQNnRtK4cR7p5089b9GOw",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJfblPpV8UK4cRIcBK2x4yVqo",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4730c186-389c-4434-b5b4-77f21b62f953"
+      },
+      {
+        "place_id": "ChIJjXv9cu0UK4cRVDS_8u0YMo8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "7d6f4ef7-0d9a-41ff-9557-645af9e7617a"
+      },
+      {
+        "place_id": "ChIJUQyEVcEUK4cR1itTbzINEek",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "452a62cb-69ba-404a-ac93-670af231e6ee"
+      },
+      {
+        "place_id": "ChIJfdVszMAUK4cR4t_fS359r0M",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a106c989-2845-4dfd-96d9-b57232a3cec1"
+      },
+      {
+        "place_id": "ChIJ3ffu8Y0UK4cRCtU7IGyuMw8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "544d6ff4-8e9a-4c79-a5b8-63317f812c4c"
+      },
+      {
+        "place_id": "ChIJtU-xoQ4VK4cRBDBLI5HTFMw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "544d6ff4-8e9a-4c79-a5b8-63317f812c4c"
+      },
+      {
+        "place_id": "ChIJPdbRLrwUK4cR8bJ_O-tJXhQ",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJjSkF5qIUK4cR6_Pp9qvJ8Kk",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJlc3cI70UK4cR75bnqxlVPG0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJj3mJHKMUK4cR_qh9dpP4G30",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a51f1ab7-38bb-4c88-a73b-57e22f45104e"
+      },
+      {
+        "place_id": "ChIJN-1iK7wUK4cRXurXDRg5LOA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f69ed641-815e-4483-8962-9d3f3b973f8d"
+      },
+      {
+        "place_id": "ChIJlc3cI70UK4cRiDwMfBniQh0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJN-1iK7wUK4cRFV1kkIcm_kg",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJN-1iK7wUK4cRQ_hzd3vJi9Q",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "bf9db230-08c7-4234-872e-4cc05de4215f"
+      },
+      {
+        "place_id": "ChIJ3ffu8Y0UK4cRkJxKPBFznA8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ3ffu8Y0UK4cRwlpX6ft0Zp8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJN-1iK7wUK4cRtc8iLXsECzc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "35a612ad-0086-4af0-b22b-ff8ef3fd03f2"
+      },
+      {
+        "place_id": "ChIJN-1iK7wUK4cRtb0SRRYGEH0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJNwugwU9FK4cRVC_zHP2fMuY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "05dfb665-582d-4289-a434-0d86eab27212"
+      },
+      {
+        "place_id": "ChIJIbnQB1dFK4cRRhtt_iEz74Y",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "29c3d542-3e23-4c30-83cd-d5e27c23b467"
+      },
+      {
+        "place_id": "ChIJzTI03aNbK4cRF10A-DOrJeg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b69d4ffc-1e1f-488f-9f94-2e3201062169"
+      },
+      {
+        "place_id": "ChIJbbrfja5aK4cRaOd4be6Ogoc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ec1a9def-36a9-4224-ac20-131752e521bc"
+      },
+      {
+        "place_id": "ChIJ6ZGnGvhbK4cRv0bMdPsv5AA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d0097ad2-8878-41d1-976b-8822c97d297f"
+      },
+      {
+        "place_id": "ChIJF_5ata5aK4cRrdrhMC4OhY0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJPamM53NpK4cRyL6EQk8jcHU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "94a27b9a-a325-4209-bb28-e152a3635655"
+      },
+      {
+        "place_id": "ChIJh2NjNqlaK4cRNDG7TcntNO4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "c3057ba9-b495-4736-a0cb-ff2711d1f9cb"
+      },
+      {
+        "place_id": "ChIJT3VefvtbK4cRElb0EkbEai4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "fdab253b-98dd-4620-9f19-ab8ee25f01b8"
+      },
+      {
+        "place_id": "ChIJbbrfja5aK4cR0MFkVozVVSw",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJL3r3b6laK4cR8zmAnDy-Luc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d516a237-346e-4fd5-b7dc-a4e7035a5974"
+      },
+      {
+        "place_id": "ChIJw-bPB1dFK4cRcJaqhcV8Yqc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f815cafb-373b-4e25-956f-415609df5cea"
+      },
+      {
+        "place_id": "ChIJeXPfQrJaK4cRk-KlSq65JjI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "33f6d88b-82ac-497c-8c18-fc67b8d22c68"
+      },
+      {
+        "place_id": "ChIJbbrfja5aK4cRUbEtyRWyXRw",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJxz3skLFbK4cRg5pXCEjJOP8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "c707f062-89f2-494c-a3a7-a40b87611d5f"
+      },
+      {
+        "place_id": "ChIJeXPfQrJaK4cRXYdZh4i89ww",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "03ed8685-9dd2-425f-af13-62f35db8da63"
+      },
+      {
+        "place_id": "ChIJvynCB1dFK4cRhosSSftW-Mg",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJC1IdoVdFK4cR2_wzYKPKLgo",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "c1c8bfd8-c31a-48c3-bdeb-0d3ca006ff03"
+      },
+      {
+        "place_id": "ChIJf4LlZalaK4cRkieuqLyHRnw",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJt2lwxE9FK4cRpNGuYnQtUGg",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJjytnuB9pK4cRG9Ern_WPQho",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJS3zBGdlbK4cRVvcn5xrBG2Q",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJVVU5aalaK4cRXkLI8L0_3Tk",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJVVU5aalaK4cRb-ZY65aCCCU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJMb2J7nJbK4cRUyVXaHi_nwI",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJES7zL1hFK4cRF63m7u6xcpU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJcX8QfJYIK4cRtlCyQGX1QRA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f4d1cd4c-5c8c-47dd-ba70-767a8b0ea244"
+      },
+      {
+        "place_id": "ChIJKbeHA7gIK4cRcn4tLDxhBhA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "27fa8440-e329-4566-a7a5-77251946a9c7"
+      },
+      {
+        "place_id": "ChIJT3BrRpYIK4cRWtiYuf4o2gY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "2208be5e-7c0b-4a27-9591-b31e8e47bddb"
+      },
+      {
+        "place_id": "ChIJr2opzRgJK4cReg5YG2mDDQM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "af172fda-26de-4124-b4d3-af971deb210b"
+      },
+      {
+        "place_id": "ChIJOaTXR9UIK4cRgPKc-bjXgRI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "0d14ad52-db0e-4d63-b85b-8f14a12da1b1"
+      },
+      {
+        "place_id": "ChIJc7jv58cIK4cR-q8_aG3rtzg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a0c49a53-d736-4ea7-b49e-c7ff0570149e"
+      },
+      {
+        "place_id": "ChIJcX8QfJYIK4cRyhsRW-_mpPQ",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "711d4425-8778-4433-b551-7d7f487c0f09"
+      },
+      {
+        "place_id": "ChIJVVVVVUVQK4cRRRVHy7WqgIc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f941cd88-693d-47d6-8031-3eba6f5478f3"
+      },
+      {
+        "place_id": "ChIJT3BrRpYIK4cREvuujov2ORg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "fabb390d-fcae-417e-bf04-40ecf315f7a9"
+      },
+      {
+        "place_id": "ChIJc7jv58cIK4cRQ_RpXf9Kaoo",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJZ0DRcMUJK4cRW8N-iLPdes0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "49afdad7-6bb6-4f03-a225-d7992a0bfe34"
+      },
+      {
+        "place_id": "ChIJV-pk5WMJK4cRmc63XdPlg68",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJc7jv58cIK4cRY5bTZb5H4h4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJq6rqo9MOK4cRMUCOfak6D1I",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJzW3vzJ8JK4cRtJg8Lp0otrI",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJq6rqo9MOK4cRBdS-hbqYTh0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJB-WjEyAPK4cRFoYcgvRBdlQ",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJZRG81pUIK4cR1zEqpfl8uPg",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJq04H_9cOK4cR2dhopIlygxc",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJAQCtgJYIK4cRqlANhPaZu68",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJAQCtgJYIK4cRg6POeJRNmgc",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJnQYkOccIK4cR--7sFu4R16I",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJZRG81pUIK4cRHSTEdOo2e0A",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJSRSCwscIK4cRd3VYqjts45w",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJewvdNqkJK4cRbkoyi5nVJl8",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJkWlLgrMAK4cRUQbxO_fOHhg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "acc2eeae-c3f5-4d00-9b82-9d1d91e3ec8c"
+      },
+      {
+        "place_id": "ChIJ9ytwEvaoK4cRzuG8ZgbEUsE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "7d4186f0-f84a-4cbe-b86b-6fe654935497"
+      },
+      {
+        "place_id": "ChIJGdLxRlapK4cRawiqLmF7qdU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4a4ad2bd-9ec4-409d-b2f9-28d4be3a4f5f"
+      },
+      {
+        "place_id": "ChIJs8Bf3IuoK4cRWI4VSpGTY5U",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a8c3644d-2a8b-4b1a-b76a-1a85f1e3381c"
+      },
+      {
+        "place_id": "ChIJS0hZLnypK4cRxnR4lPh5Tc8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "249cbcf7-0104-4b8c-a2ba-66a8d1fc42da"
+      },
+      {
+        "place_id": "ChIJfUEbiF-oK4cRYVpW1S0C8Fk",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJoQ97fPWoK4cRQmiYvWAHXG4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "cbac27be-f783-4bc5-8e59-58fd4b746ddb"
+      },
+      {
+        "place_id": "ChIJWxeaf7Q4K4cRAixFKBiHRAw",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ-WRY_tc4K4cRBBT77JXkO3E",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4d9f945b-5b2d-49eb-8930-c7f14490d15a"
+      },
+      {
+        "place_id": "ChIJ9zJ9irM4K4cRZSFGEYfNE4U",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ce9f9611-614b-4367-b1e6-a965ee8663cb"
+      },
+      {
+        "place_id": "ChIJKUsWx-s5K4cRQ9--UaFtiN0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6e76f2af-687c-4569-9371-1593adc8f550"
+      },
+      {
+        "place_id": "ChIJcUJqiLM4K4cRds-oxEGEYAg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4418337a-aa52-49fe-bb62-a750dacb825f"
+      },
+      {
+        "place_id": "ChIJvcHpfrQ4K4cRbifMHxSbmmU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "cb3501a0-794e-49a8-a452-99638d2a488b"
+      },
+      {
+        "place_id": "ChIJX8GKZ8k4K4cR-XawI58-m1s",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "346ffb09-60f6-4919-a66f-1431d32966e7"
+      },
+      {
+        "place_id": "ChIJBWA2VbQ4K4cRHotLAq5sDE4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "c40329df-a5ff-4065-92cf-8d9a4241ddef"
+      },
+      {
+        "place_id": "ChIJcTWZ30RHK4cRUE3tDFgLtjg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f742d3aa-93db-4225-b7ea-74d03d858a9e"
+      },
+      {
+        "place_id": "ChIJ-WRY_tc4K4cRAAkMzlg2y_k",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4d9f945b-5b2d-49eb-8930-c7f14490d15a"
+      },
+      {
+        "place_id": "ChIJEUMqfrM4K4cRo5thG8K0cJg",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ0eFhWcQ4K4cRs9q8wm3Gd6s",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4d8c3115-ce37-4c63-aecc-aedde194271d"
+      },
+      {
+        "place_id": "ChIJT-w6ULQ4K4cRe_iDiWD9f8o",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "db2b2b0a-2624-465d-bcfb-abee76f7a168"
+      },
+      {
+        "place_id": "ChIJBY6CB9s4K4cRxD12QkWYuoE",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ0eFhWcQ4K4cRSitladWTlHg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b9c12e89-5f41-4625-8a31-42f01180a344"
+      },
+      {
+        "place_id": "ChIJAeu2R984K4cRC5LQPwKlmGI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e6bd3eb0-b883-4046-99da-e87a0b8a7544"
+      },
+      {
+        "place_id": "ChIJcUJqiLM4K4cRI4wr80Jst5I",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e48c3dce-77ba-4ccb-97c8-3592257c2439"
+      },
+      {
+        "place_id": "ChIJcUJqiLM4K4cR4zyokYcuqQ8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "18b7d990-6a59-43cd-833d-d70e3dfaebe0"
+      },
+      {
+        "place_id": "ChIJRVLAG4g5K4cRkQVjVSzJuc0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJAUrXH5M5K4cRQ5fuZ9IP4m8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ_6v4rc04K4cRzoDXXSQU54E",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJkxxbnc44K4cRB0o54eWFzb8",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJh8Qewy9vK4cRQapcGxXhutY",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJvdCWeLE4K4cRe8TBLEhP_Wg",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJMYbqeLE4K4cRdHPoeYlxY2o",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJcUJqiLM4K4cRHsYyQZs7HR8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJvdCWeLE4K4cR0iYHHyTHj_s",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ_6v4rc04K4cRNNCkQxk4Cbg",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ_6v4rc04K4cROaZkBUfiGgI",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJbyfdQFtHK4cR79shLEaRAbk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "5b202394-cd10-4e61-b38d-05ccff4fdd95"
+      },
+      {
+        "place_id": "ChIJg8b-ooZAK4cRDtm3L-M-0Zk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6abfa752-a80e-4743-9e55-9bb3009cc501"
+      },
+      {
+        "place_id": "ChIJ0Y1V5KM_K4cRiY_OecA37gc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "bf81a178-63dd-4477-ba92-d0f65e5970eb"
+      },
+      {
+        "place_id": "ChIJ8ZMZjYBAK4cRV5PRjYUmdlI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "074494f9-41ae-40ce-91ef-9a68a9a9b452"
+      },
+      {
+        "place_id": "ChIJcRXHa4RAK4cRrzaXfitFBvk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "c33174a6-a929-41fe-bd4b-b99f66d3f40b"
+      },
+      {
+        "place_id": "ChIJ5-fsPYRAK4cRafhBA7IRMjA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ca9cd276-439d-42c8-8430-b81f870950ac"
+      },
+      {
+        "place_id": "ChIJcRXHa4RAK4cRlfqyJRONrVY",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ8ZMZjYBAK4cRh4s4PFoSUEM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "074494f9-41ae-40ce-91ef-9a68a9a9b452"
+      },
+      {
+        "place_id": "ChIJM6vRa4RAK4cR94ss-FTfc2E",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ49GtRSAGK4cR4bGTf-4XhCo",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "0676aed0-c116-4af8-be5f-f82e60bb3988"
+      },
+      {
+        "place_id": "ChIJGZdbjwAGK4cRLOZuLX_hkvg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "341e903f-bd1d-4a6e-8a31-c230e45ebaa0"
+      },
+      {
+        "place_id": "ChIJXf4uEh4JK4cRBhLzqwEGXyc",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJadKtRSAGK4cRMR5pMeKYNrY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "19c62136-b091-405a-b210-c0c436ce74d9"
+      },
+      {
+        "place_id": "ChIJEUC-aJkIK4cRIqSedOPoOfk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "607329b2-6cf2-48a0-bc94-75f754f3452c"
+      },
+      {
+        "place_id": "ChIJp4vip64JK4cReWTCN8XB2oE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "2688c4e5-c1d6-4e09-96de-810d91ad8458"
+      },
+      {
+        "place_id": "ChIJ84lnWaUIK4cRxw5gahMJxDM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a75ff259-0959-420c-ae3d-34600cc3237c"
+      },
+      {
+        "place_id": "ChIJwf5ruk8PK4cRQTxpWwsPgoE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "c8d3bba9-1e42-4b2f-87da-3455a80c0bb5"
+      },
+      {
+        "place_id": "ChIJPXaqXYIFK4cRE40muHRmfR0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJq7UHDwAHK4cRG3ljsvR5cv4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f0fb2f9a-4036-4a68-9249-7eb8a7bc44e0"
+      },
+      {
+        "place_id": "ChIJt81CaKMIK4cR3iYmoiaT9k4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJo3_fBkAGK4cROy42atiRt8g",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJt81CaKMIK4cRSXJkIUjhSiQ",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ6QTDAUAGK4cRpPSvTmkoGus",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "19c62136-b091-405a-b210-c0c436ce74d9"
+      },
+      {
+        "place_id": "ChIJ7bJyWaUIK4cR8nbR9orKYmo",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJZ0NU4joHK4cRfoz0uvvHggU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a83f79c0-b856-4312-a999-3f430095f0a6"
+      },
+      {
+        "place_id": "ChIJR2H_yN0GK4cRlzTn3k_L3Cw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "39d0b2e7-3c85-4d25-bda0-3cf48f29d222"
+      },
+      {
+        "place_id": "ChIJxc6bKN8GK4cRGCBPRwNdLP0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ae96f879-97f6-4f01-ab56-b22a2794d47d"
+      },
+      {
+        "place_id": "ChIJLQ9AwSUHK4cRuyUa5bXRBpw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "2e9eaa42-54e4-48a8-a88a-3bcf0c33cd2e"
+      },
+      {
+        "place_id": "ChIJP7PSsTkHK4cRBxuhvwLCn4s",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "46a79e75-1b61-4848-b34b-f9aafcda02ff"
+      },
+      {
+        "place_id": "ChIJc1x6ypunK4cRo-oLwzd3vMw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a2610af8-8f93-46b0-9626-20de11dd2a37"
+      },
+      {
+        "place_id": "ChIJGYhXKi0HK4cRsoFt3E5MjI4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "1326a8d4-8249-4be4-9c54-72698caef660"
+      },
+      {
+        "place_id": "ChIJw5_SAtMGK4cRixzOpLOnX0Y",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "c430c5e6-b7dc-4d6a-8ac8-58896f635da3"
+      },
+      {
+        "place_id": "ChIJxc6bKN8GK4cRPdtFy4gQmcQ",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "0923c738-d12e-4f92-8b84-9549631fb918"
+      },
+      {
+        "place_id": "ChIJxc6bKN8GK4cR95Hz3V0R6wk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "57097a4e-4fbb-4dfc-ba3d-12bacb74268e"
+      },
+      {
+        "place_id": "ChIJxc6bKN8GK4cRwwdW1sOABn4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "24b989a1-642d-4f70-a1e5-aab1383c94ca"
+      },
+      {
+        "place_id": "ChIJfXFSLUEHK4cRgYBn1edbEJ0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6281be1c-e6fa-49a8-8624-ba817ab47f76"
+      },
+      {
+        "place_id": "ChIJ_-e0QEqMw4kR_KpJXcdWYAA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4b8f253a-7c72-48d0-b649-43c2f051cf35"
+      },
+      {
+        "place_id": "ChIJG4EyozkHK4cRls3Epi4ff0Y",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJG4xlW-cGK4cRz3c2o6zk8To",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6fd53417-8283-48b9-afa4-ced5e2099096"
+      },
+      {
+        "place_id": "ChIJxxwVqGL82ysRz5Mel2Kd39E",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "09ae3cff-70f0-4e90-98d1-cf1fa843425b"
+      },
+      {
+        "place_id": "ChIJ0z2FIjsHK4cR9Xg2wwsiniM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a477ebf5-3dbd-4439-b4da-346f9427e161"
+      },
+      {
+        "place_id": "ChIJA1sHrEYHK4cRYFJK5AdP4rU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJwSp7AVUHK4cRaVlt5NDIq-Q",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4d24665a-f6c0-486e-91d8-49ceb0adca99"
+      },
+      {
+        "place_id": "ChIJxc6bKN8GK4cRkWLBjbK8AgA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f0b7b25b-1ca0-42ca-8232-d5ecb49bcbe7"
+      },
+      {
+        "place_id": "ChIJp7pMF9MGK4cRxNCXic8BAaY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "07f96325-79bf-4e8e-a121-ab29909b52a2"
+      },
+      {
+        "place_id": "ChIJw5_SAtMGK4cRawmxs1r5_oM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "c430c5e6-b7dc-4d6a-8ac8-58896f635da3"
+      },
+      {
+        "place_id": "ChIJw5_SAtMGK4cRoSdcUDrCXJU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ_1ujnW1FK4cRnxd39mS8oHI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f08eb63e-7a03-4be1-86b1-9f7735806505"
+      },
+      {
+        "place_id": "ChIJ-0PiqMNPK4cRJWItcw0uOvU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "7c3016e2-642e-4b8f-a1ea-592fa91e21bb"
+      },
+      {
+        "place_id": "ChIJNarTKhpFK4cRD7QYqVIFWyA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "58787dbb-fd7c-4126-a16c-691377546b55"
+      },
+      {
+        "place_id": "ChIJQad7mb1lK4cR5B2f-S4y-K8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "54ca6743-3e26-4e39-94b1-f91d00794e4e"
+      },
+      {
+        "place_id": "ChIJR0tehZZlK4cRE0mDLXr02zo",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f39606da-6409-4a97-8750-920735794faa"
+      },
+      {
+        "place_id": "ChIJP-o2k5dlK4cR_9DfTTFBj_M",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4f844094-b878-4700-a718-d407927f01eb"
+      },
+      {
+        "place_id": "ChIJM6QYUuRnK4cRtaddjn-FY-0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a4c61de6-28f8-4c5a-8adc-e1c847b88b8f"
+      },
+      {
+        "place_id": "ChIJ6-o2k5dlK4cRc373PYDz8nc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "2a6558f8-7c43-4840-90ac-607555e2a6f3"
+      },
+      {
+        "place_id": "ChIJjZpWu1ZvK4cRgjFzLZ1csfk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d3f15271-a411-4f66-8793-5a73b16a99a4"
+      },
+      {
+        "place_id": "ChIJV5cBPZllK4cRH80uYQ8V9SQ",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJV5cBPZllK4cRSW2B25kug0A",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e28a607b-5225-4f83-96d5-7b94f9e767cd"
+      },
+      {
+        "place_id": "ChIJ___vOJZlK4cRUFP7Hh5q_0M",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJU7coJ5hlK4cR1ao1aoxC_WI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "014be9f4-e832-4d93-9ca2-07016193ddb1"
+      },
+      {
+        "place_id": "ChIJV5cBPZllK4cRAZ9R1RgXz6M",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJXV5S0AFlK4cR9GFYceqjkh8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJNc4oFRFlK4cRXzcSv6CTeB4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJV5cBPZllK4cR4QBH_Md3y3w",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "34644e41-1331-482a-8310-a26dab4f0aaa"
+      },
+      {
+        "place_id": "ChIJwSpxGmllK4cRd1qPlxKDI-E",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ0-n22JhlK4cRSlb1hfx18Wg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "db1bbd9a-b684-4d01-a730-490834357b13"
+      },
+      {
+        "place_id": "ChIJW-T2XAtvK4cRS2IodXCiYDk",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ-Zvd9uplK4cRSz19smO_uj0",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ4ZKsDpllK4cRMO6jPBdj88s",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "76607bea-2aea-408e-bf65-d4561a539501"
+      },
+      {
+        "place_id": "ChIJV5cBPZllK4cRaUpYJJlbJt0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "76607bea-2aea-408e-bf65-d4561a539501"
+      },
+      {
+        "place_id": "ChIJ7_q6izxnK4cRVfvZcqrwx5U",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "db52cc00-d12a-4647-b47b-919841a18a37"
+      },
+      {
+        "place_id": "ChIJo0DTwS9vK4cRvLOEdtj5tXE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "892f62b7-3af4-43f7-b190-c8a67c4cb443"
+      },
+      {
+        "place_id": "ChIJ03KC99pnK4cRzJWChgP_1jE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "485db26d-d706-4482-b676-eeafe06c8595"
+      },
+      {
+        "place_id": "ChIJKc7VoahnK4cRZGvSwb1ysMg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "138409b0-d333-43f5-b91b-ecc75b8b7344"
+      },
+      {
+        "place_id": "ChIJUxD8RklnK4cRN3AJ4PQ4m_s",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "35300716-3732-46d5-ad3a-f5606e224cc4"
+      },
+      {
+        "place_id": "ChIJKc7VoahnK4cR2j6QHJanxGo",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "04281492-d08d-4d03-95ff-0d0c3e9343cc"
+      },
+      {
+        "place_id": "ChIJJTJEIqZnK4cRXQv_aC29rvE",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ4Sl3IXesK4cRm45KQCxYV_0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8f885413-e68c-4564-9cdd-2ad625656762"
+      },
+      {
+        "place_id": "ChIJ87J7UQ-sK4cRY7AEr7e2RGg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "121fb5ed-0232-4273-a6e2-b6b07ff866bd"
+      },
+      {
+        "place_id": "ChIJVwUGecCrK4cRiocJLXci0_Q",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d8cb8769-01db-4d9b-b147-f2f21df120af"
+      },
+      {
+        "place_id": "ChIJt5UEzJyrK4cRr0mjPW5CEyc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6771b5ea-b959-4820-a2dc-201d3c7f7c33"
+      },
+      {
+        "place_id": "ChIJMT1SA3esK4cRMX8qKv1CD0s",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ec00506b-dc31-4802-b362-709b91ae4be0"
+      },
+      {
+        "place_id": "ChIJW2mGR3esK4cRo--8bdwisy4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a5baf3d5-2bb9-4228-b554-f381d46ceb86"
+      },
+      {
+        "place_id": "ChIJGVB024yrK4cRlRQZNEuetGY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8167a6ef-df4d-4b26-98b0-50f8d663580c"
+      },
+      {
+        "place_id": "ChIJW2mGR3esK4cR_mmamuVvulk",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJsRtYQAasK4cRVUGOrrZjEpY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "40f53bab-a353-4ee5-9ef0-1689ce61da7f"
+      },
+      {
+        "place_id": "ChIJ0WiGAlupK4cR01wnm7ykRfA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b42a06b6-4504-41de-9cb5-d7ad66fca05b"
+      },
+      {
+        "place_id": "ChIJfwGay_sHK4cRgGTeV2anwM4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "646bf3a2-c50a-4101-880d-aa62bfc4a3a8"
+      },
+      {
+        "place_id": "ChIJy50ZQhKrK4cR8jRJKQlx34I",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f3bfdc56-ec35-456b-877c-f3d2a5faa218"
+      },
+      {
+        "place_id": "ChIJ7acMzZqrK4cRcH95ydjAF18",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a2e402c7-62cc-4492-a1f4-b60b8bed9f2b"
+      },
+      {
+        "place_id": "ChIJCavt24yrK4cRkzrGRGPUhUA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "3aaff8c7-f36e-404f-a75f-0fd21c4d36f7"
+      },
+      {
+        "place_id": "ChIJ8Qg5_ZqtK4cRI_Tnsd_AH88",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "bd7cd2d6-a519-4bed-96cd-61323307bbc3"
+      },
+      {
+        "place_id": "ChIJd1nZMZurK4cRY7NbxYnf7d4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f4a84de0-2483-4466-9b57-d7749842a057"
+      },
+      {
+        "place_id": "ChIJsRtYQAasK4cRq_v2al9SQS0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4e580699-c359-4afb-a7c1-0230350e5729"
+      },
+      {
+        "place_id": "ChIJoy5iNYOrK4cRgoK8HTnYS-0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "09f6c947-05c9-462f-b8b7-538e30facae7"
+      },
+      {
+        "place_id": "ChIJoy5iNYOrK4cRRD7NU5Ux2o0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "86ded16f-4530-4a56-9724-9b7679b20107"
+      },
+      {
+        "place_id": "ChIJI9F5RgasK4cRrbM8Jz4dTM8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ4_EMQQasK4cRXNgR1xHibAg",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJqbKorpyrK4cR2KWmGepbshY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "1f162d3e-5eaa-4dd3-8746-99d7bef4b9ae"
+      },
+      {
+        "place_id": "ChIJW2mGR3esK4cRzKQfDMKpvBA",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJp72hM4WrK4cRZhibeQl-glU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e750093b-d360-4ae2-8a1c-db74c848b7ee"
+      },
+      {
+        "place_id": "ChIJ7acMzZqrK4cRkrsil58_4qc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "512d31a5-a409-4e3a-81e9-8166115baa5e"
+      },
+      {
+        "place_id": "ChIJ7acMzZqrK4cRHosrtYtP22U",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJW2vky5yrK4cRM4u8yBi9N_E",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ705NKgCtK4cR6m6nuOsIvgY",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJu8rjrZyrK4cRlZTC48j1cC0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "86eb6dd7-e3ba-46e1-8725-63517afd3cde"
+      },
+      {
+        "place_id": "ChIJiS4dKHesK4cRp6S_uifbplo",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJW2mGR3esK4cR5qyfTZh-Kmo",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJoy5iNYOrK4cRTnqx7fq0rjk",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJoy5iNYOrK4cRQP0NFN-hEoA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "09f6c947-05c9-462f-b8b7-538e30facae7"
+      },
+      {
+        "place_id": "ChIJoy5iNYOrK4cRZLzcIhqBqrI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "86587120-c815-4701-91ea-fa312ff4f3b5"
+      },
+      {
+        "place_id": "ChIJKxhY33GtK4cRHm0MXu4YnPs",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "c0850839-919b-4a64-820b-abcbc9f08dc4"
+      },
+      {
+        "place_id": "ChIJRxzuGwasK4cRLa1tXnHC8ZM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b2afa668-35d7-45bc-8603-0c9229322ccb"
+      },
+      {
+        "place_id": "ChIJW2vky5yrK4cRgTFdxma5Xbo",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJk2Dq24yrK4cRQeA5X0D6-6I",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "3aaff8c7-f36e-404f-a75f-0fd21c4d36f7"
+      },
+      {
+        "place_id": "ChIJoy5iNYOrK4cReMa3PrL6MKs",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJoy5iNYOrK4cReAr4sPIOhLc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "7759971d-5042-42f4-a389-8d338f151c83"
+      },
+      {
+        "place_id": "ChIJW2vky5yrK4cRJxMovJICkhk",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJCavt24yrK4cRtFnZJEgT25Y",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "3aaff8c7-f36e-404f-a75f-0fd21c4d36f7"
+      },
+      {
+        "place_id": "ChIJW2mGR3esK4cR6ahylgvy3Sg",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ_5yUBnesK4cRXxAOYfeDbrs",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJd0KgN3esK4cRstLqVSKNod4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ5SMNFq1nK4cRbOaQsqtSE4M",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJT0r4-d9nK4cRTIuvDwBXClw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ae1eba94-4eb1-4cff-97cb-7fb0be3c42b5"
+      },
+      {
+        "place_id": "ChIJ_XG9uYlnK4cRViznIrackdI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "861d4afd-abc6-4305-b5c8-5d54fe812985"
+      },
+      {
+        "place_id": "ChIJs657P_ZnK4cRgU02yXX1dQs",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "be867a2d-53a2-4111-9153-cd1cc2f3678d"
+      },
+      {
+        "place_id": "ChIJO8HeohdnK4cRyess6olmblk",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJDcpLTxRHK4cRWSFO5nj5jg8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d6a43d26-fab0-4c4c-a52c-e3be86dd88d3"
+      },
+      {
+        "place_id": "ChIJbekuW5VGK4cR4Qrou7gceKU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ__-Pv5BvK4cRwfMSOMOGHk4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8c006d07-58bf-4394-8568-5d2b1c009797"
+      },
+      {
+        "place_id": "ChIJ3RIF8zGsK4cRmjROSKFXr8s",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "7cb564df-eb5e-42b5-9fa5-49501b183fbf"
+      },
+      {
+        "place_id": "ChIJfco6xIWuK4cRiinNOdoc-vM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8bb89f4c-eb27-42a6-80b5-0a6b4bf1766e"
+      },
+      {
+        "place_id": "ChIJ3RIF8zGsK4cRbYzPFikmIe0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "560e7afe-2539-4127-a8cc-3e710dd1ff53"
+      },
+      {
+        "place_id": "ChIJA0UTDR6tK4cRynw42MmMhUs",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJpUv1DKCuK4cRsjRtdZRXmHs",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "5016373f-9de5-4205-8779-3c061421da7b"
+      },
+      {
+        "place_id": "ChIJ3RIF8zGsK4cRIFWOsMk9Yik",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a4c33d4e-6e39-42b3-81d6-c4f11147a30c"
+      },
+      {
+        "place_id": "ChIJ3RIF8zGsK4cR1EjmJ9xaXS8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e6f21f22-bc0a-4186-88c0-dd7eb9d7a509"
+      },
+      {
+        "place_id": "ChIJwVgM7TGsK4cR0H1JINR1Y28",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "2f496d10-96cb-466d-a119-1a6300ed255b"
+      },
+      {
+        "place_id": "ChIJq2_cCL-lK4cR1uNWpOgjKO8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "72a3e912-a639-445d-b8e0-5f5821c461d6"
+      },
+      {
+        "place_id": "ChIJvYGW7TGsK4cRyyEnzyjnjaU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ9x6UDKCuK4cRBUrSHt_OQac",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJNwbSFtesK4cR_EWNaWxFp3w",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "dfd51b45-9bc9-4dc7-861e-2818291cebfb"
+      },
+      {
+        "place_id": "ChIJNxxeG22tK4cRO-d0cXRbYGU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "74cc81b5-29f6-41e3-8640-c6c07bafe51c"
+      },
+      {
+        "place_id": "ChIJ_8AoK-OsK4cRdEnHsJzSijY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "355ce284-5132-4913-bc8a-0dac927ad25c"
+      },
+      {
+        "place_id": "ChIJq2Jf9eutK4cRhqOe0dFM4iU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b74d8a1e-20a6-4121-9fea-79c68c33a149"
+      },
+      {
+        "place_id": "ChIJ2wveHIGsK4cRKTDvrZ51lXs",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f31e5b0d-433b-4690-a049-6489ed2cee8c"
+      },
+      {
+        "place_id": "ChIJISjoK-OsK4cROBha0MQSmSc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "1ef1eca0-6533-48ec-a518-d5af1ffaf202"
+      },
+      {
+        "place_id": "ChIJ0YeNRtesK4cRWJ4BI1jO0Eo",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "52bb93f4-8a3d-46ae-ba15-50028a9defd5"
+      },
+      {
+        "place_id": "ChIJuQKlyyatK4cRSGRHAohkQF0",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJAQCQdNqsK4cRnAYJYwrTDx0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b74d8a1e-20a6-4121-9fea-79c68c33a149"
+      },
+      {
+        "place_id": "ChIJISjoK-OsK4cRlGTWRRFP-UI",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJISjoK-OsK4cRUpXDNldlhwI",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJxcugE2YVK4cRhk3s55M_GqY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "031e18d5-a06a-4ad3-982e-9518b5dbd3e5"
+      },
+      {
+        "place_id": "ChIJaWLpqOYVK4cR7IuMhiEbRyI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "fd11098d-16d7-4f18-8a20-627825e2be9e"
+      },
+      {
+        "place_id": "ChIJN6ff6MASK4cRBO7-KyGIQDE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "27cd5b60-0d88-4cc1-8962-6dde74eb2d6b"
+      },
+      {
+        "place_id": "ChIJ1d4LbTJtK4cRaKL6qon6dFI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a35180d9-3581-48fd-8cca-ceb8293c2fb7"
+      },
+      {
+        "place_id": "ChIJKyqhO8cSK4cR0xsEJQH_3jg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "db8fa0c8-e5b5-4d46-a4e5-b5fa96faaec2"
+      },
+      {
+        "place_id": "ChIJ3UM2qjptK4cR3ybNNgvV4gc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8678d43c-5a68-4e8d-9b4f-398a04f9d2f7"
+      },
+      {
+        "place_id": "ChIJw7neaTJtK4cRvC2fXeYVZ8E",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "3d222584-1917-4619-9c5c-a8e7753004de"
+      },
+      {
+        "place_id": "ChIJiXqfYLYSK4cRyi8LbhoKDv4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "35a7c1e4-d5e0-426b-b826-c5b0f4bf918f"
+      },
+      {
+        "place_id": "ChIJ6Vcc7qMSK4cRO5i7UAWtRFQ",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6a20afd7-e869-42b0-94f0-220728e5c8be"
+      },
+      {
+        "place_id": "ChIJ_zAH8aMSK4cRCG-SmVNKr2s",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e1ee7f6d-c9b7-4f77-807a-3154e995434f"
+      },
+      {
+        "place_id": "ChIJXRW3VCVtK4cRfvu6mPDEtEw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b9303ec6-275f-4a36-a4cf-13177f33a4fa"
+      },
+      {
+        "place_id": "ChIJn8YSF7ESK4cR4ltPPYPcaiE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e62215f6-8c75-4718-a478-5b76673f9de6"
+      },
+      {
+        "place_id": "ChIJJwFJ75YSK4cRGuSJ41R9-WQ",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f69345af-436a-4162-953d-3b3605d166f5"
+      },
+      {
+        "place_id": "ChIJsWF8LboSK4cRzAdHexflmnc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b7746c75-5fdb-4eb4-8d18-7fd3d110896c"
+      },
+      {
+        "place_id": "ChIJHUg3UtNsK4cRERwk7b0Thto",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "706df94b-0a8f-4bcd-b158-ced48cacf7ff"
+      },
+      {
+        "place_id": "ChIJ6eEJdtISK4cRX59YChCiJaA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b26dfcd9-ffbe-4327-bc9a-a760c5b5b282"
+      },
+      {
+        "place_id": "ChIJ1d4LbTJtK4cRzH1pk5dT4ro",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "da17cd41-4d53-4468-9529-2a19afd8066d"
+      },
+      {
+        "place_id": "ChIJ6Vcc7qMSK4cRbjwX0J_cDNI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "bccc757b-4ce8-4eb5-b810-76bfa0521d2f"
+      },
+      {
+        "place_id": "ChIJxYAR_FVtK4cRb3KoXjj91ug",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8df1d93b-8586-430b-adc8-a3ae8a1d34f4"
+      },
+      {
+        "place_id": "ChIJ1d4LbTJtK4cRlPueA0tD7LQ",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6cd19a71-2878-4970-8d4e-9c9ec4ddaa20"
+      },
+      {
+        "place_id": "ChIJr-SYfbMSK4cR2QcWUXsudJk",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJsYvDMwATK4cRVgLMXuM9Vgs",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "5a9bf2df-a9b0-476a-b8e5-0a6450810a0e"
+      },
+      {
+        "place_id": "ChIJG1wVESkTK4cR4XfKOCpGEHg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "25e26bc1-902a-4f98-a871-9ea99fe19c14"
+      },
+      {
+        "place_id": "ChIJxd37ic0SK4cRNOtCoZcpPMU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJP0C-VEttK4cRJRQLDF7C-k8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e20b5ad9-ac00-406f-a56f-c1e9f8878993"
+      },
+      {
+        "place_id": "ChIJfXI9USVtK4cR-8BslEqeOxY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6a96c921-2c3e-4c6f-9997-073fd42d60ce"
+      },
+      {
+        "place_id": "ChIJ1d4LbTJtK4cRBD_-BCmnaQY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "7170baf9-46ac-40c3-b4be-2c2b019b98e5"
+      },
+      {
+        "place_id": "ChIJRZmUrNoTK4cREEWIc4KG43g",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJL-Gu6JYSK4cR-e-_IIodors",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ6Vcc7qMSK4cRE_srS0zZZxo",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "27de53b1-3496-435d-86e0-b01bb1a58ab5"
+      },
+      {
+        "place_id": "ChIJdeYAb0ETK4cRycccSaqtdx8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "eec5532c-25ee-4686-8242-7f6328bd7f7b"
+      },
+      {
+        "place_id": "ChIJ6Vcc7qMSK4cR7Z89SyF_iKE",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ1d4LbTJtK4cRzDnoswh6Sw4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e02d5ae4-0320-430d-8eaa-3d25bf662bd2"
+      },
+      {
+        "place_id": "ChIJR0eo8aMSK4cRazlPos_gqcI",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJQzj3ZbYSK4cRg8I0Cc_JY9w",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "eb6c7fec-f61e-45f4-94fb-2263fbfc17af"
+      },
+      {
+        "place_id": "ChIJH_jDuHtrK4cRSOdbZNC6_B0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "fe17e0bf-710a-4591-8fb2-e8e02682a674"
+      },
+      {
+        "place_id": "ChIJPUGtGrJtK4cRCS0_IW4RgWQ",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8d448120-7344-4bc1-bf1c-a214bf9f3027"
+      },
+      {
+        "place_id": "ChIJn-eNLtAKK4cRVylbSMq4l08",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "86cb064c-1038-43dd-ba91-8eec7277ff32"
+      },
+      {
+        "place_id": "ChIJl4S_x9YKK4cRiQalFB80Y3M",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b48fb155-a457-4418-81fc-5bc5af08a498"
+      },
+      {
+        "place_id": "ChIJVYog4DV1K4cRQPzCWjFpglE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "28df94ae-12d5-434f-9d7e-f8bff2fa82cc"
+      },
+      {
+        "place_id": "ChIJsVLkuwt1K4cRFGZkbR8J0Rk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "7ad8ccb7-9180-4f01-9c89-ecf3b0c73fdc"
+      },
+      {
+        "place_id": "ChIJcYEEAtEKK4cRHHxzibPUDtE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "fb6c2200-f49a-4ab0-a1c4-b4c40c0bacc3"
+      },
+      {
+        "place_id": "ChIJW_goaDd1K4cRBuWOJJqwR0M",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e43063ec-aaa2-401b-8eb9-7c37db744c64"
+      },
+      {
+        "place_id": "ChIJD8zWRDd1K4cRwtVHEKlTj8s",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a16c92f5-3e1b-4e82-860f-8fe5cf17317b"
+      },
+      {
+        "place_id": "ChIJAxkalq4LK4cR7LVmZD2s7Kc",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJW_goaDd1K4cRh7OElyOdOA4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "46f576ff-3a6d-41e5-a817-fc3dd8840d82"
+      },
+      {
+        "place_id": "ChIJj3jGAdEKK4cRAoBRUgN-WSo",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJhzGjE5h1K4cRfxq1SlRrrhE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ae11d613-5e70-4bc9-86ba-3840892a0564"
+      },
+      {
+        "place_id": "ChIJoyb4tBQLK4cRRupR3L7Z3xY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e553eb15-dd30-4b0c-a199-fcc0d02d772d"
+      },
+      {
+        "place_id": "ChIJFWtldmoGK4cRijZTDGVOU_4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "5d0f98f6-3ea7-46cc-a1bd-5be7aadc73ee"
+      },
+      {
+        "place_id": "ChIJ8SoaCU8JK4cR9R_LcD34zXo",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8ca1e503-6333-45a1-aeeb-eee14f4d8e61"
+      },
+      {
+        "place_id": "ChIJ019ThGoIK4cRHi_7H1fngW8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "54c2f1e7-70c7-497e-8456-a1a388c3fee7"
+      },
+      {
+        "place_id": "ChIJmWB2zvMIK4cRUJVabK3Dn80",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJD3SoPsQLK4cRULSqwzFy7Zw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "1087d3fb-feef-4636-94fd-5a6a4e6a1f90"
+      },
+      {
+        "place_id": "ChIJ1zoxY9sLK4cR9yK3icDvVck",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "26e62827-a250-4864-8f89-238fc6e8fa00"
+      },
+      {
+        "place_id": "ChIJs-QzY9sLK4cRVjnxu-nVNiM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4b7bd87e-0f2f-4611-9833-eeec8db8bd4a"
+      },
+      {
+        "place_id": "ChIJxXJtH-8LK4cRpwL8IZoOc4w",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8cefc8fe-2e23-402c-a54d-88d08e0ce43e"
+      },
+      {
+        "place_id": "ChIJjeFLmRILK4cRGVrnDh11sjA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "1be6296f-e366-47c0-96c8-de574880a940"
+      },
+      {
+        "place_id": "ChIJ3WTtM7oLK4cRI-qp6atXslw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "1eafeb00-6bde-4bce-ba10-6035d9facad1"
+      },
+      {
+        "place_id": "ChIJMVovs8ULK4cRJKA8WSQozGs",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4cbe9d3b-d691-44ba-82ad-5ea18f8c86a8"
+      },
+      {
+        "place_id": "ChIJHzdW0ScKK4cRQnxYxYER1u0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e25b1c6e-88fc-4320-ba5f-7a0e69096536"
+      },
+      {
+        "place_id": "ChIJdY_zO8YLK4cRwniSYiiyt10",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "fbf0f2c8-64e9-4eb2-8a8a-38d3fd2784f5"
+      },
+      {
+        "place_id": "ChIJYxnkmKgJK4cRa-c_hKViIao",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ea236287-3d05-4272-80ac-5ddcdbd76bfe"
+      },
+      {
+        "place_id": "ChIJB6CzzNMLK4cRxpkDcP_ouFI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "03eaf3dc-2e26-4cd6-9c7d-5e0405a66557"
+      },
+      {
+        "place_id": "ChIJ7WpVDMULK4cRFmd3PvIKgEw",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ7WpVDMULK4cRQhZMzeAiYls",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJFyk0Y9sLK4cRD9LvYJX9Dk0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8e99e2f7-cb02-4ef9-a626-8e67684ea91a"
+      },
+      {
+        "place_id": "ChIJLfZExcQLK4cR5U_p3jmcUak",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a4c3fbcb-4a4e-4a75-b428-2106cc068184"
+      },
+      {
+        "place_id": "ChIJYXcLLMgLK4cRnomOiyLvaiI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d45c3a5d-091c-434b-b00e-68d768fa3482"
+      },
+      {
+        "place_id": "ChIJrb6KK8gLK4cRn2C9YuAMPQ8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d45c3a5d-091c-434b-b00e-68d768fa3482"
+      },
+      {
+        "place_id": "ChIJr43XlrYLK4cRBQNr8du2TyM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "0b027f5c-f918-4f28-979e-32a76baa3965"
+      },
+      {
+        "place_id": "ChIJj5KBl8ULK4cRqw3gJ0w-1OY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "14d6df8b-2295-480e-8161-03b3c629b88f"
+      },
+      {
+        "place_id": "ChIJV5H6IMgLK4cRbutyEf4QsHs",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ___rz8QLK4cRKHqF-wLpgjw",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJVVXBPsQLK4cRN2hSCKYd3_8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJb0evTYaoK4cRpsUrBoJd-OY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "375fb413-1a71-4def-960e-75c161796417"
+      },
+      {
+        "place_id": "ChIJedCoTMQLK4cRBX1Xb3V61bI",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJIeJTcx4LK4cRJZMWLZYOIc0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "c33acee9-742a-4311-b5ce-00d793ccecfe"
+      },
+      {
+        "place_id": "ChIJHQxz0ycKK4cRtS9LOuUMOWM",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ-2dCTcQLK4cRfZ1qL44GR2E",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJrxt8sdULK4cRKgsMrtFWjDA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b0cb7880-4f68-4203-aff2-9e0151a82aa8"
+      },
+      {
+        "place_id": "ChIJd-w1qIQLK4cRybnQNxL-zsc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a9007a08-de13-48a9-afee-f5a4f4f59ced"
+      },
+      {
+        "place_id": "ChIJq6raDMULK4cROsWFbelNoaQ",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJKbdgFAALK4cRnRfon7nG_oo",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJrxt8sdULK4cRm-1d1BmIa_o",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJx2TtM7oLK4cRxi2H5zgW3XM",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJMVovs8ULK4cRYSRhD_YG3tQ",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ6XdEjsULK4cRR2YUi0xyrYY",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJM0nDgsULK4cRnRj11awHSbQ",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJja4_P2kLK4cRBosGLEwTDhw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "74e96bde-69fd-4945-b2df-a68dd7715873"
+      },
+      {
+        "place_id": "ChIJ7WpVDMULK4cRg9m7lF_NtR4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJjZrNg6YLK4cRdt8H_xNE8DY",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJdY_zO8YLK4cRLeIgBliuMrc",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJs-QzY9sLK4cRgP0UoynMpAU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJdY_zO8YLK4cROXx-CDaSPk4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ7WpVDMULK4cRcJ7ZqpCMUJM",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ_0mx4AlTKocRNjMPSht6rP4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "1da74d0b-3999-4553-a7e7-82a1d2139507"
+      },
+      {
+        "place_id": "ChIJiXfn6MtUKocRKHwhuIhPPBI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4202e5d7-3f2c-47b7-93d7-c3dd3637439f"
+      },
+      {
+        "place_id": "ChIJT0o9kJdUKocRZ_nTsp6BiPk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e752c598-219b-4542-b1d8-cae798b04e93"
+      },
+      {
+        "place_id": "ChIJKaZSDyOrK4cRtFQePNFFCug",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6c5a377e-aa92-4541-97ee-0d3c83e0815b"
+      },
+      {
+        "place_id": "ChIJz-aqGTGrK4cRO6yYrNNuV7A",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "38c156e2-a5bd-4af3-9edb-14398ac05ec8"
+      },
+      {
+        "place_id": "ChIJV2514h1VKocR6zw15rtVBy8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a4a284d3-5cc8-40e4-9e64-44c8aea0337d"
+      },
+      {
+        "place_id": "ChIJv9_n6mqrK4cR-qhISKnG4EU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJg1D1n-2rK4cRGgRm8aC0NH0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ecc19856-3659-4cc9-91ce-d87fa8a4537a"
+      },
+      {
+        "place_id": "ChIJSx6Rm0tVKocRFz-KOUtR-JE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "22c6509d-dd01-46a4-8971-e71d02b62846"
+      },
+      {
+        "place_id": "ChIJ3WbOpaarK4cRq54b-ZZh1s4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a0aefb8a-79c9-4152-8ba8-74a39eaf7149"
+      },
+      {
+        "place_id": "ChIJQROWh5dUKocR6qzAY0CdMRU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "0fb99269-a792-41c6-832a-4d77276d7c94"
+      },
+      {
+        "place_id": "ChIJXeqMXq-rK4cRFbKyEfxZJdw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f2d198a1-2672-4d86-bd22-cbd46c4c115d"
+      },
+      {
+        "place_id": "ChIJ__9vhTarK4cR0JChwn4q4Ck",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJRVEbkjGsK4cRUEb2pPG86kI",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJHQGnmZdUKocR5HAxd4aP4sI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "95a3c621-68f0-4959-9ac4-d3cf8ac863fc"
+      },
+      {
+        "place_id": "ChIJQROWh5dUKocRXgzK3bPipm0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8a38d315-19d9-46dd-ba7c-201fcc9b03a7"
+      },
+      {
+        "place_id": "ChIJr9SzYGlVKocRf1xrNo6iqtM",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ02HORMJrK4cRwzjp8XG0Zu0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d55af7df-07a6-41d5-9a48-149ee80e0dfb"
+      },
+      {
+        "place_id": "ChIJ1-TGtOFpK4cRbMmRHXcFD24",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "9b062d63-a67a-4e87-b5e2-5afc21bced42"
+      },
+      {
+        "place_id": "ChIJeQ7FUvJrK4cRs0ZFrc95ABU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b8034f87-1b32-49bf-8d09-ba923dc1cc18"
+      },
+      {
+        "place_id": "ChIJhYZYSd5rK4cRnkHQdvHGLWA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "80587c35-d27a-4185-955f-6da82700e87c"
+      },
+      {
+        "place_id": "ChIJP1Rs0fNrK4cRs8AkxGXYtDQ",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ3XLjS95rK4cRkJ6dZqKkr9g",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJRWS_qjhbK4cRIkkLEoxMWJU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a6360850-8b26-405c-af91-c439e9c6d064"
+      },
+      {
+        "place_id": "ChIJZYiHpTlbK4cRrZoD465TOTw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "fa7863cd-9d2d-4c7c-b58c-72dc32f7f0e8"
+      },
+      {
+        "place_id": "ChIJHT9DPEZbK4cRvl1Bic9TYd8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJJSqPx0hbK4cRn4-IHdEPIAM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6cc1f5db-ba04-411f-b72b-ee194bc97c5d"
+      },
+      {
+        "place_id": "ChIJGzeBxkhbK4cRZYBsaO9902k",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "cdd78904-a7bc-438b-980d-37cdc915b309"
+      },
+      {
+        "place_id": "ChIJ4VndNrZbK4cRwH3dFWtcKsE",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJGzUuDGtbK4cRo0vDYV1qVu8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ08Gwqz8MK4cRneQKXgb6w1U",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6e30e054-5efd-45e6-bed0-551cc400066c"
+      },
+      {
+        "place_id": "ChIJYS7JWV0MK4cRFF3erKXsT3M",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "7feb72bf-a5b2-4f7d-b88a-026517964d04"
+      },
+      {
+        "place_id": "ChIJmVw0HnMNK4cRyjpbeOXFS0Y",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "2994c588-becc-424c-b269-4ae6efee2e6c"
+      },
+      {
+        "place_id": "ChIJwUrW5PwMK4cRzqNPr2U822c",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "135c8d5e-c2cd-4f9a-a3e6-73dd6d5ce003"
+      },
+      {
+        "place_id": "ChIJK01CllAMK4cRT6bUutraU6Y",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "50a6ab83-5d79-49b9-bf24-9e364d4974cc"
+      },
+      {
+        "place_id": "ChIJKUbS9FMMK4cRTUKZAnDztF0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "24e10e2d-319c-429c-9368-b11ab3447a15"
+      },
+      {
+        "place_id": "ChIJjaj6PRQMK4cR4HgWEknKqCk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "dfa99bd7-9884-4549-820f-676dea7a121b"
+      },
+      {
+        "place_id": "ChIJq6qqqi51K4cRTGK7ldiq2LA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "46110946-f3b8-4083-b646-d97b15b1e80d"
+      },
+      {
+        "place_id": "ChIJ6w7c60cMK4cRidbJ1QAbFjk",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "7d08a3de-3ede-4fba-8414-939675d47e46"
+      },
+      {
+        "place_id": "ChIJSV51KgwMK4cROakEoqrOdF8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "295ddb05-e82f-416c-8488-6a9fe56fc148"
+      },
+      {
+        "place_id": "ChIJYS7JWV0MK4cR8zHRnkSzzmw",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJkUjlYuY_K4cRXtMkXUQU60g",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "32c33725-072d-4e5b-8c5a-0ce1d4ebbe1a"
+      },
+      {
+        "place_id": "ChIJ6c0k-FkMK4cRNAeToK-7hc8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "bbecc013-ad36-4148-88d2-1079060379c3"
+      },
+      {
+        "place_id": "ChIJkxY3rPAMK4cROZtC5vYaoFc",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJVVWBc1QMK4cRUacWsgjQ5SE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ff35d6ee-8200-42b1-bbaa-1d6f34294d65"
+      },
+      {
+        "place_id": "ChIJYS7JWV0MK4cR00g-A9FCXJA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e0fd5fe1-801d-4250-ae6b-d45623766c55"
+      },
+      {
+        "place_id": "ChIJ08Gwqz8MK4cR3Ee1FSJ_DK8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJg3gVPA4NK4cRZUjDOZqzYsA",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJDYC4CyMNK4cRxx4Ktwhpo1c",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJawKl4uF2K4cRKLpdW_6LO00",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "76242017-293e-4acb-991a-828f7c52f5ca"
+      },
+      {
+        "place_id": "ChIJxSENBxd3K4cRcZ085KZh7f0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8587af34-3cc2-48a0-aaf9-bc30e8d15ecc"
+      },
+      {
+        "place_id": "ChIJa31aPh53K4cRIcpSWrxvR6I",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e277d558-d24e-4bc7-8f6d-45be365a837a"
+      },
+      {
+        "place_id": "ChIJmYAU7KF3K4cRR29U2Y-bYaw",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJQcaI1eF2K4cRGxKyN4ctlrM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6a72129c-93b0-4f94-8fe8-d67aa05d6d6a"
+      },
+      {
+        "place_id": "ChIJHzf5Ph53K4cRzws8UwG3Bsw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "64d556d4-0edc-45a6-bab1-160b4908babe"
+      },
+      {
+        "place_id": "ChIJawKl4uF2K4cR8sY2hkmANdo",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJS78ZuvNzK4cRXwwIx8FSYig",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6ada5691-2153-4af9-979f-4ff782c748c6"
+      },
+      {
+        "place_id": "ChIJT-kw5F1tK4cRFzc1RWEJnyM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "1874ccb8-e7e4-4bb3-915f-b3b46fd0bf59"
+      },
+      {
+        "place_id": "ChIJQVdVJKZyK4cRYiaxe67Edgg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ec129524-f7e6-40ee-b77d-9beb6dd9c085"
+      },
+      {
+        "place_id": "ChIJMf48fidzK4cRetPnCymCBDY",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "752b9ce2-73fa-438a-89ab-64f235ab0a4d"
+      },
+      {
+        "place_id": "ChIJU5Blq6lyK4cRocS71mPKWC4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "7df64a0f-632e-4e36-a991-99d8ba0faa78"
+      },
+      {
+        "place_id": "ChIJKY9QVahyK4cRARjNo_LXwJM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f5af673b-47d3-4fd4-ab2f-4965ff9da2bf"
+      },
+      {
+        "place_id": "ChIJHyarvb1zK4cRNelpJVZyIEA",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJQVdVJKZyK4cR0jEBxn1xtyg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "98796cca-b80b-489d-a8bf-dabd3640316b"
+      },
+      {
+        "place_id": "ChIJIRp6SaRzK4cRQ5w3v141Fxw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "2ea424df-29b4-4061-9229-2fc068de702f"
+      },
+      {
+        "place_id": "ChIJFynS4F1tK4cRom8jzfCnFrA",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJxYAR_FVtK4cRHOLw1lBq1k4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJPc-y96dyK4cRhPlAHyiBs-Y",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJbTXf7xpFK4cRi0OMu0wxZ18",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b5f2616c-b118-4e2d-af57-4680fa9f874f"
+      },
+      {
+        "place_id": "ChIJf20yzxFFK4cRIILNMBcK4gw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "3d8e59a6-2cbc-406f-8ec7-c056f490228b"
+      },
+      {
+        "place_id": "ChIJEdRk4GFFK4cR4U8rf0pmwAo",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "43b4be3e-e0e6-4fd8-9ead-11c12951eee1"
+      },
+      {
+        "place_id": "ChIJj7mBXfNEK4cRE_TjNJGHhBQ",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "f12510bb-d12a-48c6-ade7-efb230994758"
+      },
+      {
+        "place_id": "ChIJAQAU4WgVK4cRo3uJjcvBE8E",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJJT0CVAB5K4cRN5bK4GhpNCM",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ98H-5XCwK4cR4nwTRaXGhEA",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJX4S09nawK4cRDwMUA-8axag",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJX4S09nawK4cRgz3ErfQ7oyw",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJdU6JbMSxK4cREXQcGEtrF0s",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      }
+    ]
+  },
+  {
+    "market": "hvac-tampa",
+    "niche": "hvac",
+    "cells_sampled": 60,
+    "cells_truncated": 0,
+    "off_niche_dropped": 44,
+    "strata": {
+      "dense": {
+        "cells_total": 223,
+        "cells_sampled": 40,
+        "google_places": 80,
+        "matched": 26,
+        "ambiguous": 14,
+        "off_niche_dropped": 42
+      },
+      "sparse": {
+        "cells_total": 102,
+        "cells_sampled": 20,
+        "google_places": 4,
+        "matched": 0,
+        "ambiguous": 0,
+        "off_niche_dropped": 2
+      }
+    },
+    "requests": 60,
+    "google_places": 84,
+    "matched": 26,
+    "ambiguous": 14,
+    "coverage_strict": 0.3108,
+    "coverage_generous": 0.4781,
+    "ci95_strict": [
+      0.2208,
+      0.4149
+    ],
+    "places": [
+      {
+        "place_id": "ChIJx-bL4GG9wogR0J_4ak1BBCU",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJr_hLtiW7wogRKhSW1VDI-b8",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJZZqj-A1N3YgRxsmtqY_kWjk",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJG4QbJTe7wogRMpf54P757Qg",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJqSAON3Qpw4gR6z1k0NhSxuY",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJwWBDw8Qow4gR0GbXph75CUE",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJX4VJZH6xwogRWR8yKH5ESoM",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJC0Q_FlKwwogRqWN8Wp_ot68",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "050aee59-b4b9-416b-aa5c-98e1f190a706"
+      },
+      {
+        "place_id": "ChIJY46mC2linUYRzaSFRoTwhGo",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ9VvaEY6uwogRhLapxhDaly0",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ_-59HjSwwogRxTXN-phcct0",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJj4C-2xbHwogRqZ97YAbr3aw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "83a840e2-018a-4a59-965c-2d05e3aa4bdf"
+      },
+      {
+        "place_id": "ChIJW-8fshfHwogRK3uDK8cUKH4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "56b3e2d9-3bbb-4dbf-be7d-b9e687f29759"
+      },
+      {
+        "place_id": "ChIJhW9HTyLHwogRSZ9VFrTYZuw",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJO9OpzOzHwogRHwssbn47v2E",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ3_fENgWVwogRlbibSPmrFu0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "018617c6-30cd-490b-9988-e488663cc9ed"
+      },
+      {
+        "place_id": "ChIJ4xZwE9CXwogROvQ8fSeUTdI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "dcb7c8fa-b1be-4536-bd25-6efd7d8e5655"
+      },
+      {
+        "place_id": "ChIJkatk3UqjwogRAndto_yEgPI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a8e07e66-aec1-42c2-a895-9d0d8b8c9524"
+      },
+      {
+        "place_id": "ChIJnQpk29i7wogRY75xrB_jucw",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJERBBQ8UmgEoRkxzGt4O0i98",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJAQBc5Ry5wogRFjzysCjKxKI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "87dc08a7-f9ed-4321-b460-86ca3e7eb00e"
+      },
+      {
+        "place_id": "ChIJc9279VPRwogRmMcsi6guj6Q",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJr8aWXFfFwogRoxlqoALqbwc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "584a7077-b2cf-4c72-b712-09bd88d127b3"
+      },
+      {
+        "place_id": "ChIJzSBMfizFwogRRHes3e_F3h0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "62d13473-3485-4430-9d82-27fae5ae6171"
+      },
+      {
+        "place_id": "ChIJV-WvxGGt2YgRz6LPeWN3dBs",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJh6b5QZDDwogRpPaH6wy9Yk8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJjy6PGvTFwogREXL8ZDLj894",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJd8CquzHFwogRXTruv0hWa5o",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJk9hn8k3FwogRDxudQE4CAYg",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJnQe36qnRwogR7MuFKEVMXwE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "edf1bb8c-7780-44a1-80b1-7ace37dba40a"
+      },
+      {
+        "place_id": "ChIJ3ebXGAC_wogR94cjX_5V9n4",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJEZZHpgA_gS8R_lGoWS_JSC4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJDV4e6aAx3oYRyP9nZY_8s_A",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJE8B6_wPqwogRzXhTs__Cgf0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "60db69b1-bb94-4a47-bb88-6145bb41abda"
+      },
+      {
+        "place_id": "ChIJh0P2zvMqiIgR_1KMvRm8QL4",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJXygFAYE4iogR5gfDgknvbO4",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJV0zvC3DXwogRTWcWeAU3T_4",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJv3NvrSkow4gRQeEyrNDPaf0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJcVQAtfQpw4gRKARlwOnzWv4",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJsxJrqIEuaGIRHmI5qVr9GhM",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJtRM6SWs3iUoRpMFrfO-rf58",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJs2n-1vbDwogRol5guoB8eMg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "0b1b4179-117f-43bc-b41c-1bb3c63e693d"
+      },
+      {
+        "place_id": "ChIJe2nEfk_rwogR0pJsqlRE5js",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "3d52216c-f000-4819-bc75-983b03bccdc9"
+      },
+      {
+        "place_id": "ChIJ2abKEs7GwogRRYZ0SbO6o4o",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "9042b9aa-170a-4218-b23c-702325e04db6"
+      },
+      {
+        "place_id": "ChIJrQ6Q29DBwogRdSb0koE1lCM",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJZwyhjkHBwogRyRRY4Qgg_Us",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ3Vdau6TpwogRc5ZXaVpDKVI",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJkYRt3vZqcUwRXSnuCFAIYao",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJvSDXyDQgmCMRc5z3lVTWFy4",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJd-rB_mv7wogRPEuCxkH6Dk8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "2272df73-8a4f-425f-b89f-5389ceee4c67"
+      },
+      {
+        "place_id": "ChIJ8Tbb8Ital4ARTbtcFGWI-MM",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJlcHXyTHlwogRF2CwoyAgMjU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "1e985045-d4a6-4181-95dc-6954dd451f64"
+      },
+      {
+        "place_id": "ChIJO34_yD6NwogRQoKcOxAF1gI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "3a459465-8026-4ebd-8254-5d5389a61693"
+      },
+      {
+        "place_id": "ChIJMbahMCXlwogRlAR1jzliR9k",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJoUMlVur6wogRJI93Wedqqc0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ef37f62e-f614-42ce-ac76-c3b334968909"
+      },
+      {
+        "place_id": "ChIJQXiantb6wogRsR3HsYrga9c",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJwbw-QxfywogRPHUDYsqQTf4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b79ea3b4-cea9-4cd0-980c-eb32dcc3b034"
+      },
+      {
+        "place_id": "ChIJ7aSxB9TT2IcRI0mXoV8jBVM",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ9W6aHyn7wogR2qNt87hI1Zc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4d2537ff-e92a-4996-82a9-5d37fd278586"
+      },
+      {
+        "place_id": "ChIJlfNsJxiwD2MRoi9u02qenXI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "7603d8d3-ec17-4f44-bbae-929752d1f2f9"
+      },
+      {
+        "place_id": "ChIJb4lQ_W3TwogRgOIYrG8SpxU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJK0NSWJodw4gRGUAyNuDbNoI",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJk6y4NtD6wogRELOclWuefM4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6f2dff8d-bb91-4b15-bc09-4d5227788202"
+      },
+      {
+        "place_id": "ChIJTXziJ5WDC0sRJLGRjpH8Dyc",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJbflE-d3hwogRQIJLQua6Xs4",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJc2nPmOkGLUYR3pC53Bbin0o",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "c40bfe1a-c7ed-4295-88a5-a4837c17683a"
+      },
+      {
+        "place_id": "ChIJ1zCAmgznwogRRxYxDsvfOpw",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJUXaFCY-jwogRPHZUeZHffq4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a3f359ef-6142-4ea9-a0bf-813157b764f9"
+      },
+      {
+        "place_id": "ChIJJU7HYgu7wogRJpRw6LfHxnU",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJIZvZigm9wogREvvuPeir5OY",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJteMG4He9wogRfsHyOCFprDQ",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJv1GoUWiwwogRzFA7CigjgaI",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJX5Apd2rwwogRZ4Zp3iaq5_8",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJy57lEvDU0kUR8I4Am1HBDQc",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJiytWVrmpw4gRzsFeDgvj7-o",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJPyIodDzMwogR8NNeBaZYZhI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "9625095a-f8f2-4256-a6f5-0c6ff66603e0"
+      },
+      {
+        "place_id": "ChIJvWGfObbNwogRTH4tgz7V0gU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "a7c884dd-0509-485e-91a1-1bb25f4b5633"
+      },
+      {
+        "place_id": "ChIJlbqu0ZXNwogRWwKHF0CpCCQ",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJj9OeHnDNwogRa87_4i9kH5w",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJRwX8Nl9M3YgRCwrazsnI1Ew",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJX8n0E1JEi0gRjhqqkarWq2s",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJL6Dje6LWwogR47iXcqXSbcg",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJgYutR1Uz3YgR8QV_jE3CfX0",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJpzzV_bKTwogRB-__emoDP4k",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      }
+    ]
+  },
+  {
+    "market": "vet-columbus",
+    "niche": "veterinary",
+    "cells_sampled": 60,
+    "cells_truncated": 0,
+    "off_niche_dropped": 4,
+    "strata": {
+      "dense": {
+        "cells_total": 132,
+        "cells_sampled": 40,
+        "google_places": 75,
+        "matched": 57,
+        "ambiguous": 10,
+        "off_niche_dropped": 3
+      },
+      "sparse": {
+        "cells_total": 193,
+        "cells_sampled": 20,
+        "google_places": 1,
+        "matched": 0,
+        "ambiguous": 0,
+        "off_niche_dropped": 1
+      }
+    },
+    "requests": 60,
+    "google_places": 76,
+    "matched": 57,
+    "ambiguous": 10,
+    "coverage_strict": 0.7315,
+    "coverage_generous": 0.8598,
+    "ci95_strict": [
+      0.6422,
+      0.8337
+    ],
+    "places": [
+      {
+        "place_id": "ChIJf2-KQJiQOIgRH6sURzuHzZ4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "3a21dc8b-25c3-41b8-83be-bee61e01369b"
+      },
+      {
+        "place_id": "ChIJmbdexKiQOIgRj5RY0eAInng",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e4a563bc-ba49-4ed0-b115-c7cf41bc9ea8"
+      },
+      {
+        "place_id": "ChIJpWcrpIeROIgRl6eBR4JuX94",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "85f08044-24d9-4527-bc9a-27980e172df8"
+      },
+      {
+        "place_id": "ChIJq1zKiPp9OIgRqXD7aYnXfUE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "11ae1fa5-d727-4339-bef1-a56c7bd66458"
+      },
+      {
+        "place_id": "ChIJdYv7M9x9OIgR5mL9FwVJXbw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "b2a9ed27-6103-4832-86ad-1904891e6188"
+      },
+      {
+        "place_id": "ChIJExZI_YnrOIgRysUZLD5aNeI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "4d05e0b8-e14b-426d-82b1-f63d05546a64"
+      },
+      {
+        "place_id": "ChIJ_enAjOKTvw4R1NwrEMupvWE",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ05yCkoaIR4gR3O7pbA4anFg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "681930fd-3a5b-4a58-9a1f-1b04651bee76"
+      },
+      {
+        "place_id": "ChIJxfHvsl9jOIgRdh0Xcs6-dc8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "79e3701a-6823-4632-bbe8-1e3adb70b1f6"
+      },
+      {
+        "place_id": "ChIJG8Ddwj2KR4gRPnJWJNZSes4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "329e627f-cc6f-4a49-9e75-4c6a05f410c5"
+      },
+      {
+        "place_id": "ChIJWS0dfZ37OIgRaFtg7xlhxYs",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJhS04BsL7OIgRrgad4Kcjh4M",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d1f636cf-809f-4ea9-aabb-2c69d1e088c4"
+      },
+      {
+        "place_id": "ChIJ02jF7AqHOIgRjhNyGgIR2hE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "71ee1c21-9c15-4ea7-8aeb-abba53fdc69d"
+      },
+      {
+        "place_id": "ChIJeZAqh-uLOIgRyhL-ZfRZttc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "1fe9ec21-7205-4d44-b596-18ed2e180816"
+      },
+      {
+        "place_id": "ChIJKU6thxiMOIgRKkKvE5Xi1Ag",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "2c1c8ef0-aec4-45dc-a3ee-ff3b76af9e50"
+      },
+      {
+        "place_id": "ChIJcYkfYQyMOIgRKYSZBJUlp_M",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d27a20a2-ad1f-4d34-9e10-a3fe5148978c"
+      },
+      {
+        "place_id": "ChIJrXLrfUCMOIgRcnZS44iI1Tc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8fc0284c-749e-418e-8f7c-1867e365e125"
+      },
+      {
+        "place_id": "ChIJh1JOfqmNOIgRSd0g_JySzW0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJeZAqh-uLOIgRcXgnY2EGnXU",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJZ1q8YQyMOIgRZZck_sOLSv4",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJqRx1xLScOIgRHMGRR1o60bE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "cbda05c8-dd1e-4135-ba9b-f00ab98e1c56"
+      },
+      {
+        "place_id": "ChIJCbmRg0mDOIgR6FiUnP4KsRw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "1e315083-5874-4cd5-917d-f781a6fbddfb"
+      },
+      {
+        "place_id": "ChIJsWdvPVKOOIgR04jLguSY5RI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ef8e1af7-9d18-454b-ba01-d6b2d42b16f9"
+      },
+      {
+        "place_id": "ChIJxVxtzwxpOIgRN5gWkzvInqM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "2a521370-794e-49c5-bf30-3f50feeeab86"
+      },
+      {
+        "place_id": "ChIJxVxtzwxpOIgR3BIH3kLPiKg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "2a521370-794e-49c5-bf30-3f50feeeab86"
+      },
+      {
+        "place_id": "ChIJpzA8X7GiOIgReCjKjhq35WM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "0820dcec-0a71-49b3-9e15-0e78a30d7230"
+      },
+      {
+        "place_id": "ChIJvaaxQAhwOIgRGhLwt3VoaoA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "34c57760-9ca0-48ef-9ba1-ab7d1d602c65"
+      },
+      {
+        "place_id": "ChIJVdXKtAxlOIgRls-q4wZaJjI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "801f2244-4e43-4012-95bf-865069fa4a76"
+      },
+      {
+        "place_id": "ChIJKWdBcMplOIgRk3D5BguIrtU",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ_6zqW3SKOIgR7WzqoxdX1PE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "0b59acd0-98c6-499b-aeac-c2543ebed963"
+      },
+      {
+        "place_id": "ChIJF3A5eI1hOIgR61FaDTuq-WE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ac62ea1a-9a3b-42ed-9f66-f1f999466ecf"
+      },
+      {
+        "place_id": "ChIJOyE0G2KKOIgR1MwZv5esrvg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8df5cc8a-b651-4cb7-9a7f-f29010e42ee6"
+      },
+      {
+        "place_id": "ChIJOyE0G2KKOIgRRhRtzQj83Xk",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ_6zqW3SKOIgRHGPkA9U-p-Q",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJF3A5eI1hOIgRFud9ApNZ4aY",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJOyE0G2KKOIgR75iu0TideQ8",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJAQAAAJCNOIgRORXMC5jVFg8",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ8bT59XeQOIgRC7N9xXvp_vw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "39d6c251-77af-4bfa-9537-7a90b42fc67b"
+      },
+      {
+        "place_id": "ChIJ8bT59XeQOIgRSM1kfxBblRI",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "39d6c251-77af-4bfa-9537-7a90b42fc67b"
+      },
+      {
+        "place_id": "ChIJpXcrno-aOIgRAg5jDl6cTfw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d83aa478-5096-4878-8326-aad4837b11c7"
+      },
+      {
+        "place_id": "ChIJpXcrno-aOIgRZCJuEiH3dYg",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "d83aa478-5096-4878-8326-aad4837b11c7"
+      },
+      {
+        "place_id": "ChIJgRB8IhOaOIgRZfFtZR7fiJ0",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "72b480f8-8680-40c5-b77e-56eb8bbd3787"
+      },
+      {
+        "place_id": "ChIJ5UZ-qJP1OIgR3rWkGetglt8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "0aa359ee-9cd1-40d0-a9d7-ccf5d2971708"
+      },
+      {
+        "place_id": "ChIJN5R_AR_1OIgR3z_55i9x0js",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "3fa48104-ea0a-40fb-a1ac-e571785d8b05"
+      },
+      {
+        "place_id": "ChIJoe1FYV6EOIgRjQ27ig1dcms",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "9329c06d-7744-4137-8560-097ea9c6839b"
+      },
+      {
+        "place_id": "ChIJcastbYKFOIgRXw5L7zv04uc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "13e074a5-dcc6-4cda-99b8-fe6538df335f"
+      },
+      {
+        "place_id": "ChIJmYo-c4iFOIgRwPhXEr-nHnc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "0a8c6a37-6cd8-4407-9160-dd4add622869"
+      },
+      {
+        "place_id": "ChIJFyC5svOEOIgR0To0JsSOfGo",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "69a5c999-16c9-4072-82e0-a057d60317df"
+      },
+      {
+        "place_id": "ChIJR_p8lpeFOIgRXJUXhGnACf8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "8e06b45a-1de2-4592-93b0-635f06b4017b"
+      },
+      {
+        "place_id": "ChIJXebZVYhuOIgRahR1oMfPIw8",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ed631226-49d0-4fef-bf5b-364a264375a6"
+      },
+      {
+        "place_id": "ChIJnXnwYjmQOIgRioeBl40nSXM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "9cc174eb-53ca-4a7b-a6ae-dc1d0462dd93"
+      },
+      {
+        "place_id": "ChIJsfTu-ydnOIgRo6AW8dOwzZA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "eb51402c-1270-429e-813a-b428fdd929ef"
+      },
+      {
+        "place_id": "ChIJn5qU2TElOIgR1JN3flIyB-g",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "3d202a1e-06ae-4cdd-a64c-90cd98775389"
+      },
+      {
+        "place_id": "ChIJUwsiQDbtOIgRA6NCDhOKeU0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJvXu8EzLtOIgRUXvR4jYAAhw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "bc7e500c-8976-4039-b0aa-1132c79ff26e"
+      },
+      {
+        "place_id": "ChIJ55Ff2tOSOIgRUo3ZtDQ6nsQ",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "ccb5549a-b9d7-46ff-ba47-56062785edb3"
+      },
+      {
+        "place_id": "ChIJnyXehFDtOIgR-2Cz6vMqzw4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "1a3d882b-1258-4911-bf52-92a1e0cc36cf"
+      },
+      {
+        "place_id": "ChIJ1akYPlLtOIgRXywvsArrO8A",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e02f9923-9b2a-4677-bd39-288e83916af1"
+      },
+      {
+        "place_id": "ChIJw8YluVrtOIgRVcNiw9irxGU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "289b19ff-99e0-4730-85bb-416beb3f3566"
+      },
+      {
+        "place_id": "ChIJvXu8EzLtOIgRGAQgesdkFrM",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJB-MZOjuTOIgRedmXDU29Bro",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "53c16e06-10a4-43f8-80f3-dede0c95e483"
+      },
+      {
+        "place_id": "ChIJm0mWd8MvmEURVnvIQrM_wW8",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ55Ff2tOSOIgRGdnWt937Ow0",
+        "matched": false,
+        "ambiguous": true,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJ-WFXhFDtOIgRzZsiSmH07jw",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "dbefd018-070d-4102-b503-9963c087d996"
+      },
+      {
+        "place_id": "ChIJ1akYPlLtOIgRcVqnfpdsXQc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6143ac98-f0e3-41c3-8f49-50fd36e3413a"
+      },
+      {
+        "place_id": "ChIJvXu8EzLtOIgR_yTR5Nk0fxc",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "e45d0250-da0f-4b50-87f5-24d3ecbdea7b"
+      },
+      {
+        "place_id": "ChIJOa4k1SOTOIgRxgXwpHvFsnc",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJz66MDf13OIgRhIaWiWp9tKY",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJMQMOxR6POIgREJ9P-dhWQU4",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "6f44f4e9-2544-4004-a3dc-bb2d8906f79f"
+      },
+      {
+        "place_id": "ChIJA9GovMaIOIgRMrZZgkMLyCU",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "45e98557-403b-4832-8fe0-fde1e5718cb9"
+      },
+      {
+        "place_id": "ChIJu_qoprKIOIgRK7qeLOG2hyk",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      },
+      {
+        "place_id": "ChIJQdRerjqNOIgR6Frj76BkzvE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "27915e67-56c7-41d5-83ce-76397681786e"
+      },
+      {
+        "place_id": "ChIJS4zARW33OIgRqLtNRRLAbBM",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "004a38b4-1fe1-4b95-a777-f55beb1e62ee"
+      },
+      {
+        "place_id": "ChIJS5FiP9H6OIgR9iAngZF7VEE",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "cc83ee81-5968-45d5-8c02-10106c76183d"
+      },
+      {
+        "place_id": "ChIJJegbuDblOIgRUOX3uIod-XA",
+        "matched": true,
+        "ambiguous": false,
+        "overture_id": "eb0d876f-37af-409c-bc71-84038374a859"
+      },
+      {
+        "place_id": "ChIJAQAAALBhOIgRfGEkgYJFbOQ",
+        "matched": false,
+        "ambiguous": false,
+        "overture_id": null
+      }
+    ]
+  }
+]

@@ -8,7 +8,7 @@ is `docs/critique.md`.
 Strategy lives in those docs. Numbers and decisions live here. Where they disagree, this
 plan wins and the Decision log records why.
 
-**Last updated:** 2026-09-20 · **Stage:** 0 — Prove it (model-dependent tasks parked, see Decision log)
+**Last updated:** 2026-09-21 · **Stage:** 0 — Prove it (**gate item 1 fails for HVAC**, see Decision log)
 
 ---
 
@@ -28,7 +28,7 @@ plan wins and the Decision log records why.
 
 | Stage | Status | Gate | Gate met? |
 |---|---|---|---|
-| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | — |
+| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | **item 1 fails on HVAC** |
 | 1 · Launch | Not started | 50 paying users; live precision ≥ 90% | — |
 | 2 · Grow | Not started | 300 paying; churn ≤ 6%; cost/match ≤ $0.04 | — |
 | 3 · Compound | Not started | 1,000 paying; ≥ 50% warm reads | — |
@@ -40,7 +40,9 @@ plan wins and the Decision log records why.
 |---|---|---|---|
 | Open-data candidates per metro niche | — | 2,435–3,126 | 2026-09-19 |
 | Candidates with a website | — | 82.7–93.1% | 2026-09-19 |
-| Open-data coverage vs Google, per niche | ≥ 70% | — *(blocked: Places API (New) not enabled on the GCP project — key is valid)* | — |
+| **Open-data coverage vs Google** — overlap, not count (S0-04) | ≥ 70% | **veterinary 73.1–86.0% ✓ · dental 63.8–94.3% ? · med spa 45.4–79.3% ? · HVAC 31.1–47.8% ✗** | 2026-09-21 |
+| — Google places sampled, 240 cells over 4 metros | — | 884 on-niche (158 off-niche dropped) | 2026-09-21 |
+| — ambiguous: Overture has *a* business at the spot, name unreconcilable | — | 252 of 884 (28.5%) | 2026-09-21 |
 | **Genuine couldn't-tell** (reachable, still unjudgeable) | ≤ 25% | **19.0–25.3%** ✓ | 2026-09-20 |
 | — blocked (403/429), reported separately | — | 13.7–20.5% | 2026-09-20 |
 | — no site / social-only, reported separately | — | 0.0–5.5% | 2026-09-20 |
@@ -98,8 +100,11 @@ candidates, judge them accurately, and do both for less than it charges.
 
 **Gate to Stage 1.** All four must hold on three real niche searches:
 
-1. Open-data coverage ≥ 70% of Google's count per niche (or a costed gap-fill plan that
-   keeps blended cost per match ≤ $0.04).
+1. Open-data **overlap** ≥ 70% of Google's places per niche (or a costed gap-fill plan
+   that keeps blended cost per match ≤ $0.04). *Restated from "count" — Google's API
+   caps at 60 results and cannot yield a count; see the Decision log, 2026-09-21.*
+   **Measured: fails for HVAC on every reading, passes for veterinary, undecided for
+   med spa and dental.**
 2. Blended match precision ≥ 90% **and** absence-criterion precision ≥ 90%.
 3. Known-match recall ≥ 60%.
 4. Measured blended cost per match ≤ $0.04.
@@ -123,14 +128,15 @@ wins rather than abandoning — that is the response the founding documents alre
   `LICENSE.txt` and `NOTICE.txt`. *Unblock:* a `HF_TOKEN` in the environment. *Worth it
   because:* Foursquare claims 106M+ places against Overture's 72M+, so it is the cheapest
   remaining way to raise candidate coverage without paying Google.
-- [ ] **S0-04 · Establish the Google baseline count.** Places API Text Search per niche ×
-  metro, storing place IDs only, to answer "what fraction of Google's businesses does open
-  data see?". *Done when:* a coverage percentage per niche, with the query cost recorded.
-  *Blocked on:* **Places API (New) being enabled on Google Cloud project `74590284143`.**
-  No longer blocked on a key — one is present and valid as of 2026-09-19, but every call
-  returns `PERMISSION_DENIED` / `SERVICE_DISABLED` because the API is not enabled on the
-  project. A Console change, not a code change. Verify with
-  `python3 stage0/src/engine/preflight.py`.
+- [x] **S0-04 · Establish the Google baseline.** `coverage/google_baseline.py`. Not the
+  count the task originally asked for — Google's API cannot produce one — but the overlap
+  it should always have asked for. 240 cells across four metros, stratified into cells
+  where Overture has businesses and cells where it has none, results filtered to the
+  niche by returned `primaryType`, matched against Overture by distance and name, and
+  reported as a **band** because 28.5% of Google places sit where Overture has a business
+  under an unreconcilable name. Place IDs and verdicts are all that reach disk, as
+  Google's terms require. **Result: veterinary passes, HVAC fails on every reading, med
+  spa and dental are undecided.** $8.22 of API spend.
 - [x] **S0-05 · Measure website presence and readability.** `site_probe.py`, 200 sites per
   market, homepage plus 3 link-selected pages, robots-respecting and throttled.
   **Judgeable 56.9–60.4%, so the couldn't-tell floor is ~40%.** Largest addressable
@@ -492,3 +498,8 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-20 | The crawler's user agent pointed at a **domain that does not exist**, for the whole of Stage 0 | `smallfish.example/bot` was a placeholder nobody noticed while 720 real sites were crawled. S0-26 measured that honest identification costs one readable site in 78 and kept the principle on that basis; a URL a site owner cannot open pays that price and buys nothing back. The page is now at `/bot` on the deployed site, and `test_crawler_identity.py` fails the build if the two drift apart. The contact address was the remaining half of the same problem and was closed the same day with a real inbox; both are now asserted against placeholder domains, because a removal route that bounces is worse than not offering one. |
 | 2026-09-20 | S0-10's number, finally recorded: **56.0–57.4% settled without a model where a detector exists; 25.0% overall** | The task's definition of done was always a number, and the detector had been shipped and used for days without it. The overall figure is the honest one to plan cost against: four of seven benchmark criteria have no detector, so most criteria still need a model. |
 | 2026-09-20 | Found by recording that number: **`vet-columbus/independent` can never be settled** — couldn't-tell for all 117 attempted | An *absence* criterion with no detector does not report `needs_model`; the absence rule answers couldn't-tell instead. So it looks like a hard market rather than a missing detector, and nothing flags it. The first version of the measurement had the same blind spot and reported a meaningless 0.0–57.4% range. Uncoverable absence criteria are now called out by name. |
+| 2026-09-21 | **Gate item 1 restated from "Google's count" to "overlap with Google's places"** | Measured: Places Text Search (New) hard-caps at 60 results — three pages of 20 — against Overture's 3,009 for the same metro. No call yields a count, so the gate as written was never measurable. The restatement is also the better question: a count ratio can read 100% while the two sets overlap by half. |
+| 2026-09-21 | **Gate item 1 FAILS for HVAC and passes for veterinary; med spa and dental are undecided** | 240 cells across four metros, 884 on-niche Google places. Veterinary 73.1–86.0% clears 70% even on the strict reading. **HVAC is 31.1–47.8% and fails even when every ambiguous pair is counted as a hit** — Overture is missing more than half of Tampa's HVAC contractors, which fits: service-area businesses with no walk-in premises are exactly what a places dataset under-records. Med spa (45.4–79.3%) and dental (63.8–94.3%) straddle the threshold. |
+| 2026-09-21 | Coverage is reported as a **band, not a number**, and the band is wide | 28.5% of Google places sit at an address where Overture has *a* business under a name string matching cannot reconcile. Some are the same practice — "Dr. Anthony R. Valenzuela, DMD" vs "Tony Valenzuela D.M.D.", 13 m apart, scores 0.10 on token overlap. Some are different dentists sharing a medical building — "Dr. Oksana Stoj, DMD" and "Dr. Shannon Coen", 6 m apart. Picking either interpretation would have produced a confident number in whichever direction was preferred. Settling it needs a model reading both names, which is S0-12. |
+| 2026-09-21 | A first coverage run read **0%** and was an artifact, caught before it was believed | Google relaxes a text query when a sparse cell has nothing better: "med spa" in a Grand Prairie cell returned Solis Mammography, Regal Nails and Vachale Beauty Concepts. Scoring Overture against those measures coverage of businesses that are not in the niche. Results are now filtered on the returned `primaryType`. Filtering on the *returned* type rather than passing `includedType` is also measured: `general_contractor` comes back as a primaryType but is rejected as an includedType, as are `medical_spa` and `hvac_contractor`. |
+| 2026-09-21 | Our Overture extract's **category filter is not the limiter** | Suspected, then checked against an unfiltered 199,013-row pull of the same Phoenix bbox: only 2.5% of unmatched Google places were businesses Overture holds under a category `benchmarks.json` does not list (`health_and_medical`, mostly). Worth fixing, but it does not explain the gap. |
