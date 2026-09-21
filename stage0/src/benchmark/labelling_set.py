@@ -252,7 +252,14 @@ const TASKS = __TASKS__;
 const CRITERIA = __CRITERIA__;
 const MARKET = "__MARKET__";
 const DESIGN = __DESIGN__;
-const KEY = "smallfish-labels-" + MARKET;
+// The enriched set and the complete slice are DIFFERENT DATASETS measuring
+// different things, so they get different filenames and different
+// localStorage keys. Sharing either would have the enriched run silently
+// overwrite the complete slice — and the complete slice is the only thing
+// that can measure recall, is the more expensive of the two to rebuild,
+// and its loss would not be visible in any number.
+const SUFFIX = DESIGN.sampling === "enriched_on_engine_positives" ? "-enriched" : "";
+const KEY = "smallfish-labels-" + MARKET + SUFFIX;
 const OPTIONS = [
   ["match", "Yes — it's true"],
   ["no_match", "No — it's false"],
@@ -345,7 +352,7 @@ function save() {
   const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "labels-" + MARKET + ".json";
+  a.download = "labels-" + MARKET + SUFFIX + ".json";
   document.body.appendChild(a); a.click(); a.remove();
 }
 
@@ -388,9 +395,10 @@ def main() -> int:
             .replace("__N__", str(len(tasks)))
             .replace("__C__", str(len(criteria))))
 
-    out = OUT_DIR / f"{args.market}.html"
+    suffix = "-enriched" if args.enrich else ""
+    out = OUT_DIR / f"{args.market}{suffix}.html"
     out.write_text(html)
-    (OUT_DIR / f"{args.market}-tasks.json").write_text(json.dumps(tasks, indent=2))
+    (OUT_DIR / f"{args.market}{suffix}-tasks.json").write_text(json.dumps(tasks, indent=2))
 
     fetched = sum(1 for t in tasks if t["fetch_outcome"] == "ok")
     print(f"{args.market}: {len(tasks)} businesses × {len(criteria)} criteria "
@@ -398,8 +406,16 @@ def main() -> int:
     print(f"  {fetched} have pages our crawler read; "
           f"{len(tasks) - fetched} must be judged from the live site")
     print(f"\n→ {out.relative_to(ROOT)}  ({out.stat().st_size // 1024} KB, self-contained)")
-    print(f"  Open it, label, Export, then save the download as")
-    print(f"  stage0/fixtures/labels-{args.market}.json and run score.py")
+    if args.enrich:
+        print(f"  {design['positives']} engine positives + {design['filler']} filler, shuffled.")
+        print(f"  Open it, label, Export, then save the download as")
+        print(f"  stage0/fixtures/labels-{args.market}-enriched.json")
+        print(f"  python3 stage0/src/benchmark/score.py --market {args.market} --enriched")
+        print(f"\n  It will NOT overwrite labels-{args.market}.json — that is the")
+        print(f"  complete slice, and it is the only set that can measure recall.")
+    else:
+        print(f"  Open it, label, Export, then save the download as")
+        print(f"  stage0/fixtures/labels-{args.market}.json and run score.py")
     return 0
 
 

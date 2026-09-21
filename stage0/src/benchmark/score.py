@@ -62,9 +62,21 @@ def wilson(hits: int, n: int, z: float = 1.96) -> tuple[float, float]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--market", default="dental-phoenix")
+    ap.add_argument(
+        "--enriched", action="store_true",
+        help="score labels-<market>-enriched.json, the set oversampled on "
+             "the engine's positive calls. Precision only — recall is "
+             "refused for it whether or not this flag is passed, on the "
+             "design recorded inside the file.")
     args = ap.parse_args()
 
-    labels_path = FIXTURES / f"labels-{args.market}.json"
+    # Two datasets per market, measuring different things. Selected by flag
+    # rather than by overwriting one file with the other: the complete
+    # slice is the only set that can measure recall and the more expensive
+    # to rebuild, and losing it would not show up as a wrong number
+    # anywhere — just a missing one.
+    suffix = "-enriched" if args.enriched else ""
+    labels_path = FIXTURES / f"labels-{args.market}{suffix}.json"
     if not labels_path.exists():
         raise SystemExit(
             f"Missing {labels_path.relative_to(ROOT)}.\n"
@@ -248,7 +260,7 @@ def main() -> int:
                   "  is a row a user would receive about the wrong company."
                   .format(100 * wrong / pairs))
 
-    out = DATA / f"score-{args.market}.json"
+    out = DATA / f"score-{args.market}{suffix}.json"
     out.write_text(json.dumps({
         "market": args.market,
         "design": design,

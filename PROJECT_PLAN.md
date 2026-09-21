@@ -28,7 +28,7 @@ plan wins and the Decision log records why.
 
 | Stage | Status | Gate | Gate met? |
 |---|---|---|---|
-| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | 1 answered · 2 undecided (85.7%, n=7) · **3 undecided at 40%** (ceiling 67%) · 4 passes at $0.025 |
+| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | 1 answered · 2 undecided (83–86%, n=6–7) · **3 fails at 33–40%** (ceiling 67%) · 4 passes at $0.031 on 1,000 |
 | 1 · Launch | Not started | 50 paying users; live precision ≥ 90% | — |
 | 2 · Grow | Not started | 300 paying; churn ≤ 6%; cost/match ≤ $0.04 | — |
 | 3 · Compound | Not started | 1,000 paying; ≥ 50% warm reads | — |
@@ -54,23 +54,23 @@ plan wins and the Decision log records why.
 | **Criteria settled with no model call** (the cost lever, S0-10) | measure | **35 of 100 dental criteria**, live. 56.0–57.4% where a detector exists (2026-09-20) still stands | 2026-09-21 |
 | — across every criterion, detector or not | — | **25.0%** (285 of 1,138) | 2026-09-20 |
 | — benchmark criteria with no detector at all | — | **4 of 7**, settling nothing | 2026-09-20 |
-| — **model calls per 100 dental businesses** | — | **23.** Escalating the detector's generic settles took it to 51 and was reverted — see decision log | 2026-09-21 |
-| Match precision, blended | ≥ 90% | **85.7%** (Sonnet 5, n=7) CI 48.7–97.4% — undecided, sample too small | 2026-09-21 |
+| — **model calls per 100 dental businesses** | — | **22** (222 per 1,000). Escalating the detector's generic settles took it to 51 and was reverted — see decision log | 2026-09-21 |
+| Match precision, blended | ≥ 90% | **83.3–85.7%** (Sonnet 5, n=6–7) CI 43.6–97.4% — undecided, sample far too small | 2026-09-21 |
 | — **measurement noise floor**, identical code and frozen corpus | — | precision read **71.4% then 83.3%** on two runs that differed in nothing. Below the Haiku→Sonnet gap, no engine change is distinguishable from this | 2026-09-21 |
-| Match precision, absence criteria only | ≥ 90% | **85.7%** (Sonnet 5) — the gate reads this separately | 2026-09-21 |
-| **Known-match recall (delivered)** | ≥ 60% | **40.0%** Sonnet 5, CI 19.8–64.3% — **UNDECIDED**, no longer a clear fail. Was 33.3% on the stale corpus | 2026-09-21 |
-| — abstained on a true match | — | 6 of 15 (Sonnet), of which **5 are unreadable sites** | 2026-09-21 |
+| Match precision, absence criteria only | ≥ 90% | **83.3–85.7%** (Sonnet 5) — the gate reads this separately | 2026-09-21 |
+| **Known-match recall (delivered)** | ≥ 60% | **33.3–40.0%** across corpora, same code. Reads 33.3% (CI 15.2–58.3%, FAILS) on the 1,000-business crawl and 40.0% on the frozen 100. **One business = 6.7 points at n=15**, so the figure is not stable to one decimal | 2026-09-21 |
+| — abstained on a true match | — | 6–7 of 15 (Sonnet), of which **5 are unreadable sites** | 2026-09-21 |
 | — wrongly rejected a true match | — | 3 of 15 (Sonnet) | 2026-09-21 |
 | **Recall ceiling with the current crawl** | — | **67%** — unreadable sites can never be confirmed. Clears the 60% target, so the gap is closable | 2026-09-21 |
 | Source data has the wrong website | — | **5 of 70 (7%)** — caps achievable precision | 2026-09-21 |
 | Human could not establish truth | — | 17 of 70 (24%) | 2026-09-21 |
-| Cold cost per business | ≤ $0.010 | **$0.0030 Sonnet 5** ✓ (Haiku $0.0011, Opus $0.0074) | 2026-09-21 |
+| Cold cost per business | ≤ $0.010 | **$0.0032 Sonnet 5** ✓ over 1,000, 696 cold-fetched (Haiku $0.0011, Opus $0.0074) | 2026-09-21 |
 | Warm cost per business | ≤ $0.002 | — | — |
-| **Blended cost per match** | ≤ $0.04 | **$0.0249 Sonnet 5** ✓ on the re-crawled corpus (was $0.032). The escalation arm measured $0.0705 ✗ and was reverted | 2026-09-21 |
+| **Blended cost per match** | ≤ $0.04 | **$0.0309 Sonnet 5** ✓ over **1,000 businesses** — the first figure at a scale where the denominator holds still (103 matches). $0.0249 on 100. The escalation arm measured $0.0705 ✗ and was reverted | 2026-09-21 |
 | — Google gap-fill discovery, measured | — | **$0.0079 per business discovered** | 2026-09-21 |
 | — break-even cold read cost, worst market | — | $0.0043/business — **measured read is $0.0020, inside it** | 2026-09-21 |
 | Proof validity (quote found verbatim in fetched text) | high | **100%** (11 of 11 model verdicts) | 2026-09-21 |
-| Couldn't-tell on **readable** sites | ≤ 25% | **10.3%** ✓ (Sonnet 5, re-crawled corpus). The escalation arm measured 29.3% ✗ | 2026-09-21 |
+| Couldn't-tell on **readable** sites | ≤ 25% | **8.0%** ✓ over 1,000 businesses (10.3% on 100). The escalation arm measured 29.3% ✗ | 2026-09-21 |
 | — of which: one-page reads | — | 9 of 21 remaining couldn't-tells; one-page reads are ~100% couldn't-tell | 2026-09-21 |
 | — mean pages read per readable site | — | **3.30** (was 3.27 before the link fix) | 2026-09-21 |
 | Weekly profile change rate (drives alert cost) | measure | — | — |
@@ -565,3 +565,6 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-21 | Wright Orthodontics stays wrongly rejected, and that is now **priced rather than overlooked** | One false rejection in this slice against 28 correct ones. Fixing it by blinding the detector costs 13 points of delivered recall and 2.8× the cost per match. The honest fix is to show the model the link structure so it judges on the same evidence — not to take evidence away from the engine to even the two up. Logged as the next engine experiment, not as a defect. |
 | 2026-09-21 | **Recall is no longer a clear fail: 40.0%, CI 19.8–64.3%, UNDECIDED** | Best measured to date, on a corpus where detection actually ran. The 33.3% recorded yesterday was measured against stale cached detection. 6 of 15 true matches now reach the user; 5 of the 9 missed are sites that cannot be read at all, so the 67% ceiling still stands and the target sits below it. |
 | 2026-09-21 | **2.1 MB of other people's website text had been committed to the repo** | The fetch cache stores the extracted text of each crawled site — ~10,000 characters per business across four pages — and 160 of those files were tracked. That is the thing `CLAUDE.md`'s "store extracted facts, not page copies" exists to prevent, sitting in a public repository. It is also pure derived state: `benchmark/run.py` rebuilds it by crawling. Now in `.gitignore` and untracked, along with `stage0/data/labelling/`. **Untracking does not purge history** — the content is still in earlier commits, and removing it needs a history rewrite, which is the repo owner's call, not something to do unannounced to a pushed branch. Found because a stop hook asked for untracked files to be committed; the right answer was the opposite of what was asked. |
+| 2026-09-21 | **Cost per match measured at scale: $0.0309 over 1,000 businesses** ✓ | The first cost figure whose denominator holds still — 103 matches rather than 6. Inside the $0.04 budget, cold, with 696 of the 1,000 freshly crawled. Cost per business $0.0032, couldn't-tell on readable sites 8.0%, proof validity 78/78. Gate item 4 is answered again, on ten times the sample that answered it before. |
+| 2026-09-21 | **Recall is not stable to one decimal, and the 40.0% reported an hour earlier is withdrawn as a point estimate** | The same code over a re-crawled corpus reads 33.3%; the frozen 100 read 40.0%. With 15 true matches in the labelled set, **one business is 6.7 points**. The A/B conclusion that produced 40.0% still stands — both arms shared one frozen corpus, and cost and couldn't-tell moved far outside noise — but the absolute figure is a range, 33–40%, and it still fails or straddles the 60% target. Recall is as unmeasurable as precision at this sample size, for the same reason and in the same way. |
+| 2026-09-21 | The enriched and complete-slice label sets are **separate files**, because the default instruction would have destroyed the recall set | The generator's first version told the labeller to save the enriched export over `labels-<market>.json`, which is the complete slice. That slice is the only thing that can measure recall, is the more expensive of the two to rebuild, and its loss would not have surfaced as a wrong number anywhere — just a missing one. Separate filenames, separate localStorage keys, and a `--enriched` flag on the scorer. |
