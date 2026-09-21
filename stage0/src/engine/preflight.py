@@ -179,9 +179,16 @@ REQUIRED = [
     ("S0-29 geometry", ENGINE / "geometry.py"),
     ("S0-32 check plans", ENGINE / "check_plan.py"),
     ("S0-08 polite fetcher", ENGINE / "fetcher.py"),
-    ("S0-11 profile extraction", ENGINE / "profile.py"),
-    ("S0-12 criteria judge", ENGINE / "judge.py"),
-    ("S0-14 proof validator", ENGINE / "proof.py"),
+    # S0-11 and S0-14 have no modules of their own by design, not by omission.
+    # The plan sketched three passes — extract a profile, judge it, then
+    # validate the proof. They were merged into one call in `judge.py` because
+    # separating them costs a second model call per business and detaches the
+    # quote from the judgment that used it, which is exactly what the proof
+    # validator then has to reattach. Measured consequence: $0.0011-0.0020 per
+    # business. The tradeoff is real and recorded in the decision log — a
+    # standalone profile would be reusable across searches, making the *second*
+    # search on the same business nearly free, and this design forfeits that.
+    ("S0-11+12+14 judge, with in-line proof validation", ENGINE / "judge.py"),
     ("S0-16 hand-labelled set", FIXTURES / "labels.json"),
     ("S0-17 benchmark harness", ROOT / "stage0" / "src" / "benchmark" / "run.py"),
 ]

@@ -144,12 +144,26 @@ def test_places_success_passes():
 
 
 def test_components_reflect_what_is_on_disk():
-    """Built and unbuilt pieces must be reported as they are, not as the plan wishes."""
-    checks = {c.name: c for c in preflight.check_components()}
-    assert checks["S0-13 absence-proof rule"].ok, "absence.py exists and is ticked in the plan"
-    assert checks["S0-32 check plans"].ok
-    for unbuilt in ("S0-11 profile extraction", "S0-12 criteria judge", "S0-16 hand-labelled set"):
-        assert not checks[unbuilt].ok, f"{unbuilt} is not built; preflight must not claim it is"
+    """Built and unbuilt pieces must be reported as they are, not as the plan wishes.
+
+    Checked against the filesystem rather than a hard-coded list of what is
+    unbuilt. The earlier version froze the project state into an assertion and
+    failed the moment `judge.py` was written — a test that breaks on progress
+    tests the calendar, not the code.
+    """
+    for name, path in preflight.REQUIRED:
+        check = next(c for c in preflight.check_components() if c.name == name)
+        assert check.ok == path.exists(), (
+            f"{name}: preflight says {'built' if check.ok else 'not built'}, "
+            f"but {path.name} {'exists' if path.exists() else 'does not exist'}"
+        )
+
+
+def test_unbuilt_components_say_what_is_missing():
+    """A failing component must name its remedy, not just report false."""
+    for check in preflight.check_components():
+        if not check.ok:
+            assert check.remedy, f"{check.name} fails with no remedy"
 
 
 def test_every_required_component_maps_to_a_real_task_id():
