@@ -1,13 +1,27 @@
 {
   "market": "dental-phoenix",
+  "design": {
+    "sampling": "enriched_on_engine_positives",
+    "n": 70,
+    "positives": 40,
+    "filler": 30,
+    "valid_for": [
+      "precision"
+    ],
+    "invalid_for": [
+      "recall"
+    ],
+    "why": "the misses are absent by construction"
+  },
+  "recall_reported": false,
   "pairs": 70,
   "by_type": {
     "absence": {
       "tn": 18,
-      "engine_abstained": 21,
+      "engine_abstained": 20,
       "fp": 1,
-      "tp": 5,
-      "abstained_on_match": 7,
+      "tp": 6,
+      "abstained_on_match": 6,
       "fn": 3
     }
   },

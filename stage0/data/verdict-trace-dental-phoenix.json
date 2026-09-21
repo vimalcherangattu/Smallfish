@@ -352,11 +352,11 @@
   },
   "7557c24c-0fb8-40b9-bc26-6e81515fee04": {
     "no_online_booking": {
-      "verdict": "couldnt_tell",
-      "settled_by": "model",
+      "verdict": "match",
+      "settled_by": "absence_rule",
       "raw_model": "match",
-      "proof_valid": false,
-      "quote": ""
+      "proof_valid": true,
+      "quote": "There's nothing quite like a beautiful smile."
     }
   },
   "aac74c3e-81e0-42cb-90a1-2a2991bdd82f": {
@@ -446,7 +446,7 @@
       "settled_by": "absence_rule",
       "raw_model": "match",
       "proof_valid": true,
-      "quote": "Our office attempts to schedule appointments at your convenience and when time is available."
+      "quote": "For after hours emergencies, please call 480-610-6544 and listen to our message."
     }
   },
   "2963acd7-62ac-4f7a-b8d3-ed812cd8da78": {
@@ -487,11 +487,11 @@
   },
   "60d12cd8-ff81-4f8b-b785-38b0543e6404": {
     "no_online_booking": {
-      "verdict": "no_match",
-      "settled_by": "model",
-      "raw_model": "no_match",
+      "verdict": "couldnt_tell",
+      "settled_by": "absence_rule",
+      "raw_model": "",
       "proof_valid": true,
-      "quote": "You can also request an appointment through our website, and we will get back to you promptly."
+      "quote": ""
     }
   },
   "4d8c3115-ce37-4c63-aecc-aedde194271d": {
@@ -505,8 +505,8 @@
   },
   "e2f724e1-2f90-41b7-b2cd-9674dde8f64b": {
     "no_online_booking": {
-      "verdict": "couldnt_tell",
-      "settled_by": "absence_rule",
+      "verdict": "no_match",
+      "settled_by": "detector",
       "raw_model": "",
       "proof_valid": true,
       "quote": ""
@@ -568,11 +568,11 @@
   },
   "43434d79-dc03-4612-b008-bb92049a3384": {
     "no_online_booking": {
-      "verdict": "couldnt_tell",
+      "verdict": "match",
       "settled_by": "absence_rule",
-      "raw_model": "",
+      "raw_model": "match",
       "proof_valid": true,
-      "quote": ""
+      "quote": "Contact us today to schedule an appointment with our dentist at one of our convenient Valley locations - in either Sun City, AZ or Phoenix, AZ !"
     }
   },
   "73cf58f6-935f-4401-9622-6db48baa0171": {
@@ -617,7 +617,7 @@
       "settled_by": "model",
       "raw_model": "no_match",
       "proof_valid": true,
-      "quote": "We will check our calendar availability and call you to coordinate and confirm a convenient time for you."
+      "quote": "We are excited to see you! In order to best serve you, we have created this form to facilitate scheduling an appointment that best fits your schedule. Please co"
     }
   },
   "cce06afb-3ae8-4e02-8640-eb97c06eac6f": {
@@ -658,9 +658,9 @@
   },
   "fd36ae9e-5efa-4b73-9395-c2ddd01aceb5": {
     "no_online_booking": {
-      "verdict": "no_match",
-      "settled_by": "model",
-      "raw_model": "no_match",
+      "verdict": "match",
+      "settled_by": "absence_rule",
+      "raw_model": "match",
       "proof_valid": true,
       "quote": "Request an Appointment Please fill out the form below and we will contact you with an appointment time."
     }
@@ -680,7 +680,7 @@
       "settled_by": "model",
       "raw_model": "couldnt_tell",
       "proof_valid": true,
-      "quote": ""
+      "quote": "Find a Practice"
     }
   },
   "e25be5ed-5b1a-4c52-816b-29f2ab07e83d": {
@@ -767,10 +767,10 @@
   "c0ec7626-3b34-4b58-bbd0-03b84eaed526": {
     "no_online_booking": {
       "verdict": "no_match",
-      "settled_by": "detector",
-      "raw_model": "",
+      "settled_by": "model",
+      "raw_model": "no_match",
       "proof_valid": true,
-      "quote": ""
+      "quote": "Book An Appointment At One Of Our Locations Today!"
     }
   },
   "1b5822e5-e5b0-4d72-89bb-94ff5b1e9de4": {
@@ -806,7 +806,7 @@
       "settled_by": "absence_rule",
       "raw_model": "match",
       "proof_valid": true,
-      "quote": "Phone: 480-493-9816 Address: 11111 N Scottsdale Rd, Ste 120, Scottsdale, AZ, 85254 Send us mail"
+      "quote": "Send us mail Name * E-Mail * Message *"
     }
   },
   "eea0da94-ce5c-4bcb-8668-235acc23029d": {

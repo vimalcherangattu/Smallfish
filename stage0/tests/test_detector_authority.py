@@ -3,14 +3,21 @@
 Two bugs, both found by reading hand labels rather than by a test, both of the
 same shape: the cheap layer quietly overruling the general one.
 
-1. **A generic affordance word settled a criterion outright.** Wright
-   Orthodontics was rejected for "has no online booking" on an `/appointments/`
-   href and a "Schedule Now" button, with no model call. That page is a
-   GoHighLevel lead form reading "complete the following form to request an
-   appointment… availability will vary… your appointment will be confirmed by
-   phone". An appointment-request form is labelled with the same words as
-   online booking and is the opposite answer. No URL word separates them; page
-   text does, and reading page text is the model's job.
+1. **A generic affordance word settles a criterion, and that was challenged
+   and upheld by measurement.** Wright Orthodontics is rejected for "has no
+   online booking" on an `/appointments/` href and a "Schedule Now" button,
+   with no model call — and the hand label says it has no online booking. That
+   page is a GoHighLevel lead form reading "complete the following form to
+   request an appointment… availability will vary… confirmed by phone".
+
+   Escalating those to the model was the obvious fix. Measured on a frozen
+   corpus with one line changed, it was worse on every axis: recall 40.0% ->
+   26.7%, precision 85.7% -> 80.0%, couldn't-tell 10.3% -> 29.3%, cost per
+   match $0.0249 -> $0.0705. The generic patterns match raw HTML — hrefs,
+   button markup — and the model is given visible text; **0 of 5 firing sites
+   are matchable in the text the model sees.** Escalating handed the question
+   to the only party that cannot see the evidence. The tests below pin the
+   behaviour that won.
 
 2. **Detection is cached, so a frozen run replays a stale catalogue.** The
    retune that scoped practice-management vendors to booking paths was measured
@@ -68,11 +75,18 @@ def main() -> int:
     check("and is attributed to the detector, not the model",
           v is not None and v.settled_by == "detector")
 
-    # --- a generic word does not settle it: escalate to the model
+    # --- a generic word settles it too, and must keep doing so
+    g = detector_verdict(ABSENCE, read(generic={"booking": True}))
     check(
-        "a generic booking word alone does NOT settle it",
-        detector_verdict(ABSENCE, read(generic={"booking": True})) is None,
-        "an /appointments/ href is what a request form is labelled with too",
+        "a generic booking signal alone settles it",
+        g is not None and g.verdict == "no_match",
+        "escalating these to the model cost 19 points of recall and 2.8x the "
+        "cost per match: the model is shown visible text and the signal is in "
+        "the HTML",
+    )
+    check(
+        "and says the evidence was a route rather than naming a vendor",
+        g is not None and "vendor" not in g.reason and "route" in g.reason,
     )
     check(
         "a vendor still settles it when a generic word is also present",

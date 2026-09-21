@@ -28,7 +28,7 @@ plan wins and the Decision log records why.
 
 | Stage | Status | Gate | Gate met? |
 |---|---|---|---|
-| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | 1 answered · 2 undecided (83%, n=6) · **3 fails at 33%** (ceiling 67%) · **4 re-opened, unmeasured** |
+| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | 1 answered · 2 undecided (85.7%, n=7) · **3 undecided at 40%** (ceiling 67%) · 4 passes at $0.025 |
 | 1 · Launch | Not started | 50 paying users; live precision ≥ 90% | — |
 | 2 · Grow | Not started | 300 paying; churn ≤ 6%; cost/match ≤ $0.04 | — |
 | 3 · Compound | Not started | 1,000 paying; ≥ 50% warm reads | — |
@@ -51,26 +51,26 @@ plan wins and the Decision log records why.
 | Booking signal found, judgeable sites | — | 39.3–63.3% | 2026-09-20 |
 | — vendor-identified, vet market | — | 2 → **21** after per-niche catalogues | 2026-09-20 |
 | Booking found only beyond the homepage | — | 0.0–1.6% | 2026-09-19 |
-| **Criteria settled with no model call** (the cost lever, S0-10) | measure | ~~56.0–57.4% where a detector exists~~ **7% on dental** — see retraction below | 2026-09-21 |
-| — ~~across every criterion, detector or not~~ | — | ~~25.0% (285 of 1,138)~~ **measured against a catalogue that no longer exists** | 2026-09-20 |
+| **Criteria settled with no model call** (the cost lever, S0-10) | measure | **35 of 100 dental criteria**, live. 56.0–57.4% where a detector exists (2026-09-20) still stands | 2026-09-21 |
+| — across every criterion, detector or not | — | **25.0%** (285 of 1,138) | 2026-09-20 |
 | — benchmark criteria with no detector at all | — | **4 of 7**, settling nothing | 2026-09-20 |
-| — **criteria needing a model call, dental** | — | **93 of 100**, up from 65. The cost lever is mostly gone, on purpose | 2026-09-21 |
-| Match precision, blended | ≥ 90% | **83.3%** (Sonnet 5, n=6) CI 43.6–97.0% — undecided, sample too small | 2026-09-21 |
+| — **model calls per 100 dental businesses** | — | **23.** Escalating the detector's generic settles took it to 51 and was reverted — see decision log | 2026-09-21 |
+| Match precision, blended | ≥ 90% | **85.7%** (Sonnet 5, n=7) CI 48.7–97.4% — undecided, sample too small | 2026-09-21 |
 | — **measurement noise floor**, identical code and frozen corpus | — | precision read **71.4% then 83.3%** on two runs that differed in nothing. Below the Haiku→Sonnet gap, no engine change is distinguishable from this | 2026-09-21 |
-| Match precision, absence criteria only | ≥ 90% | **83.3%** (Sonnet 5) — the gate reads this separately | 2026-09-21 |
-| **Known-match recall (delivered)** | ≥ 60% | **33.3%** Sonnet 5 · 40.0% Opus 5 · 6.7% Haiku 4.5 ✗ still fails | 2026-09-21 |
-| — abstained on a true match | — | 7 of 15 (Sonnet), of which **5 are unreadable sites** | 2026-09-21 |
+| Match precision, absence criteria only | ≥ 90% | **85.7%** (Sonnet 5) — the gate reads this separately | 2026-09-21 |
+| **Known-match recall (delivered)** | ≥ 60% | **40.0%** Sonnet 5, CI 19.8–64.3% — **UNDECIDED**, no longer a clear fail. Was 33.3% on the stale corpus | 2026-09-21 |
+| — abstained on a true match | — | 6 of 15 (Sonnet), of which **5 are unreadable sites** | 2026-09-21 |
 | — wrongly rejected a true match | — | 3 of 15 (Sonnet) | 2026-09-21 |
 | **Recall ceiling with the current crawl** | — | **67%** — unreadable sites can never be confirmed. Clears the 60% target, so the gap is closable | 2026-09-21 |
 | Source data has the wrong website | — | **5 of 70 (7%)** — caps achievable precision | 2026-09-21 |
 | Human could not establish truth | — | 17 of 70 (24%) | 2026-09-21 |
-| Cold cost per business | ≤ $0.010 | **$0.0029 Sonnet 5** ✓ (Haiku $0.0011, Opus $0.0074) | 2026-09-21 |
+| Cold cost per business | ≤ $0.010 | **$0.0030 Sonnet 5** ✓ (Haiku $0.0011, Opus $0.0074) | 2026-09-21 |
 | Warm cost per business | ≤ $0.002 | — | — |
-| **Blended cost per match** | ≤ $0.04 | ~~**$0.032 Sonnet 5** ✓~~ **RE-OPENED, unmeasured.** Model calls rose 65 → 93 per 100 businesses when generic detector settles were escalated; the last measured figure described a cheaper engine that no longer exists | 2026-09-21 |
+| **Blended cost per match** | ≤ $0.04 | **$0.0249 Sonnet 5** ✓ on the re-crawled corpus (was $0.032). The escalation arm measured $0.0705 ✗ and was reverted | 2026-09-21 |
 | — Google gap-fill discovery, measured | — | **$0.0079 per business discovered** | 2026-09-21 |
 | — break-even cold read cost, worst market | — | $0.0043/business — **measured read is $0.0020, inside it** | 2026-09-21 |
 | Proof validity (quote found verbatim in fetched text) | high | **100%** (11 of 11 model verdicts) | 2026-09-21 |
-| Couldn't-tell on **readable** sites | ≤ 25% | **14.0%** ✓ (Sonnet 5, frozen corpus) — was 24.6% Haiku | 2026-09-21 |
+| Couldn't-tell on **readable** sites | ≤ 25% | **10.3%** ✓ (Sonnet 5, re-crawled corpus). The escalation arm measured 29.3% ✗ | 2026-09-21 |
 | — of which: one-page reads | — | 9 of 21 remaining couldn't-tells; one-page reads are ~100% couldn't-tell | 2026-09-21 |
 | — mean pages read per readable site | — | **3.30** (was 3.27 before the link fix) | 2026-09-21 |
 | Weekly profile change rate (drives alert cost) | measure | — | — |
@@ -560,3 +560,7 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-21 | **Precision and recall need different samples, and the difference is not size** | Precision's denominator is the engine's positive calls — ~9% of a random slice. 70 labels bought 6 positive calls and a 43.6–97.0% interval; deciding the 90% gate at a true 95% needs ~127 positive calls, which is **~2,200 randomly sampled businesses** and was never going to be labelled. Sampling on the engine's positives is unbiased for precision (that metric is already conditioned on the same event) and costs ~185 labels instead. Recall is the opposite: its denominator is every true match, and the ones the engine missed are absent from its output by construction, so recall needs a complete slice — **~150 labels** for a decidable interval at a true 80%. `labelling_set.py --enrich` builds the first, the default builds the second, and neither can measure the other. |
 | 2026-09-21 | The sampling design **travels inside the labels file** and `score.py` refuses rather than warns | Recall computed from an enriched sample is not noisy, it is structurally wrong, and it reads HIGH — the direction that gets believed. Whoever runs the scorer months from now is not whoever chose the sampling, and a flag they forget produces a number nobody can tell is wrong by looking at it. So the design is recorded by the builder, exported with the labels, and the scorer reports "not computable from this sample" with the reason. Blindness survives enrichment only because of the filler: a labeller who knows every task is an engine match anchors on every task. |
 | 2026-09-21 | Deciding a 90% gate near 90% is **inherently expensive**, which is a property of the gate | At a true precision of 100% the gate needs 35 positive calls; at 97%, 69; at 95%, 127; at 93%, **362**. If the engine is genuinely near the threshold, no affordable amount of labelling settles it. Worth knowing before committing to more labelling: the cheap outcome is an engine comfortably above 90%, and the expensive outcome is one that is merely close. |
+| 2026-09-21 | **The generic-escalation change is REVERTED. It was principled, it was argued from read evidence, and measurement says it was wrong on every axis.** | Frozen corpus, same 70 labels, one line different. Escalating → settling: recall **26.7% → 40.0%**, precision **80.0% → 85.7%**, couldn't-tell on readable **29.3% ✗ → 10.3% ✓**, cost per match **$0.0705 ✗ → $0.0249 ✓**, model calls 51 → 23. Cost and couldn't-tell moved far outside the noise floor; recall and precision moved within it but in the same direction. Nothing about the argument for escalating was careless — it was just wrong, and only the A/B could say so. |
+| 2026-09-21 | **The mechanism: the detector is a different sensor, not a cheap approximation of the model** | Checked after the result, because a win or loss with no mechanism is a coin flip. The generic patterns match **raw HTML** — hrefs, button markup, iframe sources — and the judge is handed `Page.text`, the *visible* text. **0 of 5 sites where the generic booking pattern fires are still matchable in the text the model sees.** Escalating did not promote the question to a better judge; it handed it to the only party that cannot see the evidence, and the model correctly abstained. That reframes `CLAUDE.md`'s two-layer rule rather than contradicting it: "a cheap optimisation over model judgment, never a precondition" governs anything the model could have decided for itself, and was never a licence to discard a channel the model is not shown. |
+| 2026-09-21 | Wright Orthodontics stays wrongly rejected, and that is now **priced rather than overlooked** | One false rejection in this slice against 28 correct ones. Fixing it by blinding the detector costs 13 points of delivered recall and 2.8× the cost per match. The honest fix is to show the model the link structure so it judges on the same evidence — not to take evidence away from the engine to even the two up. Logged as the next engine experiment, not as a defect. |
+| 2026-09-21 | **Recall is no longer a clear fail: 40.0%, CI 19.8–64.3%, UNDECIDED** | Best measured to date, on a corpus where detection actually ran. The 33.3% recorded yesterday was measured against stale cached detection. 6 of 15 true matches now reach the user; 5 of the 9 missed are sites that cannot be read at all, so the 67% ceiling still stands and the target sits below it. |

@@ -117,7 +117,7 @@
     "no_online_booking": "no_match"
   },
   "7557c24c-0fb8-40b9-bc26-6e81515fee04": {
-    "no_online_booking": "couldnt_tell"
+    "no_online_booking": "match"
   },
   "aac74c3e-81e0-42cb-90a1-2a2991bdd82f": {
     "no_online_booking": "couldnt_tell"
@@ -162,13 +162,13 @@
     "no_online_booking": "couldnt_tell"
   },
   "60d12cd8-ff81-4f8b-b785-38b0543e6404": {
-    "no_online_booking": "no_match"
+    "no_online_booking": "couldnt_tell"
   },
   "4d8c3115-ce37-4c63-aecc-aedde194271d": {
     "no_online_booking": "match"
   },
   "e2f724e1-2f90-41b7-b2cd-9674dde8f64b": {
-    "no_online_booking": "couldnt_tell"
+    "no_online_booking": "no_match"
   },
   "b9303ec6-275f-4a36-a4cf-13177f33a4fa": {
     "no_online_booking": "match"
@@ -189,7 +189,7 @@
     "no_online_booking": "no_match"
   },
   "43434d79-dc03-4612-b008-bb92049a3384": {
-    "no_online_booking": "couldnt_tell"
+    "no_online_booking": "match"
   },
   "73cf58f6-935f-4401-9622-6db48baa0171": {
     "no_online_booking": "couldnt_tell"
@@ -219,7 +219,7 @@
     "no_online_booking": "no_match"
   },
   "fd36ae9e-5efa-4b73-9395-c2ddd01aceb5": {
-    "no_online_booking": "no_match"
+    "no_online_booking": "match"
   },
   "c48cb403-fdce-4bf0-b7da-ec5bc64df65a": {
     "no_online_booking": "match"

@@ -213,26 +213,46 @@ def detector_verdict(criterion: dict, read) -> CriterionVerdict | None:
     This is the measured cost lever (S0-10): every verdict returned here is a
     model call not made.
 
-    **A generic signal does not settle anything — only a named vendor does.**
-    The generic patterns match an affordance *word*: an `/appointments/` href,
-    a "Schedule Now" button. Those words are what an appointment-*request* form
-    is labelled with too, and the two are opposite answers to "can a customer
-    book online". Measured on Wright Orthodontics, which the detector rejected
-    on `/appointments/` and a "Schedule Now" button; that page is a
-    GoHighLevel lead form whose own text reads "complete the following form to
-    request an appointment… availability will vary… your appointment will be
-    confirmed by phone". The hand label says no online booking, and it is right.
+    **A generic signal settles it too, and escalating it to the model instead
+    was tried and measured and was worse on every axis.**
 
-    No URL word can tell those apart, but the page text can, and reading page
-    text is the model's job. Letting a word short-circuit the model is the
-    cheap layer overriding the general one, which is backwards — detection is
-    "a cheap optimisation over model judgment, never a precondition"
-    (`CLAUDE.md`). A vendor embed is different: a Calendly widget is the
-    booking, not a word about it.
+    The argument for escalating was good and it was wrong. The generic patterns
+    match an affordance *word* — an `/appointments/` href, a "Schedule Now"
+    button — and an appointment-*request* form wears the same words while being
+    the opposite answer. Wright Orthodontics is the demonstration: rejected on
+    `/appointments/` and a "Schedule Now" button, when that page is a
+    GoHighLevel lead form reading "complete the following form to request an
+    appointment… availability will vary… your appointment will be confirmed by
+    phone". The hand label says no online booking and the detector is wrong.
 
-    The cost is real and was measured before making the change: 23 of 35
-    detector settles on dental-phoenix were generic-only, so this hands ~23
-    extra criteria per 100 businesses to the model.
+    So the question went to the model. Frozen corpus, same 70 labels, this one
+    line different:
+
+        generic escalates      generic settles
+        23 model calls -> 51   23
+        recall    26.7%        40.0%
+        precision 80.0%        85.7%
+        couldn't-tell 29.3% ✗  10.3% ✓
+        cost/match $0.0705 ✗   $0.0249 ✓
+
+    The mechanism, checked afterwards: the generic patterns match **raw HTML** —
+    hrefs, button markup, iframe sources — and the model is given
+    `Page.text`, the *visible text*. Of the sites where the generic booking
+    pattern fires, **0 of 5 are still matchable in the text the model sees.**
+    Escalating did not hand the question to a better judge; it handed it to the
+    only party that cannot see the evidence, and the model correctly abstained.
+
+    That reframes the two-layer rule rather than contradicting it. Detection is
+    not a cheap approximation of model judgment — it is a *different sensor*,
+    reading a channel the model is never shown. "A cheap optimisation over
+    model judgment, never a precondition" still holds for anything the model
+    could have decided for itself; it was never a licence to discard evidence.
+
+    Wright Orthodontics stays wrong, and that is now a priced decision rather
+    than an oversight: one false rejection in this slice against 28 correct
+    ones, a 19-point recall drop and 2.8x the cost per match to fix it this
+    way. The honest fix is to show the model the link structure so it can
+    judge with the same evidence — not to blind the engine to even it up.
     """
     if criterion.get("type") != "absence":
         return None
@@ -244,10 +264,12 @@ def detector_verdict(criterion: dict, read) -> CriterionVerdict | None:
         return None
 
     vendors = read.vendors.get(family) or []
-    if not vendors:
+    generic = read.generic.get(family) or False
+    if not vendors and not generic:
         return None
 
-    source = f"{vendors[0]} detected in the page source"
+    source = (f"{vendors[0]} detected in the page source" if vendors
+              else "a booking or contact route was found in the page source")
     return CriterionVerdict(
         criterion_id=criterion["id"],
         verdict="no_match",
