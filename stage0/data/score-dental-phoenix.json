@@ -1,0 +1,16 @@
+{
+  "market": "dental-phoenix",
+  "pairs": 70,
+  "by_type": {
+    "absence": {
+      "tn": 14,
+      "engine_abstained": 31,
+      "fn": 2,
+      "tp": 1
+    }
+  },
+  "unscorable": {
+    "human could not tell": 17,
+    "source data has the wrong website": 5
+  }
+}

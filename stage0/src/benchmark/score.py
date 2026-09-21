@@ -13,11 +13,15 @@ numbers Stage 0 cannot pass without:
 
 Two things it refuses to do, both of which would flatter the result:
 
-**Couldn't-tell is not counted as a wrong answer, and not as a right one.**
-It is excluded from precision and reported separately. An engine that says
-"couldn't tell" to everything has no precision problem and no product; an
-engine scored as if couldn't-tell were a miss is punished for being honest.
-Both numbers are shown so neither reading can hide.
+**Couldn't-tell is excluded from precision but counted against recall.**
+That asymmetry is the point, and the first version of this file got it wrong.
+Abstaining is not a precision error — we did not tell the user something
+false. It is squarely a recall error: the business never reached them, and
+"we said not sure" is indistinguishable from "we said no" from where they sit.
+Leaving abstentions out of the recall denominator reported 1-of-15 as "33%"
+on the first real run, which is exactly the flattery this file exists to
+prevent. Delivered recall is the headline; the decided-only figure is kept
+as a diagnostic and labelled as one.
 
 **A label of "couldn't tell" is not ground truth.** Where the *human* could not
 tell either, the pair is excluded from both metrics and counted separately —
@@ -115,6 +119,13 @@ def main() -> int:
                 continue
             if said == "couldnt_tell":
                 by_type[kind]["engine_abstained"] += 1
+                # An abstention on a business that truly matches is a business
+                # the user never receives. It is not a precision error, but it
+                # is absolutely a recall error, and the first version of this
+                # scorer hid that by leaving abstentions out of the recall
+                # denominator entirely — turning 1-of-15 into "33%".
+                if label == "match":
+                    by_type[kind]["abstained_on_match"] += 1
                 continue
             if said not in ("match", "no_match"):
                 unscorable[f"engine verdict '{said}'"] += 1
@@ -163,13 +174,26 @@ def main() -> int:
             "FAILS" if hi < PRECISION_TARGET else "UNDECIDED (interval straddles)")
         print(f"Precision, blended   {100*p:.1f}%  "
               f"[{100*lo:.1f}–{100*hi:.1f}%]  target ≥90% — {ok}")
-    if rec_den:
-        r = overall["tp"] / rec_den
-        lo, hi = wilson(overall["tp"], rec_den)
+    # DELIVERED recall is the gate number. Gate item 3 asks "of the businesses
+    # that truly match, how many did the engine find?" — and a business the
+    # engine abstained on is one the user did not get. Whether we said "no" or
+    # said "not sure" is invisible to them.
+    delivered_den = overall["tp"] + overall["fn"] + overall["abstained_on_match"]
+    if delivered_den:
+        r = overall["tp"] / delivered_den
+        lo, hi = wilson(overall["tp"], delivered_den)
         ok = "PASSES" if lo >= RECALL_TARGET else (
             "FAILS" if hi < RECALL_TARGET else "UNDECIDED (interval straddles)")
-        print(f"Recall               {100*r:.1f}%  "
+        print(f"Recall, DELIVERED    {100*r:.1f}%  "
               f"[{100*lo:.1f}–{100*hi:.1f}%]  target ≥60% — {ok}")
+        print(f"  {overall['tp']} of {delivered_den} true matches reached the user; "
+              f"{overall['abstained_on_match']} were abstained on, "
+              f"{overall['fn']} wrongly rejected")
+    if rec_den:
+        r = overall["tp"] / rec_den
+        print(f"Recall, decided-only {100*r:.1f}%  "
+              f"— diagnostic only: excludes abstentions, so it flatters an\n"
+              f"                     engine that avoids being wrong by not answering")
 
     # Per Change 2: the absence number is the one that matters and it must not
     # be allowed to hide inside the blend.

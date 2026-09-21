@@ -8,7 +8,7 @@ is `docs/critique.md`.
 Strategy lives in those docs. Numbers and decisions live here. Where they disagree, this
 plan wins and the Decision log records why.
 
-**Last updated:** 2026-09-21 · **Stage:** 0 — Prove it (**gate item 1 fails for HVAC**, see Decision log)
+**Last updated:** 2026-09-21 · **Stage:** 0 — Prove it (**recall fails at 6.7%; the engine abstains on 80% of true matches**)
 
 ---
 
@@ -28,7 +28,7 @@ plan wins and the Decision log records why.
 
 | Stage | Status | Gate | Gate met? |
 |---|---|---|---|
-| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | item 1 answered; **2+3 need S0-16, 4 needs a bigger sample** |
+| 0 · Prove it | **Gate item 3 FAILS** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | 1 answered · 2 undecided (n=1) · **3 fails at 6.7%** · 4 unresolved |
 | 1 · Launch | Not started | 50 paying users; live precision ≥ 90% | — |
 | 2 · Grow | Not started | 300 paying; churn ≤ 6%; cost/match ≤ $0.04 | — |
 | 3 · Compound | Not started | 1,000 paying; ≥ 50% warm reads | — |
@@ -54,9 +54,13 @@ plan wins and the Decision log records why.
 | **Criteria settled with no model call** (the cost lever, S0-10) | measure | **56.0–57.4%** where a detector exists | 2026-09-20 |
 | — across every criterion, detector or not | — | **25.0%** (285 of 1,138) | 2026-09-20 |
 | — benchmark criteria with no detector at all | — | **4 of 7**, settling nothing | 2026-09-20 |
-| Match precision, blended | ≥ 90% | — | — |
-| Match precision, absence criteria only | ≥ 90% | — | — |
-| Known-match recall | ≥ 60% | — | — |
+| Match precision, blended | ≥ 90% | **100% but n=1** — one positive call, CI 20.7–100%. Undecided | 2026-09-21 |
+| Match precision, absence criteria only | ≥ 90% | **100% but n=1**, same single call | 2026-09-21 |
+| **Known-match recall (delivered)** | ≥ 60% | **6.7%** — 1 of 15 true matches reached the user ✗✗ **FAILS** | 2026-09-21 |
+| — abstained on a true match | — | **12 of 15 (80%)** | 2026-09-21 |
+| — wrongly rejected a true match | — | 2 of 15 | 2026-09-21 |
+| Source data has the wrong website | — | **5 of 70 (7%)** — caps achievable precision | 2026-09-21 |
+| Human could not establish truth | — | 17 of 70 (24%) | 2026-09-21 |
 | Cold cost per business | ≤ $0.010 | **$0.0009–0.0020 measured** (S0-17, 160 businesses, Haiku 4.5) ✓ | 2026-09-21 |
 | Warm cost per business | ≤ $0.002 | — | — |
 | **Blended cost per match** | ≤ $0.04 | **NOT ESTABLISHED.** Point estimates $0.026–0.093 across runs; the match rate's 95% CI puts it anywhere from $0.007 to $0.284. See Decision log — an earlier ✓ here was wrong | 2026-09-21 |
@@ -534,3 +538,7 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-21 | **The link-selection fix was a real bug fix with a negligible effect. No win claimed.** | Two defects were confirmed by test — an href containing `#` was rejected outright, and a closing `</a>` was mandatory so unclosed tags hid every link after them. Both are genuinely wrong and now have 15 regression tests. But the measured effect on this corpus was mean pages per readable site 3.27 → **3.30**, and one fewer one-page site out of ten. The hypothesis that these bugs caused the one-page reads was wrong. |
 | 2026-09-21 | **Run-to-run variance swamps the effects being chased, so engine changes cannot be evaluated on a live re-crawl** | Three consecutive dental runs put couldn't-tell at 38.9%, 31.5% and 36.8%. The code changed each time *and* all 100 sites were re-crawled each time, so nothing can be attributed. `run.py --frozen` now reuses cached pages whatever their version, making a judge-only A/B possible against a fixed corpus. Any future claim that a change improved a rate must come from a frozen-corpus comparison, not from consecutive live runs. |
 | 2026-09-21 | Remaining one-page causes, now measured rather than guessed | Of the ~9 one-page readable sites: 4 genuinely have no other internal pages, 5 had sub-page fetches that failed, and the rest link only to pages no check-plan keyword matches. The first group is handled; the second is our own failure and is now recorded per read; the third is a check-plan coverage question, not a crawler bug. |
+| 2026-09-21 | **First hand-labelled result: recall is 6.7% and gate item 3 fails outright** | 70 blind labels on dental-phoenix. Of 15 businesses that truly have no online booking, the user receives **1**. The engine abstained on 12 and wrongly rejected 2. Precision reads 100% only because it made a single positive call (CI 20.7–100%, undecided). This is the abstention failure the scorer was built to expose: the engine avoids being wrong by refusing to answer. It also explains the unstable cost-per-match — with one match per hundred businesses, that denominator was never going to hold still. |
+| 2026-09-21 | **The scorer's own recall definition was wrong and flattered the engine** | It excluded abstentions from the recall denominator, reporting 1-of-15 as "33%". Gate item 3 asks how many true matches the engine *found*, and a business it abstained on is one the user never receives — "not sure" and "no" are indistinguishable from where they sit. Delivered recall is now the headline; the decided-only figure is kept as a diagnostic and labelled as one. Abstention stays excluded from *precision*, which is correct: we told the user nothing false. |
+| 2026-09-21 | Two ceilings on precision that are not the engine's to fix | **7% of the slice (5 of 70) had the wrong website in Overture** — every verdict on those is about a different company, and no engine work recovers it. **24% (17 of 70) the human could not establish either**, which says the criterion is often not decidable from a public site at all. Together, a quarter of a typical slice has no reachable ground truth. |
+| 2026-09-21 | Diagnosis for the recall failure: the bottleneck is **satisfying the absence rule, not judging** | The engine says `no_match` readily — the detector settles that from one page, cheaply and confidently. Saying `match` requires the absence rule, which requires criterion-relevant pages to have been read, which the crawl often fails to do. Result: it is 19-for-19 willing to reject and almost never willing to confirm. Fixing recall means getting the right pages read, not changing the prompt. |
