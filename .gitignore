@@ -21,5 +21,16 @@ stage0/data/*.parquet
 stage0/data/*.jsonl
 stage0/data/cache/
 
+# The fetch cache holds the extracted TEXT of other people's websites, a few
+# thousand characters per business. 160 of these had been committed — 2.1 MB of
+# third-party page content in a public repo, which is exactly what "store
+# extracted facts, not page copies" (CLAUDE.md) exists to prevent. It is also a
+# derived artifact: `benchmark/run.py` rebuilds it by crawling.
+#
+# Untracking does not remove it from history. See the decision log entry of
+# 2026-09-21; purging needs a history rewrite and is the repo owner's call.
+stage0/data/fetch-cache/
+stage0/data/labelling/
+
 # OS
 .DS_Store
