@@ -189,13 +189,57 @@ REQUIRED = [
     # standalone profile would be reusable across searches, making the *second*
     # search on the same business nearly free, and this design forfeits that.
     ("S0-11+12+14 judge, with in-line proof validation", ENGINE / "judge.py"),
-    ("S0-16 hand-labelled set", FIXTURES / "labels.json"),
     ("S0-17 benchmark harness", ROOT / "stage0" / "src" / "benchmark" / "run.py"),
 ]
 
 
+def check_labels() -> Check:
+    """S0-16 is per-market, and hand labels arrive one market at a time.
+
+    This checked for a single `labels.json` that nothing has ever written. The
+    labelling tool emits `labels-<market>.json`, so 70 real hand labels on
+    dental-phoenix sat on disk while preflight reported the set as not built —
+    the same failure as the earlier `test_preflight.py`, which hard-coded "S0-12
+    is not built" and broke when S0-12 arrived. A check that encodes a snapshot
+    of the repo instead of reading it will be wrong the first time it matters.
+    """
+    found = sorted(FIXTURES.glob("labels-*.json"))
+    if not found:
+        return Check(
+            "S0-16 hand-labelled set", False,
+            "not built (no stage0/fixtures/labels-<market>.json)",
+            "Generate the tool with benchmark/labelling_set.py, label, and save "
+            "the export. Hand-labelling cannot be automated away.",
+        )
+
+    counts = []
+    for path in found:
+        try:
+            n = len(json.loads(path.read_text()).get("labels", {}))
+        except (OSError, ValueError):
+            n = 0
+        counts.append((path.stem.removeprefix("labels-"), n))
+    total = sum(n for _, n in counts)
+    detail = ", ".join(f"{market} ({n})" for market, n in counts)
+
+    # Present is not the same as sufficient. Precision's denominator is the
+    # engine's positive calls, not the label count, and at 70 labels that came
+    # to 6 — an interval of 43.6-97.0%, inside which no engine change is
+    # measurable. Saying "present" and stopping would hide the binding
+    # constraint on every remaining Stage 0 task.
+    thin = total < 150
+    return Check(
+        "S0-16 hand-labelled set", True,
+        f"{total} labels across {len(found)} market(s): {detail}"
+        + ("  — THIN: too few to measure precision" if thin else ""),
+        "More labels. At 70, precision rested on 6 positive calls and its "
+        "interval was 43.6-97.0%: nothing smaller than the Haiku->Sonnet gap "
+        "is distinguishable from run-to-run variance." if thin else "",
+    )
+
+
 def check_components() -> list[Check]:
-    return [
+    checks = [
         Check(
             name,
             path.exists(),
@@ -204,6 +248,8 @@ def check_components() -> list[Check]:
         )
         for name, path in REQUIRED
     ]
+    checks.insert(-1, check_labels())
+    return checks
 
 
 def main() -> int:

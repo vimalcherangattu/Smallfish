@@ -13,6 +13,7 @@ Run:  python3 stage0/tests/test_preflight.py
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -157,6 +158,50 @@ def test_components_reflect_what_is_on_disk():
             f"{name}: preflight says {'built' if check.ok else 'not built'}, "
             f"but {path.name} {'exists' if path.exists() else 'does not exist'}"
         )
+
+
+def test_the_label_check_reads_the_fixtures_directory():
+    """S0-16 arrives one market at a time, so the check must glob, not guess.
+
+    It previously looked for a single `labels.json` that nothing has ever
+    written, while 70 real hand labels sat in `labels-dental-phoenix.json` and
+    preflight called the set unbuilt. Same failure mode as the earlier version
+    of `test_components_reflect_what_is_on_disk`: a check that encodes a
+    snapshot of the repo is wrong the first time it matters.
+    """
+    found = sorted(preflight.FIXTURES.glob("labels-*.json"))
+    check = preflight.check_labels()
+    assert check.ok == bool(found), (
+        f"preflight says labels are {'present' if check.ok else 'absent'}, "
+        f"but {len(found)} labels-*.json file(s) exist"
+    )
+    if found:
+        total = sum(
+            len(json.loads(p.read_text()).get("labels", {})) for p in found
+        )
+        assert str(total) in check.detail, (
+            f"the count must be reported, not just presence: {check.detail!r}"
+        )
+
+
+def test_a_thin_label_set_passes_but_says_it_is_thin():
+    """Present is not sufficient, and preflight must not imply that it is.
+
+    Precision's denominator is the engine's positive calls, not the label
+    count. At 70 labels that came to 6, an interval of 43.6-97.0%, inside which
+    no engine change is measurable. A bare PASS here would hide the binding
+    constraint on every remaining Stage 0 task.
+    """
+    check = preflight.check_labels()
+    if not check.ok:
+        return
+    total = sum(
+        len(json.loads(p.read_text()).get("labels", {}))
+        for p in preflight.FIXTURES.glob("labels-*.json")
+    )
+    if total < 150:
+        assert "THIN" in check.detail, check.detail
+        assert check.remedy, "a thin set must say what would fix it"
 
 
 def test_unbuilt_components_say_what_is_missing():
