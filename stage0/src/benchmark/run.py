@@ -192,6 +192,16 @@ async def main_async(args) -> int:
         "cost": summary,
     }, indent=2) + "\n")
     meter.write(DATA / f"cost-log-{args.market}.jsonl")
+
+    # Per-business verdicts, for score.py to join hand labels onto. Written
+    # every run rather than behind a flag: a benchmark whose verdicts are not
+    # recoverable cannot be scored later, and re-running to get them back costs
+    # money for an answer we already had.
+    verdicts_out = DATA / f"verdicts-{args.market}.json"
+    verdicts_out.write_text(json.dumps(
+        {j.business_id: {v.criterion_id: v.verdict for v in j.verdicts}
+         for j in judgments}, indent=2) + "\n")
+    print(f"→ {verdicts_out.relative_to(ROOT)}")
     print(f"\n→ {out.relative_to(ROOT)}")
     return 0
 

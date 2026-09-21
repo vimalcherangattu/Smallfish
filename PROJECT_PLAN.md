@@ -237,9 +237,15 @@ wins rather than abandoning — that is the response the founding documents alre
 
 ### S0.C — Benchmark
 
-- [ ] **S0-16 · Hand-label the benchmark set.** 3 searches × 100 businesses, labelled by a
-  human, including the full true-match set so recall is measurable. Over-weight absence
-  criteria per Change 2.
+- [ ] **S0-16 · Hand-label the benchmark set.** **Harness built, labels not collected.**
+  `benchmark/labelling_set.py` generates a self-contained HTML tool — no server, no
+  install, saves to localStorage, exports JSON — that can be sent to a labeller who has
+  never seen this repo. Three methodological choices are enforced in it: labelling is
+  **blind** to the engine's verdict (seeing it anchors the labeller and inflates
+  precision by the amount being measured); the slice is **complete**, not a sample of
+  the engine's output (recall's misses are by definition not in that output); and
+  unreadable sites are labelled too, which separates "wrong" from "couldn't see".
+  *Blocked on:* a human. 100 businesses × 1 criterion for dental is ready to label.
 - [ ] **S0-17 · Benchmark harness.** Runs the engine over the labelled set and reports
   precision (blended and per criterion type), recall, couldn't-tell rate, proof validity,
   and cost. *Preflight exists* — `engine/preflight.py` answers "can the benchmark run?"
@@ -517,3 +523,5 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-21 | Prompt caching contributes **nothing** at current prompt sizes | Measured `cache_read_input_tokens` at 0% of billed input across both runs. The shared system prompt is ~400 tokens, below Haiku 4.5's minimum cacheable prefix. Recorded rather than fixed: padding a prompt to reach a cache threshold would cost more than it saves at this volume. |
 | 2026-09-21 | **S0-11 and S0-14 merged into S0-12** — one model call, not three passes | The plan sketched extract-a-profile, judge-the-profile, validate-the-proof as three stages. They are one call in `judge.py`: a second call per business doubles the dominant cost, and splitting extraction from judgment detaches the quote from the verdict that used it, which the proof validator then has to reattach. **The tradeoff is real and against us in one place:** a standalone reusable profile would make a *second* search against the same business nearly free, and this design forfeits that. Revisit if searches-per-business ever exceeds ~2. |
 | 2026-09-21 | A test that hard-coded "S0-12 is not built" **failed on progress** | `test_preflight.py` froze the project state into an assertion and broke the moment `judge.py` was written. Rewritten to compare preflight's report against the filesystem. A test that breaks when work gets done is testing the calendar. |
+| 2026-09-21 | **Overture's `website` field is sometimes another company's site**, and the labelling tool now has an answer for it | Found by looking at the first business in the first generated labelling set: Overture lists "AAA Accurate Dental Care" against `advancedsmilescenter.com`. Every verdict about that row is about a different business. Without a distinct label the labeller would be forced into match / no-match / can't-tell, and a data-source defect would be scored as an engine defect. `score.py` excludes these and warns when they exceed 5% of a slice — they cap the precision this product can reach, because each one is a row a user receives about the wrong company. Rate unknown until labelling runs. |
+| 2026-09-21 | Labelling is **blind to the engine's verdict**, by construction | The verdict is not in the task JSON, not in the HTML, and not recoverable from either; `score.py` joins it on afterwards. A labeller who can see "the engine said match" agrees with it more often, which inflates precision by exactly the quantity the gate is trying to measure. |
