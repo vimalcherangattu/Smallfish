@@ -28,7 +28,7 @@ plan wins and the Decision log records why.
 
 | Stage | Status | Gate | Gate met? |
 |---|---|---|---|
-| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | **item 1 fails on HVAC** |
+| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | items 1+4 answered; **2+3 need S0-16** |
 | 1 · Launch | Not started | 50 paying users; live precision ≥ 90% | — |
 | 2 · Grow | Not started | 300 paying; churn ≤ 6%; cost/match ≤ $0.04 | — |
 | 3 · Compound | Not started | 1,000 paying; ≥ 50% warm reads | — |
@@ -57,11 +57,13 @@ plan wins and the Decision log records why.
 | Match precision, blended | ≥ 90% | — | — |
 | Match precision, absence criteria only | ≥ 90% | — | — |
 | Known-match recall | ≥ 60% | — | — |
-| Cold cost per business | ≤ $0.010 | — | — |
+| Cold cost per business | ≤ $0.010 | **$0.0011–0.0020 measured** (S0-17, 120 businesses, Haiku 4.5) ✓ | 2026-09-21 |
 | Warm cost per business | ≤ $0.002 | — | — |
-| Blended cost per match | ≤ $0.04 | **modelled: $0.040–0.067 cold, $0.015–0.029 warm** — read cost still unmetered | 2026-09-21 |
+| **Blended cost per match** | ≤ $0.04 | **$0.033 measured** (dental, whole-business matches) · $0.012–0.029 modelled with gap-fill ✓ | 2026-09-21 |
 | — Google gap-fill discovery, measured | — | **$0.0079 per business discovered** | 2026-09-21 |
-| — break-even cold read cost, worst market | — | **$0.0043/business** (est. is $0.010) | 2026-09-21 |
+| — break-even cold read cost, worst market | — | $0.0043/business — **measured read is $0.0020, inside it** | 2026-09-21 |
+| Proof validity (quote found verbatim in fetched text) | high | **100%** (11 of 11 model verdicts) | 2026-09-21 |
+| Couldn't-tell on **readable** sites, live run | ≤ 25% | **38.9%** (dental) ✗ — worse than the probe-based 19–25% | 2026-09-21 |
 | Weekly profile change rate (drives alert cost) | measure | — | — |
 | p95 time to first match, cold market | measure | — | — |
 
@@ -508,3 +510,8 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-21 | **Gap-fill is cheap; the cold read is what threatens the unit economics** | Gate item 1's escape clause priced from measured inputs. Buying a business from Google costs **$0.0079** — coverage failing at 31% adds only $0.015/match in the worst niche. The bill is read cost ÷ match rate: at the planned $0.010 cold read, every market is over the $0.04 budget ($0.040–0.067); at the $0.002 warm read every market is inside it ($0.015–0.029). Break-even cold read in the worst market is **$0.0043/business**, less than half the planning estimate. |
 | 2026-09-21 | **"Narrow the beachhead" rejected as the response to the HVAC coverage failure** | Dropping HVAC would have removed the cheapest-to-fix problem and left the expensive one untouched: HVAC's discovery gap costs $0.015/match to buy, while its read cost is the *best* of the three priced markets because its match rate is highest (37.2%). Coverage is not what decides this product; cost per match is. |
 | 2026-09-21 | Stage 0's decisive number is now **gate item 4, not gate item 1** | Coverage is answered and survivable. Precision and cost are not answered at all, and the cost model above is dominated by a figure nobody has metered. S0-15 metering a real run is now the highest-value remaining task, ahead of more coverage work. |
+| 2026-09-21 | **Cost per business measured at $0.0011–0.0020, five times below the planning estimate** | S0-08/11/12/15/17 built and run over 120 real businesses on Haiku 4.5. The $0.010 estimate was the single input the whole unit-economics question turned on, and it was ~5x high. Cost per match on dental, at whole-business granularity, is **$0.033 against the $0.04 budget**. |
+| 2026-09-21 | **The gap-fill verdict reverses: every market is inside budget on the first pass** | `gapfill_cost.py` run against the estimate reported every market OVER budget and called the escape clause failed. Re-run against the measured read: med spa $0.029, HVAC $0.019, dental $0.012 — all inside $0.04, cold, gap-fill included. The earlier verdict is retracted. It was labelled as resting on an unmetered figure at the time, which is why it was worth metering rather than acting on. |
+| 2026-09-21 | Detection settles more in a live run than the tally-based estimate suggested | Observed: 20 of 60 dental criteria settled by the detector with no model call, 12 of 60 on med spa. Combined with the absence rule short-circuit, only 16 of 60 dental businesses needed a model call at all. This is why the per-business cost came in low — the cheap layer is doing more work than S0-10's static tally showed. |
+| 2026-09-21 | **Couldn't-tell on readable sites is 38.9%, worse than the 19–25% the probe estimated** | The probe-based figure counted a site as judgeable if it was readable; the live run asks whether the *criterion* was settled, which is a harder test. The ≤25% target is not met on dental. This is a genuine regression against a number recorded as passing, and it is now the open quality question alongside precision. |
+| 2026-09-21 | Prompt caching contributes **nothing** at current prompt sizes | Measured `cache_read_input_tokens` at 0% of billed input across both runs. The shared system prompt is ~400 tokens, below Haiku 4.5's minimum cacheable prefix. Recorded rather than fixed: padding a prompt to reach a cache threshold would cost more than it saves at this volume. |

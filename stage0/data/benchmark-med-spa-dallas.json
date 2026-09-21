@@ -1,0 +1,39 @@
+{
+  "market": "med-spa-dallas",
+  "model": "claude-haiku-4-5",
+  "businesses": 60,
+  "readable": 20,
+  "cold_fetched": 55,
+  "verdicts": {
+    "couldnt_tell": 94,
+    "match": 7,
+    "no_match": 19
+  },
+  "settled_by": {
+    "model": 25,
+    "absence_rule": 83,
+    "detector": 12
+  },
+  "proof_checked": 11,
+  "proof_valid": 11,
+  "matches": 0,
+  "errors": 0,
+  "cost": {
+    "model_calls": 20,
+    "businesses_judged": 60,
+    "matches": 0,
+    "total_usd": 0.1215,
+    "cost_per_business": 0.00202,
+    "cost_per_match": null,
+    "cache_read_share": 0.0,
+    "by_stage": {
+      "judge": {
+        "calls": 20,
+        "cost_usd": 0.121486,
+        "input": 98656,
+        "output": 4566,
+        "cache_read": 0
+      }
+    }
+  }
+}

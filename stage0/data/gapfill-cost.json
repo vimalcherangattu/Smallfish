@@ -4,24 +4,24 @@
     "coverage_strict": 0.454,
     "match_rate": 0.21487603305785125,
     "discovery_per_match": 0.019978187380497132,
-    "read_per_match": 0.046538461538461535,
-    "total_per_match": 0.06651664891895867
+    "read_per_match": 0.009400769230769232,
+    "total_per_match": 0.02937895661126636
   },
   {
     "market": "dental-phoenix",
     "coverage_strict": 0.6378,
     "match_rate": 0.3181818181818182,
     "discovery_per_match": 0.00895003026495493,
-    "read_per_match": 0.03142857142857143,
-    "total_per_match": 0.04037860169352636
+    "read_per_match": 0.0034571428571428574,
+    "total_per_match": 0.012407173122097787
   },
   {
     "market": "hvac-tampa",
     "coverage_strict": 0.3108,
     "match_rate": 0.3717948717948718,
     "discovery_per_match": 0.01457448745302301,
-    "read_per_match": 0.02689655172413793,
-    "total_per_match": 0.04147103917716094
+    "read_per_match": 0.004195862068965518,
+    "total_per_match": 0.018770349521988527
   },
   {
     "market": "vet-columbus",
