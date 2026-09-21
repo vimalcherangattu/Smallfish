@@ -67,7 +67,7 @@ MAX_PAGES = 4
 # defaults — the alternative bit once already in the making: an old one-page
 # entry has no `internal_links`, defaults to 0, and would claim to be a
 # complete single-page site when nobody ever counted its links.
-CACHE_VERSION = 2
+CACHE_VERSION = 3  # link-selection fix changes which pages a read contains
 
 
 @dataclass
@@ -148,7 +148,14 @@ class FetchCache:
     again to answer a question we already answered.
     """
 
-    def __init__(self, directory: Path | None = None):
+    def __init__(self, directory: Path | None = None, ignore_version: bool = False):
+        # `ignore_version` freezes the corpus: cached pages are reused even if
+        # the shape is older. Measured reason to want this — three consecutive
+        # dental runs put couldn't-tell at 38.9%, 31.5% and 36.8% while the
+        # code changed each time AND every site was re-crawled. The swing
+        # between runs is as large as the effect being chased, so a change
+        # cannot be evaluated against a corpus that moves with it.
+        self.ignore_version = ignore_version
         self.dir = directory or CACHE_DIR
         self.dir.mkdir(parents=True, exist_ok=True)
         self.hits = 0
@@ -164,7 +171,7 @@ class FetchCache:
             self.misses += 1
             return None
         raw = json.loads(path.read_text())
-        if raw.get("v") != CACHE_VERSION:
+        if raw.get("v") != CACHE_VERSION and not self.ignore_version:
             # Stale shape. Re-fetching costs a request; reading it with
             # defaults would cost a wrong verdict.
             self.misses += 1

@@ -82,8 +82,8 @@ async def main_async(args) -> int:
         print("\nDry run — no fetching, no model calls, nothing spent.")
         return 0
 
-    cache = FetchCache()
-    print("Reading sites…")
+    cache = FetchCache(ignore_version=args.frozen)
+    print("Reading sites…" if not args.frozen else "Reading sites (frozen corpus)…")
     reads = await read_many(businesses, plan, concurrency=args.concurrency, cache=cache)
     outcomes = Counter(r.outcome for r in reads.values())
     print(f"  fetch cache: {cache.hits} hits, {cache.misses} misses"
@@ -218,6 +218,11 @@ def main() -> int:
     ap.add_argument("--concurrency", type=int, default=8)
     ap.add_argument("--seed", type=int, default=20260921)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument(
+        "--frozen", action="store_true",
+        help="reuse cached pages whatever their version — judge-only re-run. "
+             "Use this to A/B a judging change: re-crawling moves the corpus "
+             "under you and the run-to-run swing is as large as the effect.")
     return asyncio.run(main_async(ap.parse_args()))
 
 

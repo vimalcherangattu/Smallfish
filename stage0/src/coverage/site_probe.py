@@ -102,7 +102,24 @@ FALLBACK_LINK_KEYWORDS: list[tuple[str, int]] = [
     ("about", 2),
 ]
 
-_LINK = re.compile(r"<a\b[^>]*href=[\"']([^\"'#]+)[\"'][^>]*>(.*?)</a>", re.I | re.S)
+# Two bugs lived in this pattern and both cost real coverage, measured on
+# dental-phoenix (2026-09-21):
+#
+#   [^"'#]+ rejected any href containing '#', so /contact#form was dropped
+#   entirely rather than read as /contact — the fragment is discarded a few
+#   lines below anyway.
+#
+#   The trailing </a> made a closing tag mandatory. Unclosed <a> tags are
+#   common in hand-written and CMS-generated markup, and every link after one
+#   was invisible.
+#
+# Together these were the largest cause of one-page reads, which in turn were
+# 91% couldn't-tell because the absence rule cannot settle a criterion from a
+# homepage alone. The anchor text now ends at </a>, the next <a>, or the end
+# of the document, whichever comes first.
+_LINK = re.compile(
+    r"<a\b[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.*?)(?=</a>|<a\b|\Z)", re.I | re.S
+)
 
 _SCRIPT_STYLE = re.compile(r"<(script|style|noscript)\b.*?</\1>", re.I | re.S)
 _TAG = re.compile(r"<[^>]+>")
