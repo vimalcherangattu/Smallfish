@@ -21,6 +21,7 @@ that panel if it reports "needs authentication".
 | Path | What it is |
 |---|---|
 | `PROJECT_PLAN.md` | Stages, hard gates, every task with a definition of done, live measurements, decision log. |
+| `docs/design-system.md` | **Read before building any customer-facing screen.** Principles, type, colour and component rules, distilled from `docs/design/small-fish-design-system-v1.pdf` (the visual authority — a 13 MB PDF cannot be grepped). Its §5 records an **unresolved** divergence: the design system describes scores, tiers and weighted rubrics, the repo implements binary verdicts, and it cites an "Account Finder PRD v3" that is not among the founding documents. Do not resolve that by picking one silently. |
 | `docs/critique.md` | Review of the founding documents and the reasoning behind the plan's departures from them. |
 | `docs/stage0-coverage-report.md` | Measured results: candidate supply, website readability, technology signals, location shapes. |
 | `docs/icp-discovery.md` | Design for the ICP flow. S1-23 – S1-26 are built (`src/lib/icp.ts`); S1-22, reading the seller's own site, is blocked on a model key and the flow runs on a typed offer instead. |
