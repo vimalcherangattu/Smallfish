@@ -31,6 +31,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -74,25 +75,63 @@ def output_paths(market: str, tag: str = "") -> dict[str, Path]:
     }
 
 
-def pick(market_id: str, limit: int, seed: int) -> list[dict]:
-    """A deterministic slice of businesses that have a website worth reading.
+def in_niche(business: dict, categories: dict) -> bool:
+    """Is this business actually in the niche the market claims to be about?
+
+    It was nobody's job to ask, and it cost a gate item. The med spa market ran
+    1,000 businesses of which **only 31% were `medical_spa`** — the rest were
+    Overture's catch-all `spas`, which is nail salons, barbershops and braiding
+    studios. They do not offer Botox and their websites never mention it, so the
+    engine correctly answered couldn't-tell, and the market's couldn't-tell rate
+    read 44.8% against a 25% target. The engine was being blamed for being right
+    about businesses that should not have been in front of it.
+
+    The rule the dental market already followed and the others did not:
+    **`expanded` means another name for the same niche, never an adjacent
+    industry.** Dental's expanded list is orthodontists and endodontists and it
+    runs 84% on-primary. Med spa's was day spas and float tanks.
+
+    `rescue` exists because one case is genuinely mixed: Overture files real
+    HVAC companies under the generic `contractor`. Only 2% of that category has
+    an HVAC-ish name, but those 11 are real, and so are the plumbing
+    dual-trades — "ABC Plumbing, Air, Heat & Electric". So the category is
+    dropped and the name is checked instead.
+    """
+    cat = business.get("cat") or ""
+    if cat in set(categories.get("primary", [])) | set(categories.get("expanded", [])):
+        return True
+    rescue = categories.get("rescue")
+    if rescue and cat in set(rescue.get("categories", [])):
+        return bool(re.search(rescue["name_pattern"], business.get("name", ""), re.I))
+    return False
+
+
+def pick(market_id: str, limit: int, seed: int, fixture: dict) -> list[dict]:
+    """A deterministic slice of in-niche businesses with a website worth reading.
 
     Seeded so a re-run costs nothing new (the fetch cache hits) and so two runs
     are comparable. Businesses with no website are excluded from the *cost*
     measurement because they cost nothing to read — including them would
-    flatter the per-business figure.
+    flatter the per-business figure. Businesses outside the niche are excluded
+    because measuring them tells you nothing about the product: see `in_niche`.
     """
     path = APP / f"{market_id}.json"
     if not path.exists():
         raise SystemExit(f"Missing {path}. Run export_app_data.py first.")
     market = json.loads(path.read_text())
     have_site = [b for b in market["businesses"] if b.get("site")]
+    cats = fixture.get("categories", {})
+    in_scope = [b for b in have_site if in_niche(b, cats)]
+    dropped = len(have_site) - len(in_scope)
+    if dropped:
+        print(f"  scoped to the niche: {len(in_scope)} of {len(have_site)} "
+              f"with a site ({dropped} off-niche dropped)")
 
     import random
 
     rng = random.Random(f"{seed}:{market_id}")
-    rng.shuffle(have_site)
-    return have_site[:limit], market
+    rng.shuffle(in_scope)
+    return in_scope[:limit], market
 
 
 async def main_async(args) -> int:
@@ -102,9 +141,9 @@ async def main_async(args) -> int:
     # at the write. Output paths belong at the top, not next to their
     # first use.
     paths = output_paths(args.market, args.tag)
-    businesses, market = pick(args.market, args.limit, args.seed)
     spec = json.loads(FIXTURES.read_text())
     fixture = next(m for m in spec["markets"] if m["id"] == args.market)
+    businesses, market = pick(args.market, args.limit, args.seed, fixture)
     criteria = fixture["criteria"]
     plan = plan_for_search(criteria)
 

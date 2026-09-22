@@ -28,12 +28,15 @@
           "medical_spa"
         ],
         "expanded": [
+          "skin_care_clinic"
+        ],
+        "dropped_2026_09_22": [
           "spas",
           "day_spa",
           "health_spa",
-          "float_spa",
-          "skin_care_clinic"
-        ]
+          "float_spa"
+        ],
+        "scoping_note": "A nail salon, a barbershop and a float tank are not medical spas. Measured: `spas`/`day_spa`/`health_spa` run 75% couldn't-tell and 7% offer a neurotoxin; `medical_spa` runs 39% and 51%."
       },
       "search": "Med spas in Dallas that offer Botox and don't have online booking",
       "criteria": [
@@ -72,7 +75,8 @@
           "periodontist",
           "oral_surgeon",
           "prosthodontist"
-        ]
+        ],
+        "scoping_note": "Already correct: every expanded entry is a dental specialty, i.e. another name for the same niche. 84% of candidates sit on a primary category and the remainder are orthodontists and oral surgeons."
       },
       "search": "Dental clinics in Phoenix with no online booking",
       "criteria": [
@@ -97,10 +101,20 @@
           "hvac_services"
         ],
         "expanded": [
-          "contractor",
-          "plumbing",
           "air_duct_cleaning"
-        ]
+        ],
+        "dropped_2026_09_22": [
+          "contractor",
+          "plumbing"
+        ],
+        "scoping_note": "Only 2% of `contractor` and 7% of `plumbing` have an HVAC-ish name \u2014 the rest are LEMA Construction and Gulfside Pool & Spa. But the ones that do are real ('ABC Plumbing, Air, Heat & Electric'), so the category is dropped and those are rescued by name.",
+        "rescue": {
+          "categories": [
+            "contractor",
+            "plumbing"
+          ],
+          "name_pattern": "\\b(hvac|heat|heating|air|a/?c|cool|cooling|furnace|climate|comfort|refrigerat|mechanical)\\b"
+        }
       },
       "search": "HVAC firms in Tampa that do commercial work and have no quote form",
       "criteria": [
@@ -132,9 +146,12 @@
         ],
         "expanded": [
           "animal_hospital",
-          "pet_services",
           "emergency_pet_hospital"
-        ]
+        ],
+        "dropped_2026_09_22": [
+          "pet_services"
+        ],
+        "scoping_note": "Grooming and boarding are not veterinary practices."
       },
       "search": "Independent vet clinics in Ohio offering exotic-pet care, not part of a group",
       "criteria": [
