@@ -3,21 +3,25 @@
 Two bugs, both found by reading hand labels rather than by a test, both of the
 same shape: the cheap layer quietly overruling the general one.
 
-1. **A generic affordance word settles a criterion, and that was challenged
-   and upheld by measurement.** Wright Orthodontics is rejected for "has no
-   online booking" on an `/appointments/` href and a "Schedule Now" button,
-   with no model call — and the hand label says it has no online booking. That
-   page is a GoHighLevel lead form reading "complete the following form to
-   request an appointment… availability will vary… confirmed by phone".
+1. **A generic affordance word does NOT settle a criterion — and that was
+   decided twice, in opposite directions.** Wright Orthodontics was rejected
+   for "has no online booking" on an `/appointments/` href and a "Schedule
+   Now" button, with no model call, while the hand label says it has no online
+   booking. That page is a GoHighLevel lead form reading "complete the
+   following form to request an appointment… availability will vary…
+   confirmed by phone".
 
-   Escalating those to the model was the obvious fix. Measured on a frozen
-   corpus with one line changed, it was worse on every axis: recall 40.0% ->
-   26.7%, precision 85.7% -> 80.0%, couldn't-tell 10.3% -> 29.3%, cost per
-   match $0.0249 -> $0.0705. The generic patterns match raw HTML — hrefs,
-   button markup — and the model is given visible text; **0 of 5 firing sites
-   are matchable in the text the model sees.** Escalating handed the question
-   to the only party that cannot see the evidence. The tests below pin the
-   behaviour that won.
+   Escalating to the model was tried, measured, and lost on every axis, so it
+   was reverted. Then the booking rubric went into the model's prompt and five
+   hand labels were corrected under it. Re-measured on 1,000 businesses:
+   recall **30.0% -> 55.0%**, precision 100% either way (on 41 positive calls
+   rather than 37), couldn't-tell 11.8% -> 24.5% (inside target), cost per
+   match $0.0236 -> $0.0294 (inside budget). Escalating now wins.
+
+   The first measurement was not wrong, it was premature: the model was being
+   asked a question nobody had defined, and the detector's crude rule at least
+   guessed consistently. An A/B between a rule and a model is not a fair test
+   until the model has been told the rule.
 
 2. **Detection is cached, so a frozen run replays a stale catalogue.** The
    retune that scoped practice-management vendors to booking paths was measured
@@ -75,38 +79,31 @@ def main() -> int:
     check("and is attributed to the detector, not the model",
           v is not None and v.settled_by == "detector")
 
-    # --- a generic word settles it too, and must keep doing so
-    g = detector_verdict(ABSENCE, read(generic={"booking": True}))
+    # --- a generic word does NOT settle it: it goes to the model
     check(
-        "a generic booking signal alone settles it",
+        "a generic booking signal alone does not settle it",
+        detector_verdict(ABSENCE, read(generic={"booking": True})) is None,
+        "measured: escalating these is worth 25 points of recall once the "
+        "model has been told what booking means",
+    )
+    check(
+        "a vendor settles it even when a generic word is also present",
+        (detector_verdict(ABSENCE, read(vendors={"booking": ["zocdoc"]},
+                                        generic={"booking": True})) or None) is not None,
+        "a Calendly embed IS the booking; a URL fragment is a word about it",
+    )
+    # --- the old behaviour survives as a flag, not as an edit to this file
+    # It was first measured by hand-editing judge.py, which left an
+    # experimental mutation in the working tree with a live run depending on
+    # it. A claim worth re-measuring is worth a flag.
+    g = detector_verdict(ABSENCE, read(generic={"booking": True}), True)
+    check(
+        "the old generic settle is still reachable for an A/B arm",
         g is not None and g.verdict == "no_match",
-        "escalating these to the model cost 19 points of recall and 2.8x the "
-        "cost per match: the model is shown visible text and the signal is in "
-        "the HTML",
     )
     check(
         "and says the evidence was a route rather than naming a vendor",
         g is not None and "vendor" not in g.reason and "route" in g.reason,
-    )
-    # --- the A/B arm is a flag, not an edit
-    # This was measured by hand-editing judge.py, which left an experimental
-    # mutation sitting in the working tree with a live run depending on it.
-    # A claim worth re-measuring is worth a flag.
-    check(
-        "the generic settle can be switched off for an A/B arm",
-        detector_verdict(ABSENCE, read(generic={"booking": True}),
-                         False) is None,
-    )
-    check(
-        "and switching it off does NOT disarm a vendor hit",
-        (detector_verdict(ABSENCE, read(vendors={"booking": ["calendly"]}),
-                          False) or None) is not None,
-        "the arm under test is the generic patterns, not the whole detector",
-    )
-    check(
-        "a vendor still settles it when a generic word is also present",
-        (detector_verdict(ABSENCE, read(vendors={"booking": ["zocdoc"]},
-                                        generic={"booking": True})) or None) is not None,
     )
     check(
         "no signal at all settles nothing",
@@ -117,8 +114,8 @@ def main() -> int:
     check(
         "the detector never returns a match, only a no_match",
         all(
-            (detector_verdict(ABSENCE, r) or type("x", (), {"verdict": "no_match"})).verdict
-            == "no_match"
+            (detector_verdict(ABSENCE, r, True)
+             or type("x", (), {"verdict": "no_match"})).verdict == "no_match"
             for r in (read(vendors={"booking": ["acuity"]}), read(generic={"booking": True}))
         ),
         "not detecting a signal is not proof of absence — that is absence.py's job",

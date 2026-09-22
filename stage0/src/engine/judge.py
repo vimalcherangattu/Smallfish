@@ -202,7 +202,7 @@ FAMILY_PATTERNS = [
 
 
 def detector_verdict(
-    criterion: dict, read, settle_on_generic: bool = True
+    criterion: dict, read, settle_on_generic: bool = False
 ) -> CriterionVerdict | None:
     """Settle a criterion from technology detection alone, or return None.
 
@@ -215,8 +215,8 @@ def detector_verdict(
     This is the measured cost lever (S0-10): every verdict returned here is a
     model call not made.
 
-    **A generic signal settles it too, and escalating it to the model instead
-    was tried and measured and was worse on every axis.**
+    **A generic signal does NOT settle it — it goes to the model. This reverses
+    an earlier decision, and the reversal is the interesting part.**
 
     The argument for escalating was good and it was wrong. The generic patterns
     match an affordance *word* — an `/appointments/` href, a "Schedule Now"
@@ -227,34 +227,39 @@ def detector_verdict(
     appointment… availability will vary… your appointment will be confirmed by
     phone". The hand label says no online booking and the detector is wrong.
 
-    So the question went to the model. Frozen corpus, same 70 labels, this one
-    line different:
+    Escalating was tried first, measured, and lost on every axis — so it was
+    reverted. Then two things changed that had nothing to do with this code:
+    five hand labels were corrected under the booking rubric, and the rubric
+    itself went into the model's prompt. Re-measured on 1,000 businesses
+    against the corrected labels:
 
         generic escalates      generic settles
-        23 model calls -> 51   23
-        recall    26.7%        40.0%
-        precision 80.0%        85.7%
-        couldn't-tell 29.3% ✗  10.3% ✓
-        cost/match $0.0705 ✗   $0.0249 ✓
+        461 model calls        230
+        recall    55.0%        30.0%
+        precision 100% (41)    100% (37)
+        couldn't-tell 24.5% ✓  11.8% ✓
+        cost/match $0.0294 ✓   $0.0236 ✓
 
-    The mechanism, checked afterwards: the generic patterns match **raw HTML** —
-    hrefs, button markup, iframe sources — and the model is given
-    `Page.text`, the *visible text*. Of the sites where the generic booking
-    pattern fires, **0 of 5 are still matchable in the text the model sees.**
-    Escalating did not hand the question to a better judge; it handed it to the
-    only party that cannot see the evidence, and the model correctly abstained.
+    Escalating now wins recall by **25 points** while precision holds at 100%
+    on *more* positive calls, and the two metrics it costs — couldn't-tell and
+    cost per match — both stay inside their targets. So it ships.
 
-    That reframes the two-layer rule rather than contradicting it. Detection is
-    not a cheap approximation of model judgment — it is a *different sensor*,
-    reading a channel the model is never shown. "A cheap optimisation over
-    model judgment, never a precondition" still holds for anything the model
-    could have decided for itself; it was never a licence to discard evidence.
+    **Why the first measurement said the opposite:** the model was being asked
+    a question nobody had defined. "Has no online booking" does not say whether
+    an appointment-request form counts, and the model had to guess; the
+    detector's crude rule at least guessed consistently. Once the rubric told
+    the model that a form saying "we will contact you to confirm" is not
+    booking, it could do the job the detector was only approximating.
 
-    Wright Orthodontics stays wrong, and that is now a priced decision rather
-    than an oversight: one false rejection in this slice against 28 correct
-    ones, a 19-point recall drop and 2.8x the cost per match to fix it this
-    way. The honest fix is to show the model the link structure so it can
-    judge with the same evidence — not to blind the engine to even it up.
+    The earlier mechanism still holds and is why the detector is not simply
+    deleted: the generic patterns match **raw HTML** — hrefs, button markup,
+    iframe sources — and the model is given `Page.text`, the *visible text*.
+    The model cannot see the signal. What changed is that it no longer needs
+    to: told what booking means, it reads the page's own words about how
+    appointments work, which is better evidence than a URL fragment.
+
+    The lesson is about sequencing, not about layers. An A/B between a rule and
+    a model is not a fair test until the model has been told the rule.
     """
     if criterion.get("type") != "absence":
         return None
@@ -333,7 +338,7 @@ def judge_business(
     meter: CostMeter,
     model: str = MODEL_WORKER,
     api=None,
-    settle_on_generic: bool = True,
+    settle_on_generic: bool = False,
 ) -> BusinessJudgment:
     """Judge one business's criteria. One model call, or none if unreadable."""
     out = BusinessJudgment(business_id=business["id"])

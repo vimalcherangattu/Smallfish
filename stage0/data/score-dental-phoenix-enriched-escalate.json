@@ -1,0 +1,31 @@
+{
+  "market": "dental-phoenix",
+  "design": {
+    "sampling": "enriched_on_engine_positives",
+    "n": 180,
+    "positives": 103,
+    "filler": 77,
+    "valid_for": [
+      "precision"
+    ],
+    "invalid_for": [
+      "recall"
+    ],
+    "why": "Sampled on the engine's own positive calls. Precision is already conditioned on that, so it is unaffected. Recall's denominator is every true match, and the ones the engine missed are absent from this set by construction."
+  },
+  "recall_reported": false,
+  "pairs": 72,
+  "by_type": {
+    "absence": {
+      "engine_abstained": 15,
+      "abstained_on_match": 15,
+      "tp": 41,
+      "tn": 2,
+      "fn": 4
+    }
+  },
+  "unscorable": {
+    "human could not tell": 8,
+    "source data has the wrong website": 2
+  }
+}

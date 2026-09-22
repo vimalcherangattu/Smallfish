@@ -1,0 +1,21 @@
+{
+  "market": "dental-phoenix",
+  "design": {
+    "sampling": "complete_slice"
+  },
+  "recall_reported": true,
+  "pairs": 70,
+  "by_type": {
+    "absence": {
+      "engine_abstained": 28,
+      "tn": 8,
+      "tp": 11,
+      "abstained_on_match": 8,
+      "fn": 1
+    }
+  },
+  "unscorable": {
+    "human could not tell": 17,
+    "source data has the wrong website": 5
+  }
+}

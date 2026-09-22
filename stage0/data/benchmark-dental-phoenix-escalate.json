@@ -1,0 +1,44 @@
+{
+  "market": "dental-phoenix",
+  "model": "claude-sonnet-5",
+  "businesses": 1000,
+  "readable": 534,
+  "cold_fetched": 34,
+  "verdicts": {
+    "couldnt_tell": 597,
+    "no_match": 143,
+    "match": 260
+  },
+  "settled_by": {
+    "model": 188,
+    "absence_rule": 739,
+    "detector": 73
+  },
+  "couldnt_tell_readable": {
+    "couldnt_tell": 131,
+    "no_match": 143,
+    "match": 260
+  },
+  "proof_checked": 70,
+  "proof_valid": 70,
+  "matches": 260,
+  "errors": 0,
+  "cost": {
+    "model_calls": 461,
+    "businesses_judged": 1000,
+    "matches": 260,
+    "total_usd": 7.634,
+    "cost_per_business": 0.00763,
+    "cost_per_match": 0.02936,
+    "cache_read_share": 0.0,
+    "by_stage": {
+      "judge": {
+        "calls": 461,
+        "cost_usd": 7.633952,
+        "input": 3172956,
+        "output": 128804,
+        "cache_read": 0
+      }
+    }
+  }
+}

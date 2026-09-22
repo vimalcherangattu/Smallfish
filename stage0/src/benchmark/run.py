@@ -159,7 +159,7 @@ async def main_async(args) -> int:
     for b in businesses:
         judgments.append(
             judge_business(b, reads[b["id"]], criteria, meter=meter, api=api,
-                           settle_on_generic=not args.no_generic_settle)
+                           settle_on_generic=args.generic_settle)
         )
 
     # --- tally
@@ -332,14 +332,14 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--market", default="med-spa-dallas")
     ap.add_argument(
-        "--no-generic-settle", action="store_true",
-        help="A/B arm: send the detector's GENERIC booking hits to the model "
-             "instead of letting them settle the criterion. Measured once and "
-             "it lost on every axis (recall 40.0 -> 26.7%, cost/match $0.0249 "
-             "-> $0.0705), because those patterns match raw HTML and the model "
-             "is shown visible text — 0 of 5 firing sites are matchable in "
-             "what it sees. Kept as a flag so the claim can be re-measured "
-             "rather than re-argued.")
+        "--generic-settle", action="store_true",
+        help="A/B arm: let the detector's GENERIC booking hits settle the "
+             "criterion instead of sending them to the model. This was the "
+             "default until the booking rubric reached the model's prompt; "
+             "measured on 1,000 businesses against corrected labels it now "
+             "loses 25 points of recall (30.0%% vs 55.0%%) while costing only "
+             "$0.006 less per match. Kept as a flag so the claim can be "
+             "re-measured rather than re-argued.")
     ap.add_argument(
         "--tag", default="",
         help="write this run's verdicts to verdicts-<market>-<tag>.json "

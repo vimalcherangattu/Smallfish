@@ -28,7 +28,7 @@ plan wins and the Decision log records why.
 
 | Stage | Status | Gate | Gate met? |
 |---|---|---|---|
-| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | 1 answered · **2 PASSES on dental (100%, LB 90.6%)** · **3 fails at 30%** (ceiling 75%) · 4 passes at $0.024. **Recall is the only failing item** |
+| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | 1 answered · **2 PASSES on dental (100%, LB 91.4%)** · **3 undecided at 55%** (ceiling 75%, was failing at 30%) · 4 passes at $0.029. **Nothing fails outright on dental** |
 | 1 · Launch | Not started | 50 paying users; live precision ≥ 90% | — |
 | 2 · Grow | Not started | 300 paying; churn ≤ 6%; cost/match ≤ $0.04 | — |
 | 3 · Compound | Not started | 1,000 paying; ≥ 50% warm reads | — |
@@ -54,23 +54,23 @@ plan wins and the Decision log records why.
 | **Criteria settled with no model call** (the cost lever, S0-10) | measure | **35 of 100 dental criteria**, live. 56.0–57.4% where a detector exists (2026-09-20) still stands | 2026-09-21 |
 | — across every criterion, detector or not | — | **25.0%** (285 of 1,138) | 2026-09-20 |
 | — benchmark criteria with no detector at all | — | **4 of 7**, settling nothing | 2026-09-20 |
-| — **model calls per 100 dental businesses** | — | **22** (222 per 1,000). Escalating the detector's generic settles took it to 51 and was reverted — see decision log | 2026-09-21 |
-| Match precision, blended | ≥ 90% | **100.0%** ✓ **PASSES** — 37 positive calls, **0 false positives**, CI **90.6**–100%. 72 enriched hand labels. Dental only; the gate wants three niches | 2026-09-22 |
+| — **model calls per 100 dental businesses** | — | **46** (461 per 1,000), up from 23. The cost of escalating generic detector hits, and it buys 25 points of recall | 2026-09-22 |
+| Match precision, blended | ≥ 90% | **100.0%** ✓ **PASSES** — **41** positive calls, **0 false positives**, CI **91.4**–100%. 72 enriched hand labels. Dental only; the gate wants three niches | 2026-09-22 |
 | — **measurement noise floor**, identical code and frozen corpus | — | precision read **71.4% then 83.3%** on two runs that differed in nothing. Below the Haiku→Sonnet gap, no engine change is distinguishable from this | 2026-09-21 |
-| Match precision, absence criteria only | ≥ 90% | **100.0%** ✓ (lower bound **90.6%**, 37 calls) — the gate reads this separately and it passes too | 2026-09-22 |
-| **Known-match recall (delivered)** | ≥ 60% | **33.3–40.0%** across corpora, same code. Reads 33.3% (CI 15.2–58.3%, FAILS) on the 1,000-business crawl and 40.0% on the frozen 100. **One business = 6.7 points at n=15**, so the figure is not stable to one decimal | 2026-09-21 |
-| — abstained on a true match | — | 6–7 of 15 (Sonnet), of which **5 are unreadable sites** | 2026-09-21 |
-| — wrongly rejected a true match | — | 3 of 15 (Sonnet) | 2026-09-21 |
-| **Recall ceiling with the current crawl** | — | **67%** — unreadable sites can never be confirmed. Clears the 60% target, so the gap is closable | 2026-09-21 |
+| Match precision, absence criteria only | ≥ 90% | **100.0%** ✓ (lower bound **91.4%**, 41 calls) — the gate reads this separately and it passes too | 2026-09-22 |
+| **Known-match recall (delivered)** | ≥ 60% | **55.0%** (11 of 20), CI 34.2–74.2% — **UNDECIDED**, no longer failing. Was 30.0% before generic detector hits were escalated to the model | 2026-09-22 |
+| — abstained on a true match | — | **8 of 20**, of which **5 are unreadable sites** — 3 abstentions left to win | 2026-09-22 |
+| — wrongly rejected a true match | — | **1 of 20** (was 7 when the detector settled generic hits) | 2026-09-22 |
+| **Recall ceiling with the current crawl** | — | **75%** (15 of 20 true matches readable). At 55.0% delivered, **3 abstentions separate the engine from the 60% target** | 2026-09-22 |
 | Source data has the wrong website | — | **5 of 70 (7%)** — caps achievable precision | 2026-09-21 |
 | Human could not establish truth | — | 17 of 70 (24%) | 2026-09-21 |
 | Cold cost per business | ≤ $0.010 | **$0.0032 Sonnet 5** ✓ over 1,000, 696 cold-fetched (Haiku $0.0011, Opus $0.0074) | 2026-09-21 |
 | Warm cost per business | ≤ $0.002 | — | — |
-| **Blended cost per match** | ≤ $0.04 | **$0.0236** ✓ over 1,000 businesses under the rubric, 146 matches, 230 model calls none failed. The escalation arm measured $0.0705 ✗ and was reverted | 2026-09-22 |
+| **Blended cost per match** | ≤ $0.04 | **$0.0294** ✓ over 1,000 businesses, 260 matches, 461 model calls. Settling generic hits is $0.0236 but costs 25 points of recall | 2026-09-22 |
 | — Google gap-fill discovery, measured | — | **$0.0079 per business discovered** | 2026-09-21 |
 | — break-even cold read cost, worst market | — | $0.0043/business — **measured read is $0.0020, inside it** | 2026-09-21 |
 | Proof validity (quote found verbatim in fetched text) | high | **100%** (11 of 11 model verdicts) | 2026-09-21 |
-| Couldn't-tell on **readable** sites | ≤ 25% | **11.8%** ✓ over 1,000 businesses under the rubric | 2026-09-22 |
+| Couldn't-tell on **readable** sites | ≤ 25% | **24.5%** ✓ over 1,000 businesses — *thin margin*, 11.8% if generic hits settle | 2026-09-22 |
 | — of which: one-page reads | — | 9 of 21 remaining couldn't-tells; one-page reads are ~100% couldn't-tell | 2026-09-21 |
 | — mean pages read per readable site | — | **3.30** (was 3.27 before the link fix) | 2026-09-21 |
 | Weekly profile change rate (drives alert cost) | measure | — | — |
@@ -584,3 +584,7 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-22 | **GATE ITEM 2 PASSES on dental-phoenix: precision 100%, 37 positive calls, 0 false positives, lower bound 90.6%** | 72 enriched hand labels. Blended and absence-only both clear 90%, which matters because the plan deliberately reads them separately — a blended pass can hide a failing absence number, and absence is what the marketing leads with. **Not one false positive has ever been found**: across 37 businesses the engine called a match, the human agreed every time. The caveat is scope — this is one niche of the three the gate asks for, and it is the easiest of them (one criterion, the one the detector covers best). |
 | 2026-09-22 | The enriched sampling design is what made this affordable | 72 enriched labels bought 37 positive calls. The same result via a complete slice would have needed roughly **700 labelled businesses**. The design change, not any engine change, is what moved gate item 2 from "needs 2,200 labels" to "needs 72". |
 | 2026-09-22 | **Recall is now the only failing gate item**, and the product question narrows to one decision | Coverage answered, precision passing, cost passing at $0.024. Delivered recall is 30% against a 60% target, with a 75% ceiling — and the gap is not crawling: of 20 true matches, 15 are readable and 6 are delivered. Nine businesses whose sites were fetched cleanly and not delivered. Either the engine closes that gap, or gate item 3 gets restated the way item 1 was — a shorter list is not a wrong list, and precision is what protects trust. |
+| 2026-09-22 | **RETRACTED: reverting the generic escalation was right on the evidence available and wrong on the evidence that arrived.** Escalating is now the default. | Re-measured on 1,000 businesses against the corrected labels, with the booking rubric in the model's prompt: recall **30.0% → 55.0%**, precision 100% either way but on **41** positive calls rather than 37 (lower bound 91.4% vs 90.6%), couldn't-tell 11.8% → 24.5% (inside the 25% target, thinly), cost per match $0.0236 → $0.0294 (inside the $0.04 budget). Escalating wins recall by **25 points** while the two metrics it costs both stay inside target. **Wrongly-rejected true matches fell from 7 to 1.** |
+| 2026-09-22 | **Why the first A/B said the opposite: the model was being asked a question nobody had defined** | "Has no online booking" does not say whether an appointment-*request* form counts, and the model had to guess. The detector's crude rule at least guessed consistently, so it won. Once the rubric told the model that a form saying *"we will contact you to confirm"* is not booking, it could do the job the detector was only approximating. **An A/B between a rule and a model is not a fair test until the model has been told the rule** — the earlier result was not wrong, it was premature, and nothing in the engine changed between the two measurements. |
+| 2026-09-22 | The HTML-vs-text mechanism still holds and is why the detector is not deleted | The generic patterns match raw HTML — hrefs, button markup, iframe sources — and the model is shown `Page.text`. It still cannot see the signal. What changed is that it no longer needs to: told what booking means, it reads the page's own words about how appointments work, which is better evidence than a URL fragment. Vendor hits still settle without a model call, because a Calendly embed **is** the booking. |
+| 2026-09-22 | **Nothing fails outright on dental any more** | Coverage answered, precision PASSES (100%, LB 91.4%), recall UNDECIDED at 55.0% against a 60% target with a 75% ceiling, cost passes at $0.0294. **Three abstentions separate the engine from gate item 3.** Five of the nine remaining misses are sites that cannot be read at all, so the reachable work is small and specific rather than a general accuracy problem. |
