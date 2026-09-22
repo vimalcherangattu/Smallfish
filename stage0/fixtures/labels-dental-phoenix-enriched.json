@@ -1,0 +1,70 @@
+{
+  "market": "dental-phoenix",
+  "labelled_at": "2026-09-22T11:07:03.837Z",
+  "design": {
+    "sampling": "enriched_on_engine_positives",
+    "n": 180,
+    "positives": 103,
+    "filler": 77,
+    "valid_for": [
+      "precision"
+    ],
+    "invalid_for": [
+      "recall"
+    ],
+    "why": "Sampled on the engine's own positive calls. Precision is already conditioned on that, so it is unaffected. Recall's denominator is every true match, and the ones the engine missed are absent from this set by construction."
+  },
+  "labels": {
+    "1563060f-d810-4a61-b4c3-68e4c4245602": {
+      "no_online_booking": "match"
+    },
+    "c6095220-a8c8-4969-92f2-71e9ce35c10d": {
+      "no_online_booking": "match"
+    },
+    "efde0bfb-9e24-4fa1-a8e2-f5b64f53b79c": {
+      "no_online_booking": "couldnt_tell"
+    },
+    "24e10e2d-319c-429c-9368-b11ab3447a15": {
+      "no_online_booking": "match"
+    },
+    "db464049-f6b2-4c20-8bd6-ff2f643f9199": {
+      "no_online_booking": "match"
+    },
+    "7ad8ccb7-9180-4f01-9c89-ecf3b0c73fdc": {
+      "no_online_booking": "match"
+    },
+    "8e5a6c5a-638b-47a1-930c-aa35205466f9": {
+      "no_online_booking": "no_match"
+    },
+    "54024c41-5ff0-4b7d-83c6-a47ac55d93e8": {
+      "no_online_booking": "match"
+    },
+    "b9303ec6-275f-4a36-a4cf-13177f33a4fa": {
+      "no_online_booking": "match"
+    },
+    "c80d6c67-364c-478d-a4e8-8d614244c54d": {
+      "no_online_booking": "match"
+    },
+    "0e10aebe-454d-4026-8bf8-952a90230969": {
+      "no_online_booking": "match"
+    },
+    "c89e9387-c45b-49cd-b09a-e5eb11fcfbac": {
+      "no_online_booking": "match"
+    },
+    "0bd9ea35-5a71-4cb0-a0a0-cdf56057554b": {
+      "no_online_booking": "match"
+    },
+    "fbd69643-005f-42ad-a34b-1cd499a60a88": {
+      "no_online_booking": "match"
+    },
+    "b2e199c6-bdb3-4fca-9a4f-d3c0c115bfcb": {
+      "no_online_booking": "match"
+    },
+    "c4ff026c-af52-493e-ab22-6571344ad15c": {
+      "no_online_booking": "match"
+    },
+    "356c25a2-395f-4544-ac6e-708eb445e5f8": {
+      "no_online_booking": "couldnt_tell"
+    }
+  }
+}
