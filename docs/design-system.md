@@ -125,3 +125,43 @@ Three notes on the gap, because it is not all bad news:
 
 **Do not resolve this by picking one silently.** It needs a decision and a Decision log
 entry in `PROJECT_PLAN.md`, and probably sight of PRD v3.
+
+---
+
+## 6 · The home page — `docs/design/home-page.html`
+
+A composed home page in the design system's visual language, added 2026-09-22. Kept as
+the decoded 73 KB page rather than the 1.3 MB bundle it arrived in; the bundle was a
+React artifact with the page held as a JSON-escaped string.
+
+**Adopt freely — this is settled ground.** The tokens match §2 and §3 exactly (Fraunces /
+IBM Plex Sans / IBM Plex Mono; `#0E1520` ink, `#C8F03C` lure, the warm-grey paper ramp),
+so nothing here reopens the type or colour questions. The voice is worth keeping too, and
+three lines of it are the product's actual commitments rather than marketing:
+
+- *"It stops at drafted. It never sends."* — P5, and exactly what `src/lib/outreach.ts`
+  enforces today.
+- *"180 we refused to guess about — each with the reason why."* — P2. The engine already
+  does this and measures it.
+- *"cite the sentence"* — P1, and the proof validator already guarantees it verbatim.
+
+**Do not adopt without a decision — this is §5's unresolved divergence, made concrete.**
+The page is built around the product shape the repo does *not* implement:
+
+| The page shows | What the engine produces |
+|---|---|
+| `{{score}}` and `{{tier}}` per account, "SCORE IT" in the ticker | Binary verdicts — match / no match / couldn't tell. **There is no score.** |
+| *"Move a weight. Everything re-ranks in the browser"* | No weights, no dimensions, nothing to re-rank |
+| *"Two meters. Accounts researched, accounts watched."* | Pay per match; no credits, no watchlist |
+| *"We re-read what you watch"*, a 16 Aug → 16 Sep diff | S1-07 not built, and the weekly change rate (S0-20) is still unmeasured |
+| *"A new market needs no code"*, six verticals in the ticker | Four benchmark markets, one of which (HVAC) fails the coverage gate |
+
+Shipping this page as-is would promise scores the engine cannot compute and alerts that do
+not exist. That is the one thing this product cannot afford to do: every principle here
+rests on not claiming more than the evidence supports, and the home page is where a claim
+is loudest.
+
+**So the split is:** take the visual language, the layout and the voice now; treat the
+score/tier/weight surface as a **proposal for the product shape**, to be decided
+alongside §5 rather than absorbed through a stylesheet. If scores are adopted, that is a
+plan-level decision with a decision-log entry, not a design import.
