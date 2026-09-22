@@ -55,6 +55,25 @@ FIXTURES = ROOT / "stage0" / "fixtures" / "benchmarks.json"
 MAX_ERROR_RATE = 0.02
 
 
+def output_paths(market: str, tag: str = "") -> dict[str, Path]:
+    """Every file a run writes, resolved in one place.
+
+    These used to be built inline at the point of use, and the tag was
+    introduced between two of them: the run judged 1,000 businesses, spent the
+    money, and died on an UnboundLocalError at the first write. A path
+    expression evaluated only at the very end of an expensive job is a
+    landmine, so they are computed together and unit-tested without spending
+    anything.
+    """
+    suffix = f"-{tag}" if tag else ""
+    return {
+        "benchmark": DATA / f"benchmark-{market}{suffix}.json",
+        "verdicts": DATA / f"verdicts-{market}{suffix}.json",
+        "trace": DATA / f"verdict-trace-{market}{suffix}.json",
+        "cost_log": DATA / f"cost-log-{market}{suffix}.jsonl",
+    }
+
+
 def pick(market_id: str, limit: int, seed: int) -> list[dict]:
     """A deterministic slice of businesses that have a website worth reading.
 
@@ -77,6 +96,12 @@ def pick(market_id: str, limit: int, seed: int) -> list[dict]:
 
 
 async def main_async(args) -> int:
+    # Resolved before anything runs, because every output path uses it and
+    # the first version assigned it between two of them — the run judged
+    # 1,000 businesses, spent the money, then died on an UnboundLocalError
+    # at the write. Output paths belong at the top, not next to their
+    # first use.
+    paths = output_paths(args.market, args.tag)
     businesses, market = pick(args.market, args.limit, args.seed)
     spec = json.loads(FIXTURES.read_text())
     fixture = next(m for m in spec["markets"] if m["id"] == args.market)
@@ -243,7 +268,7 @@ async def main_async(args) -> int:
                   f"(not the gate's unit)")
     print(f"cache read share      {100 * summary['cache_read_share']:.1f}% of billed input")
 
-    out = DATA / f"benchmark-{args.market}{tag}.json"
+    out = paths["benchmark"]
     out.write_text(json.dumps({
         "market": args.market,
         "model": MODEL_WORKER,
@@ -259,14 +284,13 @@ async def main_async(args) -> int:
         "errors": errors,
         "cost": summary,
     }, indent=2) + "\n")
-    meter.write(DATA / f"cost-log-{args.market}.jsonl")
+    meter.write(paths["cost_log"])
 
     # Per-business verdicts, for score.py to join hand labels onto. Written
     # every run rather than behind a flag: a benchmark whose verdicts are not
     # recoverable cannot be scored later, and re-running to get them back costs
     # money for an answer we already had.
-    tag = f"-{args.tag}" if args.tag else ""
-    verdicts_out = DATA / f"verdicts-{args.market}{tag}.json"
+    verdicts_out = paths["verdicts"]
     # A smaller run must not clobber a larger one. The enriched labelling set
     # is drawn from these verdicts, so a 100-business A/B overwriting a
     # 1,000-business run silently orphans most of the labels a human has
@@ -291,7 +315,7 @@ async def main_async(args) -> int:
 
     # The same verdicts with their provenance, for diagnosing *why* a verdict
     # came out as it did. Separate file so score.py's join stays simple.
-    trace_out = DATA / f"verdict-trace-{args.market}{tag}.json"
+    trace_out = paths["trace"]
     trace_out.write_text(json.dumps(
         {j.business_id: {v.criterion_id: {
             "verdict": v.verdict, "settled_by": v.settled_by,

@@ -43,7 +43,29 @@ def check(name: str, condition: bool, detail: str = "") -> None:
 
 
 def main() -> int:
-    from benchmark.run import MAX_ERROR_RATE
+    from benchmark.run import MAX_ERROR_RATE, output_paths
+
+    # --- output paths resolve without running anything
+    # The tag was once introduced between two inline path expressions, so a
+    # 1,000-business run judged everything, spent the money, and then died on
+    # an UnboundLocalError at the first write. A path built at the very end of
+    # an expensive job is a landmine; these are now computed together and
+    # checked here for free.
+    plain = output_paths("dental-phoenix")
+    tagged = output_paths("dental-phoenix", "escalate")
+    check("a run resolves all four of its output paths",
+          set(plain) == {"benchmark", "verdicts", "trace", "cost_log"})
+    check("an untagged run writes the canonical names",
+          plain["verdicts"].name == "verdicts-dental-phoenix.json")
+    check("a tagged run writes beside them, never over them",
+          tagged["verdicts"].name == "verdicts-dental-phoenix-escalate.json")
+    check("every tagged path differs from its untagged twin",
+          all(tagged[k] != plain[k] for k in plain),
+          "an A/B arm that shares any output path overwrites the canonical run")
+    check("no path expression is left inline in main_async",
+          '{tag}.json' not in SRC,
+          "that is the shape that produced the UnboundLocalError")
+
 
     check("there is an error-rate ceiling at all", MAX_ERROR_RATE > 0)
     check(
