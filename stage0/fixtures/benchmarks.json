@@ -40,12 +40,14 @@
         {
           "id": "offers_botox",
           "type": "presence",
-          "text": "offers Botox"
+          "text": "offers Botox",
+          "rubric": "The site must say the business offers Botox or a named equivalent (Dysport, Xeomin, Jeuveau) \u2014 or 'neurotoxin'/'wrinkle relaxer' injections. A general 'injectables' or 'aesthetics' page without a named product is not enough. Being a med spa is not evidence."
         },
         {
           "id": "no_online_booking",
           "type": "absence",
-          "text": "has no online booking"
+          "text": "has no online booking",
+          "rubric": "The test is whether a customer can walk away with a CONFIRMED TIME without a human getting back to them. A calendar or slot picker that returns a booked appointment is online booking. A form that collects details and says the practice will call, email or text to confirm is NOT \u2014 it is an appointment REQUEST, and the criterion holds. Date and time preference fields do not change that if the practice still confirms. Judge the destination, never the button: 'Book Now' and 'Schedule Online' routinely lead to request forms."
         }
       ]
     },
@@ -77,7 +79,8 @@
         {
           "id": "no_online_booking",
           "type": "absence",
-          "text": "has no online booking"
+          "text": "has no online booking",
+          "rubric": "The test is whether a customer can walk away with a CONFIRMED TIME without a human getting back to them. A calendar or slot picker that returns a booked appointment is online booking. A form that collects details and says the practice will call, email or text to confirm is NOT \u2014 it is an appointment REQUEST, and the criterion holds. Date and time preference fields do not change that if the practice still confirms. Judge the destination, never the button: 'Book Now' and 'Schedule Online' routinely lead to request forms."
         }
       ]
     },
@@ -104,12 +107,14 @@
         {
           "id": "does_commercial",
           "type": "presence",
-          "text": "does commercial work"
+          "text": "does commercial work",
+          "rubric": "The site must say the business serves commercial, business, industrial or multi-family customers \u2014 a 'commercial services' page, named business clients, or 'residential and commercial'. Size of the company is not evidence, and neither is serving landlords of single homes."
         },
         {
           "id": "no_quote_form",
           "type": "absence",
-          "text": "has no quote form"
+          "text": "has no quote form",
+          "rubric": "A form on the business's own site that collects enough to return a price or arrange a visit. A bare 'contact us' with only name, email and a message box counts as a quote form for this criterion; a phone number alone does not, and neither does a chat widget."
         }
       ]
     },
@@ -136,12 +141,14 @@
         {
           "id": "exotic_pet_care",
           "type": "presence",
-          "text": "offers exotic-pet care"
+          "text": "offers exotic-pet care",
+          "rubric": "The site must say the practice treats species beyond cats and dogs \u2014 birds, reptiles, rabbits, 'pocket pets', 'exotics'. Treating 'all animals' without naming any is not enough."
         },
         {
           "id": "independent",
           "type": "absence",
-          "text": "not part of a group"
+          "text": "not part of a group",
+          "rubric": "The criterion holds when the practice appears independent. Evidence it is NOT: a named corporate parent or DVM group, a 'our locations' list spanning several cities, or shared branding across clinics. A single practice with two nearby sites is still independent."
         }
       ],
       "$comment": "Generalisation check (S0-32): a vertical with no vendor catalogue, whose criteria share no keywords with med spa, dental or HVAC."

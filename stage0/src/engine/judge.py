@@ -298,8 +298,21 @@ def build_prompt(read, criteria: list[dict]) -> tuple[str, bool]:
         parts.append(f"--- PAGE: {page.url} ---\n{body}")
         total += len(body)
 
+    # The rubric comes from `benchmarks.json`, the same field the labelling tool
+    # shows the human. A criterion phrase like "has no online booking" is not
+    # self-defining: a form that collects your details and says the practice
+    # will call to confirm is an appointment *request*, not a booking, and a
+    # reasonable judge could go either way. If the human and the model resolve
+    # that differently, every disagreement is scored as an engine error when it
+    # is really the two of them answering different questions — and no amount
+    # of engine work fixes it, because there is nothing wrong with the engine.
+    #
+    # So the definition lives in one place and is rendered to both. Written
+    # twice it drifts, and the drift is invisible in every number.
     criteria_lines = "\n".join(
-        f"- id={c['id']} | type={c.get('type', 'presence')} | {c['text']}" for c in criteria
+        f"- id={c['id']} | type={c.get('type', 'presence')} | {c['text']}"
+        + (f"\n    HOW TO DECIDE: {c['rubric']}" if c.get("rubric") else "")
+        for c in criteria
     )
     prompt = (
         "PAGE TEXT FROM THIS BUSINESS'S WEBSITE:\n\n"

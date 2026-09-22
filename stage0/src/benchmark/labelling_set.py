@@ -196,6 +196,8 @@ HTML = """<!doctype html>
   .opts label { border:1px solid var(--line); border-radius:8px;
     padding:7px 11px; font-size:13px; cursor:pointer; user-select:none }
   .opts input { margin-right:6px }
+  .rubric { color:var(--muted); font-size:12.5px; margin-top:5px;
+    border-left:2px solid var(--line); padding-left:9px }
   .opts label:has(input:checked) { border-color:var(--accent);
     background:var(--accent-soft); font-weight:600 }
   details { margin-top:10px; font-size:13px }
@@ -323,6 +325,7 @@ function render() {
     for (const c of CRITERIA) {
       const cur = (labels[t.business_id] || {})[c.id];
       html += '<div class="crit"><div class="q">' + esc(c.text) + "?</div>" +
+        (c.rubric ? '<div class="rubric">' + esc(c.rubric) + "</div>" : "") +
         '<div class="opts">' +
         OPTIONS.map(([v, lab]) =>
           '<label><input type="radio" name="' + t.business_id + "|" + c.id + '"' +
@@ -388,8 +391,14 @@ def main() -> int:
 
     html = (HTML
             .replace("__TASKS__", json.dumps(tasks))
+            # The rubric travels to the labeller AND to the judge, from one
+            # place in benchmarks.json. Written twice it drifts, and the drift
+            # is invisible: the engine and the ground truth would be answering
+            # slightly different questions and every disagreement would look
+            # like an engine error.
             .replace("__CRITERIA__", json.dumps(
-                [{"id": c["id"], "text": c["text"]} for c in criteria]))
+                [{"id": c["id"], "text": c["text"], "rubric": c.get("rubric", "")}
+                 for c in criteria]))
             .replace("__DESIGN__", json.dumps(design))
             .replace("__MARKET__", args.market)
             .replace("__N__", str(len(tasks)))

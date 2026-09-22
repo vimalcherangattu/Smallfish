@@ -69,6 +69,22 @@ MAX_PAGES = 4
 # complete single-page site when nobody ever counted its links.
 CACHE_VERSION = 3  # link-selection fix changes which pages a read contains
 
+# Outcomes that describe US, not the site: a timeout, a proxy or transport
+# error, an outcome we could not classify. Everything else — dead, blocked,
+# robots_blocked, thin, js_shell, social_only, http_error — is a fact about
+# the site and stays true until the site changes.
+#
+# These are never written to the cache. "Never blame the environment on the
+# business" was already the rule for *reported rates*, and the cache was
+# quietly breaking it for *verdicts*: one slow moment became a permanent
+# couldn't-tell for that business, and no later run would retry it.
+#
+# Measured on the day this was found: two 1,000-site crawls run concurrently
+# took the timeout rate from 16 per 1,000 to 197 and 267 — our own contention,
+# about to be frozen into the corpus as 464 businesses that "could not be
+# read". 18.6% of the whole cache was our failures recorded as theirs.
+OUR_FAILURES = {"timeout", "probe_error", "unknown"}
+
 
 @dataclass
 class Page:
@@ -167,6 +183,10 @@ class FetchCache:
         # thing standing between a detector change and a frozen-corpus run that
         # reports "no effect" because the change never ran.
         self.stale_detection = 0
+        # Reads we declined to cache because the failure was ours, and
+        # cache entries from before that rule which are now evicted.
+        self.our_failures = 0
+        self.evicted = 0
 
     def _path(self, url: str) -> Path:
         return self.dir / (hashlib.sha256(url.encode()).hexdigest()[:24] + ".json")
@@ -177,6 +197,13 @@ class FetchCache:
             self.misses += 1
             return None
         raw = json.loads(path.read_text())
+        if raw.get("outcome") in OUR_FAILURES:
+            # Written before OUR_FAILURES existed. Evict rather than serve:
+            # it is a record of our bad afternoon, not of their website.
+            path.unlink(missing_ok=True)
+            self.evicted += 1
+            self.misses += 1
+            return None
         if raw.get("v") != CACHE_VERSION and not self.ignore_version:
             # Stale shape. Re-fetching costs a request; reading it with
             # defaults would cost a wrong verdict.
@@ -212,6 +239,10 @@ class FetchCache:
         )
 
     def put(self, read: SiteRead) -> None:
+        if read.outcome in OUR_FAILURES:
+            # Retry it next run rather than bank it as an answer about them.
+            self.our_failures += 1
+            return
         payload = asdict(read)
         payload["from_cache"] = False
         payload["v"] = CACHE_VERSION
