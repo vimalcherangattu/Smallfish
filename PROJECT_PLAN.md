@@ -57,7 +57,7 @@ plan wins and the Decision log records why.
 | — **model calls per 100 dental businesses** | — | **22** (222 per 1,000). Escalating the detector's generic settles took it to 51 and was reverted — see decision log | 2026-09-21 |
 | Match precision, blended | ≥ 90% | **100.0%** — 22 positive calls, **0 false positives**. CI 85.1–100%, still UNDECIDED: the lower bound needs 35 clean calls, ~27 more labels | 2026-09-22 |
 | — **measurement noise floor**, identical code and frozen corpus | — | precision read **71.4% then 83.3%** on two runs that differed in nothing. Below the Haiku→Sonnet gap, no engine change is distinguishable from this | 2026-09-21 |
-| Match precision, absence criteria only | ≥ 90% | **83.3–85.7%** (Sonnet 5) — the gate reads this separately | 2026-09-21 |
+| Match precision, absence criteria only | ≥ 90% | **100.0%** (lower bound 85.1%, 22 calls) — the gate reads this separately | 2026-09-22 |
 | **Known-match recall (delivered)** | ≥ 60% | **33.3–40.0%** across corpora, same code. Reads 33.3% (CI 15.2–58.3%, FAILS) on the 1,000-business crawl and 40.0% on the frozen 100. **One business = 6.7 points at n=15**, so the figure is not stable to one decimal | 2026-09-21 |
 | — abstained on a true match | — | 6–7 of 15 (Sonnet), of which **5 are unreadable sites** | 2026-09-21 |
 | — wrongly rejected a true match | — | 3 of 15 (Sonnet) | 2026-09-21 |
