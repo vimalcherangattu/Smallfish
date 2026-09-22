@@ -132,6 +132,18 @@ def build_tasks(
             "n": len(chosen),
             "positives": len(positives),
             "filler": len(filler),
+            # WHICH businesses the engine called matches when this set was
+            # drawn. Precision from an enriched sample is unbiased for *that*
+            # engine: the sample is conditioned on its positives, and if a
+            # later engine calls a different set of businesses matches, the
+            # sample is no longer a clean slice of them.
+            #
+            # Recorded as ids rather than a count so `score.py` can report the
+            # actual overlap instead of asserting there is one. Same failure
+            # shape as the cached detector catalogue: a thing measured against
+            # a version that has since moved, reporting a number that looks
+            # fine. ~4 KB.
+            "sampled_positive_ids": sorted(positive_ids & set(by_id)),
             # Stated in the file so a future reader does not have to infer it
             # from the counts, and so score.py's refusal has a reason to quote.
             "valid_for": ["precision"],

@@ -117,6 +117,26 @@ def main() -> int:
         )
     engine = json.loads(verdicts_path.read_text())
 
+    # Has the engine moved since this sample was drawn? An enriched sample is
+    # conditioned on one engine's positive calls, so it estimates THAT engine's
+    # precision. A later engine that calls a different set of businesses
+    # matches is not cleanly sampled by it, and the number would still print.
+    sampled_ids = set(design.get("sampled_positive_ids") or [])
+    if enriched and sampled_ids:
+        now = {bid for bid, v in engine.items()
+               if v and all(x == "match" for x in v.values())}
+        kept = len(sampled_ids & now)
+        drifted = len(sampled_ids) - kept
+        share = kept / len(sampled_ids)
+        print(f"Engine drift since the sample was drawn: "
+              f"{kept}/{len(sampled_ids)} sampled positives are still positives"
+              f"  ({share:.0%})")
+        if share < 0.90:
+            print("  The engine has moved materially. Precision below estimates "
+                  "the engine\n  this set was drawn FROM, not the current one. "
+                  "Re-draw the sample, or\n  read the number as historical.")
+        print()
+
     spec = json.loads((FIXTURES / "benchmarks.json").read_text())
     criteria = {c["id"]: c for c in
                 next(m for m in spec["markets"] if m["id"] == args.market)["criteria"]}

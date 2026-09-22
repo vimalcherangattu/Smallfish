@@ -123,6 +123,13 @@ def main() -> int:
           design["sampling"] == "enriched_on_engine_positives")
     check("and names what it must not be used for",
           design.get("invalid_for") == ["recall"])
+    check(
+        "and records WHICH engine positives it sampled",
+        len(design.get("sampled_positive_ids") or []) == design["positives"],
+        "an enriched sample estimates the precision of the engine it was drawn "
+        "from; without the ids, a later engine change is invisible and the "
+        "number still prints",
+    )
 
     # --- blindness: the engine's verdict must not reach the labeller
     tasks, _, _ = build_tasks(market, 10, 20260921, enrich=True)
