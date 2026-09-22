@@ -201,7 +201,9 @@ FAMILY_PATTERNS = [
 ]
 
 
-def detector_verdict(criterion: dict, read) -> CriterionVerdict | None:
+def detector_verdict(
+    criterion: dict, read, settle_on_generic: bool = True
+) -> CriterionVerdict | None:
     """Settle a criterion from technology detection alone, or return None.
 
     Only ever returns `no_match`, and only for an absence criterion: a detected
@@ -264,7 +266,7 @@ def detector_verdict(criterion: dict, read) -> CriterionVerdict | None:
         return None
 
     vendors = read.vendors.get(family) or []
-    generic = read.generic.get(family) or False
+    generic = bool(read.generic.get(family)) and settle_on_generic
     if not vendors and not generic:
         return None
 
@@ -331,6 +333,7 @@ def judge_business(
     meter: CostMeter,
     model: str = MODEL_WORKER,
     api=None,
+    settle_on_generic: bool = True,
 ) -> BusinessJudgment:
     """Judge one business's criteria. One model call, or none if unreadable."""
     out = BusinessJudgment(business_id=business["id"])
@@ -353,7 +356,7 @@ def judge_business(
     # prompt entirely, so it costs no tokens as well as no decision.
     remaining: list[dict] = []
     for c in criteria:
-        settled = detector_verdict(c, read)
+        settled = detector_verdict(c, read, settle_on_generic)
         if settled is not None:
             out.verdicts.append(settled)
         else:

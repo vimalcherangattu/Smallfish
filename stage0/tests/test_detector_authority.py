@@ -88,6 +88,21 @@ def main() -> int:
         "and says the evidence was a route rather than naming a vendor",
         g is not None and "vendor" not in g.reason and "route" in g.reason,
     )
+    # --- the A/B arm is a flag, not an edit
+    # This was measured by hand-editing judge.py, which left an experimental
+    # mutation sitting in the working tree with a live run depending on it.
+    # A claim worth re-measuring is worth a flag.
+    check(
+        "the generic settle can be switched off for an A/B arm",
+        detector_verdict(ABSENCE, read(generic={"booking": True}),
+                         False) is None,
+    )
+    check(
+        "and switching it off does NOT disarm a vendor hit",
+        (detector_verdict(ABSENCE, read(vendors={"booking": ["calendly"]}),
+                          False) or None) is not None,
+        "the arm under test is the generic patterns, not the whole detector",
+    )
     check(
         "a vendor still settles it when a generic word is also present",
         (detector_verdict(ABSENCE, read(vendors={"booking": ["zocdoc"]},
