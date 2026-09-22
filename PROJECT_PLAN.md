@@ -28,7 +28,7 @@ plan wins and the Decision log records why.
 
 | Stage | Status | Gate | Gate met? |
 |---|---|---|---|
-| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | 1 answered · 2 undecided (83–86%, n=6–7) · **3 fails at 33–40%** (ceiling 67%) · 4 passes at $0.031 on 1,000 |
+| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | 1 answered · **2 at 100%, 0 errors in 22 calls** (undecided, ~27 labels short) · **3 fails at 30%** (ceiling 75%) · 4 passes at $0.024 |
 | 1 · Launch | Not started | 50 paying users; live precision ≥ 90% | — |
 | 2 · Grow | Not started | 300 paying; churn ≤ 6%; cost/match ≤ $0.04 | — |
 | 3 · Compound | Not started | 1,000 paying; ≥ 50% warm reads | — |
@@ -55,7 +55,7 @@ plan wins and the Decision log records why.
 | — across every criterion, detector or not | — | **25.0%** (285 of 1,138) | 2026-09-20 |
 | — benchmark criteria with no detector at all | — | **4 of 7**, settling nothing | 2026-09-20 |
 | — **model calls per 100 dental businesses** | — | **22** (222 per 1,000). Escalating the detector's generic settles took it to 51 and was reverted — see decision log | 2026-09-21 |
-| Match precision, blended | ≥ 90% | **83.3–85.7%** (Sonnet 5, n=6–7) CI 43.6–97.4% — undecided, sample far too small | 2026-09-21 |
+| Match precision, blended | ≥ 90% | **100.0%** — 22 positive calls, **0 false positives**. CI 85.1–100%, still UNDECIDED: the lower bound needs 35 clean calls, ~27 more labels | 2026-09-22 |
 | — **measurement noise floor**, identical code and frozen corpus | — | precision read **71.4% then 83.3%** on two runs that differed in nothing. Below the Haiku→Sonnet gap, no engine change is distinguishable from this | 2026-09-21 |
 | Match precision, absence criteria only | ≥ 90% | **83.3–85.7%** (Sonnet 5) — the gate reads this separately | 2026-09-21 |
 | **Known-match recall (delivered)** | ≥ 60% | **33.3–40.0%** across corpora, same code. Reads 33.3% (CI 15.2–58.3%, FAILS) on the 1,000-business crawl and 40.0% on the frozen 100. **One business = 6.7 points at n=15**, so the figure is not stable to one decimal | 2026-09-21 |
@@ -66,11 +66,11 @@ plan wins and the Decision log records why.
 | Human could not establish truth | — | 17 of 70 (24%) | 2026-09-21 |
 | Cold cost per business | ≤ $0.010 | **$0.0032 Sonnet 5** ✓ over 1,000, 696 cold-fetched (Haiku $0.0011, Opus $0.0074) | 2026-09-21 |
 | Warm cost per business | ≤ $0.002 | — | — |
-| **Blended cost per match** | ≤ $0.04 | **$0.0309 Sonnet 5** ✓ over **1,000 businesses** — the first figure at a scale where the denominator holds still (103 matches). $0.0249 on 100. The escalation arm measured $0.0705 ✗ and was reverted | 2026-09-21 |
+| **Blended cost per match** | ≤ $0.04 | **$0.0236** ✓ over 1,000 businesses under the rubric, 146 matches, 230 model calls none failed. The escalation arm measured $0.0705 ✗ and was reverted | 2026-09-22 |
 | — Google gap-fill discovery, measured | — | **$0.0079 per business discovered** | 2026-09-21 |
 | — break-even cold read cost, worst market | — | $0.0043/business — **measured read is $0.0020, inside it** | 2026-09-21 |
 | Proof validity (quote found verbatim in fetched text) | high | **100%** (11 of 11 model verdicts) | 2026-09-21 |
-| Couldn't-tell on **readable** sites | ≤ 25% | **8.0%** ✓ over 1,000 businesses (10.3% on 100). The escalation arm measured 29.3% ✗ | 2026-09-21 |
+| Couldn't-tell on **readable** sites | ≤ 25% | **11.8%** ✓ over 1,000 businesses under the rubric | 2026-09-22 |
 | — of which: one-page reads | — | 9 of 21 remaining couldn't-tells; one-page reads are ~100% couldn't-tell | 2026-09-21 |
 | — mean pages read per readable site | — | **3.30** (was 3.27 before the link fix) | 2026-09-21 |
 | Weekly profile change rate (drives alert cost) | measure | — | — |
@@ -579,3 +579,5 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-22 | **What it actually costs to decide precision, from the observed yield** | Each enriched label buys **0.50 scorable positive calls** (57% of the set are engine positives × 88% of answers decidable). At 32 labels and **0 wrong calls**, the gate needs 35 positives → ~70 labels total. But the cliff is steep: 97% true precision needs 138 labels, 95% needs 254. One wrong call roughly doubles the human work and two roughly quadruples it, so the cheap outcome is an engine comfortably above the line and the expensive one is an engine merely near it. |
 | 2026-09-22 | **A 1,000-business run with 143 of 229 model calls failed reported its numbers as findings** | The Anthropic credit balance ran out mid-run. The harness printed *"couldn't-tell 32.1% of criteria on READABLE sites"* and *"cost per match $0.02375"* and wrote the verdicts file, with a one-word `(143 failed)` as the only hint. Those figures are descriptions of an outage, and they are **plausible** ones: a failed call becomes a couldn't-tell, so failures push the couldn't-tell rate up and the match count down — the two headline numbers move in precisely the direction that reads as an engine problem. Nothing downstream can tell "the model was unsure" from "the call never completed". `run.py` now aborts above a **2% error rate**, before reporting and before writing anything, prints the actual error text, and exits 2. The verdicts file is the sharper hazard: it is what the hand labels join against, so a bad run silently poisons the most expensive input in Stage 0. |
 | 2026-09-22 | Blocked on **Anthropic credits**, not on a key | `preflight.py` passes — the key is valid. The balance is empty, which is a different failure and needs a different fix. No further judging until it is topped up; crawling, scoring and all source work are unaffected. |
+| 2026-09-22 | **Precision is 100% on 22 positive calls with zero false positives, and the engine's streak is unbroken** | 45 enriched hand labels. The two `no_match` labels both landed on filler rather than on businesses the engine flagged, so nothing the engine called a match has yet been wrong. The gate still reads UNDECIDED, and correctly: a Wilson lower bound of 85.1% does not clear 90%. **35 clean calls would** — 13 more, about 27 more labels at the measured yield of 0.49 positive calls per label. One wrong call along the way pushes it to 53 calls and ~64 more labels. |
+| 2026-09-22 | The enriched design **paid for itself**: 45 labels bought 22 positive calls where 70 random labels bought 6 | An 11× improvement in what a labelled business is worth to the metric that needed it, from changing the sampling rather than the engine. The complete slice is still the only thing that can measure recall, which is why both sets exist. |
