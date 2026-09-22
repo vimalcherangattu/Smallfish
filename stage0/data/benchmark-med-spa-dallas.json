@@ -1,37 +1,42 @@
 {
   "market": "med-spa-dallas",
-  "model": "claude-haiku-4-5",
-  "businesses": 60,
-  "readable": 20,
-  "cold_fetched": 55,
+  "model": "claude-sonnet-5",
+  "businesses": 1000,
+  "readable": 398,
+  "cold_fetched": 220,
   "verdicts": {
-    "couldnt_tell": 94,
-    "match": 7,
-    "no_match": 19
+    "couldnt_tell": 1561,
+    "no_match": 254,
+    "match": 185
   },
   "settled_by": {
-    "model": 25,
-    "absence_rule": 83,
-    "detector": 12
+    "model": 552,
+    "absence_rule": 1306,
+    "detector": 142
   },
-  "proof_checked": 11,
-  "proof_valid": 11,
-  "matches": 0,
+  "couldnt_tell_readable": {
+    "couldnt_tell": 357,
+    "no_match": 254,
+    "match": 185
+  },
+  "proof_checked": 205,
+  "proof_valid": 205,
+  "matches": 22,
   "errors": 0,
   "cost": {
-    "model_calls": 20,
-    "businesses_judged": 60,
-    "matches": 0,
-    "total_usd": 0.1215,
-    "cost_per_business": 0.00202,
-    "cost_per_match": null,
+    "model_calls": 398,
+    "businesses_judged": 1000,
+    "matches": 22,
+    "total_usd": 6.5613,
+    "cost_per_business": 0.00656,
+    "cost_per_match": 0.29824,
     "cache_read_share": 0.0,
     "by_stage": {
       "judge": {
-        "calls": 20,
-        "cost_usd": 0.121486,
-        "input": 98656,
-        "output": 4566,
+        "calls": 398,
+        "cost_usd": 6.56131,
+        "input": 2520660,
+        "output": 151999,
         "cache_read": 0
       }
     }
