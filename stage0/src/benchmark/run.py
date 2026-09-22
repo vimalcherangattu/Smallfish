@@ -230,6 +230,24 @@ async def main_async(args) -> int:
     # recoverable cannot be scored later, and re-running to get them back costs
     # money for an answer we already had.
     verdicts_out = DATA / f"verdicts-{args.market}.json"
+    # A smaller run must not clobber a larger one. The enriched labelling set
+    # is drawn from these verdicts, so a 100-business A/B overwriting a
+    # 1,000-business run silently orphans most of the labels a human has
+    # already produced — which is exactly what happened: 32 labels scored 14,
+    # and precision's denominator fell to 2. The human work is the expensive
+    # input here; losing its join is worse than an extra file.
+    if verdicts_out.exists():
+        try:
+            existing = len(json.loads(verdicts_out.read_text()))
+        except (OSError, ValueError):
+            existing = 0
+        if existing > len(judgments):
+            keep = DATA / f"verdicts-{args.market}-n{existing}.json"
+            if not keep.exists():
+                keep.write_text(verdicts_out.read_text())
+            print(f"\n  NOTE: {existing} verdicts on disk, this run has "
+                  f"{len(judgments)}.\n  Preserved the larger set at "
+                  f"{keep.relative_to(ROOT)} before overwriting.")
     verdicts_out.write_text(json.dumps(
         {j.business_id: {v.criterion_id: v.verdict for v in j.verdicts}
          for j in judgments}, indent=2) + "\n")

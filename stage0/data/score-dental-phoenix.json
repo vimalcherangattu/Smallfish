@@ -17,12 +17,11 @@
   "pairs": 70,
   "by_type": {
     "absence": {
-      "tn": 18,
-      "engine_abstained": 21,
-      "fp": 1,
-      "tp": 5,
-      "abstained_on_match": 7,
-      "fn": 3
+      "tn": 11,
+      "engine_abstained": 25,
+      "fn": 6,
+      "tp": 6,
+      "abstained_on_match": 8
     }
   },
   "unscorable": {

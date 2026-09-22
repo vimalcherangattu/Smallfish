@@ -30,13 +30,13 @@
       "no_online_booking": "no_match"
     },
     "0e10aebe-454d-4026-8bf8-952a90230969": {
-      "no_online_booking": "no_match"
+      "no_online_booking": "match"
     },
     "193fcb02-3f68-4744-8ee6-5eb0f74173d6": {
       "no_online_booking": "couldnt_tell"
     },
     "d47e23c4-de80-4e47-93f3-9ca2475adbb5": {
-      "no_online_booking": "no_match"
+      "no_online_booking": "match"
     },
     "79a889b9-6435-49c5-8e92-3edbbc19e7c9": {
       "no_online_booking": "match"
@@ -78,7 +78,7 @@
       "no_online_booking": "no_match"
     },
     "fe779451-5352-4d18-9742-794e67e286c9": {
-      "no_online_booking": "no_match"
+      "no_online_booking": "match"
     },
     "ec129524-f7e6-40ee-b77d-9beb6dd9c085": {
       "no_online_booking": "no_match"
@@ -111,7 +111,7 @@
       "no_online_booking": "no_match"
     },
     "38445990-0149-4aeb-8a23-2d69b8fd1d2c": {
-      "no_online_booking": "no_match"
+      "no_online_booking": "match"
     },
     "d24a0585-a389-4695-ad12-e9e072e83017": {
       "no_online_booking": "no_match"
@@ -171,7 +171,7 @@
       "no_online_booking": "no_match"
     },
     "e2f724e1-2f90-41b7-b2cd-9674dde8f64b": {
-      "no_online_booking": "no_match"
+      "no_online_booking": "match"
     },
     "b9303ec6-275f-4a36-a4cf-13177f33a4fa": {
       "no_online_booking": "match"
@@ -212,5 +212,53 @@
     "cce06afb-3ae8-4e02-8640-eb97c06eac6f": {
       "no_online_booking": "match"
     }
-  }
+  },
+  "revisions": [
+    {
+      "business_id": "0e10aebe-454d-4026-8bf8-952a90230969",
+      "name": "North Scottsdale Dental",
+      "criterion": "no_online_booking",
+      "from": "no_match",
+      "to": "match",
+      "on": "2026-09-22",
+      "reason": "booking rubric added after the original labelling: /book-now/ is a form with 'we'll contact you' language and no slot picker"
+    },
+    {
+      "business_id": "38445990-0149-4aeb-8a23-2d69b8fd1d2c",
+      "name": "Gentle Dental Ahwatukee",
+      "criterion": "no_online_booking",
+      "from": "no_match",
+      "to": "match",
+      "on": "2026-09-22",
+      "reason": "booking rubric added after the original labelling: /request-appointment is a HubSpot form; no scheduling widget"
+    },
+    {
+      "business_id": "fe779451-5352-4d18-9742-794e67e286c9",
+      "name": "Sun City Modern Dentistry",
+      "criterion": "no_online_booking",
+      "from": "no_match",
+      "to": "match",
+      "on": "2026-09-22",
+      "reason": "booking rubric added after the original labelling: 'Use the form below to request your appointment... we will reach out to you first to confirm your appointment or to provide you with an alternative date.'"
+    },
+    {
+      "business_id": "d47e23c4-de80-4e47-93f3-9ca2475adbb5",
+      "name": "Grayhawk Dental Associates",
+      "criterion": "no_online_booking",
+      "from": "no_match",
+      "to": "match",
+      "on": "2026-09-22",
+      "reason": "booking rubric added after the original labelling: 'use our contact form for general inquiries, to request an appointment'"
+    },
+    {
+      "business_id": "e2f724e1-2f90-41b7-b2cd-9674dde8f64b",
+      "name": "Dr. Sandra G. Reyes DDS, PLLC",
+      "criterion": "no_online_booking",
+      "from": "no_match",
+      "to": "match",
+      "on": "2026-09-22",
+      "reason": "booking rubric added after the original labelling: Name/Email/Phone/Message form and an appointments@ mailbox; no date or time picker"
+    }
+  ],
+  "revision_note": "The booking rubric in benchmarks.json was written after these labels were collected. Under it, an appointment REQUEST form is not online booking, so sites labelled no_match on the strength of a 'Book Now' button had to be re-examined. Each revision below was settled by fetching the destination page and reading what it says. Revising ground truth is recorded rather than applied silently: a label that changes without a trace is how a benchmark starts agreeing with whatever it is measuring."
 }
