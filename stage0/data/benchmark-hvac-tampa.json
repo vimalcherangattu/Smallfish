@@ -1,0 +1,44 @@
+{
+  "market": "hvac-tampa",
+  "model": "claude-sonnet-5",
+  "businesses": 685,
+  "readable": 361,
+  "cold_fetched": 442,
+  "verdicts": {
+    "match": 277,
+    "couldnt_tell": 862,
+    "no_match": 231
+  },
+  "settled_by": {
+    "model": 532,
+    "absence_rule": 732,
+    "detector": 106
+  },
+  "couldnt_tell_readable": {
+    "match": 277,
+    "couldnt_tell": 214,
+    "no_match": 231
+  },
+  "proof_checked": 326,
+  "proof_valid": 326,
+  "matches": 34,
+  "errors": 0,
+  "cost": {
+    "model_calls": 361,
+    "businesses_judged": 685,
+    "matches": 34,
+    "total_usd": 6.0763,
+    "cost_per_business": 0.00887,
+    "cost_per_match": 0.17871,
+    "cache_read_share": 0.0,
+    "by_stage": {
+      "judge": {
+        "calls": 361,
+        "cost_usd": 6.076298,
+        "input": 2401494,
+        "output": 127331,
+        "cache_read": 0
+      }
+    }
+  }
+}
