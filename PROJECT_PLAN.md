@@ -28,7 +28,7 @@ plan wins and the Decision log records why.
 
 | Stage | Status | Gate | Gate met? |
 |---|---|---|---|
-| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | 1 answered · **2 at 100%, 0 errors in 22 calls** (undecided, ~27 labels short) · **3 fails at 30%** (ceiling 75%) · 4 passes at $0.024 |
+| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | 1 answered · **2 PASSES on dental (100%, LB 90.6%)** · **3 fails at 30%** (ceiling 75%) · 4 passes at $0.024. **Recall is the only failing item** |
 | 1 · Launch | Not started | 50 paying users; live precision ≥ 90% | — |
 | 2 · Grow | Not started | 300 paying; churn ≤ 6%; cost/match ≤ $0.04 | — |
 | 3 · Compound | Not started | 1,000 paying; ≥ 50% warm reads | — |
@@ -55,9 +55,9 @@ plan wins and the Decision log records why.
 | — across every criterion, detector or not | — | **25.0%** (285 of 1,138) | 2026-09-20 |
 | — benchmark criteria with no detector at all | — | **4 of 7**, settling nothing | 2026-09-20 |
 | — **model calls per 100 dental businesses** | — | **22** (222 per 1,000). Escalating the detector's generic settles took it to 51 and was reverted — see decision log | 2026-09-21 |
-| Match precision, blended | ≥ 90% | **100.0%** — 22 positive calls, **0 false positives**. CI 85.1–100%, still UNDECIDED: the lower bound needs 35 clean calls, ~27 more labels | 2026-09-22 |
+| Match precision, blended | ≥ 90% | **100.0%** ✓ **PASSES** — 37 positive calls, **0 false positives**, CI **90.6**–100%. 72 enriched hand labels. Dental only; the gate wants three niches | 2026-09-22 |
 | — **measurement noise floor**, identical code and frozen corpus | — | precision read **71.4% then 83.3%** on two runs that differed in nothing. Below the Haiku→Sonnet gap, no engine change is distinguishable from this | 2026-09-21 |
-| Match precision, absence criteria only | ≥ 90% | **100.0%** (lower bound 85.1%, 22 calls) — the gate reads this separately | 2026-09-22 |
+| Match precision, absence criteria only | ≥ 90% | **100.0%** ✓ (lower bound **90.6%**, 37 calls) — the gate reads this separately and it passes too | 2026-09-22 |
 | **Known-match recall (delivered)** | ≥ 60% | **33.3–40.0%** across corpora, same code. Reads 33.3% (CI 15.2–58.3%, FAILS) on the 1,000-business crawl and 40.0% on the frozen 100. **One business = 6.7 points at n=15**, so the figure is not stable to one decimal | 2026-09-21 |
 | — abstained on a true match | — | 6–7 of 15 (Sonnet), of which **5 are unreadable sites** | 2026-09-21 |
 | — wrongly rejected a true match | — | 3 of 15 (Sonnet) | 2026-09-21 |
@@ -581,3 +581,6 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-22 | Blocked on **Anthropic credits**, not on a key | `preflight.py` passes — the key is valid. The balance is empty, which is a different failure and needs a different fix. No further judging until it is topped up; crawling, scoring and all source work are unaffected. |
 | 2026-09-22 | **Precision is 100% on 22 positive calls with zero false positives, and the engine's streak is unbroken** | 45 enriched hand labels. The two `no_match` labels both landed on filler rather than on businesses the engine flagged, so nothing the engine called a match has yet been wrong. The gate still reads UNDECIDED, and correctly: a Wilson lower bound of 85.1% does not clear 90%. **35 clean calls would** — 13 more, about 27 more labels at the measured yield of 0.49 positive calls per label. One wrong call along the way pushes it to 53 calls and ~64 more labels. |
 | 2026-09-22 | The enriched design **paid for itself**: 45 labels bought 22 positive calls where 70 random labels bought 6 | An 11× improvement in what a labelled business is worth to the metric that needed it, from changing the sampling rather than the engine. The complete slice is still the only thing that can measure recall, which is why both sets exist. |
+| 2026-09-22 | **GATE ITEM 2 PASSES on dental-phoenix: precision 100%, 37 positive calls, 0 false positives, lower bound 90.6%** | 72 enriched hand labels. Blended and absence-only both clear 90%, which matters because the plan deliberately reads them separately — a blended pass can hide a failing absence number, and absence is what the marketing leads with. **Not one false positive has ever been found**: across 37 businesses the engine called a match, the human agreed every time. The caveat is scope — this is one niche of the three the gate asks for, and it is the easiest of them (one criterion, the one the detector covers best). |
+| 2026-09-22 | The enriched sampling design is what made this affordable | 72 enriched labels bought 37 positive calls. The same result via a complete slice would have needed roughly **700 labelled businesses**. The design change, not any engine change, is what moved gate item 2 from "needs 2,200 labels" to "needs 72". |
+| 2026-09-22 | **Recall is now the only failing gate item**, and the product question narrows to one decision | Coverage answered, precision passing, cost passing at $0.024. Delivered recall is 30% against a 60% target, with a 75% ceiling — and the gap is not crawling: of 20 true matches, 15 are readable and 6 are delivered. Nine businesses whose sites were fetched cleanly and not delivered. Either the engine closes that gap, or gate item 3 gets restated the way item 1 was — a shorter list is not a wrong list, and precision is what protects trust. |
