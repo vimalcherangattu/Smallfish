@@ -243,7 +243,7 @@ async def main_async(args) -> int:
                   f"(not the gate's unit)")
     print(f"cache read share      {100 * summary['cache_read_share']:.1f}% of billed input")
 
-    out = DATA / f"benchmark-{args.market}.json"
+    out = DATA / f"benchmark-{args.market}{tag}.json"
     out.write_text(json.dumps({
         "market": args.market,
         "model": MODEL_WORKER,
@@ -265,7 +265,8 @@ async def main_async(args) -> int:
     # every run rather than behind a flag: a benchmark whose verdicts are not
     # recoverable cannot be scored later, and re-running to get them back costs
     # money for an answer we already had.
-    verdicts_out = DATA / f"verdicts-{args.market}.json"
+    tag = f"-{args.tag}" if args.tag else ""
+    verdicts_out = DATA / f"verdicts-{args.market}{tag}.json"
     # A smaller run must not clobber a larger one. The enriched labelling set
     # is drawn from these verdicts, so a 100-business A/B overwriting a
     # 1,000-business run silently orphans most of the labels a human has
@@ -290,7 +291,7 @@ async def main_async(args) -> int:
 
     # The same verdicts with their provenance, for diagnosing *why* a verdict
     # came out as it did. Separate file so score.py's join stays simple.
-    trace_out = DATA / f"verdict-trace-{args.market}.json"
+    trace_out = DATA / f"verdict-trace-{args.market}{tag}.json"
     trace_out.write_text(json.dumps(
         {j.business_id: {v.criterion_id: {
             "verdict": v.verdict, "settled_by": v.settled_by,
@@ -305,6 +306,13 @@ async def main_async(args) -> int:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--market", default="med-spa-dallas")
+    ap.add_argument(
+        "--tag", default="",
+        help="write this run's verdicts to verdicts-<market>-<tag>.json "
+             "instead of the canonical file. Use it for A/B arms: the "
+             "canonical verdicts are what a hand-labelled set joins "
+             "against, and an experiment that overwrites them invalidates "
+             "human work that costs far more than the run.")
     ap.add_argument("--limit", type=int, default=25)
     ap.add_argument("--concurrency", type=int, default=8)
     ap.add_argument("--seed", type=int, default=20260921)

@@ -68,6 +68,10 @@ def main() -> int:
              "the engine's positive calls. Precision only — recall is "
              "refused for it whether or not this flag is passed, on the "
              "design recorded inside the file.")
+    ap.add_argument(
+        "--tag", default="",
+        help="score against verdicts-<market>-<tag>.json, an A/B arm, "
+             "rather than the canonical run.")
     args = ap.parse_args()
 
     # Two datasets per market, measuring different things. Selected by flag
@@ -108,7 +112,7 @@ def main() -> int:
         print("  Precision below is valid. RECALL IS NOT REPORTED — the true "
               "matches the\n  engine missed are not in this sample.\n")
 
-    verdicts_path = DATA / f"verdicts-{args.market}.json"
+    verdicts_path = DATA / f"verdicts-{args.market}{('-' + args.tag) if args.tag else ''}.json"
     if not verdicts_path.exists():
         raise SystemExit(
             f"Missing {verdicts_path.relative_to(ROOT)}.\n"
@@ -280,7 +284,7 @@ def main() -> int:
                   "  is a row a user would receive about the wrong company."
                   .format(100 * wrong / pairs))
 
-    out = DATA / f"score-{args.market}{suffix}.json"
+    out = DATA / f"score-{args.market}{suffix}{('-' + args.tag) if args.tag else ''}.json"
     out.write_text(json.dumps({
         "market": args.market,
         "design": design,
