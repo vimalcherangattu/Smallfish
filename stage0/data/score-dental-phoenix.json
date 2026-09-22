@@ -18,10 +18,10 @@
   "by_type": {
     "absence": {
       "tn": 11,
-      "engine_abstained": 25,
+      "engine_abstained": 26,
       "fn": 6,
-      "tp": 6,
-      "abstained_on_match": 8
+      "tp": 5,
+      "abstained_on_match": 9
     }
   },
   "unscorable": {

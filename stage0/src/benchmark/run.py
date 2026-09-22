@@ -48,6 +48,12 @@ DATA = ROOT / "stage0" / "data"
 APP = ROOT / "public" / "data"
 FIXTURES = ROOT / "stage0" / "fixtures" / "benchmarks.json"
 
+# Above this share of failed model calls, the run is an outage rather than
+# a measurement and nothing is reported or written. Set low on purpose: a
+# few percent of failures skews couldn't-tell and the match count, and the
+# re-run is cheap because the crawl is cached.
+MAX_ERROR_RATE = 0.02
+
 
 def pick(market_id: str, limit: int, seed: int) -> list[dict]:
     """A deterministic slice of businesses that have a website worth reading.
@@ -135,9 +141,11 @@ async def main_async(args) -> int:
     settled_by = Counter()
     proof_checked = proof_valid = 0
     errors = 0
+    error_kinds = Counter()
     for j in judgments:
         if j.error:
             errors += 1
+            error_kinds[j.error[:120]] += 1
         for v in j.verdicts:
             verdicts[v.verdict] += 1
             settled_by[v.settled_by] += 1
@@ -154,6 +162,34 @@ async def main_async(args) -> int:
     )
     readable = sum(1 for r in reads.values() if r.readable)
     cold = sum(1 for r in reads.values() if not r.from_cache)
+
+    # A run whose model calls mostly failed is not a measurement, and every
+    # number below would still print and still look plausible. This exact run
+    # happened: 143 of 229 calls failed on an exhausted credit balance, and the
+    # harness reported "couldn't-tell 32.1%" and "cost per match $0.0238" as
+    # results. Those are descriptions of an outage.
+    #
+    # A failed call becomes a couldn't-tell, so failures push couldn't-tell up
+    # and matches down — the two headline numbers move in the direction that
+    # looks like an engine problem. Nothing downstream can tell the difference,
+    # which is why this aborts here rather than annotating the output.
+    # The meter only records a call that returned, so its count is the
+    # successes; the attempts are those plus the failures.
+    succeeded = meter.summary(len(businesses), matches)["model_calls"]
+    attempted = succeeded + errors
+    if attempted and errors / attempted > MAX_ERROR_RATE:
+        print(f"\n{'=' * 62}")
+        print(f"ABORTED: {errors} of {attempted} model calls failed "
+              f"({100 * errors / attempted:.0f}%).")
+        for kind, n in error_kinds.most_common(3):
+            print(f"  {n:>4}x  {kind}")
+        print("\nNo verdicts and no benchmark file were written. A run that "
+              "mostly did not\nhappen is not a measurement: failed calls become "
+              "couldn't-tell, which pushes\nthe couldn't-tell rate up and the "
+              "match count down, and both then read as\nengine problems.")
+        print(f"\nThe {len(businesses)} sites are crawled and cached, so a "
+              f"re-run costs only the judging.")
+        return 2
 
     summary = meter.summary(len(businesses), matches)
     print("\n" + "=" * 62)
