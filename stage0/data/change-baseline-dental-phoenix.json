@@ -1,0 +1,486 @@
+{
+  "market": "dental-phoenix",
+  "taken_at": "2026-09-23T05:39:35.292979+00:00",
+  "sites": {
+    "fedb8667-cd94-4e97-a12f-147eefb58468": {
+      "name": "AAA Accurate Dental Care",
+      "url": "http://www.advancedsmilescenter.com/",
+      "raw": "b75c0ea754098512",
+      "text": "d9d621c3d1a021d6",
+      "normalised": "f37be98c32a982d9",
+      "signals": "685831f54280b4a6"
+    },
+    "d231f421-5fc9-4cc1-922e-98bd6969b82e": {
+      "name": "The Wiggly Tooth Pediatric Dentistry & Orthodontics",
+      "url": "https://thewigglytooth.com/",
+      "raw": "bf92b17d0abd17ae",
+      "text": "194ec9b250998ca2",
+      "normalised": "4a4b65e1d35cf80c",
+      "signals": "8232c429d69fb4b2"
+    },
+    "3d74577b-b890-44fe-ba4f-9d83a23e0165": {
+      "name": "Tempe Smiles Family Dental",
+      "url": "http://www.mytempesmiles.com/",
+      "raw": "c595b8f3f27f3b5c",
+      "text": "6efb7ba87d3b2f46",
+      "normalised": "a37c67909a1e92b6",
+      "signals": "29e7f2eed45b0cc7"
+    },
+    "2c70ff9c-e807-42b3-a964-ea622bd0b25c": {
+      "name": "Promenade Dental",
+      "url": "http://www.promenadedds.com/",
+      "raw": "516bf7dc972ab406",
+      "text": "20fb3cc7230ff170",
+      "normalised": "f82e3c435bf6a52b",
+      "signals": "d9f9f9b907c6d33d"
+    },
+    "333d9124-164d-49d8-ab8f-f2fbe7d9dc97": {
+      "name": "Greenway Family Dental",
+      "url": "http://www.greenwaydentists.com/",
+      "raw": "bb5e54f2dc10232a",
+      "text": "91154acccb877a5c",
+      "normalised": "e8c6ff3d9d8dba3c",
+      "signals": "25c94ae3e2015d5e"
+    },
+    "7fd18f74-ed75-4e7c-904a-8fa78bfca8e0": {
+      "name": "Desert Dentistry",
+      "url": "https://desertdentistry.com/",
+      "raw": "b46963b31c7ad00e",
+      "text": "a7553f2566edee30",
+      "normalised": "63f0be8f11af8035",
+      "signals": "6400e1a176c7ce63"
+    },
+    "0e10aebe-454d-4026-8bf8-952a90230969": {
+      "name": "North Scottsdale Dental",
+      "url": "http://northscottsdaledental.com/",
+      "raw": "c17aef3853269dd2",
+      "text": "950790e07af47530",
+      "normalised": "94466629753d189a",
+      "signals": "6aedf26a480ffc6b"
+    },
+    "193fcb02-3f68-4744-8ee6-5eb0f74173d6": {
+      "name": "Somos Dental and Orthodontics",
+      "url": "https://somosdental.com/locations/arizona/laveen/",
+      "raw": "7c83c141b55fb303",
+      "text": "81ed9f7200726c8e",
+      "normalised": "48bc080692602927",
+      "signals": "c5313e3b354b6e42"
+    },
+    "d47e23c4-de80-4e47-93f3-9ca2475adbb5": {
+      "name": "Grayhawk Dental Associates",
+      "url": "https://grayhawkdentalscottsdale.com/",
+      "raw": "82d8a88c60344fd3",
+      "text": "d666e7b69efa3288",
+      "normalised": "3e0b4639b57490f6",
+      "signals": "d8e73eaba81e1a85"
+    },
+    "79a889b9-6435-49c5-8e92-3edbbc19e7c9": {
+      "name": "Andrew Krygier, Dmd",
+      "url": "https://therootcanalguy.com/",
+      "raw": "686bdfeaead19087",
+      "text": "c34c15a61c26e4a1",
+      "normalised": "8412cc849b2635dd",
+      "signals": "b26f6754ceeacca5"
+    },
+    "bdeec3b1-e825-43bd-85f2-452e9321658d": {
+      "name": "Minted Dental",
+      "url": "https://www.minteddental.com/",
+      "raw": "da1c3f60c92311f0",
+      "text": "9aaa50548f026807",
+      "normalised": "c60d0e78f63a43dd",
+      "signals": "0f18b2b043b154d0"
+    },
+    "295ddb05-e82f-416c-8488-6a9fe56fc148": {
+      "name": "Arcadia Dentistry",
+      "url": "http://www.milanadds.com/",
+      "raw": "4a61fc8f0a8f930f",
+      "text": "11fc5a3c68b01968",
+      "normalised": "c87afbdeb8e955f0",
+      "signals": "33d18958348e6b58"
+    },
+    "c0a55ace-2738-4171-b31c-dec8513912bb": {
+      "name": "Dr. Anna Vaysman",
+      "url": "https://app.smilevirtual.com/Dr-Anna-Vaysman/sign-up",
+      "raw": "8bed333b632994cb",
+      "text": "bdbc6f6182330e4a",
+      "normalised": "60e6a1530440544e",
+      "signals": "818e2a40dbfdba60"
+    },
+    "6cd782e2-4ffa-44a3-ae15-cdcd4ebac931": {
+      "name": "Glendale Modern Dentistry",
+      "url": "https://www.GlendaleModernDentistry.com/",
+      "raw": "b63b4fd66346ba18",
+      "text": "a625b9b8c7b932ca",
+      "normalised": "139f3fb84f186390",
+      "signals": "029fa2fbb6e5c2f8"
+    },
+    "359a049d-a28f-4a69-b09e-c4d9a6692405": {
+      "name": "Marbella Dental Studios",
+      "url": "http://Www.Marbelladentalstudios.com/",
+      "raw": "2e390f8aa543339f",
+      "text": "d08d9f30e31ef8a4",
+      "normalised": "dace8e1af5e93556",
+      "signals": "968b57594874f87e"
+    },
+    "b2c5a3df-8ef2-42be-82c8-c295dfd63c6d": {
+      "name": "Associated Dental Care Providers",
+      "url": "http://www.associated-dental.com/",
+      "raw": "0bd596487921f102",
+      "text": "4359e0d8956f05af",
+      "normalised": "25b3d167662f0817",
+      "signals": "25c94ae3e2015d5e"
+    },
+    "c46750e7-1bd1-4517-8810-a69b91ff660b": {
+      "name": "Dr. Daniel Sluyk - Cosmetic Dentist",
+      "url": "https://cosmetic.scottsdaleazdentist.com/",
+      "raw": "dc4a2982e178b973",
+      "text": "d8d2bf9499f9af6a",
+      "normalised": "ac8f9208ece50446",
+      "signals": "f7a4f35806637377"
+    },
+    "fe779451-5352-4d18-9742-794e67e286c9": {
+      "name": "Sun City Modern Dentistry",
+      "url": "http://modernsmilesaz.com/",
+      "raw": "4714b6adae172a9f",
+      "text": "f19329c67c3a227b",
+      "normalised": "381287c9f29f866b",
+      "signals": "f783e6f56b11ab34"
+    },
+    "ec129524-f7e6-40ee-b77d-9beb6dd9c085": {
+      "name": "The Peak Dental",
+      "url": "https://www.thepeakdental.com/",
+      "raw": "4d80ca2b73d8f9df",
+      "text": "b4263a4b932315d8",
+      "normalised": "59e381408141794b",
+      "signals": "503b94ce725e7d0f"
+    },
+    "d2c8812d-588b-4272-a796-6a2df2b22840": {
+      "name": "Brighter Way Dental Center",
+      "url": "https://www.brighterwaydental.org/",
+      "raw": "ae05032a346d9a20",
+      "text": "016e22401f6cd964",
+      "normalised": "d0519a2b98f9850e",
+      "signals": "b897a8a4723bf148"
+    },
+    "66ed0239-4cc4-47db-9bf5-41b9c9d896d9": {
+      "name": "Family Dental Station - Scottsdale",
+      "url": "https://familydentalstation.com/scottsdale-office",
+      "raw": "fd0020d617667482",
+      "text": "4f516204070fd36f",
+      "normalised": "df204d7420a33358",
+      "signals": "29e7f2eed45b0cc7"
+    },
+    "56f8a09c-64e9-4605-9caf-5c8d9213cd0d": {
+      "name": "Ocotillo Dental Care",
+      "url": "https://www.ChandlerDentist.com/",
+      "raw": "c9f319dc48a1afc5",
+      "text": "3448426fc2e35c23",
+      "normalised": "180a992a06612127",
+      "signals": "2c1e2f928449a560"
+    },
+    "38445990-0149-4aeb-8a23-2d69b8fd1d2c": {
+      "name": "Gentle Dental Ahwatukee",
+      "url": "https://gentledental.interdent.com/locations/az/phoenix-ahwatukee/",
+      "raw": "ece8698e2b5afdd2",
+      "text": "53b8bc11ce2886d6",
+      "normalised": "7b4c3b832ba024e8",
+      "signals": "f3e6663f05d70502"
+    },
+    "d24a0585-a389-4695-ad12-e9e072e83017": {
+      "name": "Westwind Dental Tolleson",
+      "url": "https://www.westwindintegratedhealth.com/",
+      "raw": "0d658a3fef476f55",
+      "text": "5db2a159c32b2b9e",
+      "normalised": "58abea55fe9e6220",
+      "signals": "2c1e2f928449a560"
+    },
+    "d4e70ec9-1c58-4d2d-9235-8ea5590bff97": {
+      "name": "South Mountain Family Dental",
+      "url": "https://southmountainfamilydental.com/",
+      "raw": "17847dd16778adf4",
+      "text": "fd56e8b976fe9864",
+      "normalised": "30d376f0a1940271",
+      "signals": "29e7f2eed45b0cc7"
+    },
+    "7557c24c-0fb8-40b9-bc26-6e81515fee04": {
+      "name": "API Dental Group",
+      "url": "http://www.apidentalphoenix.com/",
+      "raw": "28e9df4a36407e7e",
+      "text": "d3a6c4b3448ad31f",
+      "normalised": "d68ed35857bb9bfc",
+      "signals": "d8e73eaba81e1a85"
+    },
+    "aac74c3e-81e0-42cb-90a1-2a2991bdd82f": {
+      "name": "Dental Implants Phoenix",
+      "url": "https://www.dentalimplantsphoenixaz.com/",
+      "raw": "f76984ebf96d0cec",
+      "text": "e8115b0e6fd97c0d",
+      "normalised": "5539ec632f1a24fd",
+      "signals": "f7a4f35806637377"
+    },
+    "f0ac265c-4204-4f7c-acf5-1d4e0f0cc3b2": {
+      "name": "Wright orthodontics",
+      "url": "http://wrightortho.com/",
+      "raw": "810b596484f958c5",
+      "text": "25fca9a197232e15",
+      "normalised": "2b6f23884f2c25e8",
+      "signals": "766fdd5a1b34e302"
+    },
+    "f7091250-41b5-48e9-b786-2030acde54f2": {
+      "name": "Wigwam Creek Dental Care",
+      "url": "http://www.wigwamcreekdental.com/",
+      "raw": "03d85a9b814c9e03",
+      "text": "f3399b85a43d9735",
+      "normalised": "2c089f1da103be45",
+      "signals": "d8e73eaba81e1a85"
+    },
+    "dbe8c437-b416-4fcb-abe1-7ad20ba2958c": {
+      "name": "Palm Valley Pediatric Dentistry & Orthodontics - Buckeye",
+      "url": "https://pvpd.com/contact/buckeye-office/",
+      "raw": "614c9b61575b3f6e",
+      "text": "193d8efce9eaf360",
+      "normalised": "360b1cdfdd22ad90",
+      "signals": "ac4a61a2e4f19a0d"
+    },
+    "da71a11d-decd-4ca1-bc56-49bb5eab3215": {
+      "name": "Desert Valley Pediatric Dentistry - West Olive",
+      "url": "http://www.dvsmiles.com/",
+      "raw": "60e4c5504a2b2740",
+      "text": "570bf8a27c5c5d6c",
+      "normalised": "de8bc780629c23e8",
+      "signals": "32d1d4bf43cf791d"
+    },
+    "c89e9387-c45b-49cd-b09a-e5eb11fcfbac": {
+      "name": "Dentistry For Children",
+      "url": "http://dentistryforchildrenaz.com/",
+      "raw": "df4da1907e1999e1",
+      "text": "09cbc4059238702c",
+      "normalised": "ed424a8f82f6110b",
+      "signals": "25c94ae3e2015d5e"
+    },
+    "2963acd7-62ac-4f7a-b8d3-ed812cd8da78": {
+      "name": "Kohler Anthony J DDS",
+      "url": "http://www.ajkohler.com/",
+      "raw": "0d23645c99064ad3",
+      "text": "e68c746205c5a18f",
+      "normalised": "7df38bc80ebe7144",
+      "signals": "818e2a40dbfdba60"
+    },
+    "60d12cd8-ff81-4f8b-b785-38b0543e6404": {
+      "name": "Southwest Oral Surgery",
+      "url": "http://southwestimplants.com/",
+      "raw": "08165313bb34df9a",
+      "text": "28bb605cf4a75e41",
+      "normalised": "44203756fc4b9f9a",
+      "signals": "10e4967f50ae70bb"
+    },
+    "4d8c3115-ce37-4c63-aecc-aedde194271d": {
+      "name": "Dr. Sewa S. Dhanjal, Dds",
+      "url": "http://www.ppdavondale.com/",
+      "raw": "230ec03a9e432635",
+      "text": "ba6bdb4a8e40c6f8",
+      "normalised": "07c81c5edd260497",
+      "signals": "8fe5abaaf4387bae"
+    },
+    "e2f724e1-2f90-41b7-b2cd-9674dde8f64b": {
+      "name": "Dr. Sandra G. Reyes DDS, PLLC",
+      "url": "http://www.ReyesDental.com/",
+      "raw": "d6a134c7bcc7e3f3",
+      "text": "942db953ea7cbd91",
+      "normalised": "ef2a1587d9212ec3",
+      "signals": "6aedf26a480ffc6b"
+    },
+    "b9303ec6-275f-4a36-a4cf-13177f33a4fa": {
+      "name": "The Biting Edge Family Dentistry",
+      "url": "http://www.thebitingedge.com/",
+      "raw": "7b41d5e095c69e6b",
+      "text": "e5c4f08fe5d15509",
+      "normalised": "eca4ed5090542054",
+      "signals": "990659444d23b4bc"
+    },
+    "c238a26c-a56e-415f-af39-13cd0e909abc": {
+      "name": "The Smyl Co. Orthodontics",
+      "url": "http://www.thesmylco.com/",
+      "raw": "199f4f6c3d6c2bc6",
+      "text": "d0d927db3c0c7c71",
+      "normalised": "2119dccdee5f71d2",
+      "signals": "d8e73eaba81e1a85"
+    },
+    "90033559-d832-44ae-be5c-74fd92cc0797": {
+      "name": "Mesa Modern Dentistry and Orthodontics",
+      "url": "https://www.MesaModernDentistry.com/",
+      "raw": "feaa691e03e6f385",
+      "text": "c63178622351696a",
+      "normalised": "5a9e760a9cde8fd8",
+      "signals": "029fa2fbb6e5c2f8"
+    },
+    "e4c3827e-0e61-4597-8ed8-727ac0e4d881": {
+      "name": "The Smile Institute Advanced Dentistry and Orthodontics",
+      "url": "http://www.westfamilydentistryaz.com/",
+      "raw": "cbf558d21969459c",
+      "text": "45870e957c8860d4",
+      "normalised": "3a58bbb5b7c1de0c",
+      "signals": "a0ba0eb66bbf9d13"
+    },
+    "43434d79-dc03-4612-b008-bb92049a3384": {
+      "name": "Arizona Dental : Joe Gerard Dds",
+      "url": "https://www.arizonadental.com/",
+      "raw": "8b7d241592dcf7d6",
+      "text": "2c68a8b0f4b30f16",
+      "normalised": "754da04451c659f2",
+      "signals": "d4bada3f103675f6"
+    },
+    "c3c5d73f-034c-43a8-b946-a5b4c9833520": {
+      "name": "Millennium Dental Arts",
+      "url": "http://mda-dentist.com/",
+      "raw": "1bb8b391b54c7d93",
+      "text": "02292db70374eae0",
+      "normalised": "5af53aa43db442a5",
+      "signals": "b3f9a5ffa30f62c5"
+    },
+    "4bc00972-d6fe-41ad-bcd9-bab88bc46630": {
+      "name": "Prizm Dental & Veneers",
+      "url": "http://Www.prizm.dental/",
+      "raw": "fffd58881eb3e2a8",
+      "text": "3837d02b02840f90",
+      "normalised": "f7f42c14ce9ff2f3",
+      "signals": "29e7f2eed45b0cc7"
+    },
+    "8e5a6c5a-638b-47a1-930c-aa35205466f9": {
+      "name": "AZ Cosmetic and Family Dentistry",
+      "url": "http://azfamilydentistry.com/",
+      "raw": "1e0e9680a12893eb",
+      "text": "cb10066285e9bfbe",
+      "normalised": "d3651b554db6d9e6",
+      "signals": "533dcd87a28a7247"
+    },
+    "a106c989-2845-4dfd-96d9-b57232a3cec1": {
+      "name": "Westwind Dental Maryvale",
+      "url": "http://www.westwindih.com/",
+      "raw": "fc7bd55abe3a38c3",
+      "text": "afd5b5b51a3f9fdd",
+      "normalised": "b8c24849a672e27a",
+      "signals": "2c1e2f928449a560"
+    },
+    "fd36ae9e-5efa-4b73-9395-c2ddd01aceb5": {
+      "name": "Scholes Periodontics and Implants",
+      "url": "https://scholesperio.com/",
+      "raw": "91aa248a3424b4a8",
+      "text": "85564cc63bb9db1f",
+      "normalised": "2f6f240f39701d8a",
+      "signals": "818e2a40dbfdba60"
+    },
+    "c48cb403-fdce-4bf0-b7da-ec5bc64df65a": {
+      "name": "Friends and Family Dental",
+      "url": "http://friendsfamilydental.com/",
+      "raw": "4da950b5dc56e845",
+      "text": "5f964051831c8b84",
+      "normalised": "465a388000bbedd9",
+      "signals": "a0ba0eb66bbf9d13"
+    },
+    "fbafa8ae-dbfe-4a1c-9a9b-6f59e24e1a5f": {
+      "name": "Pacific Dental",
+      "url": "http://www.pacificdentalservices.com/",
+      "raw": "c61eb400c0ae8965",
+      "text": "a7725db578c21ff5",
+      "normalised": "3b2f7586f880ef5b",
+      "signals": "25c94ae3e2015d5e"
+    },
+    "c80d6c67-364c-478d-a4e8-8d614244c54d": {
+      "name": "Albright Dental Care",
+      "url": "http://www.albrightdental.net/",
+      "raw": "125d252c81b6f0bb",
+      "text": "efad07d6ebc2fda8",
+      "normalised": "7eea5c68022cdedf",
+      "signals": "ba8bdf5601641fd5"
+    },
+    "a374fe39-d2ca-4ffc-b660-f8ce00ede7c8": {
+      "name": "Dr. Stuart E. Garber, Dds",
+      "url": "https://southwestdentalgroup.com/",
+      "raw": "105b11ac0bee4a01",
+      "text": "726908b08ce45ee7",
+      "normalised": "a1cd5e14ea963601",
+      "signals": "5d098eb5fbf7174a"
+    },
+    "f86af414-ef03-44ce-8674-3b4e33004275": {
+      "name": "Biltmore Innovative Dentistry",
+      "url": "https://www.biltmoreinnovativedentistry.com/",
+      "raw": "2afa0d1f5c29c220",
+      "text": "717d9e432482e1fd",
+      "normalised": "3ffd27b42dc1ba0f",
+      "signals": "3d132e88a82411ab"
+    },
+    "20292b48-9fc0-4e87-a67f-315b474e9f4b": {
+      "name": "Promenade Dental Group",
+      "url": "https://www.PromenadeDentalGroup.com/",
+      "raw": "04d37d990ccf42a1",
+      "text": "c189201de5c7e67b",
+      "normalised": "995d5a54d5512a36",
+      "signals": "029fa2fbb6e5c2f8"
+    },
+    "c0ec7626-3b34-4b58-bbd0-03b84eaed526": {
+      "name": "Olga Dolghier, Dmd | Pediatric Dentist Goodyear",
+      "url": "https://pvpd.com/pediatric-dentist-scottsdale",
+      "raw": "380a9399a49c5b3f",
+      "text": "ac968fc786a2aade",
+      "normalised": "f1ce71b6d291fb96",
+      "signals": "f7a4f35806637377"
+    },
+    "1b5822e5-e5b0-4d72-89bb-94ff5b1e9de4": {
+      "name": "Dr. Emanuel Amato",
+      "url": "https://chandlerfamilydentalcare.com/",
+      "raw": "58afef696e6e4184",
+      "text": "b59281a6341381ac",
+      "normalised": "53d304a00b67d9e8",
+      "signals": "c99c16bda87f38fb"
+    },
+    "682d868e-4c98-40d8-9684-3de4efaea034": {
+      "name": "Palo Verde Dental Care",
+      "url": "https://www.paloverdedentistry.com/",
+      "raw": "7ce7d84f6e757749",
+      "text": "737cbb03df7b044e",
+      "normalised": "c87b6e9f88a04daf",
+      "signals": "e32545762854f666"
+    },
+    "61fa33ae-44c6-49e1-a760-a03bd43a164d": {
+      "name": "Ria Flores-tamayo, D.d.s.,inc.",
+      "url": "https://goodyeardentistry.com/",
+      "raw": "3d2c0fc7f3521daf",
+      "text": "9250f85f9a1fd452",
+      "normalised": "a1fef91a23232c52",
+      "signals": "029fa2fbb6e5c2f8"
+    },
+    "40000a6e-06a8-4399-8896-644b9f4ba862": {
+      "name": "Nationwide Dental Refining Club",
+      "url": "http://dentalrefiningclub.com/",
+      "raw": "f9f725b9a3e229b7",
+      "text": "2a9e65e47b9f3e8e",
+      "normalised": "f515e292483b1801",
+      "signals": "aa408131412ecda0"
+    },
+    "2c8b9817-4b9d-4662-8ea0-476eb36ca06e": {
+      "name": "Smile Esthetics",
+      "url": "https://smileesthetics.com/",
+      "raw": "1b6dc5282f204601",
+      "text": "2b2d4265aae55323",
+      "normalised": "28e2c01c892efc65",
+      "signals": "f810c659302b756c"
+    },
+    "dfe12a94-3c0d-4fcc-8643-a7c3e5c80398": {
+      "name": "Motto Clear Aligners",
+      "url": "https://www.aspendental.com/dentist/az/phoenix/2641-n-44th-st-ste-101/motto-clear-aligners/",
+      "raw": "c82f9b6bc747fc01",
+      "text": "6d80d53f81ac58cb",
+      "normalised": "277ffe77db406a83",
+      "signals": "8232c429d69fb4b2"
+    },
+    "40941166-f00c-40c2-950a-af0d25ce6ff5": {
+      "name": "Gillis & Dalton Family Dentistry",
+      "url": "https://www.gillisanddaltondentistry.com/",
+      "raw": "e2468cecab4128f5",
+      "text": "db7bec0c9c3c778b",
+      "normalised": "1defab6fd0611e5f",
+      "signals": "7150a52ca5eb0c90"
+    }
+  }
+}

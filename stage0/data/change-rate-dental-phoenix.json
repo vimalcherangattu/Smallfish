@@ -1,0 +1,11 @@
+{
+  "market": "dental-phoenix",
+  "baseline_age_hours": 0.0,
+  "sites_compared": 60,
+  "changed": {
+    "raw": 19,
+    "text": 4,
+    "normalised": 3
+  },
+  "is_noise_floor": true
+}
