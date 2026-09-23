@@ -50,55 +50,203 @@ export type Plan = {
   name: string;
   priceUsd: number;
   credits: number;
-  /** Reads permitted per day. A second limit on top of the per-run scan budget. */
-  dailyReadCap: number;
 };
 
 export const PLANS: Plan[] = [
-  { id: "free", name: "Free", priceUsd: 0, credits: 20, dailyReadCap: 300 },
-  { id: "starter", name: "Starter", priceUsd: 29, credits: 120, dailyReadCap: 2500 },
-  { id: "growth", name: "Growth", priceUsd: 79, credits: 400, dailyReadCap: 8000 },
-  { id: "agency", name: "Agency", priceUsd: 199, credits: 1000, dailyReadCap: 20000 },
-  { id: "watch", name: "Watch", priceUsd: 19, credits: 40, dailyReadCap: 500 },
-  { id: "pack", name: "Pack", priceUsd: 19, credits: 100, dailyReadCap: 2500 },
+  { id: "free", name: "Free", priceUsd: 0, credits: 20 },
+  { id: "starter", name: "Starter", priceUsd: 29, credits: 120 },
+  { id: "growth", name: "Growth", priceUsd: 79, credits: 400 },
+  { id: "agency", name: "Agency", priceUsd: 199, credits: 1000 },
+  { id: "watch", name: "Watch", priceUsd: 19, credits: 40 },
+  { id: "pack", name: "Pack", priceUsd: 19, credits: 100 },
 ];
 
 export const pricePerCredit = (p: Plan) => (p.credits ? p.priceUsd / p.credits : 0);
 
 /**
- * Reads a run may spend per credit of remaining balance.
+ * Reads a plan permits per billing period.
  *
- * This is the guardrail against the one attack that actually costs money:
- * charging only for matches means a user can write a criterion nothing
- * satisfies and make us read a whole market for free.
+ * This replaces the daily read cap the decision document carried, which never
+ * bound anything that mattered: Starter's 2,500 reads a day is $42 of reading
+ * against $29 a month of revenue, and Agency's 20,000 is $336 a day against
+ * $199 a month. A cap set above the plan's whole monthly revenue is not a cap.
+ *
+ * A period allowance is. Because it is `READS_PER_CREDIT × credits`, it can
+ * only be exhausted by reading the customer is entitled to, and its worst case
+ * — every read wasted, nothing ever matching, no revenue but the subscription
+ * — stays under the subscription on every paid plan. See `worstCaseMonthly`.
  */
-export const READS_PER_CREDIT = 20;
+export const readAllowance = (p: Plan) => p.credits * READS_PER_CREDIT;
+
+/**
+ * The lowest true match rate at which a match in this band pays for the reading
+ * behind it, on this plan. Below it, every additional read loses money.
+ */
+export const breakEvenRate = (plan: Plan, credits: number) => {
+  const per = pricePerCredit(plan);
+  return per > 0 ? COST_PER_READ / (credits * per) : Infinity;
+};
 
 /**
  * The lowest sample match rate at which a full scan is allowed to start.
  *
- * **Raised from 1% to 3%, and that is a correction to the decision document
- * rather than a transcription of it.** At 1% the stop sits below break-even:
- * a credit covers the reading behind it only above 2.3% on Starter, 2.8% on
- * Growth and Agency, 2.9% on a Pack. So a band-3 search matching between 1.0%
- * and 2.3% passes the stop and loses money inside the rules as written.
+ * **Raised from the decision document's 1% to 3%, and then found to be doing
+ * far less work than that correction claimed.** Both halves matter:
  *
- * Worked, on Starter: a criterion matching 1.5% over a 2,400-read budget costs
- * $40.32 of reading and bills 36 matches × 3 credits × $0.2417 = $26.10. Net
- * −$14.22. The daily cap does not save it either — Starter's 2,500/day sits
- * above its own 2,400-read budget, so it never binds.
+ * The raise was right on its own terms — at 1% the stop sits below break-even,
+ * since a credit covers the reading behind it only above 2.3% on Starter, 2.8%
+ * on Growth and Agency, 2.9% on a Pack.
  *
- * 3% clears break-even on every plan. The alternative fix is a band 4 at 5
- * credits below 3%, which earns revenue on hard searches instead of refusing
- * them; that is a product call, and this is the conservative half of it.
+ * But the stop reads a **25-business sample**, so the only rates it can observe
+ * are multiples of 4%. The smallest result that passes is one match in 25, and
+ * one match in 25 has a 95% interval of **[0.7%, 19.5%]**. Moving the line from
+ * 1% to 3% therefore changes the verdict on nothing: 0 matches was refused
+ * before and is refused now, 1 match passed before and passes now. A search
+ * whose true rate is 0.7% still gets through, and on Starter that is −$28 over
+ * a full budget.
+ *
+ * A bigger sample does not rescue it. One match in 60 gives [0.3%, 8.9%] — the
+ * interval still straddles break-even, for $1.01 of reading instead of $0.42.
+ * **No affordable sample can settle solvency**, so the sample's job is only to
+ * quote a band and refuse the obviously hopeless. Solvency is enforced on the
+ * live run instead, by `checkRunHealth` below.
  */
 export const NO_HOPE_RATE = 0.03;
 
-/** Reads after which a run aborts if the live match rate is still hopeless. */
-export const EARLY_ABORT_AFTER_READS = 200;
+/**
+ * Reads a run may spend per credit of remaining balance, and per period.
+ *
+ * This is the guardrail against the one attack that actually costs money:
+ * charging only for matches means a criterion nothing satisfies never depletes
+ * a balance, so without a read allowance the balance is not a bound at all and
+ * the plan's cost is unlimited.
+ *
+ * It is derived, not chosen. The most reading a **legitimate** run can need is
+ * the reading that spends a whole balance in the worst band at the lowest rate
+ * we allow: one credit buys `1 / (3 × 3%)` = 11.1 reads. Flooring to 11 is
+ * deliberate and costs a customer sitting exactly on the floor about 1% of
+ * their balance; rounding up to 12 instead would put a Pack's worst case at
+ * $20.16 of reading against $19 of revenue, so the floor is what keeps the
+ * cheapest plan solvent.
+ *
+ * That collision is the finding: at the no-hope floor, "let the customer spend
+ * every credit" and "never lose money on a Pack" are the same constraint from
+ * opposite sides, and Pack is the plan where they meet.
+ */
+export const READS_PER_CREDIT = Math.floor(1 / (3 * NO_HOPE_RATE)); // 11
 
 /** Businesses sampled for the free count, before any full scan. */
 export const SAMPLE_SIZE = 25;
+
+/**
+ * Read counts at which a running scan re-checks whether it is still solvent.
+ *
+ * The first one is the loss ceiling: a scan that is hopeless from the first
+ * read costs at most `200 × $0.0168` = **$3.36** before it is stopped, on any
+ * plan, whatever the criterion. Everything after it catches a rate that only
+ * looks survivable early.
+ */
+export const ABORT_CHECKS = [200, 400, 800, 1600] as const;
+
+/** The most a single scan can lose, on any plan, with any criterion. */
+export const MAX_LOSS_PER_SCAN_USD = ABORT_CHECKS[0] * COST_PER_READ;
+
+/**
+ * Confidence used for the abort's one-sided bound — 80%, not 95%.
+ *
+ * The abort fires when the upper bound on the live match rate falls below
+ * break-even, i.e. when the run is probably losing money. The confidence level
+ * trades one error against the other, and both were measured on Starter band 3:
+ *
+ *              catches a 1% run    kills a 3% run    kills a 4% run
+ *   50%        −$1.91                      54.8%              13.6%
+ *   80%        −$1.91                      12.4%               1.6%
+ *   90%        −$3.82                       4.6%               0.4%
+ *   97.5%      −$7.64                       0.5%               0.0%
+ *
+ * 80% catches the hopeless run as early as a coin flip does while killing a
+ * quarter as many healthy ones. The runs it still kills are sitting on the
+ * no-hope floor, where a scan earns about nothing anyway; by 6% it never fires.
+ */
+export const ABORT_CONFIDENCE_Z = 0.84;
+
+/** Upper end of the one-sided Wilson interval — small counts, so no normal approximation. */
+export function wilsonUpper(matches: number, reads: number, z = ABORT_CONFIDENCE_Z) {
+  if (reads <= 0) return 1;
+  const r = matches / reads;
+  const centre = (r + (z * z) / (2 * reads)) / (1 + (z * z) / reads);
+  const half =
+    (z * Math.sqrt((r * (1 - r)) / reads + (z * z) / (4 * reads * reads))) /
+    (1 + (z * z) / reads);
+  return Math.min(1, centre + half);
+}
+
+export type RunHealth =
+  | { keepGoing: true }
+  | { keepGoing: false; reason: string; spentUsd: number; billedUsd: number };
+
+/**
+ * Should a running scan continue?
+ *
+ * This is where solvency is actually enforced. The sample could not settle it
+ * (see `NO_HOPE_RATE`), and the band was quoted from that sample, so a scan can
+ * legitimately start and still be losing money — the live rate is the only
+ * honest evidence, and it arrives while we are spending.
+ *
+ * Checked only at `ABORT_CHECKS`, so the answer does not swing on one match.
+ */
+export function checkRunHealth(args: {
+  reads: number;
+  matches: number;
+  quotedBandCredits: number;
+  plan: Plan;
+}): RunHealth {
+  const { reads, matches, quotedBandCredits, plan } = args;
+  if (!ABORT_CHECKS.includes(reads as (typeof ABORT_CHECKS)[number])) {
+    return { keepGoing: true };
+  }
+  const floor = breakEvenRate(plan, quotedBandCredits);
+  if (wilsonUpper(matches, reads) >= floor) return { keepGoing: true };
+
+  const spentUsd = reads * COST_PER_READ;
+  const billedUsd = matches * quotedBandCredits * pricePerCredit(plan);
+  return {
+    keepGoing: false,
+    spentUsd,
+    billedUsd,
+    reason:
+      `${matches} matched out of ${reads} read. At that rate the search would ` +
+      `spend the rest of your balance without finding much. Stopping here — ` +
+      `you keep the ${matches} found and nothing else was charged.`,
+  };
+}
+
+/**
+ * What a completed scan actually bills, given the band quoted from the sample.
+ *
+ * The quote is a **ceiling, not a price**. A 25-business sample that showed one
+ * match reads 4% and quotes band 3, but its true rate could be 19%: that
+ * customer would pay three credits a match for something common, purely because
+ * of who landed in their sample. So a scan that delivers a cheaper band is
+ * billed at the cheaper band, and one that delivers a dearer band is still
+ * billed at the quote.
+ *
+ * The asymmetry is deliberate and it is the whole reason the confirm screen can
+ * show a number before anything is spent: what was shown can only go down.
+ */
+export function settleBand(quotedCredits: number, deliveredRate: number) {
+  return Math.min(quotedCredits, bandFor(deliveredRate).credits);
+}
+
+/**
+ * The worst a plan can do us in one period: every read wasted, every scan
+ * stopped at the first check, no revenue beyond the subscription.
+ */
+export function worstCaseMonthly(plan: Plan) {
+  const reads = readAllowance(plan);
+  const costUsd = reads * COST_PER_READ;
+  return { reads, costUsd, netUsd: plan.priceUsd - costUsd };
+}
 
 /** Criteria per search. They multiply, so a third is warned about and a fourth refused. */
 export const MAX_CRITERIA = 3;
@@ -109,6 +257,11 @@ export type ScanVerdict =
 
 /**
  * Decide whether a full scan may start, and how much reading it may do.
+ *
+ * The band it returns is a **quote**, not a price — it comes from a 25-business
+ * sample that cannot settle the true rate, and `settleBand` may bill less once
+ * the scan has run. Nor does starting mean the scan is solvent: that is
+ * `checkRunHealth`'s job, from 200 reads in.
  *
  * Returns the refusal reason in the user's terms rather than a boolean: when a
  * budget stops a run the product says how many were read, how many matched and

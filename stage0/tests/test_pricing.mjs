@@ -26,6 +26,8 @@ const { dir, load } = compileLib(["src/lib/pricing.ts"], "sfprice-");
 const {
   COST_PER_READ, BANDS, bandFor, PLANS, pricePerCredit, READS_PER_CREDIT,
   NO_HOPE_RATE, MAX_CRITERIA, SAMPLE_SIZE, planScan, scanEconomics,
+  ABORT_CHECKS, MAX_LOSS_PER_SCAN_USD, breakEvenRate, checkRunHealth,
+  readAllowance, settleBand, wilsonUpper, worstCaseMonthly,
 } = await load("pricing");
 
 let failures = 0;
@@ -71,8 +73,11 @@ for (const p of PLANS.filter((p) => p.priceUsd > 0)) {
   }
 }
 const free = PLANS.find((p) => p.id === "free");
-check("the free tier costs at most $1.40 per user to honour",
+check("honouring the free tier's credits costs at most $1.40",
   free.credits * hi <= 1.40, `${(free.credits * hi).toFixed(2)}`);
+check("but the credits are not what the free tier costs",
+  free.credits * READS_PER_CREDIT * COST_PER_READ > free.credits * hi,
+  "reading is charged to us whether or not anything matches; see worstCaseMonthly");
 
 // --- the correction: 1% would have let a losing search through
 const starter = PLANS.find((p) => p.id === "starter");
@@ -89,6 +94,63 @@ check("the 1.5% case the old stop allowed does lose money", losing.net < 0,
   `net ${losing.net.toFixed(2)}`);
 check("and the current stop refuses it",
   planScan({ sampleMatchRate: 0.015, remainingCredits: 120, criteriaCount: 2 }).start === false);
+
+// --- but the stop reads a 25-business sample, so it settles far less than that
+check("the smallest sample result that passes the stop is one match in 25",
+  planScan({ sampleMatchRate: 1 / SAMPLE_SIZE, remainingCredits: 120, criteriaCount: 1 }).start === true
+  && planScan({ sampleMatchRate: 0, remainingCredits: 120, criteriaCount: 1 }).start === false);
+check("so raising the stop from 1% to 3% changed the verdict on NOTHING",
+  (0.01 < 1 / SAMPLE_SIZE) === (NO_HOPE_RATE < 1 / SAMPLE_SIZE),
+  "both lines sit between 0/25 and 1/25; the sample cannot tell them apart");
+check("and one match in 25 admits a true rate well under break-even",
+  wilsonUpper(1, SAMPLE_SIZE, 1.96) > 0.15 && breakEvenRate(starter, 3) > 0.02,
+  "the interval straddles break-even, so the sample cannot settle solvency");
+
+// --- solvency therefore rests on the live run, not the sample
+const hopeless200 = checkRunHealth({ reads: 200, matches: 2, quotedBandCredits: 3, plan: starter });
+check("a 1% run is stopped at the first check", hopeless200.keepGoing === false);
+check("and the stop is worth more than it cost to learn",
+  !hopeless200.keepGoing && hopeless200.spentUsd - hopeless200.billedUsd < 2.0,
+  `lost ${(hopeless200.spentUsd - hopeless200.billedUsd).toFixed(2)}`);
+check("the refusal tells the customer what they keep",
+  !hopeless200.keepGoing && /nothing else was charged/.test(hopeless200.reason));
+
+check("a healthy band-3 run at 6% is never stopped",
+  ABORT_CHECKS.every((n) =>
+    checkRunHealth({ reads: n, matches: Math.round(n * 0.06),
+                     quotedBandCredits: 3, plan: starter }).keepGoing === true));
+check("a run is only judged at the check points, never mid-flight",
+  checkRunHealth({ reads: 201, matches: 0, quotedBandCredits: 3, plan: starter }).keepGoing === true);
+check("zero matches at the first check is always a stop",
+  PLANS.filter((p) => p.priceUsd > 0).every((p) =>
+    checkRunHealth({ reads: ABORT_CHECKS[0], matches: 0,
+                     quotedBandCredits: 3, plan: p }).keepGoing === false));
+check("so one scan can lose at most $3.36, on any plan",
+  Math.abs(MAX_LOSS_PER_SCAN_USD - 3.36) < 0.01,
+  `${MAX_LOSS_PER_SCAN_USD.toFixed(2)}`);
+
+// --- the quote is a ceiling: sampling error may not cost the customer
+check("a scan that delivers a common rate is billed the cheap band, not the quote",
+  settleBand(3, 0.26) === 1, "quoted 3 from a thin sample, delivered 26%");
+check("a scan that delivers a rarer rate is still billed the quote",
+  settleBand(1, 0.01) === 1, "what was shown may only go down");
+
+// --- every plan survives its own worst case: nothing ever matches
+for (const p of PLANS.filter((x) => x.priceUsd > 0)) {
+  const w = worstCaseMonthly(p);
+  check(`${p.name} survives a month in which nothing matches`, w.netUsd >= 0,
+    `net ${w.netUsd.toFixed(2)} on ${w.reads} reads`);
+}
+const freeWorst = worstCaseMonthly(free);
+check("and the free tier's worst case is bounded and known",
+  freeWorst.costUsd < 4.0, `${freeWorst.costUsd.toFixed(2)} per free user per period`);
+
+check("the read allowance covers a legitimate run at the no-hope floor",
+  PLANS.every((p) => readAllowance(p) >= Math.floor(p.credits / (3 * NO_HOPE_RATE)) * 0.99),
+  "a customer must be able to spend the credits they bought");
+check("a more generous allowance would sink the cheapest plan",
+  PLANS.find((p) => p.id === "pack").credits * (READS_PER_CREDIT + 1) * COST_PER_READ > 19,
+  "this is why READS_PER_CREDIT floors rather than rounds");
 
 // --- every plan is solvent at its own no-hope boundary
 for (const p of PLANS.filter((x) => x.priceUsd > 0)) {
