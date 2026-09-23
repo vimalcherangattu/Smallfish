@@ -1,0 +1,13 @@
+{
+ "sites_read": 25,
+ "sites_attempted": 45,
+ "counts": {
+  "email_text": 9,
+  "email_links": 9,
+  "email_either": 9,
+  "social_text": 1,
+  "social_links": 17
+ },
+ "emails_recovered_from_mailto": 0,
+ "our_errors": {}
+}

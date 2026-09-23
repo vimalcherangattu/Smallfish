@@ -7,8 +7,24 @@ decided that crawling a hundred sites again to re-run a regex is impolite. Old
 entries simply lack the field; new crawls carry it.
 
 That leaves the claim untested, so this crawls a small sample fresh and
-measures it. What it answers: how much of the 0.5% social rate and the 39%
-email rate were artefacts of storing visible text only.
+measures it. **Measured 2026-09-23, 25 sites read of 45 tried:**
+
+    a social link in an href              17   68.0%
+    a social URL in visible text           1    4.0%
+    an email in visible text               9   36.0%
+    an email only reachable via mailto:    9   36.0%
+    either                                 9   36.0%
+
+**Socials: 4% to 68%, a 17x recovery.** That is what was hiding in attributes,
+and it is the whole justification for keeping link targets.
+
+**Emails: no gain at all, and that half of the justification was wrong.** Every
+mailto address on these sites was also printed in visible text — 9 sites had an
+email either way, and `emails_recovered_from_mailto` is 0. The S1-05b commit
+message claimed "socials and mailto-only addresses become extractable"; the
+second half is measured false. `mailto:` is still worth storing because it
+carries the address unambiguously where a regex over prose has to guess at
+boundaries, but it finds nothing new.
 
 Polite by the same rules as every other crawl here — robots.txt, per-domain
 throttling, a real user agent — and it writes nothing to the shared cache.
@@ -67,7 +83,12 @@ async def read_one(client, url, robots, throttle) -> dict | None:
     if classify(home, url) != "ok" or not home_html:
         return None
     pages = [(url, home_html)]
-    for target in select_links(home_html, url, MAX_PAGES - 1, ["contact", "about"]):
+    # (word, weight) pairs, not bare strings. Passing `["contact", "about"]`
+    # makes `select_links` unpack each string into characters and raise
+    # `ValueError: too many values to unpack` on every single site.
+    for target in select_links(
+        home_html, url, MAX_PAGES - 1, [("contact", 3), ("about", 2)]
+    ):
         page, html = await fetch_page(client, target, robots, throttle)
         if html and (page.status or 0) < 400:
             pages.append((target, html))
@@ -106,6 +127,7 @@ async def run(sample: int, seed: int, max_attempts: int) -> dict:
 
     throttle, robots = DomainThrottle(), RobotsCache()
     got: list[dict] = []
+    errors: dict[str, int] = {}
     attempts = 0
     # **Bounded, and the first version was not.** It looped until it had
     # `sample` *successful* reads, so with a slow or blocked network it could
@@ -126,11 +148,19 @@ async def run(sample: int, seed: int, max_attempts: int) -> dict:
             attempts += 1
             try:
                 read = await read_one(client, url, robots, throttle)
-            except Exception:
+            except Exception as exc:  # noqa: BLE001
+                # **Counted and named, never swallowed.** The first version
+                # turned every exception into "not readable", so a bug of mine
+                # — passing bare strings where `select_links` wants (word,
+                # weight) pairs — came back as the finding "no site was
+                # readable". That is the failure mode this repository already
+                # has a rule against: never report our own fault as a fact
+                # about the businesses.
+                errors[type(exc).__name__] = errors.get(type(exc).__name__, 0) + 1
                 read = None
             if read:
                 got.append(read)
-    return {"reads": got, "attempts": attempts}
+    return {"reads": got, "attempts": attempts, "errors": errors}
 
 
 def main() -> int:
@@ -144,8 +174,23 @@ def main() -> int:
     out = asyncio.run(run(args.sample, args.seed, args.max_attempts))
     reads = out["reads"]
     n = len(reads)
+    errors = out["errors"]
+    failed = sum(errors.values())
+
+    # Our own errors are not a measurement. Above a small rate, refuse to
+    # report at all rather than publish a number that is really a bug — the
+    # same guard `benchmark/run.py` grew after an outage was reported as a
+    # finding.
+    if failed and failed > 0.2 * out["attempts"]:
+        raise SystemExit(
+            f"{failed} of {out['attempts']} attempts raised: {errors}.\n"
+            "That is our fault, not the sites'. Nothing is reported."
+        )
     if not n:
-        raise SystemExit("No site was readable. Nothing can be concluded.")
+        raise SystemExit(
+            f"No site was readable in {out['attempts']} attempts, and none "
+            "raised. That is a finding about the sample, not about us."
+        )
 
     tally = Counter()
     recovered_emails = 0
@@ -187,6 +232,7 @@ def main() -> int:
                 "sites_attempted": out["attempts"],
                 "counts": dict(tally),
                 "emails_recovered_from_mailto": recovered_emails,
+                "our_errors": errors,
             },
             indent=1,
         )
