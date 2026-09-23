@@ -75,16 +75,17 @@ export default function Home() {
           </div>
         </nav>
 
-        {/* The mark sits behind the type, to the right of it. The design keeps
-            the headline to three narrow lines so the two never collide; left
-            unconstrained the headline ran the full container and the outline
-            crossed every line of it. */}
+        {/* The mark sits behind the type, to the right of it, at every width.
+            The design keeps the headline to three narrow lines so the two never
+            collide; left unconstrained the headline ran the full container and
+            the outline crossed every line of it. Sizing and placement are in
+            `.hero-fish` so the breakpoints live with the other design tokens. */}
         <div
           aria-hidden
-          className="swim pointer-events-none absolute right-[-7%] top-[16%] z-0 opacity-70 max-xl:hidden"
+          className="hero-fish swim"
         >
           <Fish variant="outline" width={720} strokeWidth={0.32} />
-          <Bubbles where="hero" scale={720 / 780} />
+          <Bubbles where="hero" />
         </div>
 
         <header className="relative z-10 mx-auto max-w-[1340px] px-8 pb-24 pt-16">
@@ -92,13 +93,23 @@ export default function Home() {
             Local market intelligence the databases cannot see
           </span>
           <h1
-            className="dsp mt-10 max-w-[min(100%,940px)]"
-            style={{ fontSize: "clamp(52px,9vw,136px)" }}
+            // `pb-[0.1em]`: line-height 0.92 puts the box bottom above the
+            // descenders, so a margin measured from it reads smaller than it
+            // is and the lede looked crowded against "read.".
+            className="dsp mt-10 pb-[0.1em] max-w-[min(100%,940px)]"
+            style={{ fontSize: "clamp(44px,8vw,136px)" }}
           >
-            The accounts the <span className="lure">big nets</span> can&rsquo;t
-            read.
+            {/* `nowrap` so the highlight never splits across a line break. At
+                850px it wrapped as "the [big] / [nets] can't", which turns one
+                marked phrase into two stray blocks. */}
+            The accounts the{" "}
+            <span className="lure whitespace-nowrap">big nets</span>{" "}
+            can&rsquo;t read.
           </h1>
-          <p className="lede mt-10 max-w-[46ch]" style={{ color: "#B9BFB6" }}>
+          {/* The lure span carries padding and a box-shadow, so it sits lower
+              than its line box; the lede needs more clearance than the usual
+              rhythm or the two touch. */}
+          <p className="lede mt-14 max-w-[46ch]" style={{ color: "#B9BFB6" }}>
             Your market is a few thousand small businesses. Every scraper can
             list them. None of them opens the websites and works out which ones
             you should actually call.

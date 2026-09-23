@@ -265,6 +265,34 @@ body {
 .mkt .mq-slow { display: inline-block; white-space: nowrap; animation: mkt-driftb 58s linear infinite; }
 .mkt .swim { animation: mkt-swim 9s ease-in-out infinite; }
 
+/* The hero mark, at every width.
+   It was hidden below 1280px, which on a Retina laptop -- where a 2000px
+   screenshot is an 850px CSS viewport -- meant hidden on the machine it was
+   being looked at on. A brand element that only appears on a desktop monitor
+   is a brand element most people never see.
+   So it scales with the viewport instead and sits lower on narrow screens,
+   in the space to the right of the lede rather than across the headline. */
+.mkt .hero-fish {
+  position: absolute;
+  right: -12%;
+  bottom: 4%;
+  width: clamp(260px, 46vw, 720px);
+  opacity: 0.5;
+  z-index: 0;
+  pointer-events: none;
+}
+@media (min-width: 1024px) {
+  .mkt .hero-fish { right: -9%; bottom: auto; top: 20%; opacity: 0.6 }
+}
+@media (min-width: 1280px) {
+  .mkt .hero-fish { right: -7%; top: 16%; opacity: 0.7 }
+}
+.mkt .hero-fish svg { width: 100%; height: auto; display: block }
+
+/* Bubbles are placed as a percentage of the fish's own box, so they stay at
+   its mouth however the mark is scaled. Fixed pixel offsets drifted away from
+   it the moment the fish became responsive. */
+
 /* Motion is decoration here. Anyone who has asked for less of it gets none. */
 @media (prefers-reduced-motion: reduce) {
   .mkt .mq, .mkt .mq-slow, .mkt .swim { animation: none; }
