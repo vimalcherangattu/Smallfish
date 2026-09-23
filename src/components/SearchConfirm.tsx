@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import FreeCountPanel from "@/components/FreeCount";
 import { compact } from "@/lib/cost";
+import { track } from "@/lib/events";
 import type { FreeCount } from "@/lib/count";
 import {
   MAX_CRITERIA,
@@ -59,6 +60,23 @@ export default function SearchConfirm({
   useEffect(() => {
     if (resolved.marketId && !count) onNeedMarket?.(resolved.marketId);
   }, [resolved.marketId, count, onNeedMarket]);
+
+  // The count is the funnel step that decides whether anyone goes further, so
+  // it reports the sample behind it as well as the band. A `count_shown` that
+  // carried only the projection would make every drop-off look the same.
+  useEffect(() => {
+    if (!count || !resolved.marketId) return;
+    track("count_shown", {
+      market: resolved.marketId,
+      criterion: resolved.criterionId ?? "",
+      sampled: count.sampled,
+      matched: count.matched,
+      band_credits: count.band.credits,
+      projected_lo: count.projected.lo,
+      projected_hi: count.projected.hi,
+      frame_limited: count.frameLimited,
+    });
+  }, [count, resolved.marketId, resolved.criterionId]);
 
   const kept = parsed.criteria.filter((c) => !dropped.has(c.id));
   const asked = text.trim().length > 0;
@@ -293,9 +311,13 @@ export default function SearchConfirm({
                     countFor!(resolved.marketId!, resolved.criterionId!, size)
                   }
                   coldMarket={coldMarketFor?.(resolved.marketId!) ?? undefined}
-                  onUnlock={() =>
-                    onRun(resolved.marketId!, resolved.criterionId!)
-                  }
+                  onUnlock={() => {
+                    track("search_confirmed", {
+                      market: resolved.marketId!,
+                      criteria_count: kept.length || parsed.criteria.length,
+                    });
+                    onRun(resolved.marketId!, resolved.criterionId!);
+                  }}
                 />
               ) : (
                 <div className="rounded-md border border-[var(--line)] px-2.5 py-2">

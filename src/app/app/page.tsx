@@ -9,8 +9,11 @@ import type { Candidate } from "@/lib/icp";
 import { bboxOf, contains, areaSqMiles, type Region } from "@/lib/geo";
 import { COST, compact, estimateCost, money } from "@/lib/cost";
 import { groupForBilling } from "@/lib/billing";
+import { track } from "@/lib/events";
+import { applySuppression } from "@/lib/suppression";
 import { freeCount } from "@/lib/count";
 import { downloadCsv, overallVerdict, toCsv } from "@/lib/csv";
+import { MILLI } from "@/lib/ledger";
 import { PLANS } from "@/lib/pricing";
 import {
   BILLABLE,
@@ -66,6 +69,22 @@ export default function Page() {
       .then((r) => r.json())
       .then(setIndex)
       .catch(() => setIndex(null));
+  }, []);
+
+  /**
+   * Businesses that asked to be removed (S1-09).
+   *
+   * Applied to `inRegion`, which everything downstream descends from, so a
+   * suppressed business cannot appear in a count, on the map, in the list or
+   * in an export. Filtering only at the export would leave it on screen, and
+   * the opt-out page promises removal from searches, not just from files.
+   */
+  const [suppressed, setSuppressed] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    fetch("/data/suppressed.json")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d?.businessIds && setSuppressed(new Set(d.businessIds)))
+      .catch(() => undefined);
   }, []);
 
   /** Published contacts for the current market (S1-05), loaded beside it. */
@@ -132,8 +151,12 @@ export default function Page() {
    * with a website are a second listing of a business already in the set.
    */
   const inRegion = useMemo(
-    () => groupForBilling(recordsInRegion).map((g) => g.lead),
-    [recordsInRegion],
+    () =>
+      applySuppression(
+        groupForBilling(recordsInRegion).map((g) => g.lead),
+        suppressed,
+      ),
+    [recordsInRegion, suppressed],
   );
   const duplicateRecords = recordsInRegion.length - inRegion.length;
 
@@ -173,6 +196,7 @@ export default function Page() {
   /** Matches the user has called wrong. Refunded, and out of the export. */
   const [reported, setReported] = useState<Set<string>>(new Set());
   const report = useCallback((id: string, wrong: boolean) => {
+    if (wrong) track("match_refunded", { milli_refunded: MILLI });
     setReported((prev) => {
       const next = new Set(prev);
       if (wrong) next.add(id);
@@ -365,9 +389,9 @@ export default function Page() {
         )}
         <header className="border-b border-[var(--line)] px-4 py-3">
           <div className="flex items-baseline justify-between gap-2">
-            <h1 className="text-[15px] font-semibold tracking-tight">
+            <a href="/" className="text-[15px] font-semibold tracking-tight hover:underline">
               Small Fish
-            </h1>
+            </a>
             <span className="text-[10px] text-[var(--muted)]">
               Stage 0 · measured data
             </span>
@@ -551,6 +575,11 @@ export default function Page() {
                 onClick={() => {
                   const csv = toCsv(forExport, market.criteria);
                   downloadCsv(`smallfish-${market.id}.csv`, csv);
+                  track("export_downloaded", {
+                    rows: exportable,
+                    withheld: visible.length - exportable,
+                    market: market.id,
+                  });
                 }}
                 disabled={!exportable}
                 // The file carries matched rows only, so the button says how
