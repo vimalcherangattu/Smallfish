@@ -20,6 +20,7 @@
  *  So the reasons survive as counts, and the file holds what was paid for.
  */
 
+import { groupForBilling } from "@/lib/billing";
 import { outreachFor } from "@/lib/outreach";
 import {
   BILLABLE,
@@ -98,6 +99,15 @@ export function summaryToCsv(rows: { outcome: string; count: number }[]): string
 }
 
 export function toCsv(businesses: Business[], criteria: Criterion[]): string {
+  // One row per business, not per candidate record. Two Overture listings for
+  // one practice would otherwise be two rows in the file and two credits on
+  // the bill — see `src/lib/billing.ts`.
+  const groups = groupForBilling(
+    businesses.filter((b) => BILLABLE[overallVerdict(b, criteria)]),
+  );
+  const locations = new Map(groups.map((g) => [g.lead.id, g.all.length]));
+  const leads = new Set(groups.map((g) => g.lead.id));
+
   const header = [
     "name",
     "category",
@@ -108,6 +118,7 @@ export function toCsv(businesses: Business[], criteria: Criterion[]): string {
     "longitude",
     "overall",
     "billable",
+    "locations",
     ...criteria.flatMap((c) => [
       `${c.id}__verdict`,
       `${c.id}__evidence`,
@@ -134,6 +145,8 @@ export function toCsv(businesses: Business[], criteria: Criterion[]): string {
     const overall = overallVerdict(b, criteria);
     // Matched rows only. Everything else is a count, via `nonMatchSummary`.
     if (!BILLABLE[overall]) continue;
+    // And one row per business: a duplicate listing rides on its lead's row.
+    if (!leads.has(b.id)) continue;
 
     lines.push(
       [
@@ -146,6 +159,7 @@ export function toCsv(businesses: Business[], criteria: Criterion[]): string {
         b.lon,
         VERDICT_LABEL[overall],
         BILLABLE[overall] ? "yes" : "no",
+        locations.get(b.id) ?? 1,
         ...criteria.flatMap((c) => {
           const v = b.verdicts[c.id];
           return [

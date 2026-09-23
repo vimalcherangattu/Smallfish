@@ -20,6 +20,7 @@
  * settle the market — see `NO_HOPE_RATE` in `pricing.ts`.
  */
 
+import { groupForBilling } from "@/lib/billing";
 import {
   SAMPLE_SIZE,
   bandFor,
@@ -138,7 +139,15 @@ export function freeCount(args: {
   // caveat that is real and is surfaced rather than buried: the read set was
   // chosen by the crawler, not at random, so a rate measured on it is only as
   // representative as that ordering was. `frameLimited` says when this applies.
-  const population = businesses.filter((b) => b.site);
+  //
+  // Both are deduplicated first. Overture carries a row per listing, and 830
+  // of dental Phoenix's 2,778 records with a website share a domain with
+  // another — 30%. Projecting onto listings would promise a third more matches
+  // than we would ever bill for, and reading the same site twice in a sample
+  // of 25 would make the rate a measurement of our supplier's duplicates.
+  const population = groupForBilling(businesses.filter((b) => b.site)).map(
+    (g) => g.lead,
+  );
   const frame = population.filter((b) => verdictOf(b, criteria) !== "unread");
   const sample = shuffled(frame, seed).slice(0, sampleSize);
 

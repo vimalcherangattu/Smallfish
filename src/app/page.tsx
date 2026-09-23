@@ -8,6 +8,7 @@ import SearchConfirm from "@/components/SearchConfirm";
 import type { Candidate } from "@/lib/icp";
 import { bboxOf, contains, areaSqMiles, type Region } from "@/lib/geo";
 import { COST, compact, estimateCost, money } from "@/lib/cost";
+import { groupForBilling } from "@/lib/billing";
 import { freeCount } from "@/lib/count";
 import { downloadCsv, overallVerdict, toCsv } from "@/lib/csv";
 import { PLANS } from "@/lib/pricing";
@@ -96,13 +97,29 @@ export default function Page() {
     };
   }, [marketId]);
 
-  const inRegion = useMemo(() => {
+  /** Candidate *records* in the region — Overture's rows, duplicates included. */
+  const recordsInRegion = useMemo(() => {
     if (!market || !region) return [];
     const box = bboxOf(region);
     return market.businesses.filter((b) =>
       contains(region, { lon: b.lon, lat: b.lat }, box),
     );
   }, [market, region]);
+
+  /**
+   * The same region as *businesses*, one per website.
+   *
+   * Deduplicated once, here, so that every number downstream counts the same
+   * way the invoice does. Doing it only in the export was the bug: the chip
+   * said 42 matches, the headline said 41 and the file wrote 41, and all three
+   * were describing the same region. 830 of dental Phoenix's 2,778 records
+   * with a website share a domain with another.
+   */
+  const inRegion = useMemo(
+    () => groupForBilling(recordsInRegion).map((g) => g.lead),
+    [recordsInRegion],
+  );
+  const duplicateRecords = recordsInRegion.length - inRegion.length;
 
   const tally = useMemo(() => {
     const t: Record<string, number> = {};
@@ -137,14 +154,33 @@ export default function Page() {
     [inRegion, criterionId, show],
   );
 
-  // How many of the visible rows the CSV will actually carry. Matched rows
-  // only — see `src/lib/csv.ts`.
+  /** Matches the user has called wrong. Refunded, and out of the export. */
+  const [reported, setReported] = useState<Set<string>>(new Set());
+  const report = useCallback((id: string, wrong: boolean) => {
+    setReported((prev) => {
+      const next = new Set(prev);
+      if (wrong) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }, []);
+  // A refunded row leaves the export too. Keeping it would be the worse of
+  // both: we do not charge for it, and the user still carries a row they have
+  // told us is wrong into their outreach.
+  const forExport = useMemo(
+    () => visible.filter((b) => !reported.has(b.id)),
+    [visible, reported],
+  );
+
+  // How many rows the CSV will carry: matched and not refunded. `forExport`
+  // descends from `inRegion`, which is already one row per business.
   const exportable = useMemo(
     () =>
       market
-        ? visible.filter((b) => BILLABLE[overallVerdict(b, market.criteria)]).length
+        ? forExport.filter((b) => BILLABLE[overallVerdict(b, market.criteria)])
+            .length
         : 0,
-    [visible, market],
+    [forExport, market],
   );
 
   function toggle(kind: VerdictKind) {
@@ -156,7 +192,19 @@ export default function Page() {
     });
   }
 
-  const matches = tally.match ?? 0;
+  // The headline count nets off refunds. A number that keeps counting rows the
+  // user has told us are wrong is the number they will stop believing first.
+  const refundedHere = useMemo(
+    () =>
+      inRegion.filter(
+        (b) =>
+          reported.has(b.id) &&
+          b.verdicts[criterionId]?.verdict === "match",
+      ).length,
+    [inRegion, reported, criterionId],
+  );
+  // `inRegion` is already one row per business, so this is a plain count.
+  const matches = Math.max(0, (tally.match ?? 0) - refundedHere);
 
   /** Both front doors land here: a typed search and a chosen ICP produce the
    *  same thing, an ordinary market plus criterion. Nothing downstream is told
@@ -377,8 +425,31 @@ export default function Page() {
                     </span>
                   </div>
                   <div className="mt-1 text-[11px] text-[var(--muted)]">
-                    of {compact(inRegion.length)} candidates ·{" "}
+                    of {compact(inRegion.length)} businesses ·{" "}
                     {compact(readCount)} read so far
+                    {duplicateRecords > 0 && (
+                      <>
+                        {" · "}
+                        <span
+                          title={
+                            `Overture lists a row per listing, so one practice can appear ` +
+                            `several times. ${duplicateRecords} were folded into the business ` +
+                            `they belong to — you are never charged twice for one website.`
+                          }
+                          className="underline decoration-dotted underline-offset-2"
+                        >
+                          {compact(duplicateRecords)} duplicate listings folded
+                        </span>
+                      </>
+                    )}
+                    {refundedHere > 0 && (
+                      <>
+                        {" · "}
+                        <span className="text-[var(--unsure)]">
+                          {refundedHere} refunded
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="text-right text-[11px] text-[var(--muted)]">
@@ -446,12 +517,12 @@ export default function Page() {
 
             <div className="flex items-center justify-between gap-2 border-b border-[var(--line)] px-4 py-2">
               <span className="text-[11px] text-[var(--muted)]">
-                {compact(visible.length)} row{visible.length === 1 ? "" : "s"}{" "}
-                shown
+                {compact(exportable)} unlocked ·{" "}
+                {compact(visible.length - exportable)} as counts
               </span>
               <button
                 onClick={() => {
-                  const csv = toCsv(visible, market.criteria);
+                  const csv = toCsv(forExport, market.criteria);
                   downloadCsv(`smallfish-${market.id}.csv`, csv);
                 }}
                 disabled={!exportable}
@@ -490,25 +561,27 @@ export default function Page() {
             )}
 
             <div className="min-h-0 flex-1 overflow-y-auto">
+              {/* The whole set, not a slice: the locked summary has to count
+                  every non-match, and slicing here would have silently made it
+                  a count of the first 300. Results caps the rows it renders. */}
               <Results
-                businesses={visible.slice(0, 300)}
+                businesses={visible}
                 criteria={market.criteria}
                 primaryCriterionId={criterionId}
+                reported={reported}
+                onReport={report}
               />
-              {visible.length > 300 && (
-                <p className="px-4 py-3 text-center text-[11px] text-[var(--muted)]">
-                  Showing the first 300 of {compact(visible.length)}.
-                </p>
-              )}
             </div>
 
             <footer className="border-t border-[var(--line)] px-4 py-2.5 text-[10px] leading-snug text-[var(--muted)]">
               Real businesses from Overture Maps; verdicts from technology
               detection and the absence-proof rule. Only{" "}
               <strong>{compact(market.counts.read)}</strong> of{" "}
-              {compact(market.counts.candidates)} in this market have been read,
-              so most show <em>not read yet</em> — that is the cold-market state,
-              not a gap in the data. Nothing here is generated: no model has run.
+              {compact(market.counts.candidates)} listings in this market have
+              been read, so most show <em>not read yet</em> — that is the
+              cold-market state, not a gap in the data. Counts above are
+              businesses rather than listings, which is why they are smaller.
+              Nothing here is generated: no model has run.
             </footer>
           </>
         )}
