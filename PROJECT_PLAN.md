@@ -532,8 +532,11 @@ Features 1–6 from the product document, plus the corrections above.
   in one click loses them faster than no page at all. **No accuracy claim is made about
   anyone else's product**, because S0-19 has not been run and publishing an unmeasured
   accuracy comparison is the thing this project refuses everywhere else.
-- [ ] **S1-16 · Six automations live**: A1–A4 dogfood loop, A5 page generation, B2
-  stuck-at-count nudge, C1 alerts (Change 9).
+- [~] **S1-16 · Six automations.** **A5 (page generation) is live** — the saturation set is
+  derived from the measured index and `/find/[slug]` is statically generated from it, so a
+  market that earns a page gets one without anybody writing it. A1–A4 (the dogfood loop)
+  and B2 (stuck-at-count nudge) need accounts and an outbound mailer; **C1 (alerts) is
+  blocked on S0-20**, the weekly change rate, which cannot be measured before 2026-09-30.
 - [ ] **S1-17 · Cold email at 50/day**, planned against a 1.5% positive reply rate
   (Change 7).
 - [ ] **S1-18 · Community and creator programme** — the rebalanced primary channel.

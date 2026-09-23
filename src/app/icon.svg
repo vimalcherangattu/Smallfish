@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Deep ink ground, one lure dot. The design system allows lure for the logo
+       eye and nowhere else here; the brand voice rules out anything fishy, so
+       this is a mark rather than a picture of a fish. -->
+  <rect width="32" height="32" rx="7" fill="#0E1520"/>
+  <circle cx="16" cy="16" r="5" fill="#C8F03C"/>
+</svg>
