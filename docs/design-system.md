@@ -165,3 +165,37 @@ is loudest.
 score/tier/weight surface as a **proposal for the product shape**, to be decided
 alongside §5 rather than absorbed through a stylesheet. If scores are adopted, that is a
 plan-level decision with a decision-log entry, not a design import.
+
+
+---
+
+## 7 · The marketing home page — `docs/design/marketing-home.dc.html`
+
+A second, fuller mockup, added 2026-09-23: the whole marketing site rather than
+the composed page in §6. It carries the **logo** — a four-element mark (tail,
+body, eye, smile) used solid in the header and footer and as a large thin
+outline behind the hero — plus the dark hero, the running tickers, the numbered
+sections, the lure call-to-action block and the hung wordmark in the footer.
+
+**Implemented at `src/app/page.tsx`, with `src/components/Fish.tsx` for the mark
+and the `.mkt` block in `globals.css` for the tokens.** Its README asks for the
+values to be replicated in our own components rather than copied wholesale, and
+that is what was done.
+
+**The §5 split applies here too, and this mockup states it more loudly than the
+first.** What was taken and what was refused:
+
+| The mockup shows | What shipped, and why |
+|---|---|
+| `SCORE IT` in the hero ticker | `SAY WHEN WE CAN'T` — there is no score |
+| a `74` score badge on an account card | the quoted sentence and its source |
+| "A list of 500 came back as 320 qualified" | the measured 166-site dental read: 42 matched, 51 clear no's, 73 refused |
+| §04 "Research is the entry point. Noticing is the habit." — watching, a 16 Aug → 16 Sep diff | "The sentence is the product." S1-07 alerts are not built, so the section shows proof instead |
+| "Two meters. Accounts researched, accounts watched." | "One meter. Businesses you matched." — bands are what we actually bill |
+| Free / Team $149 / Agency $499 | the measured plans in `pricing.ts` |
+| "10 FREE · NO CARD" | a 25-business sample, which is what the free count reads |
+
+The fish imagery is fine here and only here. §4's ban on fishy language and
+imagery is about the **UI**, and specifically about anything near a verdict or a
+piece of evidence, where a joke costs trust. The marketing site is where the
+brand is allowed to be a brand, and the design itself puts the fish there.

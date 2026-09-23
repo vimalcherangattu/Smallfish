@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Small Fish home page</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,0..100;1,9..144,300..700,0..100&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEF0EC;color:#0E1520;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#4A6508}a:hover{color:#3A4F05}
+button{font-family:inherit}
+.serif{font-family:'Fraunces',Georgia,serif}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.eyebrow{font:500 11px/1.2 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:#5B6470}
+.btn{font:500 14px/1 'IBM Plex Sans',sans-serif;height:44px;padding:0 18px;border-radius:8px;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-decoration:none;box-sizing:border-box;white-space:nowrap}
+.btn-sm{height:36px;padding:0 12px;font-size:13px}
+.btn-primary{background:#0E1520;color:#FFFFFF}
+.btn-primary:hover{background:#26303C;color:#FFFFFF}
+.btn-accent{background:#C8F03C;color:#0E1520}
+.btn-accent:hover{background:#B5DE28;color:#0E1520}
+.btn-secondary{background:#FFFFFF;color:#0E1520;border-color:#B9BFB6}
+.btn-secondary:hover{background:#F6F7F4;color:#0E1520}
+.btn-ghost{background:transparent;color:#0E1520}
+.btn-ghost:hover{background:#E3E6E0;color:#0E1520}
+.btn:disabled{background:#E3E6E0;color:#5B6470;border-color:#D5D9D2;cursor:not-allowed}
+.btn:focus-visible,.input:focus,.iconbtn:focus-visible{outline:2px solid #4A6508;outline-offset:2px}
+.iconbtn{width:36px;height:36px;border-radius:8px;border:1px solid #D5D9D2;background:#FFFFFF;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#0E1520;padding:0}
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;font:500 12px/1 'IBM Plex Sans',sans-serif;white-space:nowrap;box-sizing:border-box}
+.v-fit{background:#DDEEDF;color:#1F6B45}
+.v-pending{background:#F3EACB;color:#7A5A00}
+.v-nofit{background:#E3E6E8;color:#4A5561}
+.c-enter{background:#DDEEDF;color:#1F6B45}
+.c-structure{background:#DCE5EE;color:#2D4E6E}
+.c-ready{background:#D7EBE7;color:#1F5F5B}
+.c-reach{background:#EFE3EC;color:#683A61}
+.c-left{background:#E3E6E0;color:#36404C}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;flex-shrink:0}
+.tier{width:24px;height:24px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font:600 12px/1 'IBM Plex Mono',monospace;box-sizing:border-box;flex-shrink:0}
+.tA{background:#C8F03C;color:#0E1520}.tB{background:#E9F7B5;color:#3A4F05}.tC{background:#FFFFFF;color:#36404C;border:1px solid #B9BFB6}.tD{background:#E3E6E0;color:#5B6470}.tX{background:#FFFFFF;color:#5B6470;border:1px dashed #B9BFB6}
+.status{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:6px;border:1px solid #D5D9D2;background:#FFFFFF;font:500 12px/1 'IBM Plex Sans',sans-serif;color:#36404C;white-space:nowrap;box-sizing:border-box}
+.mark{background:#E4F5A6;box-shadow:0 0 0 2px #E4F5A6;border-radius:2px;color:#0E1520}
+.cite{font-family:'Fraunces',Georgia,serif;font-size:17px;line-height:1.5;color:#0E1520;margin:0}
+.src{font:400 12px/1.3 'IBM Plex Mono',monospace;color:#5B6470;text-decoration:none}
+a.src:hover{color:#4A6508;text-decoration:underline}
+.card{background:#FFFFFF;border:1px solid #D5D9D2;border-radius:12px;box-sizing:border-box}
+.input{height:44px;border:1px solid #B9BFB6;border-radius:8px;padding:0 14px;font:400 15px 'IBM Plex Sans',sans-serif;background:#FFFFFF;color:#0E1520;box-sizing:border-box;width:100%}
+.label{font-size:13px;font-weight:500;color:#0E1520}
+.help{font-size:13px;line-height:1.45;color:#5B6470;margin:0}
+.bar{height:6px;border-radius:3px;background:#E3E6E0;overflow:hidden}
+.pips{display:inline-flex;gap:3px}
+.pip{width:14px;height:6px;border-radius:2px;background:#D5D9D2}
+.pip.on{background:#0E1520}
+.h-display{font:500 52px/1.05 'Fraunces',Georgia,serif;letter-spacing:-0.02em;margin:0}
+.h1{font:500 32px/1.2 'Fraunces',Georgia,serif;letter-spacing:-0.01em;margin:0}
+.h2{font:600 20px/1.3 'IBM Plex Sans',sans-serif;margin:0}
+.h3{font:600 15px/1.4 'IBM Plex Sans',sans-serif;margin:0}
+.body{font-size:15px;line-height:1.6;color:#36404C;margin:0}
+.small{font-size:13px;line-height:1.5;color:#36404C;margin:0}
+input[type=range]{accent-color:#0E1520;width:100%;margin:0}
+@keyframes shimmer{0%{opacity:.35}50%{opacity:1}100%{opacity:.35}}
+.reading{animation:shimmer 1.4s ease-in-out infinite}
+
+.serif,.cite,.h1,.h-display{font-variation-settings:'SOFT' 50}
+.lure{background:#C8F03C;color:#0E1520;padding:0 .12em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.mkt{font-family:'IBM Plex Sans',system-ui,sans-serif}
+.dsp{font-family:'Fraunces',Georgia,serif;font-weight:500;letter-spacing:-0.04em;line-height:0.92;margin:0;font-variation-settings:'SOFT' 40,'opsz' 144}
+.lab{font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase}
+.lede{font-size:19px;line-height:1.55;margin:0}
+.navlink{font-size:14px;color:#B9BFB6;text-decoration:none;position:relative}
+.navlink:hover{color:#C8F03C}
+.navlink::after{content:"";position:absolute;left:0;right:100%;bottom:-6px;height:1px;background:#C8F03C;transition:right .35s ease}
+.navlink:hover::after{right:0}
+.cta{display:inline-flex;align-items:center;gap:10px;height:56px;padding:0 26px;border-radius:999px;background:#C8F03C;color:#0E1520;font:500 16px 'IBM Plex Sans',sans-serif;text-decoration:none;border:0;cursor:pointer;transition:transform .25s ease,background .2s ease}
+.cta:hover{background:#B5DE28;color:#0E1520;transform:translateY(-3px)}
+.cta:active{transform:translateY(0)}
+.cta:disabled{background:#B9BFB6;color:#36404C;cursor:not-allowed;transform:none}
+.ghost{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:999px;border:1px solid #B9BFB6;background:transparent;color:#36404C;font:500 13px 'IBM Plex Mono',monospace;cursor:pointer;transition:all .2s ease}
+.ghost:hover{border-color:#0E1520;color:#0E1520;transform:rotate(-1deg)}
+.ghost.on{background:#0E1520;border-color:#0E1520;color:#C8F03C}
+.tilt-l{transform:rotate(-1.4deg)}
+.tilt-r{transform:rotate(1.2deg)}
+.lift{transition:transform .35s cubic-bezier(.2,.7,.3,1),box-shadow .35s ease}
+.lift:hover{transform:translateY(-6px) rotate(-.7deg);box-shadow:0 24px 48px rgba(14,21,32,.13)}
+@keyframes drift{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes driftb{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+@keyframes swim{0%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(-30px,-22px) rotate(-2deg)}100%{transform:translate(0,0) rotate(0deg)}}
+@keyframes schooldrift{from{transform:translateX(0)}to{transform:translateX(-72px)}}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+@keyframes pop{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes sonar{0%{opacity:.5;transform:scale(.6)}100%{opacity:0;transform:scale(1.9)}}
+@keyframes bubble{0%{transform:translate(0,0) scale(.35);opacity:0}10%{opacity:.9}55%{opacity:.6}100%{transform:translate(-120px,-320px) scale(1.15);opacity:0}}
+@keyframes bubble2{0%{transform:translate(0,0) scale(.3);opacity:0}14%{opacity:.75}60%{opacity:.45}100%{transform:translate(-54px,-360px) scale(1.3);opacity:0}}
+@keyframes bubble3{0%{transform:translate(0,0) scale(.45);opacity:0}16%{opacity:.8}62%{opacity:.4}100%{transform:translate(-176px,-250px) scale(1);opacity:0}}
+.bub{position:absolute;border-radius:50%;opacity:0;animation-timing-function:cubic-bezier(.35,.1,.5,1);animation-iteration-count:infinite;animation-name:bubble}
+.bub.b2{animation-name:bubble2}
+.bub.b3{animation-name:bubble3}
+@keyframes bubbleS{0%{transform:translate(0,0) scale(.4);opacity:0}15%{opacity:.95}100%{transform:translate(-28px,-64px) scale(1.1);opacity:0}}
+.bub.s{animation-name:bubbleS}
+.mq{display:inline-block;white-space:nowrap;animation:drift 34s linear infinite}
+.mq-slow{display:inline-block;white-space:nowrap;animation:driftb 58s linear infinite}
+.swim{animation:swim 9s ease-in-out infinite}
+.schoolmove{animation:schooldrift 9s linear infinite}
+.caret{display:inline-block;width:2px;height:22px;background:#0E1520;animation:blink 1.1s step-end infinite;vertical-align:-4px}
+.bobbing{animation:bob 2.4s ease-in-out infinite}
+.rise{animation:rise .45s cubic-bezier(.2,.7,.3,1) both}
+.popin{animation:pop .5s cubic-bezier(.2,.7,.3,1) both}
+.ping{position:absolute;inset:-6px;border:1px solid #C8F03C;border-radius:50%;animation:sonar 1.6s ease-out infinite}
+.grow{transition:width .85s cubic-bezier(.2,.7,.3,1)}
+.hang{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:150px;line-height:.8;color:transparent;-webkit-text-stroke:1px #B9BFB6;letter-spacing:-.04em}
+.slider{width:100%;accent-color:#0E1520}
+.prow{display:grid;grid-template-columns:150px 1fr 150px 250px;column-gap:32px;align-items:baseline;padding:26px 0;border-bottom:1px solid #D5D9D2;transition:padding-left .3s ease}
+.prow:hover{padding-left:14px}
+</style>
+</helmet>
+<div class="mkt" style="width: 1440px; height: 6600px; box-sizing: border-box; display: flex; flex-direction: column; background: #EEF0EC; color: #0E1520; overflow: hidden; position: relative;">
+
+  <!-- ============ HERO ============ -->
+  <section style="position: relative; background: #0E1520; color: #EEF0EC; height: 1000px; overflow: hidden;">
+    <div style="position: absolute; left: -80px; top: 0; width: 1600px; opacity: .55;" class="schoolmove"><svg width="1600" height="760" viewBox="0 0 1600 760" aria-hidden="true" style="display: block;"><defs><g id="sf-h"><path d="M26 16 L44 5.5 Q41 16 44 26.5 Z" fill="none" stroke="#1B2533" stroke-width="1.4" stroke-linejoin="round"></path><circle cx="17" cy="16" r="11.2" fill="none" stroke="#1B2533" stroke-width="1.4"></circle><circle cx="11.5" cy="12.5" r="1.7" fill="#1B2533"></circle></g></defs><use href="#sf-h" x="-30" y="0"></use><use href="#sf-h" x="42" y="0"></use><use href="#sf-h" x="114" y="0"></use><use href="#sf-h" x="186" y="0"></use><use href="#sf-h" x="258" y="0"></use><use href="#sf-h" x="330" y="0"></use><use href="#sf-h" x="402" y="0"></use><use href="#sf-h" x="474" y="0"></use><use href="#sf-h" x="546" y="0"></use><use href="#sf-h" x="618" y="0"></use><use href="#sf-h" x="690" y="0"></use><use href="#sf-h" x="762" y="0"></use><use href="#sf-h" x="834" y="0"></use><use href="#sf-h" x="906" y="0"></use><use href="#sf-h" x="978" y="0"></use><use href="#sf-h" x="1050" y="0"></use><use href="#sf-h" x="1122" y="0"></use><use href="#sf-h" x="1194" y="0"></use><use href="#sf-h" x="1266" y="0"></use><use href="#sf-h" x="1338" y="0"></use><use href="#sf-h" x="1410" y="0"></use><use href="#sf-h" x="1482" y="0"></use><use href="#sf-h" x="1554" y="0"></use><use href="#sf-h" x="1626" y="0"></use><use href="#sf-h" x="6" y="62"></use><use href="#sf-h" x="78" y="62"></use><use href="#sf-h" x="150" y="62"></use><use href="#sf-h" x="222" y="62"></use><use href="#sf-h" x="294" y="62"></use><use href="#sf-h" x="366" y="62"></use><use href="#sf-h" x="438" y="62"></use><use href="#sf-h" x="510" y="62"></use><use href="#sf-h" x="582" y="62"></use><use href="#sf-h" x="654" y="62"></use><use href="#sf-h" x="726" y="62"></use><use href="#sf-h" x="798" y="62"></use><use href="#sf-h" x="870" y="62"></use><use href="#sf-h" x="942" y="62"></use><use href="#sf-h" x="1014" y="62"></use><use href="#sf-h" x="1086" y="62"></use><use href="#sf-h" x="1158" y="62"></use><use href="#sf-h" x="1230" y="62"></use><use href="#sf-h" x="1302" y="62"></use><use href="#sf-h" x="1374" y="62"></use><use href="#sf-h" x="1446" y="62"></use><use href="#sf-h" x="1518" y="62"></use><use href="#sf-h" x="1590" y="62"></use><use href="#sf-h" x="1662" y="62"></use><use href="#sf-h" x="-30" y="124"></use><use href="#sf-h" x="42" y="124"></use><use href="#sf-h" x="114" y="124"></use><use href="#sf-h" x="186" y="124"></use><use href="#sf-h" x="258" y="124"></use><use href="#sf-h" x="330" y="124"></use><use href="#sf-h" x="402" y="124"></use><use href="#sf-h" x="474" y="124"></use><use href="#sf-h" x="546" y="124"></use><use href="#sf-h" x="618" y="124"></use><use href="#sf-h" x="690" y="124"></use><use href="#sf-h" x="762" y="124"></use><use href="#sf-h" x="834" y="124"></use><use href="#sf-h" x="906" y="124"></use><use href="#sf-h" x="978" y="124"></use><use href="#sf-h" x="1050" y="124"></use><use href="#sf-h" x="1122" y="124"></use><use href="#sf-h" x="1194" y="124"></use><use href="#sf-h" x="1266" y="124"></use><use href="#sf-h" x="1338" y="124"></use><use href="#sf-h" x="1410" y="124"></use><use href="#sf-h" x="1482" y="124"></use><use href="#sf-h" x="1554" y="124"></use><use href="#sf-h" x="1626" y="124"></use><use href="#sf-h" x="6" y="186"></use><use href="#sf-h" x="78" y="186"></use><use href="#sf-h" x="150" y="186"></use><use href="#sf-h" x="222" y="186"></use><use href="#sf-h" x="294" y="186"></use><use href="#sf-h" x="366" y="186"></use><use href="#sf-h" x="438" y="186"></use><use href="#sf-h" x="510" y="186"></use><use href="#sf-h" x="582" y="186"></use><use href="#sf-h" x="654" y="186"></use><use href="#sf-h" x="726" y="186"></use><use href="#sf-h" x="798" y="186"></use><use href="#sf-h" x="870" y="186"></use><use href="#sf-h" x="942" y="186"></use><use href="#sf-h" x="1014" y="186"></use><use href="#sf-h" x="1086" y="186"></use><use href="#sf-h" x="1158" y="186"></use><use href="#sf-h" x="1230" y="186"></use><use href="#sf-h" x="1302" y="186"></use><use href="#sf-h" x="1374" y="186"></use><use href="#sf-h" x="1446" y="186"></use><use href="#sf-h" x="1518" y="186"></use><use href="#sf-h" x="1590" y="186"></use><use href="#sf-h" x="1662" y="186"></use><use href="#sf-h" x="-30" y="248"></use><use href="#sf-h" x="42" y="248"></use><use href="#sf-h" x="114" y="248"></use><use href="#sf-h" x="186" y="248"></use><use href="#sf-h" x="258" y="248"></use><use href="#sf-h" x="330" y="248"></use><use href="#sf-h" x="402" y="248"></use><use href="#sf-h" x="474" y="248"></use><use href="#sf-h" x="546" y="248"></use><use href="#sf-h" x="618" y="248"></use><use href="#sf-h" x="690" y="248"></use><use href="#sf-h" x="762" y="248"></use><use href="#sf-h" x="834" y="248"></use><use href="#sf-h" x="906" y="248"></use><use href="#sf-h" x="978" y="248"></use><use href="#sf-h" x="1050" y="248"></use><use href="#sf-h" x="1122" y="248"></use><use href="#sf-h" x="1194" y="248"></use><use href="#sf-h" x="1266" y="248"></use><use href="#sf-h" x="1338" y="248"></use><use href="#sf-h" x="1410" y="248"></use><use href="#sf-h" x="1482" y="248"></use><use href="#sf-h" x="1554" y="248"></use><use href="#sf-h" x="1626" y="248"></use><use href="#sf-h" x="6" y="310"></use><use href="#sf-h" x="78" y="310"></use><use href="#sf-h" x="150" y="310"></use><use href="#sf-h" x="222" y="310"></use><use href="#sf-h" x="294" y="310"></use><use href="#sf-h" x="366" y="310"></use><use href="#sf-h" x="438" y="310"></use><use href="#sf-h" x="510" y="310"></use><use href="#sf-h" x="582" y="310"></use><use href="#sf-h" x="654" y="310"></use><use href="#sf-h" x="726" y="310"></use><use href="#sf-h" x="798" y="310"></use><use href="#sf-h" x="870" y="310"></use><use href="#sf-h" x="942" y="310"></use><use href="#sf-h" x="1014" y="310"></use><use href="#sf-h" x="1086" y="310"></use><use href="#sf-h" x="1158" y="310"></use><use href="#sf-h" x="1230" y="310"></use><use href="#sf-h" x="1302" y="310"></use><use href="#sf-h" x="1374" y="310"></use><use href="#sf-h" x="1446" y="310"></use><use href="#sf-h" x="1518" y="310"></use><use href="#sf-h" x="1590" y="310"></use><use href="#sf-h" x="1662" y="310"></use><use href="#sf-h" x="-30" y="372"></use><use href="#sf-h" x="42" y="372"></use><use href="#sf-h" x="114" y="372"></use><use href="#sf-h" x="186" y="372"></use><use href="#sf-h" x="258" y="372"></use><use href="#sf-h" x="330" y="372"></use><use href="#sf-h" x="402" y="372"></use><use href="#sf-h" x="474" y="372"></use><use href="#sf-h" x="546" y="372"></use><use href="#sf-h" x="618" y="372"></use><use href="#sf-h" x="690" y="372"></use><use href="#sf-h" x="762" y="372"></use><use href="#sf-h" x="834" y="372"></use><use href="#sf-h" x="906" y="372"></use><use href="#sf-h" x="978" y="372"></use><use href="#sf-h" x="1050" y="372"></use><use href="#sf-h" x="1122" y="372"></use><use href="#sf-h" x="1194" y="372"></use><use href="#sf-h" x="1266" y="372"></use><use href="#sf-h" x="1338" y="372"></use><use href="#sf-h" x="1410" y="372"></use><use href="#sf-h" x="1482" y="372"></use><use href="#sf-h" x="1554" y="372"></use><use href="#sf-h" x="1626" y="372"></use><use href="#sf-h" x="6" y="434"></use><use href="#sf-h" x="78" y="434"></use><use href="#sf-h" x="150" y="434"></use><use href="#sf-h" x="222" y="434"></use><use href="#sf-h" x="294" y="434"></use><use href="#sf-h" x="366" y="434"></use><use href="#sf-h" x="438" y="434"></use><use href="#sf-h" x="510" y="434"></use><use href="#sf-h" x="582" y="434"></use><use href="#sf-h" x="654" y="434"></use><use href="#sf-h" x="726" y="434"></use><use href="#sf-h" x="798" y="434"></use><use href="#sf-h" x="870" y="434"></use><use href="#sf-h" x="942" y="434"></use><use href="#sf-h" x="1014" y="434"></use><use href="#sf-h" x="1086" y="434"></use><use href="#sf-h" x="1158" y="434"></use><use href="#sf-h" x="1230" y="434"></use><use href="#sf-h" x="1302" y="434"></use><use href="#sf-h" x="1374" y="434"></use><use href="#sf-h" x="1446" y="434"></use><use href="#sf-h" x="1518" y="434"></use><use href="#sf-h" x="1590" y="434"></use><use href="#sf-h" x="1662" y="434"></use><use href="#sf-h" x="-30" y="496"></use><use href="#sf-h" x="42" y="496"></use><use href="#sf-h" x="114" y="496"></use><use href="#sf-h" x="186" y="496"></use><use href="#sf-h" x="258" y="496"></use><use href="#sf-h" x="330" y="496"></use><use href="#sf-h" x="402" y="496"></use><use href="#sf-h" x="474" y="496"></use><use href="#sf-h" x="546" y="496"></use><use href="#sf-h" x="618" y="496"></use><use href="#sf-h" x="690" y="496"></use><use href="#sf-h" x="762" y="496"></use><use href="#sf-h" x="834" y="496"></use><use href="#sf-h" x="906" y="496"></use><use href="#sf-h" x="978" y="496"></use><use href="#sf-h" x="1050" y="496"></use><use href="#sf-h" x="1122" y="496"></use><use href="#sf-h" x="1194" y="496"></use><use href="#sf-h" x="1266" y="496"></use><use href="#sf-h" x="1338" y="496"></use><use href="#sf-h" x="1410" y="496"></use><use href="#sf-h" x="1482" y="496"></use><use href="#sf-h" x="1554" y="496"></use><use href="#sf-h" x="1626" y="496"></use><use href="#sf-h" x="6" y="558"></use><use href="#sf-h" x="78" y="558"></use><use href="#sf-h" x="150" y="558"></use><use href="#sf-h" x="222" y="558"></use><use href="#sf-h" x="294" y="558"></use><use href="#sf-h" x="366" y="558"></use><use href="#sf-h" x="438" y="558"></use><use href="#sf-h" x="510" y="558"></use><use href="#sf-h" x="582" y="558"></use><use href="#sf-h" x="654" y="558"></use><use href="#sf-h" x="726" y="558"></use><use href="#sf-h" x="798" y="558"></use><use href="#sf-h" x="870" y="558"></use><use href="#sf-h" x="942" y="558"></use><use href="#sf-h" x="1014" y="558"></use><use href="#sf-h" x="1086" y="558"></use><use href="#sf-h" x="1158" y="558"></use><use href="#sf-h" x="1230" y="558"></use><use href="#sf-h" x="1302" y="558"></use><use href="#sf-h" x="1374" y="558"></use><use href="#sf-h" x="1446" y="558"></use><use href="#sf-h" x="1518" y="558"></use><use href="#sf-h" x="1590" y="558"></use><use href="#sf-h" x="1662" y="558"></use><use href="#sf-h" x="-30" y="620"></use><use href="#sf-h" x="42" y="620"></use><use href="#sf-h" x="114" y="620"></use><use href="#sf-h" x="186" y="620"></use><use href="#sf-h" x="258" y="620"></use><use href="#sf-h" x="330" y="620"></use><use href="#sf-h" x="402" y="620"></use><use href="#sf-h" x="474" y="620"></use><use href="#sf-h" x="546" y="620"></use><use href="#sf-h" x="618" y="620"></use><use href="#sf-h" x="690" y="620"></use><use href="#sf-h" x="762" y="620"></use><use href="#sf-h" x="834" y="620"></use><use href="#sf-h" x="906" y="620"></use><use href="#sf-h" x="978" y="620"></use><use href="#sf-h" x="1050" y="620"></use><use href="#sf-h" x="1122" y="620"></use><use href="#sf-h" x="1194" y="620"></use><use href="#sf-h" x="1266" y="620"></use><use href="#sf-h" x="1338" y="620"></use><use href="#sf-h" x="1410" y="620"></use><use href="#sf-h" x="1482" y="620"></use><use href="#sf-h" x="1554" y="620"></use><use href="#sf-h" x="1626" y="620"></use><use href="#sf-h" x="6" y="682"></use><use href="#sf-h" x="78" y="682"></use><use href="#sf-h" x="150" y="682"></use><use href="#sf-h" x="222" y="682"></use><use href="#sf-h" x="294" y="682"></use><use href="#sf-h" x="366" y="682"></use><use href="#sf-h" x="438" y="682"></use><use href="#sf-h" x="510" y="682"></use><use href="#sf-h" x="582" y="682"></use><use href="#sf-h" x="654" y="682"></use><use href="#sf-h" x="726" y="682"></use><use href="#sf-h" x="798" y="682"></use><use href="#sf-h" x="870" y="682"></use><use href="#sf-h" x="942" y="682"></use><use href="#sf-h" x="1014" y="682"></use><use href="#sf-h" x="1086" y="682"></use><use href="#sf-h" x="1158" y="682"></use><use href="#sf-h" x="1230" y="682"></use><use href="#sf-h" x="1302" y="682"></use><use href="#sf-h" x="1374" y="682"></use><use href="#sf-h" x="1446" y="682"></use><use href="#sf-h" x="1518" y="682"></use><use href="#sf-h" x="1590" y="682"></use><use href="#sf-h" x="1662" y="682"></use></svg></div>
+    <div style="position: absolute; right: -180px; top: 190px;" class="swim"><svg width="780" height="520" viewBox="0 0 48 32" aria-hidden="true"><path d="M26 16 L44 5.5 Q41 16 44 26.5 Z" fill="none" stroke="#C8F03C" stroke-width="0.35"></path><circle cx="17" cy="16" r="12" fill="none" stroke="#C8F03C" stroke-width="0.35"></circle><circle cx="11.5" cy="12.5" r="2.3" fill="#C8F03C"></circle><path d="M9.5 21 Q13.5 25 19 24.6" fill="none" stroke="#C8F03C" stroke-width="0.40249999999999997" stroke-linecap="round"></path></svg>
+      <span class="bub" aria-hidden="true" style="left: 66px; top: 236px; width: 13px; height: 13px; border: 1.6px solid #C8F03C; animation-duration: 5.4s; animation-delay: 0s;"></span>
+      <span class="bub b2" aria-hidden="true" style="left: 72px; top: 246px; width: 8px; height: 8px; border: 1.4px solid #C8F03C; animation-duration: 6.6s; animation-delay: .9s;"></span>
+      <span class="bub b3" aria-hidden="true" style="left: 60px; top: 230px; width: 18px; height: 18px; border: 1.6px solid #C8F03C; animation-duration: 7.4s; animation-delay: 1.8s;"></span>
+      <span class="bub" aria-hidden="true" style="left: 78px; top: 252px; width: 6px; height: 6px; background: #C8F03C; animation-duration: 4.6s; animation-delay: 2.6s;"></span>
+      <span class="bub b2" aria-hidden="true" style="left: 64px; top: 240px; width: 11px; height: 11px; border: 1.5px solid #C8F03C; animation-duration: 6.1s; animation-delay: 3.4s;"></span>
+      <span class="bub b3" aria-hidden="true" style="left: 74px; top: 244px; width: 9px; height: 9px; border: 1.4px solid #C8F03C; animation-duration: 5.8s; animation-delay: 4.3s;"></span>
+    </div>
+
+    <nav aria-label="Main" style="position: relative; height: 88px; padding: 0 56px; display: flex; align-items: center; justify-content: space-between;">
+      <span style="display: inline-flex; align-items: center; gap: 10px;"><svg width="39" height="26" viewBox="0 0 48 32" role="img" aria-label="Small Fish"><path d="M26 16 L44 5.5 Q41 16 44 26.5 Z" fill="#C8F03C"></path><circle cx="17" cy="16" r="12" fill="#C8F03C"></circle><circle cx="11.5" cy="12.5" r="2.3" fill="#0E1520"></circle><path d="M9.5 21 Q13.5 25 19 24.6" fill="none" stroke="#0E1520" stroke-width="2" stroke-linecap="round"></path></svg><span style="font-family: 'Fraunces', Georgia, serif; font-size: 24px; font-weight: 600; letter-spacing: -0.035em; line-height: 1; font-variation-settings: 'SOFT' 100, 'opsz' 144; color: #EEF0EC; white-space: nowrap;">small fish</span></span>
+      <div style="display: flex; align-items: center; gap: 36px;">
+        <a class="navlink" href="#demo">Try it</a>
+        <a class="navlink" href="#why">Why it exists</a>
+        <a class="navlink" href="#markets">Markets</a>
+        <a class="navlink" href="#price">Pricing</a>
+        <a class="cta" href="#demo" style="height: 44px; font-size: 14px; padding: 0 20px;">Read a site now</a>
+      </div>
+    </nav>
+
+    <div style="position: relative; padding: 96px 56px 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px;">
+      <span class="lab" style="grid-column: span 6; color: #8A929B;">Account intelligence for markets the databases cannot see</span>
+      <h1 class="dsp" style="grid-column: span 11; font-size: 158px; margin-top: 40px;">The accounts<br><span style="display: inline-block; margin-left: 180px;">the <span style="background: #C8F03C; color: #0E1520; padding: 0 .06em; display: inline-block; transform: rotate(-1.2deg);">big nets</span></span><br><span style="display: inline-block; margin-left: 60px;">miss.</span></h1>
+      <p class="lede" style="grid-column: 1 / span 4; margin-top: 56px; color: #B9BFB6;">Your market is a few thousand small companies. The databases know their names and almost nothing that decides the sale.</p>
+      <a class="lab" href="#demo" style="grid-column: 6 / span 3; margin-top: 60px; color: #C8F03C; text-decoration: none; display: flex; align-items: center; gap: 12px; align-self: start;">
+        <span class="bobbing" style="display: inline-flex;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C8F03C" stroke-width="1.5" aria-hidden="true"><path d="M12 4v15M6 13l6 6 6-6"></path></svg></span>
+        Read a real site below, free
+      </a>
+    </div>
+
+    <div style="position: absolute; bottom: 74px; left: -30px; width: 1520px; background: #C8F03C; color: #0E1520; padding: 12px 0; overflow: hidden; transform: rotate(-1.3deg);">
+      <div class="mq lab">READ THE SITE &nbsp;·&nbsp; SCORE IT &nbsp;·&nbsp; CITE THE SENTENCE &nbsp;·&nbsp; WATCH FOR CHANGE &nbsp;·&nbsp; READ THE SITE &nbsp;·&nbsp; SCORE IT &nbsp;·&nbsp; CITE THE SENTENCE &nbsp;·&nbsp; WATCH FOR CHANGE &nbsp;·&nbsp; READ THE SITE &nbsp;·&nbsp; SCORE IT &nbsp;·&nbsp; CITE THE SENTENCE &nbsp;·&nbsp; WATCH FOR CHANGE &nbsp;·&nbsp; READ THE SITE &nbsp;·&nbsp; SCORE IT &nbsp;·&nbsp; CITE THE SENTENCE &nbsp;·&nbsp; WATCH FOR CHANGE &nbsp;·&nbsp; </div>
+    </div>
+  </section>
+
+  <!-- ============ LIVE DEMO (overlaps the hero) ============ -->
+  <section id="demo" style="position: relative; margin-top: -120px; padding: 0 56px 120px; z-index: 3;">
+    <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px;">
+
+      <div style="grid-column: 1 / span 5; background: #FFFFFF; border: 1px solid #D5D9D2; padding: 36px 36px 40px; display: flex; flex-direction: column; gap: 22px; align-self: start; box-shadow: 0 30px 60px rgba(14,21,32,.10);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span class="lab" style="color: #5B6470;">Live · no signup</span>
+          <span style="display: flex; align-items: center; gap: 8px;"><span style="position: relative; width: 8px; height: 8px; border-radius: 50%; background: #C8F03C;"><span class="ping"></span></span><span class="lab" style="color: #5B6470;">reader online</span></span>
+        </div>
+        <h2 class="dsp" style="font-size: 40px;">Pick a dental practice. Watch us read it.</h2>
+        <p class="small" style="color: #36404C;">This is the real pipeline on three sites we cached. Yours works the same way, on your market.</p>
+
+        <div style="display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #0E1520; padding-bottom: 10px;">
+          <span class="mono" style="font-size: 14px; color: #5B6470;">https://</span>
+          <span class="mono" style="font-size: 17px; flex-grow: 1;">{{site}}</span>
+          <sc-if value="{{idle}}" hint-placeholder-val="{{ true }}"><span class="caret"></span></sc-if>
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <sc-for list="{{samples}}" as="s" hint-placeholder-count="3">
+            <button type="button" class="{{s.cls}}" onClick="{{s.pick}}">{{s.short}}</button>
+          </sc-for>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <sc-if value="{{idle}}" hint-placeholder-val="{{ true }}">
+            <button type="button" class="cta" onClick="{{start}}">Read this site
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+          </sc-if>
+          <sc-if value="{{running}}" hint-placeholder-val="{{ false }}">
+            <span style="display: inline-flex; align-items: center; gap: 12px;">
+              <button type="button" class="cta" disabled="">Reading…</button>
+              <span style="position: relative; display: inline-flex;" class="swim"><svg width="33" height="22" viewBox="0 0 48 32" role="img" aria-label="Small Fish"><path d="M26 16 L44 5.5 Q41 16 44 26.5 Z" fill="#0E1520"></path><circle cx="17" cy="16" r="12" fill="#0E1520"></circle><circle cx="11.5" cy="12.5" r="2.3" fill="#C8F03C"></circle><path d="M9.5 21 Q13.5 25 19 24.6" fill="none" stroke="#C8F03C" stroke-width="2" stroke-linecap="round"></path></svg>
+                <span class="bub s" aria-hidden="true" style="left: 3px; top: 8px; width: 6px; height: 6px; border: 1.2px solid #4A6508; animation-duration: 2.6s; animation-delay: 0s;"></span>
+                <span class="bub s" aria-hidden="true" style="left: 6px; top: 12px; width: 4px; height: 4px; background: #C8F03C; animation-duration: 3.1s; animation-delay: .8s;"></span>
+                <span class="bub s" aria-hidden="true" style="left: 1px; top: 6px; width: 8px; height: 8px; border: 1.2px solid #4A6508; animation-duration: 3.6s; animation-delay: 1.6s;"></span>
+              </span>
+            </span>
+          </sc-if>
+          <sc-if value="{{done}}" hint-placeholder-val="{{ false }}">
+            <button type="button" class="ghost" onClick="{{reset}}">Read another site</button>
+          </sc-if>
+          <span class="lab" style="color: #5B6470;">{{statusLine}}</span>
+        </div>
+
+        <div style="height: 1px; background: #D5D9D2;"></div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <span class="lab" style="color: #5B6470;">Pages read</span>
+          <sc-for list="{{pages}}" as="p" hint-placeholder-count="4">
+            <div class="{{p.cls}}" style="{{p.style}}">
+              <span class="mono" style="font-size: 13px; flex-grow: 1;">{{p.path}}</span>
+              <span class="mono" style="font-size: 12px; color: #5B6470;">{{p.note}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="grid-column: 7 / span 6; margin-top: 90px; display: flex; flex-direction: column; gap: 24px;">
+        <div class="tilt-r lift" style="background: #FFFFFF; border: 1px solid #D5D9D2; padding: 34px 36px; display: flex; flex-direction: column; gap: 22px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <span class="dsp" style="font-size: 30px;">{{account.name}}</span>
+              <span class="src">{{account.domain}} · {{account.city}}</span>
+            </div>
+            <sc-if value="{{done}}" hint-placeholder-val="{{ false }}">
+              <span class="popin" style="display: flex; align-items: center; gap: 10px;"><span class="mono" style="font-size: 46px; font-weight: 500; letter-spacing: -.03em;">{{score}}</span><span class="{{tierCls}}" style="width: 30px; height: 30px; font-size: 14px;">{{tier}}</span></span>
+            </sc-if>
+            <sc-if value="{{notDone}}" hint-placeholder-val="{{ true }}">
+              <span class="mono" style="font-size: 46px; color: #B9BFB6;">{{scorePlaceholder}}</span>
+            </sc-if>
+          </div>
+
+          <sc-for list="{{dims}}" as="d" hint-placeholder-count="3">
+            <div class="{{d.cls}}" style="{{d.style}}">
+              <div style="display: grid; grid-template-columns: 116px 1fr 34px; gap: 14px; align-items: center;">
+                <span class="small" style="color: #0E1520; font-weight: 600;">{{d.label}}</span>
+                <span class="bar" style="display: block;"><span class="grow" style="{{d.barStyle}}"></span></span>
+                <span class="mono" style="font-size: 12px; text-align: right;">{{d.scoreText}}</span>
+              </div>
+              <sc-if value="{{d.revealed}}" hint-placeholder-val="{{ true }}">
+                <div style="padding: 10px 0 0 130px; display: flex; flex-direction: column; gap: 5px;">
+                  <p class="cite" style="font-size: 16px;">"{{d.pre}}<span class="mark">{{d.mark}}</span>{{d.post}}"</p>
+                  <span class="src">{{d.src}}</span>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+
+          <sc-if value="{{done}}" hint-placeholder-val="{{ false }}">
+            <div class="rise" style="background: #0E1520; color: #EEF0EC; padding: 22px 24px; display: flex; flex-direction: column; gap: 10px; margin: 6px -14px -14px 0;">
+              <span class="lab" style="color: #C8F03C;">Hook · what you open the email with</span>
+              <p class="cite" style="font-size: 19px; color: #EEF0EC;">{{account.hook}}</p>
+              <span class="src" style="color: #8A929B;">{{account.hookSrc}}</span>
+            </div>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{done}}" hint-placeholder-val="{{ false }}">
+          <div class="rise tilt-l" style="background: #E9F7B5; border: 1px solid #C8F03C; padding: 26px 30px; display: grid; grid-template-columns: 230px 1fr; column-gap: 32px; align-items: center;">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <span class="lab" style="color: #3A4F05;">Now argue with it</span>
+              <p class="small" style="color: #0E1520;">Move a weight. Everything re-ranks in the browser: no re-run, no credits.</p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <sc-for list="{{weights}}" as="w" hint-placeholder-count="3">
+                <div style="display: grid; grid-template-columns: 110px 1fr 34px; gap: 12px; align-items: center;">
+                  <label class="small" for="{{w.id}}" style="color: #0E1520;">{{w.label}}</label>
+                  <input class="slider" id="{{w.id}}" type="range" min="0" max="50" step="5" value="{{w.value}}" onChange="{{w.onChange}}">
+                  <span class="mono" style="font-size: 12px; text-align: right;">{{w.value}}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div class="rise" style="display: flex; flex-direction: column; gap: 2px;">
+            <sc-for list="{{ranked}}" as="r" hint-placeholder-count="3">
+              <div style="{{r.rowStyle}}">
+                <span class="mono" style="font-size: 12px; color: #5B6470; width: 22px;">{{r.rank}}</span>
+                <span class="h3" style="flex-grow: 1;">{{r.name}}</span>
+                <span class="{{r.chipCls}}"><span class="dot"></span>{{r.verdict}}</span>
+                <span class="mono" style="font-size: 17px; width: 34px; text-align: right;">{{r.score}}</span>
+                <span class="{{r.tierCls}}">{{r.tier}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHY (staggered, no band) ============ -->
+  <section id="why" style="position: relative; padding: 40px 56px 140px;">
+    <div style="position: absolute; left: 56px; top: 0;"><span class="hang">01</span></div>
+    <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px;">
+      <p class="dsp" style="grid-column: 3 / span 9; font-size: 66px; line-height: 1.06;">A list of 500 came back as <span style="background: #C8F03C; padding: 0 .06em; display: inline-block; transform: rotate(-.8deg);">320 qualified</span> and 180 we refused to guess about — each with the reason why.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; margin-top: 90px;">
+      <div style="grid-column: 2 / span 3; display: flex; flex-direction: column; gap: 16px;">
+        <span class="lab" style="color: #5B6470;">Buy a list</span>
+        <p class="lede" style="color: #36404C;">Below a certain size the rows go sparse, stale, or were never there. Headcount 40 doesn't tell you who owns the place.</p>
+      </div>
+      <div style="grid-column: 6 / span 3; margin-top: 110px; display: flex; flex-direction: column; gap: 16px;">
+        <span class="lab" style="color: #5B6470;">Build it yourself</span>
+        <p class="lede" style="color: #36404C;">Scraping a map gets names and websites, the easy half. Someone still opens forty sites and decides. Nobody does it twice.</p>
+      </div>
+      <div style="grid-column: 10 / span 3; margin-top: 40px; display: flex; flex-direction: column; gap: 16px;">
+        <span class="lab" style="color: #5B6470;">Hire an SDR</span>
+        <p class="lede" style="color: #36404C;">Works, and costs more than the software you sell. The qualification logic lives in one head and leaves when they do.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MANIFESTO (angled slab, bleeds) ============ -->
+  <section style="position: relative; height: 620px; overflow: hidden;">
+    <div style="position: absolute; left: -60px; right: -60px; top: 40px; background: #0E1520; color: #EEF0EC; transform: rotate(-1.6deg); padding: 96px 116px;">
+      <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; row-gap: 34px;">
+        <span class="lab" style="grid-column: span 2; color: #8A929B;">02 — the line</span>
+        <h2 class="dsp" style="grid-column: 3 / span 9; font-size: 88px;">It stops at drafted. It never sends.</h2>
+        <p class="lede" style="grid-column: 3 / span 4; color: #B9BFB6;">Sending means domains, warmup, bounce handling and somebody's reputation. That is a different company, and it is where most tools quietly fail.</p>
+        <p class="lede" style="grid-column: 8 / span 4; color: #B9BFB6;">Finished research goes into the sequencer you already use, and the replies come back so next month's ranking beats this month's.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MARKETS (two opposing marquees) ============ -->
+  <section id="markets" style="position: relative; padding: 90px 0 120px; overflow: hidden;">
+    <div style="padding: 0 56px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: end; margin-bottom: 56px;">
+      <span class="lab" style="grid-column: span 2; color: #5B6470;">03 — markets</span>
+      <h2 class="dsp" style="grid-column: 3 / span 6; font-size: 56px;">Anywhere the good accounts are too small to be in a database.</h2>
+      <p class="lede" style="grid-column: 10 / span 3; color: #36404C;">Templates ship as data: signals, extraction profiles and change rules. A new market needs no code.</p>
+    </div>
+    <div style="transform: rotate(-2deg); margin: 0 -40px;">
+      <div style="border-top: 1px solid #D5D9D2; border-bottom: 1px solid #D5D9D2; padding: 18px 0; overflow: hidden;">
+        <div class="mq dsp" style="font-size: 76px;">dental &nbsp;&nbsp; law firms &nbsp;&nbsp; vet clinics &nbsp;&nbsp; freight brokers &nbsp;&nbsp; pharmacies &nbsp;&nbsp; home services &nbsp;&nbsp; dental &nbsp;&nbsp; law firms &nbsp;&nbsp; vet clinics &nbsp;&nbsp; freight brokers &nbsp;&nbsp; pharmacies &nbsp;&nbsp; home services &nbsp;&nbsp; dental &nbsp;&nbsp; law firms &nbsp;&nbsp; vet clinics &nbsp;&nbsp; freight brokers &nbsp;&nbsp; pharmacies &nbsp;&nbsp; home services &nbsp;&nbsp; </div>
+      </div>
+      <div style="border-bottom: 1px solid #D5D9D2; padding: 18px 0; overflow: hidden; background: #0E1520;">
+        <div class="mq-slow dsp" style="font-size: 76px; color: transparent; -webkit-text-stroke: 1px #C8F03C;">staffing &nbsp;&nbsp; independent pharmacy &nbsp;&nbsp; MSPs &nbsp;&nbsp; dealerships &nbsp;&nbsp; clinics &nbsp;&nbsp; brokers &nbsp;&nbsp; staffing &nbsp;&nbsp; independent pharmacy &nbsp;&nbsp; MSPs &nbsp;&nbsp; dealerships &nbsp;&nbsp; clinics &nbsp;&nbsp; brokers &nbsp;&nbsp; staffing &nbsp;&nbsp; independent pharmacy &nbsp;&nbsp; MSPs &nbsp;&nbsp; dealerships &nbsp;&nbsp; clinics &nbsp;&nbsp; brokers &nbsp;&nbsp; </div>
+      </div>
+    </div>
+    <div style="padding: 48px 56px 0; display: flex; gap: 14px; align-items: center;">
+      <span class="lab" style="color: #5B6470;">One requirement</span>
+      <span style="flex-grow: 1; height: 1px; background: #D5D9D2;"></span>
+      <span class="lede" style="color: #36404C;">the account has a website with enough on it to read</span>
+    </div>
+  </section>
+
+  <!-- ============ MONITORING (overlapping cards) ============ -->
+  <section style="position: relative; padding: 40px 56px 150px;">
+    <div style="position: absolute; right: 56px; top: 0;"><span class="hang">04</span></div>
+    <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px;">
+      <h2 class="dsp" style="grid-column: span 6; font-size: 56px;">Research is the entry point. Noticing is the habit.</h2>
+      <p class="lede" style="grid-column: 8 / span 4; color: #36404C; align-self: end;">A market researched once decays. Clinicians get added, firms get bought, subsidiaries spin out. We re-read what you watch and show only what your rubric cares about.</p>
+    </div>
+    <div style="position: relative; height: 380px; margin-top: 56px;">
+      <div class="tilt-l lift" style="position: absolute; left: 60px; top: 40px; width: 560px; background: #FFFFFF; border: 1px solid #D5D9D2; padding: 28px 30px; display: flex; flex-direction: column; gap: 10px;">
+        <span class="lab" style="color: #5B6470;">Read 16 Aug</span>
+        <p style="font-family: 'Fraunces', Georgia, serif; font-size: 21px; line-height: 1.45; margin: 0; color: #5B6470; text-decoration: line-through; text-decoration-color: #B9BFB6;">"Dr. Amir Haddad and his team welcome new patients."</p>
+        <span class="src">oakhollowdental.com/our-team</span>
+      </div>
+      <div class="tilt-r lift" style="position: absolute; left: 520px; top: 150px; width: 620px; background: #0E1520; color: #EEF0EC; padding: 28px 30px; display: flex; flex-direction: column; gap: 12px;">
+        <span class="lab" style="color: #C8F03C;">Read 16 Sep · entered the band</span>
+        <p class="cite" style="font-size: 23px; color: #EEF0EC;">"<span class="mark">Dr. Haddad, Dr. Lin and Dr. Okafor</span> now see patients six days a week."</p>
+        <div style="display: flex; align-items: center; gap: 12px;"><span class="mono" style="font-size: 14px; color: #8A929B;">58 C</span><span style="color: #8A929B;">→</span><span class="mono" style="font-size: 26px;">74</span><span class="tier tB">B</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PRICING ============ -->
+  <section id="price" style="padding: 0 56px 130px; display: flex; flex-direction: column; gap: 48px;">
+    <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: end;">
+      <span class="lab" style="grid-column: span 2; color: #5B6470;">05 — pricing</span>
+      <h2 class="dsp" style="grid-column: 3 / span 6; font-size: 56px;">Two meters. Accounts researched, accounts watched.</h2>
+      <p class="lede" style="grid-column: 10 / span 3; color: #36404C;">Not seats. The buyer here is one or two people with a large research appetite.</p>
+    </div>
+    <div>
+      <div class="prow" style="border-top: 2px solid #0E1520;">
+        <span class="dsp" style="font-size: 34px;">Free</span>
+        <span class="lede" style="color: #36404C;">Anyone, to see whether the reading is any good</span>
+        <span class="mono" style="font-size: 34px;">$0</span>
+        <span class="small">10 researched · 10 watched · CSV export</span>
+      </div>
+      <div class="prow">
+        <span class="dsp" style="font-size: 34px;">Team</span>
+        <span class="lede" style="color: #36404C;">Founders and small sales teams</span>
+        <span class="mono" style="font-size: 34px;">$149<span style="font-size: 15px; color: #5B6470;">/mo</span></span>
+        <span class="small">150 credits · 200 watched · CSV, webhook, HubSpot</span>
+      </div>
+      <div class="prow">
+        <span class="dsp" style="font-size: 34px;">Agency</span>
+        <span class="lede" style="color: #36404C;">Outbound agencies running many client markets</span>
+        <span class="mono" style="font-size: 34px;">$499<span style="font-size: 15px; color: #5B6470;">/mo</span></span>
+        <span class="small">400 pooled credits · 1,000 watched · client workspaces, branded exports</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding-top: 22px;">
+        <span class="small" style="color: #5B6470;">Extra research $0.75 per account · extra watching $0.10 per account per month</span>
+        <span class="small" style="color: #5B6470;">Re-ranking, re-drafting and re-checking pending accounts are always free</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CLOSING ============ -->
+  <section style="position: relative; background: #C8F03C; color: #0E1520; padding: 110px 56px 120px; overflow: hidden;">
+    <div style="position: absolute; left: -40px; bottom: -30px; opacity: .5;" class="swim"><svg width="520" height="347" viewBox="0 0 48 32" aria-hidden="true"><path d="M26 16 L44 5.5 Q41 16 44 26.5 Z" fill="none" stroke="#0E1520" stroke-width="0.3"></path><circle cx="17" cy="16" r="12" fill="none" stroke="#0E1520" stroke-width="0.3"></circle><circle cx="11.5" cy="12.5" r="2.3" fill="#0E1520"></circle><path d="M9.5 21 Q13.5 25 19 24.6" fill="none" stroke="#0E1520" stroke-width="0.345" stroke-linecap="round"></path></svg>
+      <span class="bub" aria-hidden="true" style="left: 44px; top: 156px; width: 12px; height: 12px; border: 1.6px solid #0E1520; animation-duration: 6.2s; animation-delay: .4s;"></span>
+      <span class="bub b2" aria-hidden="true" style="left: 50px; top: 164px; width: 7px; height: 7px; border: 1.4px solid #0E1520; animation-duration: 7.1s; animation-delay: 2.2s;"></span>
+      <span class="bub b3" aria-hidden="true" style="left: 40px; top: 150px; width: 15px; height: 15px; border: 1.5px solid #0E1520; animation-duration: 8s; animation-delay: 3.9s;"></span>
+    </div>
+    <div style="position: relative; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: end;">
+      <h2 class="dsp" style="grid-column: span 7; font-size: 84px;">You just watched it read one site. Point it at your market.</h2>
+      <div style="grid-column: 9 / span 4; display: flex; flex-direction: column; gap: 20px;">
+        <label class="lab" for="home-url" style="color: #3A4F05;">Your website</label>
+        <div style="display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #0E1520; padding-bottom: 12px;">
+          <span class="mono" style="font-size: 15px; color: #3A4F05;">https://</span>
+          <input id="home-url" type="text" placeholder="yourcompany.com" style="flex-grow: 1; border: 0; background: transparent; outline: 0; font: 400 20px 'IBM Plex Sans', sans-serif; color: #0E1520;">
+        </div>
+        <div style="display: flex; align-items: center; gap: 18px;">
+          <a class="cta" href="OnboardWebsite.dc.html" style="background: #0E1520; color: #C8F03C;">Read my market
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+          <span class="lab" style="color: #3A4F05;">10 free · no card</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer style="background: #0E1520; color: #B9BFB6; padding: 64px 56px 0; display: flex; flex-direction: column; gap: 48px; position: relative; overflow: hidden;">
+    <div style="position: absolute; right: -40px; top: 30px; opacity: .45;" class="schoolmove"><svg width="620" height="200" viewBox="0 0 620 200" aria-hidden="true" style="display: block;"><defs><g id="sf-f"><path d="M26 16 L44 5.5 Q41 16 44 26.5 Z" fill="none" stroke="#1B2533" stroke-width="1.4" stroke-linejoin="round"></path><circle cx="17" cy="16" r="11.2" fill="none" stroke="#1B2533" stroke-width="1.4"></circle><circle cx="11.5" cy="12.5" r="1.7" fill="#1B2533"></circle></g></defs><use href="#sf-f" x="-30" y="0"></use><use href="#sf-f" x="42" y="0"></use><use href="#sf-f" x="114" y="0"></use><use href="#sf-f" x="186" y="0"></use><use href="#sf-f" x="258" y="0"></use><use href="#sf-f" x="330" y="0"></use><use href="#sf-f" x="402" y="0"></use><use href="#sf-f" x="474" y="0"></use><use href="#sf-f" x="546" y="0"></use><use href="#sf-f" x="6" y="62"></use><use href="#sf-f" x="78" y="62"></use><use href="#sf-f" x="150" y="62"></use><use href="#sf-f" x="222" y="62"></use><use href="#sf-f" x="294" y="62"></use><use href="#sf-f" x="366" y="62"></use><use href="#sf-f" x="438" y="62"></use><use href="#sf-f" x="510" y="62"></use><use href="#sf-f" x="582" y="62"></use><use href="#sf-f" x="-30" y="124"></use><use href="#sf-f" x="42" y="124"></use><use href="#sf-f" x="114" y="124"></use><use href="#sf-f" x="186" y="124"></use><use href="#sf-f" x="258" y="124"></use><use href="#sf-f" x="330" y="124"></use><use href="#sf-f" x="402" y="124"></use><use href="#sf-f" x="474" y="124"></use><use href="#sf-f" x="546" y="124"></use></svg></div>
+    <div style="position: relative; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px;">
+      <div style="grid-column: span 4; display: flex; flex-direction: column; gap: 16px;">
+        <span style="display: inline-flex; align-items: center; gap: 10px;"><svg width="39" height="26" viewBox="0 0 48 32" role="img" aria-label="Small Fish"><path d="M26 16 L44 5.5 Q41 16 44 26.5 Z" fill="#C8F03C"></path><circle cx="17" cy="16" r="12" fill="#C8F03C"></circle><circle cx="11.5" cy="12.5" r="2.3" fill="#0E1520"></circle><path d="M9.5 21 Q13.5 25 19 24.6" fill="none" stroke="#0E1520" stroke-width="2" stroke-linecap="round"></path></svg><span style="font-family: 'Fraunces', Georgia, serif; font-size: 24px; font-weight: 600; letter-spacing: -0.035em; line-height: 1; font-variation-settings: 'SOFT' 100, 'opsz' 144; color: #EEF0EC; white-space: nowrap;">small fish</span></span>
+        <span class="small" style="color: #8A929B;">We read, score, cite and watch. We never send.</span>
+      </div>
+      <div style="grid-column: 7 / span 2; display: flex; flex-direction: column; gap: 12px;"><span class="lab" style="color: #5B6470;">Product</span><a class="navlink" href="#demo">Try it</a><a class="navlink" href="#markets">Markets</a><a class="navlink" href="#price">Pricing</a><a class="navlink" href="Export.dc.html">Integrations</a></div>
+      <div style="grid-column: 9 / span 2; display: flex; flex-direction: column; gap: 12px;"><span class="lab" style="color: #5B6470;">Company</span><a class="navlink" href="#why">Why it exists</a><a class="navlink" href="#">Evidence policy</a><a class="navlink" href="#">Data and erasure</a><a class="navlink" href="#">Contact</a></div>
+      <div style="grid-column: 11 / span 2; display: flex; flex-direction: column; gap: 12px;"><span class="lab" style="color: #5B6470;">Small print</span><span class="small" style="color: #8A929B;">Only business information companies publish themselves. Removal on request.</span></div>
+    </div>
+    <div style="position: relative; height: 140px; overflow: hidden;">
+      <span style="font-family: 'Fraunces', Georgia, serif; font-size: 250px; font-weight: 600; letter-spacing: -.045em; line-height: .78; color: #1B2533; font-variation-settings: 'SOFT' 100, 'opsz' 144;">small fish</span>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":6600}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.defaults = { size: 40, structure: 35, readiness: 25 };
+    this.state = { site: 'maplewickdental.com', stage: 0, w: { ...this.defaults } };
+    this.timer = null;
+  }
+  sites() {
+    return [
+      { id: 'maplewickdental.com', short: 'maplewick', name: 'Maplewick Family Dental', domain: 'maplewickdental.com', city: 'Portland, OR',
+        pages: [['/', 'homepage · 1,840 words'], ['/about', 'ownership found'], ['/our-team', '5 people named'], ['/contact', '1 published email']],
+        s: [5, 5, 4],
+        ev: [['Our team of ', 'five dentists and eleven hygienists', ' sees families across the east side.', '/our-team'],
+             ['Founded by Dr. Elena Ruiz in 2009 and ', 'still independently owned', '.', '/about'],
+             ['', 'Book online 24/7', ', or text us and we’ll find you a time.', '/']],
+        hook: 'Opened a second office in Westfield in June, and still independently owned by Dr. Ruiz.',
+        hookSrc: 'from “Now welcoming patients at our new Westfield office, opened June 2026.” · /locations' },
+      { id: 'harbrookdentistry.com', short: 'harbrook', name: 'Harbrook Dentistry', domain: 'harbrookdentistry.com', city: 'Lake Oswego, OR',
+        pages: [['/', 'homepage · 1,210 words'], ['/team', '4 doctors named'], ['/services', 'service mix read'], ['/new-patients', 'intake process read']],
+        s: [4, 5, 5],
+        ev: [['', 'Dr. Cole, Dr. Varga, Dr. Imai and Dr. Brandt', ' each have openings this month.', '/team'],
+             ['Harbrook is ', 'dentist-owned and has been since 1994', '.', '/about'],
+             ['', 'Schedule online, confirm by text, check in from your phone', '.', '/']],
+        hook: 'Patients check in from their phones, but new patients are still asked to print intake forms.',
+        hookSrc: 'from “Please print and bring the new-patient forms below.” · /new-patients' },
+      { id: 'cedarlinedental.com', short: 'cedarline', name: 'Cedarline Dental Group', domain: 'cedarlinedental.com', city: 'Beaverton, OR',
+        pages: [['/', 'homepage · 2,060 words'], ['/meet-the-doctors', '6 people named'], ['/locations', '2 offices found']],
+        s: [5, 3, 4],
+        ev: [['', 'Six dentists', ' across our Beaverton and Hillsboro offices.', '/meet-the-doctors'],
+             ['Owned and led by ', 'Dr. Mei Tanaka and Dr. Sam Ortiz', '.', '/about'],
+             ['', 'Request an appointment online', ' and we’ll confirm within the hour.', '/']],
+        hook: 'Added Saturday hours at the Hillsboro office this summer.',
+        hookSrc: 'from “Hillsboro is now open Saturdays, 8 to 1.” · /locations' }
+    ];
+  }
+  current() { return this.sites().find(s => s.id === this.state.site) || this.sites()[0]; }
+  lastStage() { return this.current().pages.length + 3; }
+  advance() {
+    const next = this.state.stage + 1;
+    this.setState({ stage: next });
+    if (next < this.lastStage()) {
+      this.timer = setTimeout(() => this.advance(), next <= this.current().pages.length ? 620 : 900);
+    } else {
+      this.timer = null;
+    }
+  }
+  componentWillUnmount() { if (this.timer) clearTimeout(this.timer); }
+  scoreOf(site) {
+    const w = this.state.w;
+    const ws = [w.size, w.structure, w.readiness];
+    const total = ws.reduce((a, b) => a + b, 0) || 1;
+    return Math.round(100 * site.s.reduce((a, v, i) => a + v * ws[i], 0) / (5 * total));
+  }
+  renderVals() {
+    const site = this.current();
+    const stage = this.state.stage;
+    const np = site.pages.length;
+    const done = stage >= this.lastStage();
+    const running = stage > 0 && !done;
+    const labels = ['Size', 'Structure', 'Readiness'];
+    const wkeys = ['size', 'structure', 'readiness'];
+    const score = this.scoreOf(site);
+    const tierOf = sc => sc >= 80 ? 'A' : sc >= 65 ? 'B' : sc >= 50 ? 'C' : 'D';
+    const pages = site.pages.map((p, i) => {
+      const shown = stage > i;
+      return {
+        path: p[0], note: shown ? p[1] : '',
+        cls: shown ? 'rise' : '',
+        style: 'display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid ' + (shown ? '#D5D9D2' : '#E3E6E0') + ';background:' + (shown ? '#FFFFFF' : 'transparent') + ';opacity:' + (shown ? '1' : '.35') + ';'
+      };
+    });
+    const dims = labels.map((l, i) => {
+      const revealed = done || stage > np + i;
+      return {
+        label: l, revealed,
+        scoreText: revealed ? String(site.s[i]) : '·',
+        cls: revealed ? 'rise' : '',
+        style: 'opacity:' + (revealed ? '1' : '.3') + ';',
+        barStyle: 'display:block;height:100%;background:#0E1520;width:' + (revealed ? (site.s[i] * 20) : 0) + '%;',
+        pre: site.ev[i][0], mark: site.ev[i][1], post: site.ev[i][2], src: site.domain + site.ev[i][3]
+      };
+    });
+    const samples = this.sites().map(s => ({
+      short: s.short, cls: 'ghost' + (s.id === this.state.site ? ' on' : ''),
+      pick: () => { if (this.timer) { clearTimeout(this.timer); this.timer = null; } this.setState({ site: s.id, stage: 0 }); }
+    }));
+    const weights = wkeys.map((k, i) => ({
+      id: 'hw-' + k, label: labels[i], value: this.state.w[k],
+      onChange: e => this.setState({ w: { ...this.state.w, [k]: Number(e.target.value) } })
+    }));
+    const ranked = this.sites().map(s => ({ s, sc: this.scoreOf(s) })).sort((a, b) => b.sc - a.sc).map((r, i) => {
+      const t = tierOf(r.sc);
+      const isCur = r.s.id === site.id;
+      return {
+        rank: String(i + 1).padStart(2, '0'), name: r.s.name, score: String(r.sc), tier: t, tierCls: 'tier t' + t,
+        verdict: r.sc >= 60 ? 'Fit' : 'Not a fit', chipCls: 'chip ' + (r.sc >= 60 ? 'v-fit' : 'v-nofit'),
+        rowStyle: 'display:flex;align-items:center;gap:14px;padding:13px 16px;background:' + (isCur ? '#FFFFFF' : 'transparent') + ';border-bottom:1px solid #D5D9D2;'
+      };
+    });
+    const statusLine = done ? 'read in 11.4 s · 0.31 credits' : running ? (stage <= np ? 'fetching pages…' : 'scoring against the rubric…') : 'three cached sites, or bring your own after signup';
+    return {
+      site: site.domain, account: site, samples, pages, dims, weights, ranked,
+      idle: stage === 0, running, done, notDone: !done,
+      score: String(score), tier: tierOf(score), tierCls: 'tier t' + tierOf(score),
+      scorePlaceholder: running ? '··' : '—', statusLine,
+      start: () => { if (!this.timer) { this.setState({ stage: 1 }); this.timer = setTimeout(() => this.advance(), 620); } },
+      reset: () => { if (this.timer) { clearTimeout(this.timer); this.timer = null; } this.setState({ stage: 0 }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

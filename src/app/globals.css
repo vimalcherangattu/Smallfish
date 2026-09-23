@@ -77,70 +77,169 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
-   Home page — the design system's visual language (docs/design-system.md §2–3).
-   Scoped to `.home` so the product screens keep the tokens they were built on;
-   §5's product-shape divergence stays unresolved, and a stylesheet is not the
-   place to resolve it.
+   Marketing site — replicated from `Small_Fish_Marketing_Site/Home.dc.html`,
+   the design mockup. Its README asks for the values to be replicated in our own
+   styling system rather than copied wholesale, so the tokens, type ramp and
+   motion below are the mockup's and the markup is ours.
+
+   Scoped to `.mkt` so the product screens keep the palette they were built on.
+   `docs/design-system.md` §5's product-shape divergence stays unresolved; a
+   stylesheet is not the place to resolve it.
    --------------------------------------------------------------------------- */
-.home {
+.mkt {
   --paper: #eef0ec;
   --paper-2: #f6f7f4;
+  --surface: #ffffff;
+  --fill: #e3e6e0;
   --line: #d5d9d2;
+  --line-strong: #b9bfb6;
   --ink: #0e1520;
   --ink-2: #36404c;
   --ink-3: #5b6470;
   --lure: #c8f03c;
   --lure-hover: #b5de28;
-  /* Lure is never text on a light ground — that is what this twin is for. */
   --lure-text: #4a6508;
+  --lure-mark: #e4f5a6;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  min-height: 100dvh;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
 }
 
-.home .dsp {
+.mkt .dsp {
   font-family: var(--font-display), Georgia, serif;
   font-weight: 500;
   letter-spacing: -0.04em;
   line-height: 0.92;
   margin: 0;
 }
-
-.home .mono {
+.mkt .lab {
+  font: 500 11px/1 var(--font-mono), ui-monospace, monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.mkt .lede {
+  font-size: 19px;
+  line-height: 1.55;
+  margin: 0;
+}
+.mkt .mono {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
 }
-
-/* Only ever behind a phrase we are standing behind, never decoration. */
-.home .lure {
+/* The one brand colour, and only ever behind a phrase we stand behind. */
+.mkt .lure {
   background: var(--lure);
   color: var(--ink);
   padding: 0 0.12em;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
+.mkt .cite {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 17px;
+  line-height: 1.5;
+  margin: 0;
+}
+/* Quoted evidence, and nothing else, gets the marker. */
+.mkt .mark {
+  background: var(--lure-mark);
+  box-shadow: 0 0 0 2px var(--lure-mark);
+  border-radius: 2px;
+  color: var(--ink);
+}
+.mkt .card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+.mkt .cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 56px;
+  padding: 0 26px;
+  border-radius: 999px;
+  background: var(--lure);
+  color: var(--ink);
+  font: 500 16px var(--font-sans), sans-serif;
+  text-decoration: none;
+  border: 0;
+  cursor: pointer;
+  transition: transform 0.25s ease, background 0.2s ease;
+}
+.mkt .cta:hover {
+  background: var(--lure-hover);
+  transform: translateY(-3px);
+}
+.mkt .navlink {
+  font-size: 14px;
+  color: var(--line-strong);
+  text-decoration: none;
+  position: relative;
+}
+.mkt .navlink:hover { color: var(--lure); }
+.mkt .navlink::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 100%; bottom: -6px;
+  height: 1px;
+  background: var(--lure);
+  transition: right 0.35s ease;
+}
+.mkt .navlink:hover::after { right: 0; }
 
-/* In `@layer base`, not unlayered. Tailwind v4 emits utilities inside a layer,
-   and unlayered CSS beats layered CSS whatever the specificity — so written
-   plainly this rule silently painted the final call-to-action ink on ink, and
-   `:where()` did not save it either. Specificity was never the mechanism. */
-@layer base {
-  .home a {
-    color: inherit;
-  }
-  .home nav a:hover {
-    color: var(--ink);
-  }
+/* Outlined display type, for the second marquee row and the footer wordmark. */
+.mkt .hang {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 500;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--line-strong);
+  letter-spacing: -0.04em;
+}
+.mkt .prow {
+  display: grid;
+  grid-template-columns: 150px 1fr 150px 250px;
+  column-gap: 32px;
+  align-items: baseline;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--line);
+  transition: padding-left 0.3s ease;
+}
+.mkt .prow:hover { padding-left: 14px; }
+@media (max-width: 760px) {
+  .mkt .prow { grid-template-columns: 1fr; row-gap: 6px; }
 }
 
-@media (prefers-color-scheme: dark) {
-  .home {
-    --paper: #0e1520;
-    --paper-2: #131b27;
-    --line: #273040;
-    --ink: #eef0ec;
-    --ink-2: #c3cbd4;
-    --ink-3: #93a0ad;
-  }
+.mkt .tilt-l { transform: rotate(-1.4deg); }
+.mkt .tilt-r { transform: rotate(1.2deg); }
+.mkt .lift {
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.3, 1), box-shadow 0.35s ease;
+}
+.mkt .lift:hover {
+  transform: translateY(-6px) rotate(-0.7deg);
+  box-shadow: 0 24px 48px rgba(14, 21, 32, 0.13);
+}
+
+@keyframes mkt-drift { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+@keyframes mkt-driftb { from { transform: translateX(-50%) } to { transform: translateX(0) } }
+@keyframes mkt-swim {
+  0%   { transform: translate(0, 0) rotate(0deg) }
+  50%  { transform: translate(-30px, -22px) rotate(-2deg) }
+  100% { transform: translate(0, 0) rotate(0deg) }
+}
+.mkt .mq { display: inline-block; white-space: nowrap; animation: mkt-drift 34s linear infinite; }
+.mkt .mq-slow { display: inline-block; white-space: nowrap; animation: mkt-driftb 58s linear infinite; }
+.mkt .swim { animation: mkt-swim 9s ease-in-out infinite; }
+
+/* Motion is decoration here. Anyone who has asked for less of it gets none. */
+@media (prefers-reduced-motion: reduce) {
+  .mkt .mq, .mkt .mq-slow, .mkt .swim { animation: none; }
+  .mkt .lift:hover, .mkt .cta:hover { transform: none; }
+}
+
+@layer base {
+  .mkt a { color: inherit; }
 }

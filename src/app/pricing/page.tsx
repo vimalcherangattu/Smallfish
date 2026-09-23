@@ -20,7 +20,7 @@ export default function Pricing() {
   const pack = PLANS.find((p) => p.id === "pack")!;
 
   return (
-    <main className="home">
+    <main className="mkt">
       <div className="mx-auto max-w-[1180px] px-6 py-16">
         <Link href="/" className="mono text-[13px] text-[var(--ink-3)]">
           ← Small Fish

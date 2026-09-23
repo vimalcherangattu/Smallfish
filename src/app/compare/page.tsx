@@ -52,7 +52,7 @@ const ROWS: [string, string, string][] = [
 
 export default function Compare() {
   return (
-    <main className="home">
+    <main className="mkt">
       <div className="mx-auto max-w-[1000px] px-6 py-16">
         <Link href="/" className="mono text-[13px] text-[var(--ink-3)]">
           ← Small Fish
