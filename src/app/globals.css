@@ -75,3 +75,72 @@ body {
 .maplibregl-ctrl-group button + button {
   border-top: 1px solid var(--line) !important;
 }
+
+/* ---------------------------------------------------------------------------
+   Home page — the design system's visual language (docs/design-system.md §2–3).
+   Scoped to `.home` so the product screens keep the tokens they were built on;
+   §5's product-shape divergence stays unresolved, and a stylesheet is not the
+   place to resolve it.
+   --------------------------------------------------------------------------- */
+.home {
+  --paper: #eef0ec;
+  --paper-2: #f6f7f4;
+  --line: #d5d9d2;
+  --ink: #0e1520;
+  --ink-2: #36404c;
+  --ink-3: #5b6470;
+  --lure: #c8f03c;
+  --lure-hover: #b5de28;
+  /* Lure is never text on a light ground — that is what this twin is for. */
+  --lure-text: #4a6508;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  min-height: 100dvh;
+}
+
+.home .dsp {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 0.92;
+  margin: 0;
+}
+
+.home .mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Only ever behind a phrase we are standing behind, never decoration. */
+.home .lure {
+  background: var(--lure);
+  color: var(--ink);
+  padding: 0 0.12em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* In `@layer base`, not unlayered. Tailwind v4 emits utilities inside a layer,
+   and unlayered CSS beats layered CSS whatever the specificity — so written
+   plainly this rule silently painted the final call-to-action ink on ink, and
+   `:where()` did not save it either. Specificity was never the mechanism. */
+@layer base {
+  .home a {
+    color: inherit;
+  }
+  .home nav a:hover {
+    color: var(--ink);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .home {
+    --paper: #0e1520;
+    --paper-2: #131b27;
+    --line: #273040;
+    --ink: #eef0ec;
+    --ink-2: #c3cbd4;
+    --ink-3: #93a0ad;
+  }
+}
