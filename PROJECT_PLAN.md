@@ -220,7 +220,7 @@ wins rather than abandoning — that is the response the founding documents alre
   Cross-validates: the 25-mile radius returns 3,009, matching `overture_extract.py`
   exactly. **A Texas-wide search is 14,789 candidates ≈ $148 of cold reads on a $79/month
   plan** — see S1-21.
-- [ ] **S0-08 · Polite fetcher.** robots.txt honoured, identified user agent, per-domain
+- [x] **S0-08 · Polite fetcher.** `engine/fetcher.py`, used by every benchmark run. robots.txt honoured, identified user agent, per-domain
   throttling, homepage plus up to three check-plan-selected pages, conditional requests and
   content hashing for the change check.
 - [ ] **S0-09 · Headless rendering fallback**, triggered only when a plain fetch returns an
@@ -233,10 +233,10 @@ wins rather than abandoning — that is the response the founding documents alre
   *Read with gate item 2, never alone:* this is the share answered without spending, not
   the share answered correctly, and absence matches from detection alone are exactly what
   that gate tests. A high share here with a low precision there is worse than a low share.
-- [ ] **S0-11 · Fact profile extraction.** One model pass per business → services,
+- [x] **S0-11 · Fact profile extraction.** One model pass per business → services,
   specialties, booking method, contact routes, staff count, locations, languages, ownership
   hints, and quotes with source URLs. Store the profile, never full page copies.
-- [ ] **S0-12 · Criteria judge.** Cheap signals first, then a small model, with a stronger
+- [x] **S0-12 · Criteria judge.** `engine/judge.py`, run over 2,464 in-niche businesses. Cheap signals first, then a small model, with a stronger
   model on borderline cases and a random audit sample. Returns verdict, proof quote,
   confidence word.
 - [x] **S0-13 · Absence-proof rule.** `engine/absence.py`. A "no X" verdict requires the
@@ -245,16 +245,16 @@ wins rather than abandoning — that is the response the founding documents alre
   `stage0/tests/test_absence.py`, including an exhaustive sweep of the decision space
   asserting no input reaches MATCH without relevant pages read — a bug here produces a
   confident false match, which is the one failure that destroys trust *and* gets billed.
-- [ ] **S0-14 · Proof validator.** Every quote is verified verbatim on its linked page
+- [x] **S0-14 · Proof validator.** Proof validity 100% on all three measured markets. Every quote is verified verbatim on its linked page
   before display; failures become couldn't tell. *Done when:* proof validity is 100% on the
   benchmark set.
-- [ ] **S0-15 · Cost meter.** Per-business tokens, model, pages fetched, rendering used,
+- [x] **S0-15 · Cost meter.** Per-business cost logs for every run in `stage0/data/`. Per-business tokens, model, pages fetched, rendering used,
   cold or warm — logged for every run. *Done when:* a run prints real cost per business and
   per match.
 
 ### S0.C — Benchmark
 
-- [ ] **S0-16 · Hand-label the benchmark set.** **Harness built, labels not collected.**
+- [ ] **S0-16 · Hand-label the benchmark set.** **Done for dental only (72 labels); med spa and HVAC not collected**, which is what leaves gate item 2 unproven outside one niche.
   `benchmark/labelling_set.py` generates a self-contained HTML tool — no server, no
   install, saves to localStorage, exports JSON — that can be sent to a labeller who has
   never seen this repo. Three methodological choices are enforced in it: labelling is
@@ -263,7 +263,7 @@ wins rather than abandoning — that is the response the founding documents alre
   the engine's output (recall's misses are by definition not in that output); and
   unreadable sites are labelled too, which separates "wrong" from "couldn't see".
   *Blocked on:* a human. 100 businesses × 1 criterion for dental is ready to label.
-- [ ] **S0-17 · Benchmark harness.** Runs the engine over the labelled set and reports
+- [x] **S0-17 · Benchmark harness.** `benchmark/run.py` + `score.py`; three markets measured. Runs the engine over the labelled set and reports
   precision (blended and per criterion type), recall, couldn't-tell rate, proof validity,
   and cost. *Preflight exists* — `engine/preflight.py` answers "can the benchmark run?"
   in one command and exits non-zero until it can. On 2026-09-19 it reports **8 blockers**:
