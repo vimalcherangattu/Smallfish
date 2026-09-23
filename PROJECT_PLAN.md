@@ -407,8 +407,16 @@ Features 1–6 from the product document, plus the corrections above.
   than that: one match in 25 has a 95% interval of [0.7%, 19.5%], so the count is a
   quote and a band, never a solvency judgement — that belongs to S1-04's live abort.
   Programmatic pages serve a **stored** count and never scan per visitor (→ S1-14).
-- [ ] **S1-03 · Cold-market UX** (Change 11): streamed partial counts, a fast path to the
-  first three matches, and an honest "reading this market, we'll email you" state.
+- [x] **S1-03 · Cold-market UX** (Change 11). The count now reveals at sample sizes 5, 10
+  then 25, and **each step is a real recomputation rather than an animation over a number
+  already known** — five businesses genuinely support a wider interval than twenty-five do.
+  Measured on dental Phoenix: 177–2,035 at a sample of 5, narrowing to 315–1,217 at 25.
+  Watching that narrow is the clearest way to show that reading is what buys certainty.
+  Deliberately *not* a fake progress bar: this demo's data is already read, so dressing the
+  reveal as live crawling would claim a latency that is not happening. The fast path to
+  three proven matches was already there (S1-02). The cold-market state says how much of a
+  market has been read and offers the email-when-done path rather than holding the user on
+  the screen.
 - [x] **S1-04 · Results table with proof**, three statuses, side panel per criterion, and
   one-click wrong-result reporting with automatic refund — refunded rows leave the
   headline count and the export, with an undo. `src/components/Results.tsx`,

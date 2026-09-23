@@ -240,12 +240,13 @@ export default function Page() {
 
   /** The free sample behind the count on the confirm screen (S1-02). */
   const countFor = useCallback(
-    (mid: string, cid: string) => {
+    (mid: string, cid: string, sampleSize?: number) => {
       const m = loaded[mid];
       if (!m) return null;
       const criteria = m.criteria.filter((c) => c.id === cid);
       if (!criteria.length) return null;
       return freeCount({
+        sampleSize,
         businesses: m.businesses,
         criteria,
         // The seed is the search itself, so two identical searches get an
@@ -254,6 +255,15 @@ export default function Page() {
         seed: `${mid}:${cid}`,
         remainingCredits: PLANS.find((p) => p.id === "free")!.credits,
       });
+    },
+    [loaded],
+  );
+
+  /** How much of a market has been read at all (S1-03, the cold-market state). */
+  const coldMarketFor = useCallback(
+    (mid: string) => {
+      const m = loaded[mid];
+      return m ? { read: m.counts.read, total: m.counts.candidates } : null;
     },
     [loaded],
   );
@@ -349,6 +359,7 @@ export default function Page() {
             onRun={adopt}
             onClose={() => setSearchOpen(false)}
             countFor={countFor}
+            coldMarketFor={coldMarketFor}
             onNeedMarket={needMarket}
           />
         )}

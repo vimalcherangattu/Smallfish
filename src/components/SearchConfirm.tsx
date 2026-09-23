@@ -25,13 +25,20 @@ export default function SearchConfirm({
   onRun,
   onClose,
   countFor,
+  coldMarketFor,
   onNeedMarket,
 }: {
   index: MarketIndex | null;
   onRun: (marketId: string, criterionId: string) => void;
   onClose: () => void;
   /** The free sample for a resolved search, once its market data is loaded. */
-  countFor?: (marketId: string, criterionId: string) => FreeCount | null;
+  countFor?: (
+    marketId: string,
+    criterionId: string,
+    sampleSize?: number,
+  ) => FreeCount | null;
+  /** How much of a market has been read at all, for the cold-market state. */
+  coldMarketFor?: (marketId: string) => { read: number; total: number } | null;
   /** Ask for a market's data when the search resolves to one not yet loaded. */
   onNeedMarket?: (marketId: string) => void;
 }) {
@@ -282,6 +289,10 @@ export default function SearchConfirm({
                 // claimed a precision 25 reads cannot support.
                 <FreeCountPanel
                   count={count}
+                  countAt={(size) =>
+                    countFor!(resolved.marketId!, resolved.criterionId!, size)
+                  }
+                  coldMarket={coldMarketFor?.(resolved.marketId!) ?? undefined}
                   onUnlock={() =>
                     onRun(resolved.marketId!, resolved.criterionId!)
                   }

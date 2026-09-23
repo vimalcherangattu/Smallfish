@@ -1,8 +1,23 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { compact } from "@/lib/cost";
 import { rangeWidth, type FreeCount } from "@/lib/count";
 import { READS_PER_CREDIT, SAMPLE_SIZE } from "@/lib/pricing";
+
+/** Sample sizes the count is revealed at (S1-03).
+ *
+ *  Each step is a **real** recomputation at that sample size, not an animation
+ *  over a number already known: five businesses genuinely support a wider
+ *  interval than twenty-five do, and watching it narrow is the clearest way to
+ *  show that reading is what buys certainty.
+ *
+ *  What this deliberately is not is a fake progress bar. The data in this demo
+ *  has already been read, so dressing the reveal as live crawling would be
+ *  claiming a latency that is not happening. The label says which sample each
+ *  figure came from, and the steps are quick. */
+const STEPS = [5, 10, 25] as const;
 
 /** The free match count, before anything is unlocked (S1-02).
  *
@@ -18,13 +33,35 @@ import { READS_PER_CREDIT, SAMPLE_SIZE } from "@/lib/pricing";
  *  confident "about 780". So the width is stated in words when it is wide, with
  *  the one thing that narrows it — more reading. */
 export default function FreeCountPanel({
-  count,
+  count: full,
+  countAt,
   onUnlock,
+  coldMarket,
 }: {
   count: FreeCount;
+  /** Recompute at a smaller sample, for the reveal. */
+  countAt?: (sampleSize: number) => FreeCount | null;
   onUnlock: () => void;
+  /** How much of this market has been read at all. */
+  coldMarket?: { read: number; total: number };
 }) {
-  const wide = rangeWidth(count) >= 2;
+  const [step, setStep] = useState(countAt ? 0 : STEPS.length - 1);
+
+  useEffect(() => {
+    if (!countAt) return;
+    setStep(0);
+    const timers = STEPS.map((_, i) =>
+      setTimeout(() => setStep(i), i * 420),
+    );
+    return () => timers.forEach(clearTimeout);
+  }, [countAt, full.eligible, full.frame]);
+
+  const settling = countAt ? step < STEPS.length - 1 : false;
+  // What is on screen is the count at the current step, which for the last
+  // step is the full sample the caller passed in.
+  const shown = (countAt && countAt(STEPS[step])) ?? full;
+
+  const wide = rangeWidth(shown) >= 2;
   const pct = (x: number) => `${(x * 100).toFixed(x < 0.1 ? 1 : 0)}%`;
 
   return (
@@ -37,12 +74,19 @@ export default function FreeCountPanel({
           </span>
           <span className="text-[10px] text-[var(--accent)]">no credits used</span>
         </div>
-        <div className="tabular mt-0.5 text-[19px] font-semibold leading-none">
-          {compact(count.projected.lo)}–{compact(count.projected.hi)}
+        <div className="flex items-baseline gap-2">
+          <div className="tabular mt-0.5 text-[19px] font-semibold leading-none">
+            {compact(shown.projected.lo)}–{compact(shown.projected.hi)}
+          </div>
+          {settling && (
+            <span className="text-[10px] text-[var(--muted)]">
+              narrowing as more is read…
+            </span>
+          )}
         </div>
         <p className="mt-1 text-[11px] leading-snug text-[var(--muted)]">
-          From a free sample of {count.sampled}, projected onto the{" "}
-          <span className="tabular">{compact(count.eligible)}</span> businesses
+          From a free sample of {shown.sampled}, projected onto the{" "}
+          <span className="tabular">{compact(shown.eligible)}</span> businesses
           here with a website.{" "}
           {wide && (
             <>
@@ -57,42 +101,56 @@ export default function FreeCountPanel({
       {/* --- P1: the number decomposes into what was actually seen --- */}
       <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-0.5 border-t border-[var(--line)] pt-2 text-[11px]">
         <dt className="text-[var(--muted)]">Read</dt>
-        <dd className="tabular text-right">{count.sampled}</dd>
+        <dd className="tabular text-right">{shown.sampled}</dd>
         <dt className="text-[var(--muted)]">Matched every criterion</dt>
-        <dd className="tabular text-right text-[var(--match)]">{count.matched}</dd>
-        {count.unsettled > 0 && (
+        <dd className="tabular text-right text-[var(--match)]">{shown.matched}</dd>
+        {shown.unsettled > 0 && (
           <>
             <dt className="text-[var(--muted)]">Read, but could not be settled</dt>
             <dd className="tabular text-right text-[var(--unsure)]">
-              {count.unsettled}
+              {shown.unsettled}
             </dd>
           </>
         )}
       </dl>
 
-      {count.unsettled > 0 && (
+      {shown.unsettled > 0 && (
         <p className="text-[11px] leading-snug text-[var(--muted)]">
-          The {count.unsettled} we could not settle count <em>against</em> the
+          The {shown.unsettled} we could not settle count <em>against</em> the
           rate above, not out of it — they cost reading and deliver you nothing,
           so pretending they do not exist would quote you a price the scan
           cannot honour.
-          {count.decidedRate > count.deliveredRate && (
+          {shown.decidedRate > shown.deliveredRate && (
             <>
               {" "}
               If every site here could be read, the rate would be{" "}
-              <span className="tabular">{pct(count.decidedRate)}</span> rather
-              than <span className="tabular">{pct(count.deliveredRate)}</span>.
+              <span className="tabular">{pct(shown.decidedRate)}</span> rather
+              than <span className="tabular">{pct(shown.deliveredRate)}</span>.
             </>
           )}
         </p>
       )}
 
-      {count.frameLimited && (
+      {coldMarket && coldMarket.read < coldMarket.total * 0.5 && (
+        <p className="rounded-md bg-[var(--bg)] px-2.5 py-2 text-[11px] leading-snug text-[var(--muted)]">
+          <span className="font-medium text-[var(--ink)]">
+            This market is cold.
+          </span>{" "}
+          We have read{" "}
+          <span className="tabular">{compact(coldMarket.read)}</span> of its{" "}
+          <span className="tabular">{compact(coldMarket.total)}</span>{" "}
+          businesses. Reading the rest is what narrows the range above, and it
+          takes a while — start the scan and we will email you when it is done
+          rather than hold you on this screen.
+        </p>
+      )}
+
+      {shown.frameLimited && (
         <p className="border-t border-[var(--line)] pt-2 text-[11px] leading-snug text-[var(--unsure)]">
           Sampled from the{" "}
-          <span className="tabular">{compact(count.frame)}</span> businesses
+          <span className="tabular">{compact(shown.frame)}</span> businesses
           read here so far, not from all{" "}
-          <span className="tabular">{compact(count.eligible)}</span>. Those were
+          <span className="tabular">{compact(shown.eligible)}</span>. Those were
           picked by the crawler rather than at random, so the range above is
           only as representative as that ordering was — treat it as a reading of
           this market, not a measurement of it.
@@ -100,12 +158,12 @@ export default function FreeCountPanel({
       )}
 
       {/* --- three proofs, free --- */}
-      {count.proofs.length > 0 && (
+      {shown.proofs.length > 0 && (
         <div className="space-y-1.5 border-t border-[var(--line)] pt-2">
           <div className="text-[11px] text-[var(--muted)]">
             Three of them, with the evidence, free:
           </div>
-          {count.proofs.map((p) => (
+          {shown.proofs.map((p) => (
             <div key={p.name} className="text-[11px] leading-snug">
               <div className="font-medium">{p.name}</div>
               <div className="italic text-[var(--muted)]">&ldquo;{p.line}&rdquo;</div>
@@ -116,28 +174,28 @@ export default function FreeCountPanel({
 
       {/* --- the price, before anything is spent --- */}
       <div className="border-t border-[var(--line)] pt-2">
-        {count.scan.start ? (
+        {shown.scan.start ? (
           <>
             <div className="flex items-baseline justify-between gap-2 text-[11px]">
               <span className="text-[var(--muted)]">
-                {count.band.label} — {count.band.credits} credit
-                {count.band.credits === 1 ? "" : "s"} per match
+                {shown.band.label} — {shown.band.credits} credit
+                {shown.band.credits === 1 ? "" : "s"} per match
               </span>
               <span className="tabular text-[var(--muted)]">
-                {pct(count.deliveredRate)} matched
+                {pct(shown.deliveredRate)} matched
               </span>
             </div>
             <p className="mt-1 text-[11px] leading-snug text-[var(--muted)]">
-              {count.band.credits > count.bandIfObserved.credits ? (
+              {shown.band.credits > shown.bandIfObserved.credits ? (
                 <>
-                  Priced from the cautious end of a {count.sampled}-business
-                  sample, not its midpoint — {count.matched} matches out of{" "}
-                  {count.sampled} could mean a market much thinner than it
+                  Priced from the cautious end of a {shown.sampled}-business
+                  sample, not its midpoint — {shown.matched} matches out of{" "}
+                  {shown.sampled} could mean a market much thinner than it
                   looks, and we would rather quote high and bill low than quote
                   low and stop your scan. If the full run matches as often as
-                  the sample did, this drops to {count.bandIfObserved.credits}{" "}
+                  the sample did, this drops to {shown.bandIfObserved.credits}{" "}
                   credit
-                  {count.bandIfObserved.credits === 1 ? "" : "s"}.
+                  {shown.bandIfObserved.credits === 1 ? "" : "s"}.
                 </>
               ) : (
                 <>
@@ -152,12 +210,12 @@ export default function FreeCountPanel({
               onClick={onUnlock}
               className="mt-2 w-full rounded-md bg-[var(--accent)] px-2.5 py-1.5 text-[11px] font-medium text-white"
             >
-              Unlock matches at {count.band.credits} credit
-              {count.band.credits === 1 ? "" : "s"} each
+              Unlock matches at {shown.band.credits} credit
+              {shown.band.credits === 1 ? "" : "s"} each
             </button>
             <p className="mt-1 text-[10px] leading-snug text-[var(--muted)]">
               This search may read up to{" "}
-              <span className="tabular">{compact(count.scan.budgetReads)}</span>{" "}
+              <span className="tabular">{compact(shown.scan.budgetReads)}</span>{" "}
               businesses — {READS_PER_CREDIT} for every credit on your balance.
               It stops early, and says why, if matches dry up.
             </p>
@@ -168,7 +226,7 @@ export default function FreeCountPanel({
               Not worth running
             </div>
             <p className="mt-0.5 text-[11px] leading-snug text-[var(--muted)]">
-              {count.scan.reason}
+              {shown.scan.reason}
             </p>
           </>
         )}
