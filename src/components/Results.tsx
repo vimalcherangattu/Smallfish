@@ -177,16 +177,105 @@ const compactish = (n: number) => n.toLocaleString();
 /** Rows rendered at once. Density is for reading, not scanning (design P6). */
 const MAX_ROWS = 300;
 
+export type PublishedContact = {
+  emails: { value: string; page: string; how: string }[];
+  phones: { value: string; page: string; how: string }[];
+  contactPage: string | null;
+  /** Set when nothing could be attributed to this business at all. */
+  withheld?: string;
+  /** Set when the site names the town but never the business. */
+  caveat?: string;
+};
+
+/** Contacts the business published, each with the page it was read from (S1-05).
+ *
+ *  Three states, and two of them are refusals. That ratio is the feature: a
+ *  contact scraped off the wrong site is worse than no contact, because the
+ *  user emails a stranger in this business's name. So the panel says where each
+ *  one came from and how it was confirmed, and says plainly when it has
+ *  nothing it can stand behind. Nothing here is a guessed `info@` address. */
+function PublishedContacts({ found }: { found?: PublishedContact }) {
+  if (!found) return null;
+
+  if (found.withheld) {
+    return (
+      <div className="rounded-md border border-dashed border-[var(--line)] px-2.5 py-2 text-[var(--muted)]">
+        <span className="font-medium">No contacts we can stand behind.</span>{" "}
+        {found.withheld}
+      </div>
+    );
+  }
+
+  const rows = [
+    ...found.phones.map((p) => ({ ...p, label: "Phone" })),
+    ...found.emails.map((e) => ({ ...e, label: "Email" })),
+  ];
+  if (!rows.length && !found.contactPage) return null;
+
+  return (
+    <div className="rounded-md border border-[var(--line)] bg-[var(--panel)] px-2.5 py-2">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)]">
+        Published contacts
+      </div>
+      <ul className="mt-1 space-y-1">
+        {rows.map((r) => (
+          <li key={`${r.label}:${r.value}`}>
+            <span className="text-[var(--muted)]">{r.label} · </span>
+            <span className="font-medium">{r.value}</span>
+            <div className="text-[10px] text-[var(--muted)]">
+              {r.how} —{" "}
+              <a
+                href={r.page}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2"
+              >
+                {r.page.replace(/^https?:\/\/(www\.)?/, "").slice(0, 46)}
+              </a>
+            </div>
+          </li>
+        ))}
+        {found.contactPage && (
+          <li>
+            <span className="text-[var(--muted)]">Contact form · </span>
+            <a
+              href={found.contactPage}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2"
+            >
+              {found.contactPage.replace(/^https?:\/\/(www\.)?/, "").slice(0, 46)}
+            </a>
+          </li>
+        )}
+      </ul>
+      {found.caveat && (
+        <p className="mt-1.5 text-[10px] leading-snug text-[var(--unsure)]">
+          {found.caveat}
+        </p>
+      )}
+      <p className="mt-1.5 text-[10px] leading-snug text-[var(--muted)] opacity-80">
+        Read from the pages linked above. Socials are missing on purpose — they
+        are icon links, and we do not store link targets yet, so any we showed
+        would be guessed.
+      </p>
+    </div>
+  );
+}
+
 export default function Results({
   businesses,
   criteria,
   primaryCriterionId,
   reported,
   onReport,
+  contacts,
 }: {
   businesses: Business[];
   criteria: Criterion[];
   primaryCriterionId: string;
+  /** Published contacts by business id (S1-05), each with the page it came from. */
+  contacts?: Record<string, PublishedContact>;
   /** Rows the user has called wrong. Refunded, and withdrawn from the export. */
   reported?: Set<string>;
   onReport?: (id: string, wrong: boolean) => void;
@@ -307,6 +396,8 @@ export default function Results({
                       This match is wrong — refund it
                     </button>
                   ))}
+
+                {contacts && <PublishedContacts found={contacts[b.id]} />}
 
                 <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[var(--muted)]">
                   {b.addr && (

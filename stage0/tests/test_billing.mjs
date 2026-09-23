@@ -34,7 +34,7 @@ const test = (name, fn) => {
 const criteria = [{ id: "no_book", type: "absence", text: "has no online booking",
                     explain: "", needsModel: true }];
 const mk = (id, site, extra = {}) => ({
-  id, name: `Name ${id}`, cat: "c", lat: 0, lon: 0, addr: `${id} St`,
+  id, name: `Name ${id}`, cat: "c", lat: 33.45, lon: -112.07, addr: `${id} St`,
   site, phone: null, primary: true,
   verdicts: { no_book: { verdict: "match", reason: "r" } },
   ...extra,
@@ -52,13 +52,53 @@ test("a non-URL is not a host", () => {
   for (const u of [null, "", "  ", "not a url"]) assert.equal(hostOf(u), null);
 });
 
-test("two listings for one practice are one business", () => {
-  // The real pair that started this.
-  const a = mk("center", "https://eastvalleyimplant.com/");
-  const b = mk("capps", "eastvalleyimplant.com");
+test("two listings for one practice, at one address, are one business", () => {
+  // The real pair that started this: same domain, same building.
+  const a = mk("center", "https://eastvalleyimplant.com/", { lat: 33.58557, lon: -111.88850 });
+  const b = mk("capps", "eastvalleyimplant.com", { lat: 33.58557, lon: -111.88826 });
   assert.equal(billingKey(a), billingKey(b));
   assert.equal(groupForBilling([a, b]).length, 1);
   assert.equal(duplicatesIn([a, b]), 1, "one credit would have been charged twice");
+});
+
+test("branches of a chain on one domain are NOT one business", () => {
+  // The retraction. 23 Phoenix records share aspendental.com; collapsing them
+  // would hide 22 real leads and under-bill the ones it kept.
+  const branches = [
+    mk("a", "aspendental.com", { lat: 33.45, lon: -112.07 }),
+    mk("b", "aspendental.com", { lat: 33.58, lon: -112.10 }),
+    mk("c", "aspendental.com", { lat: 33.30, lon: -111.84 }),
+  ];
+  assert.equal(groupForBilling(branches).length, 3);
+  assert.equal(duplicatesIn(branches), 0);
+});
+
+test("unrelated businesses sharing a link-in-bio page stay separate", () => {
+  // 59 Dallas med spas share linktr.ee. They are not one business.
+  const spas = [
+    mk("x", "linktr.ee/one", { lat: 32.78, lon: -96.80 }),
+    mk("y", "linktr.ee/two", { lat: 32.95, lon: -96.73 }),
+  ];
+  assert.equal(groupForBilling(spas).length, 2);
+});
+
+test("two listings of ONE branch of a chain still merge", () => {
+  // The rule has to do both. Same domain, same place, inside a big group.
+  const rows = [
+    mk("far", "aspendental.com", { lat: 33.58, lon: -112.10 }),
+    mk("here1", "aspendental.com", { lat: 33.45, lon: -112.07 }),
+    mk("here2", "aspendental.com", { lat: 33.45001, lon: -112.07001 }),
+  ];
+  assert.equal(groupForBilling(rows).length, 2);
+});
+
+test("the distance line is a building, not a neighbourhood", () => {
+  const near = [mk("a", "x.com", { lat: 33.45, lon: -112.07 }),
+                mk("b", "x.com", { lat: 33.4508, lon: -112.07 })];   // ~90m
+  const far = [mk("a", "x.com", { lat: 33.45, lon: -112.07 }),
+               mk("b", "x.com", { lat: 33.46, lon: -112.07 })];      // ~1.1km
+  assert.equal(groupForBilling(near).length, 1);
+  assert.equal(groupForBilling(far).length, 2);
 });
 
 test("a business with no website is its own business", () => {
@@ -118,6 +158,19 @@ test("deduplication never merges across the unlocked boundary", () => {
 });
 
 // --- the measured markets
+test("no measured market collapses into implausibly few businesses", () => {
+  // The guard the first version of this rule needed and did not have: if a
+  // domain could swallow a whole chain, one market's business count would
+  // drop far below its record count. 12% is duplicates; 50% would be a bug.
+  for (const id of ["dental-phoenix", "med-spa-dallas", "hvac-tampa"]) {
+    const m = JSON.parse(readFileSync(`public/data/${id}.json`, "utf8"));
+    const withSite = m.businesses.filter((b) => b.site);
+    const kept = groupForBilling(withSite).length;
+    assert.ok(kept / withSite.length > 0.8,
+      `${id} kept only ${kept} of ${withSite.length} — a chain is being collapsed`);
+  }
+});
+
 test("duplicates are real and measured, not hypothetical", () => {
   const seen = [];
   for (const id of ["dental-phoenix", "med-spa-dallas", "hvac-tampa"]) {
@@ -125,7 +178,7 @@ test("duplicates are real and measured, not hypothetical", () => {
     const withSite = m.businesses.filter((b) => b.site);
     const dupes = duplicatesIn(withSite);
     seen.push(`${id}: ${dupes} of ${withSite.length}`);
-    assert.ok(dupes > 50, `${id} should carry real duplicates, found ${dupes}`);
+    assert.ok(dupes > 0, `${id} should carry real duplicates, found ${dupes}`);
   }
   console.log(`        ${seen.join("  ·  ")}`);
 });

@@ -1,0 +1,6359 @@
+{
+ "market": "med-spa-dallas",
+ "source": "published on the business's own website",
+ "socials": "not extracted \u2014 social links are icon anchors, so they live in href attributes and the probe stores visible text only. Needs a fetcher change, not a guess.",
+ "contacts": {
+  "21d208a7-f7ae-49b4-9f89-498a276ad252": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "Nothing on 100beautymd.com names this business or its town, so we cannot show that the listing's website is really theirs. A contact read off someone else's site is an invented contact."
+  },
+  "7c15e03e-f671-43c9-bd8e-db1b294af3c0": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(817) 881-7094",
+     "page": "http://4meaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": [],
+   "caveat": "4meaesthetics.com never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "794f84f7-16a5-4a37-9292-09388d8c8422": {
+   "emails": [
+    {
+     "value": "info@aabaadvancedaesthetics.com",
+     "page": "http://AABAAdvancedaesthetics.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "info@aabadvancedaesthetics.com",
+     "page": "http://AABAAdvancedaesthetics.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(682) 238-8427",
+     "page": "http://AABAAdvancedaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.aabaadvancedaesthetics.com/contact-us",
+   "socials": []
+  },
+  "48c8caf9-aae5-4573-890e-1de609b597fb": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 403-7777",
+     "page": "https://absolutebeautysolutions.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "6942305e-be55-41e2-90f9-7b8fe917bed5": {
+   "emails": [
+    {
+     "value": "info@advancedaestheticsntx.com",
+     "page": "https://www.advancedaestheticsntx.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "info@advancedaesthetics.com",
+     "page": "https://www.advancedaestheticsntx.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 694-6459",
+     "page": "https://www.advancedaestheticsntx.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "61c6b13d-c3c3-4ff0-a398-8b40a296b2d7": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 708-0005",
+     "page": "http://www.AdvancedRegeneration.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "2e3f79bc-8a49-4cbf-88d8-24af548effba": {
+   "emails": [
+    {
+     "value": "judyfollo@gmail.com",
+     "page": "http://aestheticwellnesssolutions.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 890-2466",
+     "page": "http://aestheticwellnesssolutions.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://aestheticwellnesssolutions.com/contact",
+   "socials": []
+  },
+  "3825d691-1423-4c3e-8894-5692659a2459": {
+   "emails": [
+    {
+     "value": "info@stayageless.com",
+     "page": "https://www.stayageless.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 912-1200",
+     "page": "https://www.stayageless.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "07d09e47-a726-4378-a366-196404b94608": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "agewait.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "f5a2bc18-ff56-47e5-8475-1dd08d65b40d": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "agewait.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "50e89092-2a8d-454c-b897-9625d9fb440d": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "Nothing on hydrinity.com names this business or its town, so we cannot show that the listing's website is really theirs. A contact read off someone else's site is an invented contact."
+  },
+  "4522151c-82bd-4b08-8483-8b4701900673": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "alchemy43.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "2d91a28c-3c08-483f-a33d-027cc71c0df1": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "alchemy43.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "61810001-7fce-4081-a342-9e44d40c4c25": {
+   "emails": [
+    {
+     "value": "hellohale@alchemyfacebar.com",
+     "page": "http://alchemyfacebar.com/pages/bookhale",
+     "how": "printed on the page"
+    },
+    {
+     "value": "hellogreenville@alchemyfacebar.com",
+     "page": "http://alchemyfacebar.com/pages/bookdallas",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 803-6044",
+     "page": "http://alchemyfacebar.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "473141eb-64e9-4594-afa7-7b0708b948e4": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vagaro.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "094c8325-8ba2-4f4b-9914-dff69e29733f": {
+   "emails": [
+    {
+     "value": "supportteam@alchemyinfusion.com",
+     "page": "https://na02.patientnow.com/a/alchemywellness/OnlineBooking.aspx",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 319-8709",
+     "page": "https://na02.patientnow.com/a/alchemywellness/OnlineBooking.aspx",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "116e026b-709c-4ae8-aeb6-4938a9c81922": {
+   "emails": [
+    {
+     "value": "anamedspaa@gmail.com",
+     "page": "http://anamedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": "http://anamedspa.com/contact",
+   "socials": [],
+   "caveat": "anamedspa.com never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "c4f9ceec-96e3-4335-84f1-ac2bc93d94bd": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 364-4327",
+     "page": "https://aribellaspa.com/terms_of_services",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": "https://aribellaspa.com/contact-us",
+   "socials": []
+  },
+  "7aed3b90-ad70-4dae-9528-44e8f7654b14": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "ashleyaestheticsllc.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "6d45d26e-395c-48e4-8257-9c18f73e7e30": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "ashleyaestheticsllc.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "ebb60592-7d46-4cf1-a625-f8db0afa88a5": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 645-2858",
+     "page": "http://www.atkinsonaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "f1651ff7-f13c-4429-947a-e17f44f693f8": {
+   "emails": [
+    {
+     "value": "info@bulasermedspa.com",
+     "page": "https://bulasermedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 327-9147",
+     "page": "https://bulasermedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://bulasermedspa.com/contact/",
+   "socials": []
+  },
+  "360e4108-e7dd-4915-960e-0c28d6b3c441": {
+   "emails": [
+    {
+     "value": "HeyBae@BAEMedSpa.net",
+     "page": "http://www.baemedspa.net/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": [],
+   "caveat": "baemedspa.net never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "494624a6-a4c4-40de-838d-1765934c21ef": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 980-4371",
+     "page": "http://www.bareaestheticsdallas.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "93a5d6f4-26f9-4985-a4a3-88c0858b49f2": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 631-4700",
+     "page": "http://beautynicelaser.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "37f902c5-2a9b-4f5c-8e14-bfe596837c12": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "medbeautopia.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "f4e7e688-0aaa-4359-920c-8fd8da0fe4fa": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "medbeautopia.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "a0b70aae-c0fb-4ac6-bc89-a7f8f633bfeb": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 973-6699",
+     "page": "http://beautyglowaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "a4beb247-1cb5-4b8f-82d8-409c715d92ae": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 608-1008",
+     "page": "https://www.beautymedicalaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.beautymedicalaesthetics.com/contact-us",
+   "socials": [],
+   "caveat": "beautymedicalaesthetics.com never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "0aa5ce68-9f47-4caf-a571-34ce111303ea": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "square.site is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "7d6f685e-1462-4570-b14e-b42ec606ab93": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 774-2636",
+     "page": "http://Bespokehb.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://bespokehb.com/contact/",
+   "socials": []
+  },
+  "e1283d9f-dd58-4387-a944-9f281a3f3324": {
+   "emails": [
+    {
+     "value": "BestMassageEverLLC@yahoo.com",
+     "page": "http://bmespa.org/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 800-4123",
+     "page": "http://bmespa.org/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "c9901abe-5493-418c-a777-93d0c535c768": {
+   "emails": [
+    {
+     "value": "corporate@BHRCdallas.com",
+     "page": "https://bhmedspas.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 353-8821",
+     "page": "https://bhmedspas.com/contacts/",
+     "how": "matches the phone on the business listing"
+    },
+    {
+     "value": "(469) 914-6052",
+     "page": "https://bhmedspas.com/contacts/",
+     "how": "printed next to a word like call or phone"
+    },
+    {
+     "value": "(469) 436-6377",
+     "page": "https://bhmedspas.com/contacts/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": "https://bhmedspas.com/contacts/",
+   "socials": []
+  },
+  "afd2464e-b68f-4215-85c3-2b7344b5d94f": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "Nothing on bit.ly names this business or its town, so we cannot show that the listing's website is really theirs. A contact read off someone else's site is an invented contact."
+  },
+  "125d184e-541e-4991-bd78-2eebcac8e11a": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 777-2755",
+     "page": "https://www.biorejuvenate.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "f7ee556f-5f0a-4850-a5d8-a70e79decc69": {
+   "emails": [
+    {
+     "value": "Info@blackirismedspa.com",
+     "page": "https://blackirismedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 358-3436",
+     "page": "https://blackirismedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "b042e982-ba88-4807-a63a-c4c79ccdacd6": {
+   "emails": [
+    {
+     "value": "info@amanihealthwellness.com",
+     "page": "http://www.blisswellnessandivtherapy.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "42f98f14-1000-4ab2-ae6a-64b1f990b33d": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 739-5600",
+     "page": "http://www.blushdallas.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "bd6d897a-a127-4890-b0f8-1d032cbec26c": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 803-6967",
+     "page": "http://www.blushnbeautyspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "739a9003-1194-4d5a-bd66-9d164844b877": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 430-2377",
+     "page": "https://bodcor.com/plano-texas/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://bodcor.com/contact/",
+   "socials": []
+  },
+  "01ba4649-225e-4c96-8ba6-b9b4d657cb9e": {
+   "emails": [
+    {
+     "value": "info@bodyloungeparkcities.com",
+     "page": "https://www.bodyloungeparkcities.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 803-4432",
+     "page": "https://www.bodyloungeparkcities.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.bodyloungeparkcities.com/contact-us",
+   "socials": []
+  },
+  "42ea6392-9050-4f7d-9b66-5dd5d43be474": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 908-0903",
+     "page": "https://bohomedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "02f67496-2a60-4462-8c3e-f1835fa058e1": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 804-8075",
+     "page": "https://www.clearacne.com/locations/aviclear-dallas-tx",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "a1a91acb-d364-445f-83eb-6c272e0229de": {
+   "emails": [
+    {
+     "value": "info@calistalaser.com",
+     "page": "https://calistalaser.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "admin@calistalaser.com",
+     "page": "https://calistalaser.com/contact/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 488-3838",
+     "page": "https://calistalaser.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://calistalaser.com/contact/",
+   "socials": []
+  },
+  "c151426a-f57b-47fb-89da-d5291b444a1e": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 825-4228",
+     "page": "https://care-wellness360.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "ed33bd5e-5de4-4498-b102-167c44303932": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 785-7066",
+     "page": "http://www.carnelianmedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://carnelianmedspa.com/contact-us/",
+   "socials": []
+  },
+  "fdc607ab-c185-4d98-ad84-88ad19f59135": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(646) 860-5037",
+     "page": "http://www.celnova.us/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "ceb2a87b-b918-43e3-800c-06f8e1194ca0": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 771-2221",
+     "page": "https://www.charmlaserskin.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "71a64640-64ab-4578-8a58-3996e32ea3f7": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "clubinject.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "60b4d31e-0f7a-4230-85d9-9ac0f76510d5": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "clubinject.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "fca8f312-76e4-465d-aecd-e8c2b967c004": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(817) 416-9366",
+     "page": "http://www.CorinthianSpa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "f288148b-9dc2-4318-a206-da8450f3fc2f": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(682) 384-3260",
+     "page": "https://cosmeticatx.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "5aa3951e-1f75-4a2c-afc8-8c1411b51369": {
+   "emails": [
+    {
+     "value": "itscrave.beauty@gmail.com",
+     "page": "http://www.cravebeautyaesthetics.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 688-3448",
+     "page": "http://www.cravebeautyaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.cravebeautyaesthetics.com/contact",
+   "socials": []
+  },
+  "4475cc97-c488-43db-bf19-723b9d0c4a23": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(817) 733-0116",
+     "page": "https://cryo-x.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "15aa5543-9c8e-42fc-b4d7-268a3b1f6f4d": {
+   "emails": [
+    {
+     "value": "info@dfwaesthetics.com",
+     "page": "http://www.dfwaesthetics.com/about",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 503-2442",
+     "page": "http://www.dfwaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://www.dfwaesthetics.com/contact",
+   "socials": [],
+   "caveat": "dfwaesthetics.com never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "14ff67a6-0839-4ccd-b893-3e448fd170aa": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 971-7766",
+     "page": "http://dallaslaserandvein.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "8969ad8a-6ebd-4b1f-8ae3-1b3f8a419874": {
+   "emails": [
+    {
+     "value": "info@dallasmedaesthetics.com",
+     "page": "http://www.dallasmedaesthetics.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 623-6742",
+     "page": "http://www.dallasmedaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "c4053086-a09e-48f5-a4f0-4e0a1ae2689b": {
+   "emails": [
+    {
+     "value": "info@dermaphius.com",
+     "page": "http://www.dermaphius.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "dermaphius@gmail.com",
+     "page": "http://www.dermaphius.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 704-2537",
+     "page": "http://www.dermaphius.com/",
+     "how": "matches the phone on the business listing"
+    },
+    {
+     "value": "(469) 690-3502",
+     "page": "http://www.dermaphius.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "bdd2bac7-4dc2-43df-8a0a-88a49de255e4": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "dermanimedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "5f87ee3e-5a11-42d3-999d-bd599f25c3aa": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(817) 601-1133",
+     "page": "http://www.destinydripbar.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "6afd8680-ad4f-4c26-bbef-fc4daa254f19": {
+   "emails": [
+    {
+     "value": "detoxly25@gmail.com",
+     "page": "https://www.detoxlydallaslaser.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 993-8531",
+     "page": "https://www.detoxlydallaslaser.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "677f0791-99ca-4bbf-b01d-c7e4a1c19546": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 745-7546",
+     "page": "http://www.doctorslimmedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://doctorslimmedspa.com/contact-us/",
+   "socials": []
+  },
+  "1a897146-7f24-474e-ac5d-20b7e011c80a": {
+   "emails": [
+    {
+     "value": "cs@drliftspa.com",
+     "page": "https://drliftspa.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "office@drliftspa.com",
+     "page": "https://drliftspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 214-2582",
+     "page": "https://drliftspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "3009117e-911e-466d-bef2-58d63aa0c414": {
+   "emails": [
+    {
+     "value": "drreddymedspa@gmail.com",
+     "page": "http://www.drreddymedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 262-2235",
+     "page": "http://www.drreddymedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://www.drreddymedspa.com/contact-us",
+   "socials": []
+  },
+  "98e9bd28-ca07-49aa-89bf-11018f8b841b": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "elementbodylab.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "c245a7ed-0870-425a-a7c7-dde83c70b68f": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "elementbodylab.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "0a84d4d1-29bd-42dd-9c57-6aec4f400a6f": {
+   "emails": [
+    {
+     "value": "wellness@elitederma.com",
+     "page": "https://elitederma.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": "https://elitederma.com/contact",
+   "socials": []
+  },
+  "0d91acc0-46e1-4d6b-92c0-c1c012ac5f7c": {
+   "emails": [
+    {
+     "value": "eliteprowellness@yahoo.com",
+     "page": "http://www.eliteprowellness.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 664-6409",
+     "page": "http://www.eliteprowellness.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "b5ee0963-3a15-42a9-bb59-ced11aa004ca": {
+   "emails": [
+    {
+     "value": "customerservices@eliteretreatspa.com",
+     "page": "https://www.skinelite.com/elite-retreat/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 501-2484",
+     "page": "https://www.skinelite.com/elite-retreat/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "80b9e310-f46d-4611-aee6-b114e2428447": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 518-8195",
+     "page": "https://www.embermedspadallas.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "8920cb9c-96ec-4ac1-a4d4-65864703c57a": {
+   "emails": [
+    {
+     "value": "info@embracing-hands.com",
+     "page": "https://ehestheticswellness.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 225-0611",
+     "page": "https://ehestheticswellness.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "4c1a0644-2154-4a65-9b11-438b0ce759a1": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vagaro.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "5960231c-d053-449f-9bcf-d04a33e5f1c8": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 437-8820",
+     "page": "http://www.envyaesthetics.net/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://www.envyaesthetics.net/contact.html",
+   "socials": []
+  },
+  "3811f991-8772-4033-81cc-8ed8966be244": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "estheticmedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "1f004dcf-f3a0-4280-9ca8-72eb672861b3": {
+   "emails": [
+    {
+     "value": "admin@eternaderm.com",
+     "page": "http://www.eternaderm.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 927-7046",
+     "page": "http://www.eternaderm.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://www.eternaderm.com/contact",
+   "socials": []
+  },
+  "0e14fd65-a4c5-4e7d-8351-9e317f5055e8": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(682) 410-0348",
+     "page": "https://euroimagemedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "e6d360b3-2a50-41b0-96ec-0e347249daff": {
+   "emails": [
+    {
+     "value": "info@evolutionofherbeauty.com",
+     "page": "http://www.evolutionofherbeauty.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 708-3954",
+     "page": "http://www.evolutionofherbeauty.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "d01f9513-51e6-41cb-bbc0-41e1e3fd3ac0": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "erasingage.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "2973e5b8-1b21-429e-9169-eb670497bf3d": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "erasingage.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "45183b56-e792-417f-87eb-1591cac147fa": {
+   "emails": [
+    {
+     "value": "info@faceologie.com",
+     "page": "https://faceologie.com/contact-us/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 949-4293",
+     "page": "http://faceologie.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://faceologie.com/contact-us/",
+   "socials": []
+  },
+  "4b475780-a834-42a3-a93d-0d356dfc02a9": {
+   "emails": [],
+   "phones": [],
+   "contactPage": "https://facebodyenvy.com/contact/",
+   "socials": []
+  },
+  "3f5b32c6-ca7d-4ec3-ba79-3ca0ba2023ed": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 424-3223",
+     "page": "http://www.Facelogicmurphy.com/contact",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://www.Facelogicmurphy.com/contact",
+   "socials": []
+  },
+  "69ba5839-c597-4ff2-99e4-fc4e18a2d4d0": {
+   "emails": [
+    {
+     "value": "facialdreamsfrisco@gmail.com",
+     "page": "https://facialdreamsfrisco.com/contact/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 200-5033",
+     "page": "http://www.facialdreamsfrisco.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://facialdreamsfrisco.com/contact/",
+   "socials": []
+  },
+  "686dcd4c-9a09-4164-a5e2-707040fca36a": {
+   "emails": [
+    {
+     "value": "Info@FirstRateInfusionAndWellness.com",
+     "page": "https://firstrateinfusionandwellness.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 779-0007",
+     "page": "https://firstrateinfusionandwellness.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.firstrateinfusionandwellness.com/contact",
+   "socials": []
+  },
+  "118da293-3010-4b93-a8e7-0de22fe33a5c": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "fleauxinfusions.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "82d9bd21-08ed-4f23-b229-35b2ea5c460d": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "fleauxinfusions.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "edf2ee98-bc8e-4afe-9780-04cdbd87acd4": {
+   "emails": [
+    {
+     "value": "email@domain.com",
+     "page": "http://friscobodycontouring.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 476-1016",
+     "page": "http://friscobodycontouring.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "69a8ce62-5ad0-4e17-bdf6-6e83bebed24d": {
+   "emails": [
+    {
+     "value": "brittaneey@glazedaesthetic.com",
+     "page": "http://www.glazedaesthetic.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 449-1231",
+     "page": "http://www.glazedaesthetic.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://www.glazedaesthetic.com/contact",
+   "socials": []
+  },
+  "82e1e3c6-ab9b-49e4-9a75-43e5afccbe74": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(817) 488-7148",
+     "page": "http://colleyvillechamber.chambermaster.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "abcc1b8c-3a70-4c3c-b3ff-f77e2865704a": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "glosunspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "60c64b2d-8536-4795-99a4-282cc969a83e": {
+   "emails": [
+    {
+     "value": "Support@PoetryMedSpa.com",
+     "page": "https://www.poetrymedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 996-6998",
+     "page": "https://www.poetrymedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "f3701bdf-3249-469d-a4a5-4950df3af5cb": {
+   "emails": [
+    {
+     "value": "info@glowmedspa.com",
+     "page": "https://www.glowmedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "7a17535b-c0d0-4a9e-8f7f-72b8f7453d06": {
+   "emails": [
+    {
+     "value": "contact@glowskinandaesthetics.com",
+     "page": "https://www.glowskinandaesthetics.com/home",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(202) 494-8833",
+     "page": "https://www.glowskinandaesthetics.com/home",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "671bf016-20f0-430b-a026-d2c2ed57ac5b": {
+   "emails": [
+    {
+     "value": "questions@ggskincenter.com",
+     "page": "https://www.ggskincenter.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 816-2399",
+     "page": "https://www.ggskincenter.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "038cdd8e-06cb-4966-9b63-4184c82a5d9a": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "Nothing on thegraceaesthetics.com names this business or its town, so we cannot show that the listing's website is really theirs. A contact read off someone else's site is an invented contact."
+  },
+  "b558207a-cb5d-4c3f-bdfd-86d667cec7bd": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 758-7757",
+     "page": "https://www.gracefulwellnessmedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.gracefulwellnessmedspa.com/contact",
+   "socials": []
+  },
+  "d28296f9-9856-46c1-8375-adfae17eed75": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(682) 283-6976",
+     "page": "https://happydripiv.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "a4ec7bb2-eaa6-434e-8e84-166d46c10beb": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "hiatusspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "9d6da3a2-7da7-4319-b495-f2949960a03d": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "hiatusspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "aa3b72b8-0cbe-4f9d-a24b-863ab3419edb": {
+   "emails": [
+    {
+     "value": "hellosouthlake@hiddendoorspa.com",
+     "page": "http://www.hiddendoorspa.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "helloalliance@hiddendoorspa.com",
+     "page": "http://www.hiddendoorspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 488-8848",
+     "page": "http://www.hiddendoorspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "12d35377-9e1a-476b-8cdc-3e4dc24e0019": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(870) 455-2639",
+     "page": "https://high-brow.co/services/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://high-brow.co/contact/",
+   "socials": []
+  },
+  "97aa6ad3-0008-4b0d-9d1c-b4f5391f6bd8": {
+   "emails": [
+    {
+     "value": "contact@drlynley.com",
+     "page": "http://www.drlynley.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 692-8844",
+     "page": "http://www.drlynley.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "3177e9ee-dc7c-40a3-912d-7c1dca5292b4": {
+   "emails": [
+    {
+     "value": "patient@highlandpark.clinic",
+     "page": "http://highlandpark.clinic/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 774-9644",
+     "page": "http://highlandpark.clinic/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "10cd325d-ac60-4733-ad41-430a06b6e609": {
+   "emails": [
+    {
+     "value": "houseofaestheticstx@gmail.com",
+     "page": "http://www.houseofaestheticstx.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "1ed12b6a-aebf-43a3-b3f0-933afbd8b45c": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 571-3740",
+     "page": "http://houseofpreservation.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "1d2f3296-2f4e-4ca7-9fab-6bae8b28831e": {
+   "emails": [
+    {
+     "value": "info@hushmedspa.com",
+     "page": "https://hushmedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 220-0102",
+     "page": "https://hushmedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "e18c1bdb-3679-4ed8-94fd-e5a1fe72f2ec": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vagaro.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "20f1e234-4ad2-44ff-a60b-6fdba1cf949c": {
+   "emails": [
+    {
+     "value": "lauren@illumiaaesthetics.com",
+     "page": "https://illumiaaesthetics.com/pages/contact",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 203-4191",
+     "page": "https://illumiaaesthetics.com/pages/contact",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://illumiaaesthetics.com/pages/contact",
+   "socials": []
+  },
+  "1d634936-2c46-4c89-b330-e60e7f4bb49d": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "imaginiquemedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "05b85e1a-9ab0-4910-b9e8-9cb9da13c9b7": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "imaginiquemedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "5f0a5d24-f130-44b9-8f69-26ff123fc77d": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(817) 533-7676",
+     "page": "https://injectco.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "187e6856-284b-430d-90c7-8bd65ae8c3f3": {
+   "emails": [
+    {
+     "value": "Info@injectorbo.com",
+     "page": "http://Injectorbo.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 302-9575",
+     "page": "http://Injectorbo.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.injectorbo.com/contact",
+   "socials": []
+  },
+  "bb1397f1-eb33-47e6-b6d6-a49eaf7a9639": {
+   "emails": [
+    {
+     "value": "info@issilbeautyspa.com",
+     "page": "https://www.issilbeautyspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(945) 200-5845",
+     "page": "https://www.issilbeautyspa.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "37a0784c-3338-4b8b-abd3-eca10b34c7ee": {
+   "emails": [
+    {
+     "value": "Hello@sanctumwell.com",
+     "page": "https://www.sanctumwell.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 729-6299",
+     "page": "https://www.sanctumwell.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.sanctumwell.com/contact/",
+   "socials": []
+  },
+  "88645db7-e8a7-4494-84be-9d291f698fcf": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(903) 644-1407",
+     "page": "http://www.jewellaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "d70ec17e-1429-47d5-8b1e-88149acc3e11": {
+   "emails": [
+    {
+     "value": "doctor@jbaestheticswellness.com",
+     "page": "https://www.jbaestheticswellness.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 804-7212",
+     "page": "https://www.jbaestheticswellness.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "877c1d54-6147-4922-9fed-a95685d74242": {
+   "emails": [
+    {
+     "value": "info@kairosaestheticmedicine.com",
+     "page": "http://kairosaestheticmedicine.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 236-7523",
+     "page": "http://kairosaestheticmedicine.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "6de2469e-9219-40d7-a641-dadca10bdeaa": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 631-7546",
+     "page": "https://www.dallascosmeticderm.com/",
+     "how": "matches the phone on the business listing"
+    },
+    {
+     "value": "(214) 631-8546",
+     "page": "https://www.dallascosmeticderm.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "2d69849b-13d2-405c-b883-48aa4c2c8d73": {
+   "emails": [
+    {
+     "value": "kskinma@gmail.com",
+     "page": "https://www.kskinma.com/contact-us",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 230-5766",
+     "page": "https://www.kskinma.com/contact-us",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.kskinma.com/contact-us",
+   "socials": []
+  },
+  "ff077f91-b9ef-4598-8705-b374b0db55a6": {
+   "emails": [
+    {
+     "value": "compliance@livehydrationspa.com",
+     "page": "https://locations.livehydrationspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "a0f90ed9-8e21-419d-9d69-d4e5ebf6cbd1": {
+   "emails": [
+    {
+     "value": "info@LaBellaBelly.com",
+     "page": "http://www.labellabelly.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 772-7212",
+     "page": "http://www.labellabelly.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "5fdc1420-44ee-4d61-b526-79ce4ceacdfd": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 393-5538",
+     "page": "http://www.lalueurhw.com/",
+     "how": "printed next to a word like call or phone"
+    },
+    {
+     "value": "(214) 377-8490",
+     "page": "http://www.lalueurhw.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "e3c97a7c-e512-45ed-a677-898a08449653": {
+   "emails": [
+    {
+     "value": "secherrem@icloud.com",
+     "page": "http://Www.lalumiereesthetiques.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 529-2640",
+     "page": "http://Www.lalumiereesthetiques.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "825aed52-b031-4860-837c-a0c19e8ad6ff": {
+   "emails": [
+    {
+     "value": "hello@lafranceaesthetics.com",
+     "page": "http://lafranceaesthetics.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(580) 263-9034",
+     "page": "http://lafranceaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "5590e42c-c091-4352-8544-54b906494802": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "lakewoodaesthetics.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "228b6d83-42a6-45f0-872a-d797cc51bf34": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "lakewoodaesthetics.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "1760b7b7-4753-4bf2-bce5-bbab5855efdc": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "lakewoodaesthetics.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "26976d61-7d77-461f-b0e8-fcbceb40ea01": {
+   "emails": [],
+   "phones": [],
+   "contactPage": "https://www.lakewoodbeautyclinic.com/contact",
+   "socials": []
+  },
+  "9faedeac-2dc9-42e0-9bc2-6c29bc142313": {
+   "emails": [
+    {
+     "value": "contact@lakewoodmedspa.com",
+     "page": "http://Www.lakewoodmedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 247-6793",
+     "page": "http://Www.lakewoodmedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "546c5457-963c-4312-8932-68b60a99d1ff": {
+   "emails": [
+    {
+     "value": "lebeautymedspawellness@gmail.com",
+     "page": "http://www.lebeautymedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 807-9746",
+     "page": "http://www.lebeautymedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": [],
+   "caveat": "lebeautymedspa.com never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "c6c54ed6-74f5-47db-b4f3-f40e87b7d770": {
+   "emails": [
+    {
+     "value": "serenity@liliesmedispa.com",
+     "page": "https://www.liliesmedispa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 765-2104",
+     "page": "https://www.liliesmedispa.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": "https://www.liliesmedispa.com/contact",
+   "socials": []
+  },
+  "5b0144b6-3067-474a-953b-f23a1f5d1c40": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "lilymedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "936a8f5f-522e-41dd-91a3-8d63ba944a98": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vagaro.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "293279a3-7848-43e5-9230-10b9f5a30ba4": {
+   "emails": [
+    {
+     "value": "info@lisseaesthetics.com",
+     "page": "https://www.lisseaesthetics.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 264-5162",
+     "page": "https://www.lisseaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.lisseaesthetics.com/contact",
+   "socials": []
+  },
+  "e348b690-aabd-4006-9c9b-2fd9dc4856d1": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 291-5800",
+     "page": "http://www.macarthururgentcare.com/spa.html",
+     "how": "printed next to a word like call or phone"
+    },
+    {
+     "value": "(469) 291-7525",
+     "page": "http://www.macarthururgentcare.com/spa.html",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": "http://www.macarthururgentcare.com/contact.html",
+   "socials": []
+  },
+  "e56a5569-976e-4156-a318-24cd53e27fcb": {
+   "emails": [
+    {
+     "value": "info@fmcsurgery.com",
+     "page": "https://liveyoungspa.com/contact/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(945) 215-7700",
+     "page": "https://liveyoungspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://liveyoungspa.com/contact/",
+   "socials": []
+  },
+  "25ea0732-8441-4265-9b28-1c7fdcefbde7": {
+   "emails": [
+    {
+     "value": "office@livewell-medsolutions.com",
+     "page": "http://www.livewell-medsolutions.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(432) 466-5558",
+     "page": "http://www.livewell-medsolutions.com/",
+     "how": "matches the phone on the business listing"
+    },
+    {
+     "value": "(432) 268-0904",
+     "page": "http://www.livewell-medsolutions.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "106e97dd-cb96-4daf-88ae-d40084811612": {
+   "emails": [
+    {
+     "value": "info@artoxaesthetics.com",
+     "page": "http://artoxaesthetics.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 585-2441",
+     "page": "http://artoxaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "90cf0597-0e6e-4f8d-bf67-d838e318b16a": {
+   "emails": [
+    {
+     "value": "looksrx@gmail.com",
+     "page": "http://www.looksrx.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "kellyrn@looksrx.com",
+     "page": "http://www.looksrx.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 227-5064",
+     "page": "http://www.looksrx.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "0e6e980c-96b0-45c5-89bc-c5a83eea09fa": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 833-7705",
+     "page": "http://medsparockwall.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "180e175e-e742-475c-824d-05529349cd2a": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 434-1584",
+     "page": "http://www.soulglowmedspa.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "90a129b4-e30d-4855-9249-5f3780470f82": {
+   "emails": [
+    {
+     "value": "contact@lustrousmedaesthetics.com",
+     "page": "https://lustrousmedaesthetics.com/services",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 669-1500",
+     "page": "https://lustrousmedaesthetics.com/services",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "4653f169-6d73-4de9-bc2e-c505fff51ad6": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "luxebeautynow.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "f1e46d72-d0b0-4922-84b6-41c9bf689037": {
+   "emails": [
+    {
+     "value": "info@luxeskincare.com",
+     "page": "http://www.luxeskincare.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 960-6686",
+     "page": "http://www.luxeskincare.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "6acb53d3-d9ae-439e-8467-09ec588696f2": {
+   "emails": [
+    {
+     "value": "info@luxetranquility.com",
+     "page": "http://www.luxetranquility.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 777-8858",
+     "page": "http://www.luxetranquility.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "d880df41-130e-4928-8bd1-1155797f11aa": {
+   "emails": [
+    {
+     "value": "Information@luxxlab.com",
+     "page": "http://Www.theluxxlab.com/pages/contact-us",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 482-8106",
+     "page": "http://Www.theluxxlab.com/pages/contact-us",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://Www.theluxxlab.com/pages/contact-us",
+   "socials": []
+  },
+  "198f7571-06ea-44f2-8606-ebdc844466bd": {
+   "emails": [
+    {
+     "value": "frontdesk@mdaestheticsdfw.com",
+     "page": "http://www.Mdaestheticsdallas.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "info@mdaetheticsmedspa.com",
+     "page": "https://www.mdaestheticsdallas.com/contact",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 998-0213",
+     "page": "http://www.Mdaestheticsdallas.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.mdaestheticsdallas.com/contact",
+   "socials": [],
+   "caveat": "mdaestheticsdallas.com never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "6b5a0f88-dd23-468a-9da2-37c785d34400": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 445-1171",
+     "page": "http://www.mdlasermed.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "3a17ded8-1845-40ed-af92-cb3d032098db": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(682) 463-9822",
+     "page": "http://www.boutiquemedspatx.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "d264c462-06b1-473e-9ba8-5f68c530a321": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 247-0818",
+     "page": "https://www.mnmlmedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.mnmlmedspa.com/contact",
+   "socials": []
+  },
+  "b42d1d94-7c41-4259-8388-2ce324180ef4": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 682-2157",
+     "page": "https://www.arlingtonlipfillers.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.arlingtonlipfillers.com/contact",
+   "socials": [],
+   "caveat": "arlingtonlipfillers.com never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "4b5aa051-0f25-4a72-8dd4-7da216852a43": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 999-6393",
+     "page": "http://MaBelleMedSpa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "fc246dd6-2f1c-49dc-bde0-f571f49c05ce": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "marasmedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "41f7e622-f9d8-44de-bf83-c5e66f782927": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "marasmedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "8d2fa28e-22e8-489e-84ca-0b29a760b969": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 953-3812",
+     "page": "https://www.medspa33.com/sculptra",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "807463ad-cb87-4f64-b6b5-6be425ff8bf1": {
+   "emails": [
+    {
+     "value": "admin@med-suite.com",
+     "page": "http://www.med-suite.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 474-3400",
+     "page": "http://www.med-suite.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "365d5cd0-06da-42af-bdf1-ac5ba1c3d969": {
+   "emails": [
+    {
+     "value": "info@medicalestheticinstitute.com",
+     "page": "https://medicalestheticinstitute.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(833) 634-0088",
+     "page": "https://medicalestheticinstitute.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://medicalestheticinstitute.com/contact-us/",
+   "socials": []
+  },
+  "e49321c3-2493-40f5-8542-3a491fa39f5a": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "jananursemedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "59b0ced7-b4d9-4a82-b33b-93a86b7d2de4": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "jananursemedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "c8438499-0ee8-4be9-becf-886a2ffc5aa6": {
+   "emails": [
+    {
+     "value": "metamorphmedspa@gmail.com",
+     "page": "https://www.metamorphmedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 519-3134",
+     "page": "https://www.metamorphmedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.metamorphmedspa.com/contact",
+   "socials": []
+  },
+  "b317f080-7cca-4f1a-a156-301c57e1a36d": {
+   "emails": [
+    {
+     "value": "info@cbdmidlothian.com",
+     "page": "https://cbdmidlothian.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 817-8662",
+     "page": "https://cbdmidlothian.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "d14a5395-3554-4734-ba14-940a6b61ddc6": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "modernlinemedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "5f99b5a9-9ba3-4c3b-a2ba-84b673888ca9": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "modernlinemedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "2bd0763e-833b-4a15-b1a9-7cf5de24f1af": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 643-8107",
+     "page": "https://myagelesslounge.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "49c38d20-28cf-43ef-9b70-319bde3ff7c4": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "mymedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "47ef8e9d-1788-4448-8388-c2b550ff621d": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "mymedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "fc6a6d27-a114-4761-a37a-5a85297f1bf4": {
+   "emails": [
+    {
+     "value": "dallas@mysamedspa.com",
+     "page": "http://www.mysamedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(945) 243-8101",
+     "page": "http://www.mysamedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "0bf365e1-393d-449b-9bf4-7677bf8167fa": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "nwmeaesthetics.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "bc30d969-e676-4132-b36a-a923f3178b60": {
+   "emails": [
+    {
+     "value": "appointments@nbmdpa.com",
+     "page": "https://www.nbmdpa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 403-0800",
+     "page": "https://www.nbmdpa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "1c3c0f77-95be-4366-be92-f9c74cbdaefe": {
+   "emails": [
+    {
+     "value": "info@neowell.com",
+     "page": "https://www.neowelltraining.com/online-courses",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 746-8887",
+     "page": "https://www.neowelltraining.com/online-courses",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.neowelltraining.com/contact-us",
+   "socials": []
+  },
+  "84d6972a-383f-44da-b094-6494fe1e982c": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "Nothing on neueu.co names this business or its town, so we cannot show that the listing's website is really theirs. A contact read off someone else's site is an invented contact."
+  },
+  "6b8dc416-3c0e-44ec-bae0-dea5b7116d57": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 768-3133",
+     "page": "https://neuskinmedicalaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://neuskinmedicalaesthetics.com/contact/",
+   "socials": []
+  },
+  "08549817-2a76-4577-ab49-d5652bba9bcd": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 378-7657",
+     "page": "https://www.nextlevelmedsolutions.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "08aa7344-cb96-4105-97dd-1ffbdd944e6a": {
+   "emails": [],
+   "phones": [],
+   "contactPage": "https://nimshaynaturals.com/pages/contact",
+   "socials": []
+  },
+  "48884c3d-d742-4479-925d-b3199e6eb5e4": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "dfw-laseraesthetics.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "5cdea9d8-4794-4e6d-9673-42267d8d6720": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "dfw-laseraesthetics.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "ff341e4e-256d-4898-94dc-72237c32ad93": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 882-3336",
+     "page": "http://Nova-medspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "ef1edec3-373f-43f7-b8d4-836d515dd488": {
+   "emails": [
+    {
+     "value": "raya@novyskin.com",
+     "page": "http://novyskin.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 905-0121",
+     "page": "http://novyskin.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "f1c843a8-2195-4cd8-b7d7-ed4ec51f31f7": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "ovme.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "1ce276ae-6536-453d-82e4-c31fd2c4d6cf": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "ovme.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "1ec368cd-a817-45b3-97ae-8f1146845dd8": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 988-9188",
+     "page": "http://Www.omnisculptmd.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://Www.omnisculptmd.com/contact/",
+   "socials": []
+  },
+  "7f372192-90c4-44cf-8788-b7c3835c468e": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 809-2699",
+     "page": "https://originalskindfw.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "7fd12ccf-816f-4104-8edf-ca52815c33fb": {
+   "emails": [
+    {
+     "value": "HELLO@OFFICIALLYOUTOFOFFICE.COM",
+     "page": "http://www.officiallyoutofoffice.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "b4e05972-e4a0-430a-8fbc-6950e8784e56": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 436-6077",
+     "page": "https://www.peakbeautyclinic.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.peakbeautyclinic.com/contact",
+   "socials": []
+  },
+  "47822c83-f263-4a6d-b9ff-a49dd5121d3d": {
+   "emails": [
+    {
+     "value": "info@picktureperfectmedspa.com",
+     "page": "http://www.picktureperfectmedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(844) 407-3733",
+     "page": "http://www.picktureperfectmedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "4c387c88-3907-4ab6-8637-40e2aaefcb4a": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 458-0296",
+     "page": "https://www.pinklinkmedical.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "55ddfa88-c5be-484e-bb4a-7c1eea5c71be": {
+   "emails": [
+    {
+     "value": "Support@PoetryMedSpa.com",
+     "page": "http://www.poetrymedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 996-6998",
+     "page": "http://www.poetrymedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "63360f4b-24ab-4a79-8ad8-52353677a808": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(945) 200-1710",
+     "page": "http://polka-aesthetics.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "43221273-1dfa-4d8c-b8fd-d2b2bd2d3ea2": {
+   "emails": [
+    {
+     "value": "practicallyperfectaesthetics@gmail.com",
+     "page": "https://www.practicallyperfectaesthetics.com/services",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 763-6559",
+     "page": "http://practicallyperfectaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "e42dd0c8-53cb-45a3-bc8a-21942600e447": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 730-6300",
+     "page": "http://www.premiermedspatx.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "5ed34b60-373b-48d5-98da-6d7b0587617c": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 949-4047",
+     "page": "http://Preservationbeautyclinic.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://Preservationbeautyclinic.com/contact",
+   "socials": []
+  },
+  "7f3bdba7-2a2a-4513-950b-5b61fa3d3ca5": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 393-1699",
+     "page": "https://primemdplus.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "cb2033c9-f924-4cee-9b66-4c2dad09098f": {
+   "emails": [
+    {
+     "value": "princessmedspa800@gmail.com",
+     "page": "https://www.princess-medspa.com/contact",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 468-4829",
+     "page": "https://www.princess-medspa.com/",
+     "how": "matches the phone on the business listing"
+    },
+    {
+     "value": "(214) 846-0580",
+     "page": "https://www.princess-medspa.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": "https://www.princess-medspa.com/contact",
+   "socials": []
+  },
+  "868106e4-31ae-42b3-b41e-74b090187330": {
+   "emails": [
+    {
+     "value": "info@privemedical.com",
+     "page": "https://www.privemedaesthetics.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 739-6640",
+     "page": "https://www.privemedaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "dd8a3162-d95b-4839-9242-944ad7154c32": {
+   "emails": [
+    {
+     "value": "hello@projectantiaging.com",
+     "page": "http://projectantiaging.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "b9eb025e-f24d-43db-af52-ba48c97517a9": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 355-9038",
+     "page": "https://pureaesthetics-md.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "e3763b2c-61c8-4198-944d-e67714904bc6": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 827-4200",
+     "page": "http://www.purespaandsalon.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "a265c5ca-5f31-4058-a7e7-571ef5b46427": {
+   "emails": [
+    {
+     "value": "Info@purplebasilmedspa.com",
+     "page": "https://purplebasilmedspa.com/contact/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 361-0315",
+     "page": "https://purplebasilmedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://purplebasilmedspa.com/contact/",
+   "socials": []
+  },
+  "5260397d-6a56-42c1-9565-b44154b401a5": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(855) 435-8437",
+     "page": "https://www.rapidrecoveryroom.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "0d9e798d-da1b-4990-9bf3-892ed945b53d": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 480-4330",
+     "page": "http://www.ravenmedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.ravenmedspa.com/contact-us/",
+   "socials": []
+  },
+  "5ae839e9-56b3-4ab9-8a88-59ab749a7028": {
+   "emails": [
+    {
+     "value": "info@ra-tx.com",
+     "page": "https://ra-tx.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "nfo@ra-tx.com",
+     "page": "https://ra-tx.com/thread-procedures/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 500-4540",
+     "page": "https://ra-tx.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "1cd06931-8470-4f64-93ba-71e7fedfa00e": {
+   "emails": [
+    {
+     "value": "Refined.Physique@yahoo.com",
+     "page": "http://refinedphysiquellc.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 956-9890",
+     "page": "http://refinedphysiquellc.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "a17352a8-6d46-4de2-b9be-7a81ba1eaa5c": {
+   "emails": [],
+   "phones": [],
+   "contactPage": "https://www.drcharleswallace.com/contact-us",
+   "socials": [],
+   "caveat": "drcharleswallace.com never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "6bb34116-1406-4eee-bef1-82ab4916ad9c": {
+   "emails": [
+    {
+     "value": "reformemedicalspa@gmail.com",
+     "page": "https://www.reformemedicalspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(682) 802-2440",
+     "page": "https://www.reformemedicalspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "ae92bdb2-782b-4a52-8322-8056cea27c39": {
+   "emails": [
+    {
+     "value": "Info@regainhealthwellness.com",
+     "page": "http://Www.regainhealthwellness.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 720-0804",
+     "page": "http://Www.regainhealthwellness.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://regainhealthwellness.com/contact/",
+   "socials": []
+  },
+  "7a0c5627-e91f-44b2-8f8b-c68b37e1ee02": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 928-8227",
+     "page": "https://regenmedicalaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "07087c6a-182f-45e6-bf84-a4f0636c2a5a": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 987-0114",
+     "page": "https://www.regenrxmedical.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.regenrxmedical.com/contact-us",
+   "socials": []
+  },
+  "219b4512-f8fc-48e5-b1fd-e165ad4bfd58": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 265-1590",
+     "page": "http://www.rejuvemedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.rejuvemedspa.com/contact-us/",
+   "socials": []
+  },
+  "a3479b9b-a219-4fb5-9ce3-986910998492": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "renewbeautymedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "ad543a7c-7f25-4605-b459-912080b2eac9": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "renewbeautymedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "7dc3f850-7923-4c18-b628-efcd7d355f84": {
+   "emails": [
+    {
+     "value": "support@renewaskin-spa.com",
+     "page": "https://renewaskin-spa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(945) 325-2880",
+     "page": "https://renewaskin-spa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "f9e3bbea-b479-44ed-b204-cb6fe22aaa86": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 910-0880",
+     "page": "http://renueboutiquemedspa.com/",
+     "how": "matches the phone on the business listing"
+    },
+    {
+     "value": "(469) 568-5442",
+     "page": "http://renueboutiquemedspa.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "cfda28a6-d0b9-4152-a369-85ba7bd44729": {
+   "emails": [
+    {
+     "value": "info@restoretx.co",
+     "page": "http://www.restoretx.co/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 242-0522",
+     "page": "http://www.restoretx.co/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "ba82eed7-260d-434b-b308-5cd1486e8856": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "restore.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "17a03f3d-cec0-4da1-b516-0f8d6440f9ff": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "restore.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "6e784ea9-2808-440b-b058-f733562c6ed0": {
+   "emails": [
+    {
+     "value": "info@reversemedbar.com",
+     "page": "http://www.reversemedbar.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 280-7997",
+     "page": "http://www.reversemedbar.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://www.reversemedbar.com/contactus",
+   "socials": []
+  },
+  "79735634-6e78-499d-bacd-a0cfbcb94db7": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 305-6423",
+     "page": "https://we-revive.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "ef64af5e-80a5-43f9-9b3f-94bf156a83e3": {
+   "emails": [
+    {
+     "value": "contact@revivesence.com",
+     "page": "https://revivesence.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 702-2363",
+     "page": "https://revivesence.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "d38a51e6-769d-472b-b56b-5dfd7d1bd27e": {
+   "emails": [
+    {
+     "value": "info@rizeupmedical.com",
+     "page": "http://rizeupmedical.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 269-0844",
+     "page": "http://rizeupmedical.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://rizeupmedical.com/contact/",
+   "socials": []
+  },
+  "308d5229-e990-489a-83d2-be3326011d65": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "rozlasermedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "0a0758ac-e2f7-43d9-a401-b649149f4df9": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "rozlasermedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "a1f134e8-795a-44e5-b129-80a4a9ae58b0": {
+   "emails": [
+    {
+     "value": "info@rumiaesthetics.com",
+     "page": "http://www.rumiaesthetics.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 894-4533",
+     "page": "http://www.rumiaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://rumiaesthetics.com/contact-us/",
+   "socials": []
+  },
+  "f7fe7873-eea6-464d-81a9-e276eb259854": {
+   "emails": [
+    {
+     "value": "sglowic@gmail.com",
+     "page": "https://sglowic.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "04e2a445-735b-478c-acb6-6851ef6f9967": {
+   "emails": [
+    {
+     "value": "sageandskinaestheticsinfo@gmail.com",
+     "page": "http://Sageandskinaesthetics.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 484-7546",
+     "page": "http://Sageandskinaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "7ab8affb-7b6e-404f-9355-d30a7c49fd0c": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 677-9888",
+     "page": "http://www.saltboxdallas.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "00d3485a-5a2e-4540-8ca9-1c417d4a602a": {
+   "emails": [
+    {
+     "value": "Hello@sanctumwell.com",
+     "page": "https://www.sanctumwell.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 729-6299",
+     "page": "https://www.sanctumwell.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.sanctumwell.com/contact/",
+   "socials": []
+  },
+  "9903830e-760f-44c8-96f2-7e7e0f539b98": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 336-6769",
+     "page": "https://sanjivamedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "9184f593-6cd9-467f-aeaa-4c73d099abc3": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "savannaboda.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "0b0191b8-545f-4d84-bc93-d0ec155e1118": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "savannaboda.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "ceddcc0f-4f26-4acc-9e42-e3b1c7afdf27": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(817) 391-9954",
+     "page": "https://www.serotonincenters.com/mansfield/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": "https://www.serotonincenters.com/mansfield/contact/",
+   "socials": []
+  },
+  "6b546963-18f5-4972-a863-8fe61ea3e139": {
+   "emails": [],
+   "phones": [],
+   "contactPage": "https://colleyville.swcofusa.com/contact/",
+   "socials": []
+  },
+  "659e331a-f572-4c37-96b0-133e693b8d0a": {
+   "emails": [
+    {
+     "value": "smbrazilianmedspa@gmail.com",
+     "page": "https://sheylabrazilianmedspa.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "sheylamedspa@gmail.com",
+     "page": "https://sheylabrazilianmedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 987-0022",
+     "page": "https://sheylabrazilianmedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "c0e5f03c-bcd0-4407-af3f-79e88cdbb1e2": {
+   "emails": [
+    {
+     "value": "erica@silhouette-society.com",
+     "page": "http://www.silhouette-society.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "c3b4a20c-4538-4916-be6a-b8416fc57499": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "simsmedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "eb847d29-aa1d-48d7-8d91-1da97ca7d2f3": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "simsmedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "e4b4e5cd-b4e7-442e-99d2-dcc8a8120b65": {
+   "emails": [
+    {
+     "value": "DesMoines@skinbodysoul.com",
+     "page": "https://skinbodysoul.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "Ankeny@skinbodysoul.com",
+     "page": "https://skinbodysoul.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "595d3375-8f35-4375-a925-7d03542d01f9": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "skinbylucy.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "1522df2e-802c-486f-abac-5b76aa6621f5": {
+   "emails": [
+    {
+     "value": "Nora@scadallas.com",
+     "page": "http://www.scadallas.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 937-9931",
+     "page": "http://www.scadallas.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "e867c687-3ff0-47a4-8652-c737103bd0b6": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 828-1732",
+     "page": "http://www.skindamsel.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "d5d23bf9-1757-43f4-ac16-41c02149c53b": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(817) 385-1885",
+     "page": "http://www.SkinHealthyMedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "c3140414-8d39-4501-9b71-491b7c822ba3": {
+   "emails": [
+    {
+     "value": "hello@skinstudymedspa.com",
+     "page": "http://www.skinstudymedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 422-5534",
+     "page": "http://www.skinstudymedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "4751c401-f40f-4c94-8933-f5434af52433": {
+   "emails": [],
+   "phones": [],
+   "contactPage": "https://skincareerika.com/contacto/",
+   "socials": []
+  },
+  "ef51a763-96ba-49cc-a3f2-716ba21f6c9d": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "skinspamed.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "fac80250-c138-4923-b3a2-fdba7ae525dc": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "skinspirit.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "e972eeab-243e-4167-a8f1-7e3959f5ee2c": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "skinspirit.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "30bf7429-06fd-4a23-aafb-380f91af9dd8": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "skinspirit.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "a45b34b1-9ceb-453c-beab-8abfff8723c0": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "skinfinitydallas.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "358d4c5f-68d6-4ff9-9422-ed3fd54fd052": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "skinfinitydallas.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "c0ed2228-087f-4590-9440-52ec5775db61": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "dfwskinrx.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "18cf3b51-df08-446d-91be-b772b2368742": {
+   "emails": [
+    {
+     "value": "info@theskynlab.com",
+     "page": "http://www.skynlabdallas.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 620-1800",
+     "page": "https://skynlabdallas.com/contact-us/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://skynlabdallas.com/contact-us/",
+   "socials": []
+  },
+  "5f98b658-69b0-4f22-9dfe-d0ed9f177b36": {
+   "emails": [
+    {
+     "value": "info@smilemedspa360.com",
+     "page": "https://smilemedspa360.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 825-4228",
+     "page": "https://smilemedspa360.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": [],
+   "caveat": "smilemedspa360.com never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "cd69656f-8b5a-433d-b897-e38bc0d5d870": {
+   "emails": [
+    {
+     "value": "Snatcheddallas@gmail.com",
+     "page": "http://www.snatcheddallas.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 471-8418",
+     "page": "http://www.snatcheddallas.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "9b62e01f-f149-4494-af3e-cdc63df6139d": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(682) 415-9597",
+     "page": "https://www.southlakeaesthetics.us/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "ef276bfd-59ba-4804-bbb3-74b8fe685138": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 549-4914",
+     "page": "http://spavela.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "ca4eefd3-456b-4ec9-afb2-7850c8e9c8d5": {
+   "emails": [
+    {
+     "value": "contact@spa-wise.com",
+     "page": "https://www.spa-wise.com/home",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 219-7379",
+     "page": "https://www.spa-wise.com/home",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "ccf63167-2934-4d4c-ba42-9875cdfd282d": {
+   "emails": [
+    {
+     "value": "admin@starrejuvenation.com",
+     "page": "https://starrejuvenation.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 391-0569",
+     "page": "https://starrejuvenation.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "eec3929c-da7c-4d86-a76f-4b6426d8ac5e": {
+   "emails": [
+    {
+     "value": "contact@sukoonspa.com",
+     "page": "http://www.sukoonspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 609-6878",
+     "page": "http://www.sukoonspa.com/",
+     "how": "matches the phone on the business listing"
+    },
+    {
+     "value": "(469) 606-9091",
+     "page": "http://www.sukoonspa.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "913a0108-4a08-4b03-95da-2b0b2d5a2b28": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "tyhht.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "3c66870f-49cd-47a7-9af5-789b7a2c6d68": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 945-3621",
+     "page": "https://tailored.health/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "38d10a49-3228-49ac-8f06-52eb712f402e": {
+   "emails": [
+    {
+     "value": "info@texaslaserclinic.com",
+     "page": "http://www.texaslaserclinic.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 334-0222",
+     "page": "http://www.texaslaserclinic.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.texaslaserclinic.com/contact-us/",
+   "socials": []
+  },
+  "565b79a4-520d-4fa3-80c8-99f5163563ac": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(940) 245-4306",
+     "page": "http://texasveindoc.com/",
+     "how": "printed next to a word like call or phone"
+    },
+    {
+     "value": "(940) 627-8825",
+     "page": "http://texasveindoc.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "55e8d5b6-c926-487e-bdaa-fefb2e4062c3": {
+   "emails": [
+    {
+     "value": "info@theaestheticconsultants.com",
+     "page": "https://theaestheticconsultants.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "9f6ba55c-d59c-40b7-9cce-9498742818ed": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 293-4300",
+     "page": "http://www.thebeautyclinicmedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "49a45e05-4d37-48e8-9260-25a8e7934bec": {
+   "emails": [
+    {
+     "value": "news@faceplacedfw.com",
+     "page": "http://www.FacePlaceDFW.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 281-0084",
+     "page": "http://www.FacePlaceDFW.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://www.FacePlaceDFW.com/contact",
+   "socials": []
+  },
+  "d38b5c34-6bea-4dbb-a1f5-f90ea6114299": {
+   "emails": [
+    {
+     "value": "theinjectionslab@gmail.com",
+     "page": "https://theinjectionslab.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 938-0789",
+     "page": "https://theinjectionslab.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "6c37e2f8-ef2f-488b-830b-7201bc2d0dfe": {
+   "emails": [
+    {
+     "value": "info@fpcmedspa.com",
+     "page": "http://fpcmedspa.com/contact/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 971-3765",
+     "page": "http://www.fpcmedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://fpcmedspa.com/contact/",
+   "socials": []
+  },
+  "8cface22-20a9-4251-8691-8e05e2a8ced0": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vagaro.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "a35e2bb0-e00f-4986-9810-bfb6013030f2": {
+   "emails": [
+    {
+     "value": "Info@thescienceofbeautydallas.com",
+     "page": "http://www.thescienceofbeauty.co/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 272-9240",
+     "page": "http://www.thescienceofbeauty.co/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://www.thescienceofbeauty.co/contact",
+   "socials": []
+  },
+  "5fadf29e-5194-4b02-97ab-69903b24b1e2": {
+   "emails": [
+    {
+     "value": "thesculptfairy@gmail.com",
+     "page": "http://Thesculptfairy.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 974-8370",
+     "page": "http://Thesculptfairy.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "37f8fee9-f3ea-4516-b5a1-dd40a7f9cd4d": {
+   "emails": [
+    {
+     "value": "sculptyourbodymedspa@gmail.com",
+     "page": "https://sculptyourbody.net/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 945-1921",
+     "page": "https://sculptyourbody.net/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://sculptyourbody.net/contact-us/",
+   "socials": []
+  },
+  "32f9d109-91af-487f-b62a-08ad64afcc9d": {
+   "emails": [
+    {
+     "value": "spa@myrescuemd.com",
+     "page": "http://www.spabyrescuemd.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 332-4397",
+     "page": "http://www.spabyrescuemd.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "a5d51873-8130-45fa-ae1c-99a9f895d590": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "thewyliemedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "24a99e87-9bd4-4a53-9337-0ae304552bb2": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "thewyliemedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "1ec1569f-4a54-4d1d-b5de-6fbf88003571": {
+   "emails": [
+    {
+     "value": "info@timelessservices.net",
+     "page": "https://www.timelessservices.net/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 544-5878",
+     "page": "https://www.timelessservices.net/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://timelessservices.net/contact/",
+   "socials": []
+  },
+  "2da09305-92b0-496f-896f-1568b48c1d31": {
+   "emails": [
+    {
+     "value": "torresmedspa@gmail.com",
+     "page": "http://torresmedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 816-7274",
+     "page": "http://torresmedspa.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": "http://torresmedspa.com/contacto",
+   "socials": []
+  },
+  "0e121be7-e9dd-41cf-960b-8bf5060f8456": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "totalmedsolutions.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "f6a9ef9c-84b7-436a-8d24-1c317b430af8": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "totalmedsolutions.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "3ff8fe57-8314-429f-b724-ede81cf51420": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "totalmedsolutions.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "2f213979-cf52-4992-9c49-cd20f6c037be": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "totalmedsolutions.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "79305772-7c9b-4e9a-8e19-25520e5e3150": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "totalmedsolutions.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "d52dae1f-a3de-42c7-b4bd-cefd04bc1bc0": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "totalmedsolutions.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "5b4dc7c6-cd5d-4f35-a6e8-ff63528820e4": {
+   "emails": [
+    {
+     "value": "info@tranquilitybar.com",
+     "page": "https://tranquilitybar.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(682) 267-3600",
+     "page": "https://tranquilitybar.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "c9de7aa3-13cb-427a-957c-a1703ba20d06": {
+   "emails": [
+    {
+     "value": "truelove.aesthetics@gmail.com",
+     "page": "http://trueloveaesthetics.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 612-6255",
+     "page": "http://trueloveaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "e71f9a56-e5d2-4a16-bf02-b45371c03544": {
+   "emails": [
+    {
+     "value": "contact@tuliamd.com",
+     "page": "https://tuliamd.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 292-9809",
+     "page": "https://tuliamd.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "b37a2fdb-7217-4be5-8c05-ab09cf364ab0": {
+   "emails": [
+    {
+     "value": "info@tuxedoclub.com",
+     "page": "http://tuxedoclub.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 777-1350",
+     "page": "http://tuxedoclub.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.tuxedoclub.com/contact",
+   "socials": []
+  },
+  "58cfd9a9-50ff-47fa-a4ca-7c8a28846a58": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "ultimateimageskincare.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "25c8c59c-f184-4469-8fb2-f85913ca5385": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "ultimateimageskincare.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "88902f26-78ac-4a20-8f63-e1b50a8206cf": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "ultimateimageskincare.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "a96996e1-cd3a-4e0b-9c2b-9ba4fbce4f5c": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "ultimateimageskincare.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "84d5ab78-aa7a-4247-a5ca-494078303773": {
+   "emails": [
+    {
+     "value": "info@unicornmedspa.com",
+     "page": "https://www.unicornmedspa.com/services/neogen-facelift/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 919-3055",
+     "page": "https://www.unicornmedspa.com/services/neogen-facelift/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "ed12c3b9-36eb-476c-a82b-65dbaa867ace": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "upkeepmedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "8421f06d-1c47-419d-bb31-8383cdc717bb": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "upkeepmedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "9be3d063-d6aa-4bc5-a528-5a9f4e98aac3": {
+   "emails": [
+    {
+     "value": "erika@upliftmedspa.com",
+     "page": "http://www.upliftmedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "3eca744f-0295-4ca0-8512-3cffca7f5794": {
+   "emails": [
+    {
+     "value": "Info@urbanemedspa.com",
+     "page": "http://urbanemedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 746-4191",
+     "page": "http://urbanemedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://urbanemedspa.com/contact-us",
+   "socials": []
+  },
+  "99dba65c-8a8a-4657-a953-13632a55e0df": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(945) 446-6778",
+     "page": "https://vxolashandmedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "880db272-d075-4fcf-9f09-db70fe29e777": {
+   "emails": [
+    {
+     "value": "info@vanitywellnessandbody.com",
+     "page": "https://vanitywellnessandbody.com/contact",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 210-3299",
+     "page": "https://vanitywellnessandbody.com/contact",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://vanitywellnessandbody.com/contact",
+   "socials": []
+  },
+  "674d1a58-4f6d-407f-a4b3-bf3f15e25694": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 701-4878",
+     "page": "http://www.veinandwellnesscenters.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "043749c5-ebb6-41a8-baa2-58d702bf57e3": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 433-5077",
+     "page": "https://www.villageaesthetics.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.villageaesthetics.com/contact-us",
+   "socials": []
+  },
+  "ac921a70-bcf5-4f16-8055-36db54e51402": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vipweightsolutions.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "f99d7ae2-f7b5-4e14-9950-862707b97cdb": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vipweightsolutions.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "fe90146c-fa32-4410-b791-c5b1d6a6f96d": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vipweightsolutions.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "cb30d5ac-4888-41dc-b914-e76f39130ad3": {
+   "emails": [
+    {
+     "value": "sylvie@myelysee.com",
+     "page": "https://vitadripandwellnessspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 470-9360",
+     "page": "https://vitadripandwellnessspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://vitadripandwellnessspa.com/contact-us/",
+   "socials": []
+  },
+  "7721be81-9639-427e-bf15-aa7669fd2bff": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vitalitemedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "b93c65aa-db4a-4e9e-b0ce-cdc352bc1e91": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 972-5002",
+     "page": "http://vitalityquickdrip.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "6fde31bf-22f8-4c40-b54a-bd5cc142a495": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vitalitemedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "a0ddd32c-a1f7-496f-b9d6-029b44bab817": {
+   "emails": [
+    {
+     "value": "wellnessworkskelly@gmail.com",
+     "page": "http://wellnessworksrockwall.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "info@wellnessworksrockwall.com",
+     "page": "https://wellnessworksrockwall.com/contact-us/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 698-8844",
+     "page": "http://wellnessworksrockwall.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://wellnessworksrockwall.com/contact-us/",
+   "socials": []
+  },
+  "d89d732b-dde1-49ad-9393-e5ef3259e70a": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 888-8174",
+     "page": "http://wellskinmedspa.com/facial-treatments/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "247630fb-f430-44bd-8540-dbed96a289e0": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "Nothing on raja-mohanmd.com names this business or its town, so we cannot show that the listing's website is really theirs. A contact read off someone else's site is an invented contact."
+  },
+  "e457ac65-919a-4a86-8e1e-1a08917456a8": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 755-1717",
+     "page": "http://ChrysalisLaserCenter.com/",
+     "how": "matches the phone on the business listing"
+    },
+    {
+     "value": "(214) 775-1717",
+     "page": "https://www.chrysalislasercenter.com/about-us/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": "https://www.chrysalislasercenter.com/contact-us/",
+   "socials": []
+  },
+  "f9f1c6b1-ced6-4ebb-bea1-6596ebccd62f": {
+   "emails": [
+    {
+     "value": "manager@enlightenmd.com",
+     "page": "http://www.enlightenmd.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 964-0860",
+     "page": "http://www.enlightenmd.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "d5e34d11-2e08-4d08-a011-cd49c7443bf3": {
+   "emails": [
+    {
+     "value": "info@thelabmedspa.com",
+     "page": "http://www.thelabmedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 251-1000",
+     "page": "http://www.thelabmedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://www.thelabmedspa.com/contact-us",
+   "socials": [],
+   "caveat": "thelabmedspa.com never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "d78bd7fc-3ce2-4be2-b0f4-2ccf3b932cfe": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "rosiesbeautyspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "efd970e4-440c-43ed-8fd5-625bb4dc31c3": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 521-5277",
+     "page": "http://www.advancedskinfitness.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "bd20a0aa-5b19-4640-8b16-f7688c1712b5": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 380-9240",
+     "page": "http://www.aestheticsalonandspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "d58854c5-56e7-4f89-9869-f9b8bff056b2": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "sites.google.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "d497a8d0-71ad-44b5-ac37-973f61d7e33b": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "alecxandermedicalspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "335271af-a097-45fd-b77b-05e042431307": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "allaboutthebrow.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "035a02b9-286c-419c-8d3c-d1f191ac0b61": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "Nothing on allinonewellnessspa.com names this business or its town, so we cannot show that the listing's website is really theirs. A contact read off someone else's site is an invented contact."
+  },
+  "d0b749a6-73c3-49ea-81e5-e1e6a4cc2f5b": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "alteredstateswellness.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "6f1513c6-de8e-43fe-8eca-d46d331b5389": {
+   "emails": [
+    {
+     "value": "info@angelictouchtx.com",
+     "page": "http://www.angelictouchtx.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 212-3072",
+     "page": "http://www.angelictouchtx.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.angelictouchtx.com/contact-us",
+   "socials": []
+  },
+  "5194cf1d-8bde-4ebc-9fb4-c9db0a8edba8": {
+   "emails": [
+    {
+     "value": "sharon@journeysofhealing.com",
+     "page": "https://www.journeysofhealing.com/contact",
+     "how": "printed on the page"
+    },
+    {
+     "value": "brad@journeysofhealing.com",
+     "page": "https://www.journeysofhealing.com/contact",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(507) 343-3822",
+     "page": "https://www.journeysofhealing.com/contact",
+     "how": "printed next to a word like call or phone"
+    },
+    {
+     "value": "(507) 343-3819",
+     "page": "https://www.journeysofhealing.com/contact",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": "https://www.journeysofhealing.com/contact",
+   "socials": []
+  },
+  "5fcf5ca9-71f3-42b8-a0a3-a930f3f921cd": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "pocketsuite.io is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "5c10b20b-cb79-43ce-ab41-72ffe2fa504e": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "bathandbodyworks.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "778f037a-0896-4178-9e8a-2ba884e9e164": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "Nothing on walmrt.us names this business or its town, so we cannot show that the listing's website is really theirs. A contact read off someone else's site is an invented contact."
+  },
+  "6269a7d7-c8f5-4a15-97f1-eefdeb378e6a": {
+   "emails": [
+    {
+     "value": "bellamiasalonanddayspa@gmail.com",
+     "page": "https://www.bellamiasalonspa.com/contact",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 561-4505",
+     "page": "http://www.bellamiasalonspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.bellamiasalonspa.com/contact",
+   "socials": []
+  },
+  "71e9e05c-ac63-4160-844e-bb6352d95160": {
+   "emails": [
+    {
+     "value": "BellaAvedaSalon@gmail.com",
+     "page": "https://www.bellasalonspaonline.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(775) 885-9779",
+     "page": "https://www.bellasalonspaonline.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "c41b9a26-17af-4c52-80ba-46cba675b692": {
+   "emails": [
+    {
+     "value": "bellsbernina@yahoo.com",
+     "page": "http://bellsberninasewing.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 494-3893",
+     "page": "http://bellsberninasewing.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": [],
+   "caveat": "bellsberninasewing.com never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "79969eab-65a0-4c27-8832-9a15cf601144": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 469-0031",
+     "page": "http://www.blingblingbrows.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://blingblingbrows.com/contact",
+   "socials": []
+  },
+  "636d7475-4ef5-4745-abb9-eb06cace5f2f": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 442-4320",
+     "page": "http://www.Bnails.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "5cc5fa6b-716d-4d88-9207-2686ef9ddc1d": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "schedulicity.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "4fa28f9a-451c-43d3-9ca4-1aa7d0a6090f": {
+   "emails": [
+    {
+     "value": "sales@bornbeautycare.com",
+     "page": "http://www.bornbeautycare.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 620-0720",
+     "page": "http://www.bornbeautycare.com/",
+     "how": "matches the phone on the business listing"
+    },
+    {
+     "value": "(214) 744-3698",
+     "page": "http://www.bornbeautycare.com/policies/contact-information",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": "http://www.bornbeautycare.com/pages/contact",
+   "socials": []
+  },
+  "5063fb3b-a8c2-430c-81de-b65367a603db": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "fresha.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "51c8e0fc-3f6e-4813-888d-b0861b252a50": {
+   "emails": [
+    {
+     "value": "info@browsandbrazilians.com",
+     "page": "http://www.browsandbrazilians.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 463-5678",
+     "page": "http://www.browsandbrazilians.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "44df6b05-d2f7-4ad7-8ed5-16c6b62af036": {
+   "emails": [
+    {
+     "value": "fraud@buffcitysoap.com",
+     "page": "http://www.buffcitysoap.com/pages/unauthorized-websites-offers",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "4e029153-af8d-4e67-9bb7-73561fcfcf44": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vagaro.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "d1ffe30a-58d4-4bc2-9d10-4132ccc327d4": {
+   "emails": [
+    {
+     "value": "hello@chiomatotalbody.com",
+     "page": "https://www.chioma.co/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 779-7070",
+     "page": "https://www.chioma.co/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "0fb660c9-3bf2-48fd-8e36-bf76cc521f44": {
+   "emails": [
+    {
+     "value": "CarolynHKuiken@hotmail.com",
+     "page": "http://ckmassagepllc.massagetherapy.com/contact-information",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 551-9348",
+     "page": "http://ckmassagepllc.massagetherapy.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://ckmassagepllc.massagetherapy.com/contact-information",
+   "socials": []
+  },
+  "b326d097-e9aa-4458-8f95-45fdc700feab": {
+   "emails": [
+    {
+     "value": "CryoCoppell@tx.rr.com",
+     "page": "http://www.cryocoppell.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 763-3096",
+     "page": "http://www.cryocoppell.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "a2af5cb1-913b-445e-83c6-ff27244b3034": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "castlebridgespa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "60f3abc7-9b8b-43fe-a8d2-2622f3553de8": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "castlebridgespa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "584eecdb-b1b9-4744-bf63-9c72817699f4": {
+   "emails": [
+    {
+     "value": "chingonalashllc@gmail.com",
+     "page": "http://www.chingonalashes.org/policies/contact-information",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": "http://www.chingonalashes.org/policies/contact-information",
+   "socials": []
+  },
+  "ac7ea9e9-11d4-411e-980f-dfb7e29a5023": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 483-3803",
+     "page": "http://www.circlespa.net/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://circlespa.net/contact-us/",
+   "socials": []
+  },
+  "bfd529e8-f485-4a33-9b32-961bf39d3688": {
+   "emails": [
+    {
+     "value": "ClearSkinLaserSpa@gmail.com",
+     "page": "http://ClearskinLaserSpa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 997-6714",
+     "page": "http://ClearskinLaserSpa.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "5b48d1e1-baa4-4913-9b5d-b394f51e0173": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(817) 435-2500",
+     "page": "https://www.colombiancontourspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "c9d05e0d-06be-406b-8daa-4d477ebf6d02": {
+   "emails": [
+    {
+     "value": "massagegirl1972@gmail.com",
+     "page": "http://www.cristinaadams.schedulista.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 703-9031",
+     "page": "http://www.cristinaadams.schedulista.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "bab25165-0232-4f20-99c6-773c71599e55": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(817) 308-8680",
+     "page": "http://www.cryonationwellness.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "c9a5f427-cf9e-4532-ba68-d064d3bf1ac5": {
+   "emails": [
+    {
+     "value": "support@cryoboost.com",
+     "page": "https://www.cryoboost.com/newsite/cryoboost-service-offerings/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 534-7824",
+     "page": "http://www.cryoboost.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "c5149a46-09e2-44ab-b25f-c2573a86579f": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 618-1491",
+     "page": "http://cultureadayspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "2eadb0b1-3b3d-4c58-aff6-3b87425b9456": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 386-4247",
+     "page": "http://www.adamshair.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "d6aa0847-7979-41c5-b0c5-cbe79ec312be": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "Nothing on wa.link names this business or its town, so we cannot show that the listing's website is really theirs. A contact read off someone else's site is an invented contact."
+  },
+  "e5b7e7c4-33d6-4ce0-a6c5-b779ff39b174": {
+   "emails": [
+    {
+     "value": "ipfdesk@gmail.com",
+     "page": "http://www.impactperformancesl.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": [],
+   "caveat": "impactperformancesl.com never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "1fe45972-8186-4231-9221-69c9f01a4598": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "destinyspa.net is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "07a86a5e-c60b-44ad-bcf5-2ece1b5693bd": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "destinyspa.net is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "7eac9a5b-65a8-4031-b1cb-ad28b94e79c3": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "destinyspa.net is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "bf1b0b8c-501e-47ff-a867-74d0dab23ca8": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "destinyspa.net is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "eab579b7-6879-49ec-95da-8c796979e8cb": {
+   "emails": [
+    {
+     "value": "bmorris@kiterealty.com",
+     "page": "https://www.legacywest.com/contact",
+     "how": "printed on the page"
+    },
+    {
+     "value": "lgallagher@kiterealty.com",
+     "page": "https://www.legacywest.com/contact",
+     "how": "printed on the page"
+    },
+    {
+     "value": "kengle@kiterealty.com",
+     "page": "https://www.legacywest.com/contact",
+     "how": "printed on the page"
+    },
+    {
+     "value": "kishmael@kiterealty.com",
+     "page": "https://www.legacywest.com/contact",
+     "how": "printed on the page"
+    },
+    {
+     "value": "bcolacarro@kiterealty.com",
+     "page": "https://www.legacywest.com/contact",
+     "how": "printed on the page"
+    },
+    {
+     "value": "lwsecurity@marksmansecurity.com",
+     "page": "https://www.legacywest.com/contact",
+     "how": "printed on the page"
+    },
+    {
+     "value": "david.reed@cbre.com",
+     "page": "https://www.legacywest.com/contact",
+     "how": "printed on the page"
+    },
+    {
+     "value": "atatum@kiterealty.com",
+     "page": "https://www.legacywest.com/contact",
+     "how": "printed on the page"
+    },
+    {
+     "value": "nmasinter@openra.com",
+     "page": "https://www.legacywest.com/contact",
+     "how": "printed on the page"
+    },
+    {
+     "value": "evance@kiterealty.com",
+     "page": "https://www.legacywest.com/contact",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 312-2369",
+     "page": "https://www.legacywest.com/diptyque",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.legacywest.com/contact",
+   "socials": []
+  },
+  "7e93522a-ade0-41a1-8189-b133b1686d83": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 836-3910",
+     "page": "https://www.ecoblendtherapies.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "391111db-6a9a-4240-a178-fb17eeeca395": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vagaro.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "7faf33e2-a964-4ac0-b435-f40bac74dea6": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 277-3888",
+     "page": "http://www.elysianskinacnestudio.com/contact",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://www.elysianskinacnestudio.com/contact",
+   "socials": []
+  },
+  "a86d8327-0e13-471c-9fbf-8fd275ce7fe6": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "yellowpages.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "8c6efb0b-92a1-4d3e-9b76-151a27a7dc01": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 897-0401",
+     "page": "http://estheticsetc.com/location",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "5df65895-bf29-486d-84fe-9b34d623bac5": {
+   "emails": [
+    {
+     "value": "eurodermcare@gmail.com",
+     "page": "http://Www.eurodermcare.net/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 789-8713",
+     "page": "http://Www.eurodermcare.net/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "b9e7bd32-e77f-4e3d-92f3-75f0867a4e79": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "Nothing on delawareinjurycare.org names this business or its town, so we cannot show that the listing's website is really theirs. A contact read off someone else's site is an invented contact."
+  },
+  "4e5325bf-9631-44ba-b626-3fc6d9ddd830": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 868-6400",
+     "page": "http://www.fragranceyourway.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.fragranceyourway.com/contact",
+   "socials": []
+  },
+  "45780101-9d15-434d-a232-335acbbacc13": {
+   "emails": [
+    {
+     "value": "dentalcalmkids@gmail.com",
+     "page": "http://www.frequencyfusionspa.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "mel@frequencyfusionspa.com",
+     "page": "http://www.frequencyfusionspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(682) 802-6550",
+     "page": "http://www.frequencyfusionspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "71b08c0d-8c15-45e9-8ea5-4d1bd78bf353": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(727) 692-3792",
+     "page": "http://www.myfreshfacials.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://www.myfreshfacials.com/contacts/contact-us/",
+   "socials": []
+  },
+  "875674c1-6bc6-4cc3-be1a-a3c7fe498f84": {
+   "emails": [
+    {
+     "value": "info@genevamedspa.com",
+     "page": "http://www.genevamedspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 403-8883",
+     "page": "http://www.genevamedspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "ec61b12b-3c1b-4e30-9991-48004699343a": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "marykay.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "2908c09a-f9de-46ae-aecc-08f5b09e6116": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 310-8916",
+     "page": "https://www.gladdenlongevity.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "da906524-4bdb-477f-961d-8c1c151ccaa5": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "book.heygoldie.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "d3577af6-dc68-4faa-b374-5f7e3650b831": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "glosunspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "dd524c63-38c3-44fe-bee7-81a53b827c82": {
+   "emails": [
+    {
+     "value": "info@graithhealingspa.com",
+     "page": "https://www.graithhealingspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 289-2747",
+     "page": "https://www.graithhealingspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "aa384ca0-eb91-4e94-baac-731497fd8ddf": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 433-6262",
+     "page": "https://greentherapyspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "c8f82b27-057c-4789-8d2a-bdb5380bf651": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "hairandmakeupbysusy.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "bdad92c0-fd1a-424a-b17f-1948746f8b72": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "hairandmakeupbysusy.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "d226957d-c7e2-4ec5-a2b6-f7cbd31486c5": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vagaro.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "e4f53e78-9917-4576-9c43-f108c2b28707": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "handandstone.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "232d62b6-a7d3-4216-a13d-d1b9b43fb05c": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "handandstone.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "97c6e602-3a1d-4703-a833-66acb8b1e947": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "handandstone.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "fe1eb6be-2cac-49fa-a9a2-ffbb702b2f6b": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "handandstone.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "9229b159-7830-4be2-95ed-4336facad1be": {
+   "emails": [
+    {
+     "value": "tanya@happyfeet-healthybody.com",
+     "page": "http://happyfeet-healthybody.com/about-us.html",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 738-1477",
+     "page": "http://happyfeet-healthybody.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "161964f9-5bdf-4e72-be4b-9b3340e62f97": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vagaro.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "049020f9-d65e-4f33-94c9-d98e280323ad": {
+   "emails": [
+    {
+     "value": "rejuvjuice@icloud.com",
+     "page": "https://www.rejuvjuice.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 284-3022",
+     "page": "https://www.rejuvjuice.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": [],
+   "caveat": "rejuvjuice.com never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "bf35bcb2-4dce-4a45-afeb-c97ffbbbb96d": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "Nothing on behaviourny.com names this business or its town, so we cannot show that the listing's website is really theirs. A contact read off someone else's site is an invented contact."
+  },
+  "6c5f46a4-55a6-45f8-b18d-1edd5f5beb61": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "heydayskincare.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "ee3f403a-5f2f-40c0-b1bb-209ee993fb6a": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "heydayskincare.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "6a93dcca-9503-4a8b-81c8-f86ffd9b214c": {
+   "emails": [
+    {
+     "value": "info@hihair.com",
+     "page": "http://www.HIHAIR.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 643-3389",
+     "page": "http://www.HIHAIR.com/pages/help",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "6b0b3f47-3f7d-4315-bdaa-38a819de27f6": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "hiatusspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "15bfe6e3-c471-43b3-872a-5b2e1bcbdce3": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "hiatusspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "cccaae2c-e899-49c2-ba71-4888b0aabb37": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "hiatusspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "9ccd0f60-ba74-44ce-8e29-4e12c5dc97fb": {
+   "emails": [
+    {
+     "value": "appointments@houseofdearhairsalon.com",
+     "page": "https://houseofdearhairsalon.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "careers@houseofdearhairsalon.com",
+     "page": "https://houseofdearhairsalon.com/contact-us/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "press@houseofdear.com",
+     "page": "https://houseofdearhairsalon.com/contact-us/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "appointments@houseofdearhirsalon.com",
+     "page": "https://houseofdearhairsalon.com/contact-us/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 397-0700",
+     "page": "https://houseofdearhairsalon.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://houseofdearhairsalon.com/contact-us/",
+   "socials": []
+  },
+  "0a8b0bf8-73e5-4dd5-8446-5ae1f576422d": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(817) 600-3538",
+     "page": "http://innerglowdayspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "f8ebc08e-767d-4032-ae89-3591330660e5": {
+   "emails": [
+    {
+     "value": "innerbloomwaxco@gmail.com",
+     "page": "http://www.Innerbloomwaxco.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 770-0853",
+     "page": "http://www.Innerbloomwaxco.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "b3b2fde7-12e5-4e63-bb6a-8b937679225d": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "square.site is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "fa723c59-6c02-43bb-838f-97f8306c5fa1": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(817) 225-4785",
+     "page": "http://www.stbeautybar.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "110690c6-6722-4a60-a632-3631f3120ac9": {
+   "emails": [
+    {
+     "value": "team@structuralelements.net",
+     "page": "http://www.structuralelements.net/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "structuralelements@gmail.com",
+     "page": "http://www.structuralelements.net/about-us",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "b24c45ae-1798-4811-a7f7-812d6b15b7a3": {
+   "emails": [
+    {
+     "value": "jobonga@gmail.com",
+     "page": "https://www.jobonga.com/specials",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 467-8480",
+     "page": "https://www.jobonga.com/specials",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.jobonga.com/contact",
+   "socials": []
+  },
+  "6a2946d5-887d-4f54-b61a-7a5d058ed366": {
+   "emails": [
+    {
+     "value": "info@justbreatherockwall.com",
+     "page": "https://www.justbreatherockwall.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 314-1218",
+     "page": "https://www.justbreatherockwall.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "53dce6a9-4e78-4e71-ae68-d62ce574c683": {
+   "emails": [],
+   "phones": [],
+   "contactPage": "https://www.katetalbert.com/contact",
+   "socials": []
+  },
+  "972fed4c-2d5f-4922-ac72-060b7d14e6c2": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "koffeedayspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "8ea53185-9e65-4bb3-adb6-882d9de06c00": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "koffeedayspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "d6261762-1458-4dcf-9d31-c79878e26950": {
+   "emails": [
+    {
+     "value": "sales@luraco.com",
+     "page": "https://www.luraco.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "support@luracotech.com",
+     "page": "https://www.luraco.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 633-1080",
+     "page": "https://www.luraco.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.luraco.com/contacts/",
+   "socials": []
+  },
+  "c04637bc-40e5-463f-917a-81c46af6df18": {
+   "emails": [
+    {
+     "value": "mvlarusso@yahoo.com",
+     "page": "https://lakesidewellnessandapothecary.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 261-8410",
+     "page": "https://lakesidewellnessandapothecary.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "9ce22450-e879-4032-b859-8aa97dbba63a": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 526-3444",
+     "page": "https://lavishretreatspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "bddcce20-ad16-4f85-96aa-0b24b2d070fa": {
+   "emails": [
+    {
+     "value": "info@massage-spa-frisco.com",
+     "page": "https://massage-spa-frisco.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 468-4874",
+     "page": "https://massage-spa-frisco.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "210f547c-a092-43fd-8384-95c9f40c2997": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "lifetimefitness.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "150e1084-2c25-4354-a2b1-f8dc4d35eb13": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "loredanasbeauty.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "e283ab22-e82a-461e-8f08-5233a3aea65e": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "loredanasbeauty.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "4f75031d-4631-4b97-9e74-c482864a4305": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "loredanasbeauty.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "cf861ed7-b188-4ae1-a69c-0e93bf80f47f": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vagaro.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "291e06ca-229d-4d41-8bba-d6c3f4243031": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 644-4065",
+     "page": "http://lovethyselfdayspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "d7adadfc-640e-4e76-a9cd-176ba475c1c4": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "yellowpages.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "7eb0b7a1-3d09-4f79-97d5-3ad5075d2014": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "luxebeautynow.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "9a4977f3-96c1-4230-acda-02fd5979cc90": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 677-0774",
+     "page": "http://www.Lymphaticexpress.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "cb18c474-19ed-4ea9-82c8-59293d22ef2b": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "marykay.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "7d3f7a7b-181a-4b9b-9e9c-bf7f62f62152": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "allaboutthebrow.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "2a87b5b9-b249-4a1e-9327-8a66e88aed71": {
+   "emails": [],
+   "phones": [],
+   "contactPage": "http://marloandco.glossgenius.com/contact",
+   "socials": []
+  },
+  "3835db65-90ee-43da-8c31-a60e8c6e1610": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 556-5678",
+     "page": "http://relaxspacarrollton.wixsite.com/75010",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "7348f532-f734-4095-89ba-57bd85c43383": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "mattisonsalonsuites.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "4e5893ac-55cf-42a1-9391-1bda9466cc19": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "mattisonsalonsuites.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "5fa8224b-9090-4853-bba2-d5504149de93": {
+   "emails": [
+    {
+     "value": "METIMEBEAUTYLLC@GMAIL.COM",
+     "page": "https://www.metimebeautyspa.com/contact-us",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 434-1240",
+     "page": "https://www.metimebeautyspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.metimebeautyspa.com/contact-us",
+   "socials": []
+  },
+  "c6b0d159-44ea-4467-9763-d04e873cc020": {
+   "emails": [
+    {
+     "value": "hello@medspastudios.com",
+     "page": "https://medspastudios.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 619-5000",
+     "page": "https://medspastudios.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "1d40d7c2-0e93-47f9-8d3c-8a113a01235b": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 885-2895",
+     "page": "http://metropolitansunspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "3e91f982-ed0d-4748-b6a7-6fee5f88375b": {
+   "emails": [
+    {
+     "value": "mericksonbenjamin@hotmail.com",
+     "page": "https://www.michellebenjaminmb.com/visit-us",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 649-7910",
+     "page": "https://www.michellebenjaminmb.com/visit-us",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.michellebenjaminmb.com/contact-4",
+   "socials": []
+  },
+  "03d24d1a-5ff9-4ab0-807d-b3152f872635": {
+   "emails": [],
+   "phones": [],
+   "contactPage": "https://alicenguyen26.glossgenius.com/contact",
+   "socials": []
+  },
+  "566b8edc-8881-4ab0-a151-5081adf81d25": {
+   "emails": [
+    {
+     "value": "modernthaispagroup@gmail.com",
+     "page": "http://www.modernthaispa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 456-6599",
+     "page": "http://www.modernthaispa.com/",
+     "how": "printed next to a word like call or phone"
+    },
+    {
+     "value": "(469) 264-9953",
+     "page": "http://www.modernthaispa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "92e41672-66da-4555-b199-5eeb258ac29b": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 808-7676",
+     "page": "http://getwaverly.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "fc34898b-4e67-4707-b0f7-993b2a251974": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "lilymedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "80ebe9fa-d4db-4f4a-b262-8ef1b1cbdb6c": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "nwmeaesthetics.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "1392ccab-e443-4494-b9b2-774c7c98ea69": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "Nothing on polishedlife.co names this business or its town, so we cannot show that the listing's website is really theirs. A contact read off someone else's site is an invented contact."
+  },
+  "05073c90-ad5c-4fbe-9ed8-aedaa33ec209": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 335-7189",
+     "page": "https://natalyasfacials.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://natalyasfacials.com/contact-me/",
+   "socials": []
+  },
+  "e4d4ae6a-ca5d-4623-bfec-87d38f12b6c5": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(800) 982-6817",
+     "page": "http://www.nlimedspa.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "1e81f8e1-8f90-4fbb-a4ef-1c075b261103": {
+   "emails": [
+    {
+     "value": "contact@naturalglowrx.com",
+     "page": "https://shopnaturaljewels.com/pages/shop",
+     "how": "printed on the page"
+    },
+    {
+     "value": "support@naturalglowrx.com",
+     "page": "https://shopnaturaljewels.com/pages/shop-policies",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "593a6c13-4200-4335-a66f-8ab759b8d4c7": {
+   "emails": [],
+   "phones": [],
+   "contactPage": "https://www.naturalrockspas.com/contact",
+   "socials": []
+  },
+  "9d565ba2-f00e-4022-857f-dce9363378be": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(972) 250-9999",
+     "page": "http://oasismedspaandlasercenter.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "8d211aa4-946b-47e1-ab4d-d285c936f4a4": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(817) 680-9023",
+     "page": "https://www.onelifesjourney.org/contact",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.onelifesjourney.org/contact",
+   "socials": []
+  },
+  "b84ff5d5-c68a-4984-8382-0a2e2e790ae7": {
+   "emails": [
+    {
+     "value": "hello@parfumsduciel.com",
+     "page": "http://parfumsduciel.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "booking@parfumsduciel.com",
+     "page": "http://parfumsduciel.com/pages/booking",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 468-4444",
+     "page": "http://parfumsduciel.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://parfumsduciel.com/pages/contact",
+   "socials": []
+  },
+  "9864d692-6f57-4312-b9ce-90fe113303d8": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vagaro.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "e36efee3-e34d-4020-9b61-f69bb617dbab": {
+   "emails": [
+    {
+     "value": "planetbeachnamao@gmail.com",
+     "page": "https://planetbeach.ca/locations/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "manager.ab0031@gmail.com",
+     "page": "https://planetbeach.ca/locations/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "fab8e091-de43-4b91-999e-c0e7ae18f280": {
+   "emails": [
+    {
+     "value": "susan@positiveindulgence.com",
+     "page": "https://www.positiveindulgence.com/about-us",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 202-8252",
+     "page": "http://www.positiveindulgence.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.positiveindulgence.com/contact",
+   "socials": []
+  },
+  "040d2284-90de-4b4a-af84-cdede11067e8": {
+   "emails": [
+    {
+     "value": "IntrospectiveOdyssey@gmail.com",
+     "page": "http://www.power-of-touch.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "55afce7f-7123-4fa8-a1e5-36b0e27c8767": {
+   "emails": [
+    {
+     "value": "purehealingart@yahoo.com",
+     "page": "http://www.purehealingart.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 603-4790",
+     "page": "http://www.purehealingart.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "6bba4efb-2b30-46b2-8f4b-1177d95f9743": {
+   "emails": [
+    {
+     "value": "g.reyes@purebeautysaloncc.com",
+     "page": "https://purebeautysaloncc.com/contact-us/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": "https://purebeautysaloncc.com/contact-us/",
+   "socials": []
+  },
+  "9b1759d5-b975-4d35-ba9e-8726e56c950a": {
+   "emails": [
+    {
+     "value": "support@radiantxo.com",
+     "page": "http://radiantxo.com/pages/contact",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": "http://radiantxo.com/pages/contact",
+   "socials": []
+  },
+  "b85d8bc0-4a85-4b67-8cae-ce0fb4df7c5e": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "rareartistryskin.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "8af0426e-306a-4c60-a163-01382e89fb8f": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "rareartistryskin.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "a39ea3d1-f8f6-418f-b6a2-a7df6d90ace7": {
+   "emails": [
+    {
+     "value": "Itsraystouch@gmail.com",
+     "page": "https://rays-touch-body-sculpting.durable.site/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 844-8418",
+     "page": "https://rays-touch-body-sculpting.durable.site/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "888bbda9-cfac-473f-b247-2ded70198545": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 833-7108",
+     "page": "https://rejuviawellness.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "8bbe8a0f-2ef7-40a2-a983-307be1b134d5": {
+   "emails": [
+    {
+     "value": "frisco@relaxmyora.com",
+     "page": "http://www.relaxmyora.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "allen@relaxmyora.com",
+     "page": "http://www.relaxmyora.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 407-7314",
+     "page": "http://www.relaxmyora.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "ce51b4a1-eff6-4bfd-9766-2f3191ac815c": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "renewbeautymedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "2292e16d-db04-4507-8571-aaae484bae6b": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "restore.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "d1102ef4-8c21-42fa-b8a5-8b2c66200e72": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "restore.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "a1865e81-4998-4214-a3a8-6f8ce7c58942": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "restore.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "683eccf2-0f27-43c0-9c76-a7c1676798f6": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(515) 571-6301",
+     "page": "http://revitalizemassage.amtamembers.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://revitalizemassage.amtamembers.com/contact-me",
+   "socials": []
+  },
+  "2039bad2-5826-420f-8775-0ad6c054f81f": {
+   "emails": [
+    {
+     "value": "revivify@massagetherapy.com",
+     "page": "http://revivify.massagetherapy.com/contact-information",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 315-2959",
+     "page": "http://revivify.massagetherapy.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://revivify.massagetherapy.com/contact-information",
+   "socials": []
+  },
+  "755ba140-6058-416e-8486-009e7a9f757f": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "rosiesbeautyspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "773058b6-d90f-497b-9211-9185f8abe8f5": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "sabamedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "6a7cdcc8-bb05-4e6b-8416-0f796e84d427": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 288-3684",
+     "page": "http://www.sagerootshealing.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "60a35943-d273-47d5-aa45-d1f8b375da22": {
+   "emails": [],
+   "phones": [],
+   "contactPage": "https://salonboutique.com/contact-us/",
+   "socials": []
+  },
+  "e9e6c459-9ea6-4d8f-b7cc-5fcbcfa81c0f": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "Nothing on skinnbar.com names this business or its town, so we cannot show that the listing's website is really theirs. A contact read off someone else's site is an invented contact."
+  },
+  "25adf75d-cb6f-4780-ab4a-3a1eb09041c9": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(254) 420-8647",
+     "page": "https://dallasbarbershopsauccyfades.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://dallasbarbershopsauccyfades.com/contact",
+   "socials": []
+  },
+  "cc3df9ff-2346-4b18-b051-f2cdb1bbe9f0": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "vagaro.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "6401b56b-48a5-4d74-94b5-4ba552378c71": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "book.heygoldie.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "f0399f48-985f-4410-953c-c136ce4c9e70": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "upkeepmedspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "128ff4be-aaad-4f98-8f26-9b98caf967ac": {
+   "emails": [
+    {
+     "value": "happysmiles@sheeralternatives.com",
+     "page": "https://sheeralternatives.com/pages/contact",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 727-4496",
+     "page": "https://sheeralternatives.com/pages/contact",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://sheeralternatives.com/pages/contact",
+   "socials": []
+  },
+  "92ccdbf3-b9d0-4d30-9826-7e8249dd3d99": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(817) 907-1582",
+     "page": "https://simplysmoothskintherapy.com/contact/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://simplysmoothskintherapy.com/contact/",
+   "socials": []
+  },
+  "721a0c4f-b9f4-4d7c-934a-108273658eb5": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "dfwskinrx.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "86c2f77f-389b-47e2-8a1e-e3cc4448bed8": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "skinspamed.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "8eabb0e4-b3c2-4fc5-97b0-b2cc2c95626d": {
+   "emails": [
+    {
+     "value": "info@skintheoryllc.com",
+     "page": "http://skintheoryllc.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 456-7548",
+     "page": "http://skintheoryllc.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "c0df05ea-ab85-4afd-aa6c-ae136ae6334e": {
+   "emails": [
+    {
+     "value": "info@healthwellnessmd.com",
+     "page": "https://www.healthwellnessmd.com/skinfit-med-spa/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "c49ef773-f2df-41da-b4fd-0ec488e26cad": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(817) 372-6185",
+     "page": "https://somarwellnessspa.squarespace.com/book",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "eb8836a7-7ab5-47f1-8f1e-719978ed9d93": {
+   "emails": [
+    {
+     "value": "hello@spacastleusa.com",
+     "page": "http://tx.spacastleusa.com/contact/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "info@spacastleusa.com",
+     "page": "http://tx.spacastleusa.com/contact/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 446-6800",
+     "page": "http://tx.spacastleusa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://tx.spacastleusa.com/contact/",
+   "socials": []
+  },
+  "99eb61bf-fe15-4324-88d7-bf52b7baa64f": {
+   "emails": [
+    {
+     "value": "contact@lunamedaesthetics.com",
+     "page": "http://spadluna.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 859-9707",
+     "page": "http://spadluna.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "3bc3aacb-797a-4996-b1c7-c2947c4dc995": {
+   "emails": [
+    {
+     "value": "spafacenbody@gmail.com",
+     "page": "http://www.spafaceandbody.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 441-2800",
+     "page": "http://www.spafaceandbody.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "35482e09-ebfa-4af8-a98b-af9d3c317dcd": {
+   "emails": [
+    {
+     "value": "support@thespahaven.com",
+     "page": "https://thespahaven.com/contactus/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 668-7677",
+     "page": "http://thespahaven.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://thespahaven.com/contactus/",
+   "socials": []
+  },
+  "e9696529-a33c-4b59-9670-9e47b80946f4": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 304-9444",
+     "page": "http://spaviadayspa.com/plano-tx/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "cdcf4b28-b719-4d59-a670-1ebe913f713c": {
+   "emails": [
+    {
+     "value": "info@stoneiwc.com",
+     "page": "http://www.stoneiwc.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 473-2205",
+     "page": "http://www.stoneiwc.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "ae3438a3-645f-470f-ae2b-512301fe0425": {
+   "emails": [
+    {
+     "value": "confirm@stonebriarspa.com",
+     "page": "http://www.StonebriarSpa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 668-6108",
+     "page": "http://www.StonebriarSpa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "14e3a304-875b-4dbe-8168-bf4cde779eb3": {
+   "emails": [
+    {
+     "value": "info@studio77spa.com",
+     "page": "https://www.studio77spa.com/",
+     "how": "printed on the page"
+    },
+    {
+     "value": "onefinedayspa@yahoo.com",
+     "page": "https://www.studio77spa.com/contact",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 937-6401",
+     "page": "https://www.studio77spa.com/",
+     "how": "matches the phone on the business listing"
+    },
+    {
+     "value": "(972) 938-3332",
+     "page": "https://www.studio77spa.com/",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": "https://www.studio77spa.com/contact",
+   "socials": []
+  },
+  "ba12607b-3922-4725-af83-c07867026b06": {
+   "emails": [
+    {
+     "value": "management@belfiorespa.com",
+     "page": "https://belfiorespa.com/contact",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 771-8411",
+     "page": "https://belfiorespa.com/reserve-online",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://belfiorespa.com/contact",
+   "socials": [],
+   "caveat": "belfiorespa.com never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "32c34016-8abf-44f7-80e3-2c7e612e49d8": {
+   "emails": [
+    {
+     "value": "info@sslsalonsuites.com",
+     "page": "http://www.sslsalonsuites.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 399-1121",
+     "page": "http://www.sslsalonsuites.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "47b05cd0-53a3-45ed-ac95-1a6bc55d9e67": {
+   "emails": [
+    {
+     "value": "info@suteraspa.com",
+     "page": "https://www.suteraspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 899-5300",
+     "page": "https://www.suteraspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "f95e9d53-49d3-4544-8af7-6b50b9030d84": {
+   "emails": [],
+   "phones": [],
+   "contactPage": "http://www.sweethomebath.com/pages/contact",
+   "socials": []
+  },
+  "45660e05-1453-4bfc-9afb-7598e8e84821": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 597-1950",
+     "page": "http://www.sweetlemonspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "5f0f1ab8-20e0-4204-b9de-4d09f9a179b8": {
+   "emails": [],
+   "phones": [],
+   "contactPage": "http://www.sweetojas.com/aboutus/contact.html",
+   "socials": []
+  },
+  "673a4483-3c2a-4e2f-900b-5ab046fa627b": {
+   "emails": [
+    {
+     "value": "Tracee@t-alexandria.com",
+     "page": "https://www.t-alexandria.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 383-9005",
+     "page": "https://www.t-alexandria.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "93188be0-d621-480c-9b83-a6e8004e5cba": {
+   "emails": [
+    {
+     "value": "taoholisticspa@gmail.com",
+     "page": "http://TaoHolisticSpa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": "https://taoholisticspa.com/contact/",
+   "socials": []
+  },
+  "5c2a13ba-5d8e-44ed-bfbf-c0eff205f4c0": {
+   "emails": [
+    {
+     "value": "kgaley@gmail.com",
+     "page": "http://thai-sportmassage.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 502-4928",
+     "page": "http://thai-sportmassage.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "d2fe333e-b4a1-41cf-9d09-f615e9936f0e": {
+   "emails": [
+    {
+     "value": "customerservice@thebarberplug.com",
+     "page": "https://thebarberplug.com/collections/new-arrivals/products/immortal-nyc-reserve-cologne-1",
+     "how": "printed on the page"
+    },
+    {
+     "value": "business@thebarberplug.com",
+     "page": "https://thebarberplug.com/pages/contact-us",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 304-8375",
+     "page": "https://thebarberplug.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://thebarberplug.com/pages/contact-us",
+   "socials": []
+  },
+  "75ae1b37-8250-4196-8b89-0207dd81c0e3": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "Nothing on cherylmahady.glossgenius.com names this business or its town, so we cannot show that the listing's website is really theirs. A contact read off someone else's site is an invented contact."
+  },
+  "8f76816f-ebec-46e3-ae7f-720fc112f4cb": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(469) 345-7258",
+     "page": "http://www.thesaltretreat.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "7e17cf74-1751-4b3b-89f5-b32745d96e11": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "pocketsuite.io is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "8c8e3472-dc8b-48d9-b139-7cb4be93888d": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(682) 422-7903",
+     "page": "https://www.thespa-downtown.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "ac1cde74-8bf8-455e-898b-2c2a18372fd2": {
+   "emails": [
+    {
+     "value": "TheSpa1219@outlook.com",
+     "page": "http://www.thespaatiicreeks.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(972) 231-8731",
+     "page": "http://www.thespaatiicreeks.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "31150de8-1d84-483e-aec6-d7a9209b2218": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 414-7504",
+     "page": "http://www.rosewoodhotels.com/en/crescent-hotel-dallas/wellness/spa",
+     "how": "printed next to a word like call or phone"
+    }
+   ],
+   "contactPage": null,
+   "socials": [],
+   "caveat": "rosewoodhotels.com never names this business \u2014 only its town, which every national site with a branch here also does. Check it belongs to them before using it."
+  },
+  "120396ee-8a91-4d58-9d39-6fa1c5b0dea1": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "thetoxtechnique.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "0090e2a4-4a1a-4b0b-8cf8-51150c2ae472": {
+   "emails": [
+    {
+     "value": "help@mytotalskin.com",
+     "page": "http://www.mytotalskin.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "c78a5b47-67a1-41bd-9105-e2725f1c260c": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "ultimateimageskincare.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "4a246d88-339f-4d94-9731-c50029609830": {
+   "emails": [
+    {
+     "value": "info@vacationdayspa.com",
+     "page": "http://www.vacationdayspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(469) 314-1213",
+     "page": "http://www.vacationdayspa.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "dc84c2f1-3972-4c80-b8df-ae534b890cd4": {
+   "emails": [
+    {
+     "value": "Info@valenciabrows.com",
+     "page": "http://www.valenciabrows.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(214) 701-3949",
+     "page": "http://www.valenciabrows.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": null,
+   "socials": []
+  },
+  "99f1e42f-a9bf-455c-8cc4-6a61b77f2a61": {
+   "emails": [],
+   "phones": [
+    {
+     "value": "(214) 484-4714",
+     "page": "http://www.viviansdallas.com/",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "https://www.viviansdallas.com/contact/",
+   "socials": []
+  },
+  "7d9c630e-4508-49d3-a92a-b42df06c3f58": {
+   "emails": [
+    {
+     "value": "stacey_spa@yahoo.com",
+     "page": "http://www.viviansspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "1b5ebb8b-4216-4c75-8eeb-c8be54d67c6f": {
+   "emails": [
+    {
+     "value": "bodyworkjen@gmail.com",
+     "page": "http://www.wholesomamassage.com/contact",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [
+    {
+     "value": "(817) 706-0851",
+     "page": "http://www.wholesomamassage.com/contact",
+     "how": "matches the phone on the business listing"
+    }
+   ],
+   "contactPage": "http://www.wholesomamassage.com/contact",
+   "socials": []
+  },
+  "cff936dd-1e23-4481-b0fb-5cf8b234ae6a": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "xpresspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "60daf751-26a2-4140-8480-fc5aaa131d0a": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "xpresspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "c936013f-1c86-4cf4-b7ee-0f1b8e403adf": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "yayafootspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "eb82b92a-a238-42e0-8ea9-5f4f505f7d27": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "yayafootspa.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "a301f20f-695b-43cc-bf3d-0ad107d5ecb6": {
+   "emails": [
+    {
+     "value": "zaspahouston@hotelzaza.com",
+     "page": "https://www.hotelzaza.com/memorial-city/zaspa",
+     "how": "printed on the page"
+    },
+    {
+     "value": "Monarch@Hotelzaza.com",
+     "page": "https://www.hotelzaza.com/houston-museum-district/offers",
+     "how": "printed on the page"
+    },
+    {
+     "value": "BusinessTravelHouston@HotelZaZa.com",
+     "page": "https://www.hotelzaza.com/houston-museum-district/meetings/business-travel-offers",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "26047dcd-1bd0-4b07-bacd-d3600c2443f6": {
+   "emails": [
+    {
+     "value": "info@zionspa.com",
+     "page": "http://zionspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "bfb65d01-bb44-4a3e-8198-e83924aa36e5": {
+   "emails": [
+    {
+     "value": "info@zionspa.com",
+     "page": "http://zionspa.com/",
+     "how": "printed on the page"
+    }
+   ],
+   "phones": [],
+   "contactPage": null,
+   "socials": []
+  },
+  "c70574e2-23c8-403b-922a-67614ed721cc": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "book.heygoldie.com is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  },
+  "f3bff2b1-854a-4b12-b1c8-2fa1001afe9a": {
+   "emails": [],
+   "phones": [],
+   "contactPage": null,
+   "withheld": "booksy.info is used by this business and others elsewhere, so it is a chain or platform page rather than this location's own site. Anything published on it belongs to someone we cannot identify."
+  }
+ }
+}

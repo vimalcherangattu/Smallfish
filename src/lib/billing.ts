@@ -7,29 +7,69 @@
  * practice, "East Valley Implant & Periodontal Center" and "Dr. Joseph Capps".
  * Widening the check found the same shape via shared phone numbers.
  *
- * Measured across the three markets, records sharing a website with another
- * record: **451 domains in dental, 163 in med spa, 151 in HVAC.** Today only a
- * few hundred businesses per market have been read, so exactly one duplicate
- * has actually been billable — 2.4% of that market's matches. At full coverage
- * that is a percentage of every invoice, charged twice for one lead.
+ * Measured across the three markets, listings folded into the business
+ * they belong to: **326 of dental Phoenix's 2,778 records with a website
+ * (11.7%), 21 of Dallas med spa's 2,440 (0.9%), 10 of Tampa HVAC's 2,196
+ * (0.5%).** Today only a few hundred businesses per market have been read, so
+ * none is billable yet; at full coverage it is a percentage of every invoice,
+ * charged twice for one lead.
  *
  * A product that bills per matched business has to know what one business is,
  * and the candidate source does not: Overture carries a row per listing, and a
  * practice with a named dentist, a second suite or an old record has several.
  * Charging per row would be charging for our supplier's duplicates.
  *
- * **The rule: one website is one business.** Where there is no website, the
- * record is its own business, because nothing else here is reliable enough to
- * merge on — names differ by punctuation and addresses by suite line.
+ * **Retraction, same day.** This file first said "one website is one business",
+ * and called a chain billed once rather than per branch an acceptable cost. It
+ * is not acceptable, and the cost is much larger than that sentence implied:
+ * **23 Phoenix records share `aspendental.com`, 21 share `toothdoctorarizona.com`,
+ * 59 Dallas med spas share `linktr.ee` and 31 share `vagaro.com`.** Those are
+ * not duplicate listings. They are distinct practices — some a chain's real
+ * branches, some unrelated businesses that happen to use the same booking
+ * platform or link-in-bio page. Collapsing them would have hidden 22 real leads
+ * behind one Aspen Dental row and merged 59 unrelated med spas into a single
+ * "business". Under-billing was the smaller half of that mistake.
  *
- * The known cost of this rule is a genuine multi-location chain on one domain,
- * which is charged once rather than once per branch. That is the right way to
- * be wrong: the user is buying someone to contact, and a chain on one domain
- * is one conversation. It is also visible rather than hidden — a grouped row
- * says how many locations it stands for.
+ * **The rule is: one website *at one place* is one business.** Records sharing
+ * a domain are the same business only when they are also essentially at the
+ * same address — within `SAME_PLACE_METRES`. Where there is no website, the
+ * record is its own business, because nothing else here merges reliably:
+ * names differ by punctuation and addresses by suite line.
+ *
+ * Distance is what separates the two cases, and it separates them sharply.
+ * Pairs sharing a domain, in dental Phoenix:
+ *
+ *                       same place (<200m)     20km or more apart
+ *   groups of 2–3               245                   120
+ *   groups of 4+                149                 1,012
+ *
+ * Small groups are mostly one practice listed twice. Large groups are branches
+ * of a chain scattered across a metro — and the 149 co-located pairs inside
+ * them are two listings of one branch, which is exactly what should still
+ * merge. One rule covers both.
  */
 
 import type { Business } from "@/lib/types";
+
+/**
+ * How close two listings on one domain must be to be one business.
+ *
+ * 200m is a building, not a neighbourhood: it merges a practice listed at
+ * "1 Main St" and "1 Main St, Suite 4", and keeps two branches of a chain in
+ * the same shopping district apart.
+ */
+export const SAME_PLACE_METRES = 200;
+
+function metresBetween(a: Business, b: Business): number {
+  const R = 6_371_000;
+  const p = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * p;
+  const dLon = (b.lon - a.lon) * p;
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(a.lat * p) * Math.cos(b.lat * p) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
 
 /** Bare host, lowercased, `www.` and path removed. */
 export function hostOf(url: string | null | undefined): string | null {
@@ -72,17 +112,40 @@ export type Grouped = {
  * group size tells them what was folded in.
  */
 export function groupForBilling(businesses: Business[]): Grouped[] {
-  const groups = new Map<string, Business[]>();
+  const byDomain = new Map<string, Business[]>();
   for (const b of businesses) {
     const key = billingKey(b);
-    const list = groups.get(key);
+    const list = byDomain.get(key);
     if (list) list.push(b);
-    else groups.set(key, [b]);
+    else byDomain.set(key, [b]);
   }
-  return [...groups.entries()].map(([key, all]) => ({
-    key,
-    all,
-    lead: all.reduce((best, b) => (score(b) > score(best) ? b : best), all[0]),
+
+  const out: Grouped[] = [];
+  for (const [key, rows] of byDomain) {
+    // A record with no website is already alone, and so is a lone listing.
+    if (rows.length === 1 || key.startsWith("id:")) {
+      out.push({ key, all: rows, lead: rows[0] });
+      continue;
+    }
+    // Within a domain, split by place. Single-linkage on 200m, which is what
+    // keeps 23 Aspen Dental branches apart while still merging the two
+    // listings of any one of them.
+    const clusters: Business[][] = [];
+    for (const b of rows) {
+      const near = clusters.find((c) =>
+        c.some((other) => metresBetween(other, b) <= SAME_PLACE_METRES),
+      );
+      if (near) near.push(b);
+      else clusters.push([b]);
+    }
+    clusters.forEach((all, i) =>
+      out.push({ key: clusters.length > 1 ? `${key}#${i}` : key, all, lead: all[0] }),
+    );
+  }
+
+  return out.map((g) => ({
+    ...g,
+    lead: g.all.reduce((best, b) => (score(b) > score(best) ? b : best), g.all[0]),
   }));
 }
 

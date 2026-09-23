@@ -1,0 +1,6 @@
+{
+ "market": "vet-columbus",
+ "source": "published on the business's own website",
+ "socials": "not extracted \u2014 social links are icon anchors, so they live in href attributes and the probe stores visible text only. Needs a fetcher change, not a guess.",
+ "contacts": {}
+}

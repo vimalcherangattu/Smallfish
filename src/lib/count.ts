@@ -140,11 +140,12 @@ export function freeCount(args: {
   // chosen by the crawler, not at random, so a rate measured on it is only as
   // representative as that ordering was. `frameLimited` says when this applies.
   //
-  // Both are deduplicated first. Overture carries a row per listing, and 830
-  // of dental Phoenix's 2,778 records with a website share a domain with
-  // another — 30%. Projecting onto listings would promise a third more matches
-  // than we would ever bill for, and reading the same site twice in a sample
-  // of 25 would make the rate a measurement of our supplier's duplicates.
+  // Both are deduplicated first. Overture carries a row per listing, and 326
+  // of dental Phoenix's 2,778 records with a website are a second listing of a
+  // business already in the set — 11.7%. Projecting onto listings would promise
+  // more matches than we would ever bill for, and reading the same site twice
+  // in a sample of 25 would make the rate a measurement of our supplier's
+  // duplicates.
   const population = groupForBilling(businesses.filter((b) => b.site)).map(
     (g) => g.lead,
   );

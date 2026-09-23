@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import IcpBuilder from "@/components/IcpBuilder";
-import Results, { VerdictDot } from "@/components/Results";
+import Results, { VerdictDot, type PublishedContact } from "@/components/Results";
 import SearchConfirm from "@/components/SearchConfirm";
 import type { Candidate } from "@/lib/icp";
 import { bboxOf, contains, areaSqMiles, type Region } from "@/lib/geo";
@@ -68,6 +68,22 @@ export default function Page() {
       .catch(() => setIndex(null));
   }, []);
 
+  /** Published contacts for the current market (S1-05), loaded beside it. */
+  const [contacts, setContacts] = useState<Record<string, PublishedContact>>({});
+  useEffect(() => {
+    let cancelled = false;
+    setContacts({});
+    fetch(`data/contacts-${marketId}.json`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled && d?.contacts) setContacts(d.contacts);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [marketId]);
+
   // Markets already fetched, so the free count on the confirm screen can sample
   // a market the map is not currently showing without refetching megabytes.
   const [loaded, setLoaded] = useState<Record<string, Market>>({});
@@ -112,8 +128,8 @@ export default function Page() {
    * Deduplicated once, here, so that every number downstream counts the same
    * way the invoice does. Doing it only in the export was the bug: the chip
    * said 42 matches, the headline said 41 and the file wrote 41, and all three
-   * were describing the same region. 830 of dental Phoenix's 2,778 records
-   * with a website share a domain with another.
+   * were describing the same region. 326 of dental Phoenix's 2,778 records
+   * with a website are a second listing of a business already in the set.
    */
   const inRegion = useMemo(
     () => groupForBilling(recordsInRegion).map((g) => g.lead),
@@ -570,6 +586,7 @@ export default function Page() {
                 primaryCriterionId={criterionId}
                 reported={reported}
                 onReport={report}
+                contacts={contacts}
               />
             </div>
 
