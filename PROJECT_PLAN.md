@@ -28,9 +28,9 @@ plan wins and the Decision log records why.
 
 | Stage | Status | Gate | Gate met? |
 |---|---|---|---|
-| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | All 3 niches now measured on one engine. **Gate item 4 passes on the 1-criterion market ($0.029) and fails on both 2-criterion markets ($0.137, $0.179)** — cost per match varies 6× while **cost per business read is flat at $0.0168 ± 0.0002**. The failure is the billable unit, and S0-22 is now the deciding task |
+| 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | All 3 niches measured on one engine. **Gate item 4 is retired** — it compared a measured cost against a threshold derived from an unvalidated price. Replaced by band-specific cost per credit: dental $0.0294 (band 1), med spa $0.0687 (band 2), HVAC $0.0596 (band 3), **all inside every plan's margin**. Cost per business read is flat at $0.0168 ± 0.0002 |
 | 1 · Launch | Not started | 50 paying users; live precision ≥ 90% | — |
-| 2 · Grow | Not started | 300 paying; churn ≤ 6%; cost/match ≤ $0.04 | — |
+| 2 · Grow | Not started | 300 paying; churn ≤ 6%; **cost per credit ≤ $0.07 in every band** | — |
 | 3 · Compound | Not started | 1,000 paying; ≥ 50% warm reads | — |
 | 4 · Relevance layer | Not started | — | — |
 
@@ -66,7 +66,10 @@ plan wins and the Decision log records why.
 | Human could not establish truth | — | 17 of 70 (24%) | 2026-09-21 |
 | Cold cost per business | ≤ $0.010 | **$0.0032 Sonnet 5** ✓ over 1,000, 696 cold-fetched (Haiku $0.0011, Opus $0.0074) | 2026-09-21 |
 | Warm cost per business | ≤ $0.002 | — | — |
-| **Blended cost per match** | ≤ $0.04 | **$0.0294** ✓ over 1,000 businesses, 260 matches, 461 model calls. Settling generic hits is $0.0236 but costs 25 points of recall | 2026-09-22 |
+| **Cost per credit, by band** | ≤ $0.07 | **band 1 $0.0294 · band 2 $0.0687 · band 3 $0.0596** ✓ — replaces "blended cost per match ≤ $0.04", which priced against a threshold no buyer had validated | 2026-09-23 |
+| — the same figure unbanded, for reference | — | $0.0294 / $0.1374 / $0.1787 — a 6.1× spread, which is what the bands exist to collapse (to 2.34×) | 2026-09-23 |
+| **Worst-case loss on one scan** | bounded | **$3.36**, any plan, any criterion — 200 reads before the first solvency check | 2026-09-23 |
+| **Worst-case period loss, nothing matching** | ≥ $0 on every paid plan | Starter +$6.82 · Growth +$5.08 · Agency +$14.20 · Watch +$11.61 · **Pack +$0.52** | 2026-09-23 |
 | — Google gap-fill discovery, measured | — | **$0.0079 per business discovered** | 2026-09-21 |
 | — break-even cold read cost, worst market | — | $0.0043/business — **measured read is $0.0020, inside it** | 2026-09-21 |
 | Proof validity (quote found verbatim in fetched text) | high | **100%** (11 of 11 model verdicts) | 2026-09-21 |
@@ -114,13 +117,18 @@ candidates, judge them accurately, and do both for less than it charges.
 **Gate to Stage 1.** All four must hold on three real niche searches:
 
 1. Open-data **overlap** ≥ 70% of Google's places per niche (or a costed gap-fill plan
-   that keeps blended cost per match ≤ $0.04). *Restated from "count" — Google's API
-   caps at 60 results and cannot yield a count; see the Decision log, 2026-09-21.*
+   that keeps cost per credit inside the band budget). *Restated from "count" — Google's
+   API caps at 60 results and cannot yield a count; see the Decision log, 2026-09-21.*
    **Measured: fails for HVAC on every reading, passes for veterinary, undecided for
    med spa and dental.**
 2. Blended match precision ≥ 90% **and** absence-criterion precision ≥ 90%.
 3. Known-match recall ≥ 60%.
-4. Measured blended cost per match ≤ $0.04.
+4. **Cost per credit ≤ $0.07 in every band.** *Restated from "blended cost per match
+   ≤ $0.04" for the same reason item 1 was restated: the threshold's numerator — what a
+   buyer pays per matched lead — was an assumption, not a measurement, and the aggregate
+   it was applied to made a one-criterion market look solvent and a two-criterion market
+   look broken when the only difference was arithmetic. See the Decision log,
+   2026-09-22 and 2026-09-23.* **Measured: passes in all three bands.**
 
 If (2) fails on absence criteria only, narrow to the niches and criteria where Small Fish
 wins rather than abandoning — that is the response the founding documents already chose.
@@ -283,9 +291,14 @@ wins rather than abandoning — that is the response the founding documents alre
   *without* breakage. *Done when:* the model consumes S0-15 output and prints margin per
   plan at measured match rates.
 - [ ] **S0-23 · Model the alert engine cost** from S0-20 and set per-plan saved-search
-  candidate budgets.
+  candidate budgets. **Model the gated cycle, not the naive one:** a week costs one
+  crawl per watched business (no model call) plus a re-judge only on those whose
+  **signals hash** moved. The same-day noise floor already says the gate is worth having
+  — raw HTML 31.7% vs judged signals 0.0% — so a model built on raw-byte change would
+  overstate the bill by roughly the ratio between those two. What is still missing is
+  the numerator: the seven-day signals-change rate, due 2026-09-30. *Blocked on S0-20.*
 - [ ] **S0-24 · Re-budget GTM model spend** at the real page target (Change 8).
-- [x] **S0-25 · Decide pricing** against measured costs. **Decided 2026-09-23** (`docs/pricing-decision.md`):
+- [x] **S0-25 · Decide pricing** against measured costs. **Decided 2026-09-23** (`docs/PRICING.md`, with amendments of the same date recorded in its §4):
   bill per matched business, **banded 1× / 2× / 3× by sample match rate**, band shown on the
   confirm screen before anything is spent. Non-matches and couldn't-tell stay free, as counts
   and reasons only. Plans $0 / $29 / $79 / $199 plus Watch $19 and a $19 pack. The 2× rare-search
@@ -380,24 +393,59 @@ Features 1–6 from the product document, plus the corrections above.
   no UI. *Depends on:* S1-20.
 - [ ] **S1-02 · Free match count** from a sample, streaming and tightening, with three
   proven samples shown free. Anonymous limits set from the S0 cost model, not from the
-  founding document's 5/day (Critique 5).
+  founding document's 5/day (Critique 5). **Sample 25, cached by query for 7 days,
+  2/day anonymous per device+IP then email signup, 20/day logged in** — measured at
+  $0.42 per anonymous count, against $1.01 at the 60 the founding document assumed.
+  The sample also **quotes the band** shown on the confirm screen. It cannot do more
+  than that: one match in 25 has a 95% interval of [0.7%, 19.5%], so the count is a
+  quote and a band, never a solvency judgement — that belongs to S1-04's live abort.
+  Programmatic pages serve a **stored** count and never scan per visitor (→ S1-14).
 - [ ] **S1-03 · Cold-market UX** (Change 11): streamed partial counts, a fast path to the
   first three matches, and an honest "reading this market, we'll email you" state.
 - [ ] **S1-04 · Results table with proof**, three statuses, side panel per criterion, and
-  one-click wrong-result reporting with automatic refund.
+  one-click wrong-result reporting with automatic refund. Carries the two guardrails
+  from `src/lib/pricing.ts`, both already coded and tested:
+  - **Non-match privacy.** Non-matches and couldn't-tell surface as **counts and reasons
+    only** — no names, no domains, no export, nothing that reconstitutes the candidate
+    list. This is not a UI preference: charging only for matches means an impossible
+    criterion would otherwise hand over a whole market for free. No-website businesses
+    are a **paid unlock at 0.25 credits**, sold rather than leaked.
+  - **Scan budget and live abort.** 11 reads per remaining credit, and `checkRunHealth`
+    stops a run at 200 / 400 / 800 / 1,600 reads when its live match rate can no longer
+    pay for its own reading. When it stops, the table says how many were read, how many
+    matched and what to change — the refusal is the product surface, so it has to be
+    legible to someone who is paying.
 - [ ] **S1-05 · Published contacts** — website, phone, public email, contact form, socials,
   each with provenance. Nothing invented.
 - [x] **S1-06 · Export to CSV with proof columns.** Every row carries, per criterion, the
   verdict, the evidence and the one-line "how this is checked", plus a `why_it_matched`
   sentence usable in a cold email as written, and a `billable` column so the pricing
-  promise is visible in the file itself. Non-matches export too, with their reason —
+  promise is visible in the file itself. 14 tests cover the quoting, because a CSV bug
+  does not raise, it silently shifts every column of someone's spreadsheet.
+  **Amended 2026-09-23: the file now carries matched rows only.** It used to export
+  non-matches as full rows — name, phone and website included — on the reasoning that
   "this site blocks automated reading" is worth more to the user than a silently dropped
-  row. 10 tests cover the quoting, because a CSV bug does not raise, it silently shifts
-  every column of someone's spreadsheet.
+  row. That reasoning survives, in `nonMatchSummary`, which gives the counts and reasons
+  without the identities. What was wrong was the identity travelling with them: billing
+  only for matches means a criterion nothing satisfies would have handed over an entire
+  market's contact list for free, and that is the one attack the pricing has no other
+  answer to. The export button now states how many rows the file will carry, because a
+  button that exports fewer rows than the table shows, without saying so, is how people
+  stop trusting a file they are about to send to a client.
 - [ ] **S1-06b · Google Sheets export and duplicate protection.** Needs accounts, so it
   follows S1-08.
 - [ ] **S1-07 · Saved searches and alerts**, with the candidate-volume budget from S0-23
-  enforced.
+  enforced. **Alerts gate on the signals hash**, not on raw HTML or visible text.
+  Measured on 60 dental sites re-read the same day, where nothing real had changed:
+  raw HTML **31.7%** "changed", visible text 6.7%, normalised text 5.0%, judged signals
+  **0.0%**. Raw-byte alerting would re-judge a third of the book every week to discover
+  nothing moved — the cost scales with retention, so it compounds in the direction
+  nobody notices until the bill arrives. Re-crawl, compare the signals hash, and pay for
+  a re-judge only where something the rubric could care about moved (`change_rate.py`).
+  Also carries the **subscription-supply** surfaces the pricing decision requires: a
+  monthly digest per saved search split into new / changed / newly-unblocked (counts
+  free, names on unlock), a market-depletion meter ("310 of ~400 unlocked here"),
+  expansion suggestions with estimated counts, and pause-instead-of-cancel.
 - [ ] **S1-08 · Accounts, billing and plans** (Free, Starter, Growth) plus packs, on Stripe.
 - [ ] **S1-09 · Business opt-out flow** — public form, ownership verification via listed
   domain or phone, suppression within 7 days, with honest wording about already-exported
@@ -432,12 +480,23 @@ Features 1–6 from the product document, plus the corrections above.
 | MRR | $600 | $2,200 | **$4,000–4,500** |
 | Programmatic pages (saturation set) | 100 | 300 | 600 |
 | Live match precision | ≥ 90% | ≥ 90% | ≥ 90% |
+| **Markets per user per quarter** — share of paying users running a **second** market | — | **≥ 60%** | ≥ 60% |
+
+**Why markets-per-user is now a headline metric.** It is the earliest honest signal of
+whether a subscription is the right shape at all. A metro niche holds roughly 300–500
+matches and Starter's allowance is 120, so the first market is three to four months of
+supply — after that, renewal depends on the customer having somewhere else to look.
+The subscription's real supply is drip + newly-unblocked + **expansion**, and expansion
+is the only unbounded one. If this metric sits at 1, **packs are the honest product and
+the subscription is not**, which is a pricing-model change rather than a growth problem.
+Tracked from day 60 because that is when the first cohort's first market runs dry.
 
 ---
 
 ## Stage 2 — Grow
 
-**Gate to Stage 3.** 300 paying users; churn ≤ 6%; blended cost per match ≤ $0.04.
+**Gate to Stage 3.** 300 paying users; churn ≤ 6%; cost per credit ≤ $0.07 in every band;
+**≥ 60% of paying users running a second market by day 60** (see Metrics).
 
 - [ ] **S2-01 · Templates library** with public SEO pages showing live counts.
 - [ ] **S2-02 · Integrations** — HubSpot, Instantly, Smartlead, webhook.
@@ -483,7 +542,8 @@ Carried from the founding documents, with the critique's additions marked **new*
 | **Absence-criterion precision fails while blended passes** (new) | S0-17 per-criterion report | Narrow launch criteria to provable ones; invest in the absence-proof rule |
 | **Alert costs scale with retention** (new) | S0-20, then monthly cost report | Candidate-volume budgets per plan; longer default cycles |
 | **Cold-market latency kills first impressions** (new) | p95 time-to-first-match | Cold-market UX; pre-warm the saturation set before promoting it |
-| Blended cost per match above $0.05 | Monthly cost report | Raise prices or trim allowances before scaling acquisition |
+| Cost per credit above $0.07 in any band | Monthly cost report | Raise prices or trim allowances before scaling acquisition |
+| **Markets per user stays at 1** (new) | Second-market rate at day 60 | Packs become the headline product and the subscription is repriced — this is the falsifier for the whole subscription shape, not a growth problem |
 | Scrap.io or Exa ships local AI criteria | Competitor changelogs | Published benchmarks; proof UX; pay-per-match |
 | Cold email deliverability collapses | Bounce > 3% | Lower volume, rotate inboxes, lean on communities |
 | Low-price churn | Monthly churn > 8% | Saved searches, annual plans, Agency tier |
@@ -641,3 +701,6 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-23 | **The daily read caps bounded nothing, and credits are not a budget when nothing matches** | Charging only for matches means a criterion that matches nothing **never depletes a balance**, so the balance is not a limit and the daily cap was the only one — at Starter's 2,500 reads/day that is $42 of reading a day against $29 a month, and Agency's 20,000/day is $336 a day against $199 a month. A cap set above a plan's entire monthly revenue is not a cap. Replaced with a **period read allowance of 11 reads per credit**, derived from the most reading a legitimate run can need (spending a whole balance in the worst band at the no-hope floor: `1 / (3 × 3%)` = 11.1). Worst case per period, nothing ever matching: Starter $22.18 of reading against $29, Growth $73.92 against $79, Agency $184.80 against $199, Watch $7.39 against $19, **Pack $18.48 against $19**. Every paid plan survives; Pack's $0.52 is the thinnest thing in the pricing and is the number to watch. Rounding the allowance up to 12 instead of down to 11 would put Pack at $20.16 against $19 — **at the no-hope floor, "let the customer spend every credit" and "never lose money on a Pack" are the same constraint from opposite sides.** |
 | 2026-09-23 | **The quoted band is a ceiling, not a price** | Sampling error cuts both ways, and the other direction is unfair to the customer rather than to us: one match in 25 quotes band 3, but its true rate could be 19%, so a customer would pay three credits a match for something common purely because of who landed in their sample. A completed scan is now billed at **the cheaper of the quoted band and the band its delivered rate earns**. The asymmetry is what lets the confirm screen show a number before anything is spent — what was shown can only go down. |
 | 2026-09-23 | **The free tier's cost is its reading, not its credits** | "Free counts ≤ $0.45" and "the free tier costs $1.37" are both true and both measure the wrong thing: they price the credits, and credits are only spent on matches. A free user whose searches match nothing spends no credits at all. Under the read allowance the real figure is **$3.70 per free user per period** (220 reads), bounded and known rather than unbounded and unnoticed — the old 300 reads/day would have been $151 a month at zero revenue. |
+| 2026-09-23 | **The CSV export was handing over the whole market for free, and S1-06 is amended rather than defended** | The shipped export wrote `name`, `phone` and `website` for every row including non-matches, on a reasoning recorded in the file itself: knowing *why* a business was skipped is worth more than silently dropping it. That half is right and is kept as `nonMatchSummary` — counts and reasons, no identities. The other half was the hole: billing only for matches means **a criterion nothing satisfies would have exported an entire market's contact list at no charge**, and unlike every other cost path this one has no guardrail that could catch it, because no money is being spent to trigger one. The export now carries matched rows only. Two tests were added that fail if a non-match's name, phone, address or domain appears anywhere in the file. |
+| 2026-09-23 | **Gate item 4 restated: "blended cost per match ≤ $0.04" becomes "cost per credit ≤ $0.07 in every band"** | The same defect gate item 1 had. The $0.04 threshold's numerator — what a buyer pays per matched lead — was an assumption nobody had validated, and applying it to a blended aggregate made a one-criterion market look solvent ($0.029) and a two-criterion market look broken ($0.137, $0.179) when the only difference between them was that match rates multiply. Band-specific costs are measured, not assumed: **$0.0294 / $0.0687 / $0.0596 per credit**, and the gate now passes in all three. The engineering finding the old gate was surfacing does not go away and is not excused — a two-criterion search compounds cost per match — it is just no longer scored against an invented number. |
+| 2026-09-23 | **Markets per user per quarter added as a headline metric, target ≥ 60% on a second market by day 60** | It is the earliest honest test of whether a subscription is the right shape. A metro niche holds ~300–500 matches against Starter's 120 credits, so the first market is three to four months of supply and renewal then depends on expansion — the only unbounded supply of the four (drip, newly-unblocked, market change, expansion). **If it sits at 1, packs are the honest product and the subscription is not.** That is a pricing-model falsifier, so it belongs in the risk register rather than in a growth dashboard, and it is now in both. |

@@ -8,8 +8,9 @@ import SearchConfirm from "@/components/SearchConfirm";
 import type { Candidate } from "@/lib/icp";
 import { bboxOf, contains, areaSqMiles, type Region } from "@/lib/geo";
 import { COST, compact, estimateCost, money } from "@/lib/cost";
-import { downloadCsv, toCsv } from "@/lib/csv";
+import { downloadCsv, overallVerdict, toCsv } from "@/lib/csv";
 import {
+  BILLABLE,
   VERDICT_LABEL,
   type Market,
   type MarketIndex,
@@ -125,6 +126,16 @@ export default function Page() {
         show.has((b.verdicts[criterionId]?.verdict ?? "unread") as VerdictKind),
       ),
     [inRegion, criterionId, show],
+  );
+
+  // How many of the visible rows the CSV will actually carry. Matched rows
+  // only — see `src/lib/csv.ts`.
+  const exportable = useMemo(
+    () =>
+      market
+        ? visible.filter((b) => BILLABLE[overallVerdict(b, market.criteria)]).length
+        : 0,
+    [visible, market],
   );
 
   function toggle(kind: VerdictKind) {
@@ -400,10 +411,22 @@ export default function Page() {
                   const csv = toCsv(visible, market.criteria);
                   downloadCsv(`smallfish-${market.id}.csv`, csv);
                 }}
-                disabled={!visible.length}
+                disabled={!exportable}
+                // The file carries matched rows only, so the button says how
+                // many that is. A button that exports fewer rows than the table
+                // shows, without saying so, is how people lose trust in a file
+                // they are about to send to a client.
+                title={
+                  exportable < visible.length
+                    ? `${visible.length - exportable} non-matches stay out of the file — ` +
+                      `you did not unlock them, so their names are not yours to export. ` +
+                      `Their reasons are in the summary above.`
+                    : undefined
+                }
                 className="rounded-md border border-[var(--line)] px-2.5 py-1 text-[11px] font-medium hover:bg-[var(--accent-soft)] disabled:opacity-40"
               >
-                Export CSV with proof
+                Export {compact(exportable)} matched row
+                {exportable === 1 ? "" : "s"} with proof
               </button>
             </div>
 
