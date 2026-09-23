@@ -64,7 +64,8 @@ export default function Home() {
           <div className="flex items-center gap-8">
             <a href="#demo" className="navlink hidden sm:inline">Try it</a>
             <a href="#why" className="navlink hidden sm:inline">Why it exists</a>
-            <a href="#markets" className="navlink hidden sm:inline">Markets</a>
+            <Link href="/templates" className="navlink hidden sm:inline">Templates</Link>
+            <Link href="/benchmark" className="navlink hidden sm:inline">Benchmark</Link>
             <Link href="/pricing" className="navlink hidden sm:inline">Pricing</Link>
             <Link
               href="/app"
@@ -436,9 +437,9 @@ export default function Home() {
               </p>
             </div>
             {[
-              ["Product", [["Try it", "/app"], ["Markets", "/find/dental-practices-with-no-online-booking-phoenix"], ["Pricing", "/pricing"]]],
-              ["Company", [["Why it exists", "#why"], ["Compare", "/compare"], ["Remove my business", "/opt-out"]]],
-              ["Small print", [["How we crawl", "/opt-out"], ["What we do not do", "/compare"]]],
+              ["Product", [["Try it", "/app"], ["Templates", "/templates"], ["Markets", "/find/dental-practices-with-no-online-booking-phoenix"], ["Pricing", "/pricing"]]],
+              ["Company", [["Why it exists", "#why"], ["The benchmark", "/benchmark"], ["Compare", "/compare"], ["Remove my business", "/opt-out"]]],
+              ["Small print", [["How we crawl", "/opt-out"], ["What we do not do", "/compare"], ["What we get wrong", "/benchmark"]]],
             ].map(([title, links]) => (
               <div key={title as string}>
                 <span className="lab" style={{ color: "#5B6470" }}>{title as string}</span>

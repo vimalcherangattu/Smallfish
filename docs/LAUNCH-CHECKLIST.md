@@ -220,4 +220,17 @@ So you know what these unlock rather than taking it on trust:
   drafts that refuse without evidence · ICP discovery · the full credit ledger ·
   opt-out and suppression · event instrumentation · marketing site, pricing,
   comparison and programmatic pages · sitemap and robots.
-- 28 test files, run with `python3 stage0/tests/run_all.py`.
+- **The templates library** at `/templates` (S2-01) and **the published
+  benchmark** at `/benchmark` (S2-04) — the two Stage 2 items that needed none
+  of the above. The benchmark page is the one to lead Show HN with, per item 7.
+- 30 test files, run with `python3 stage0/tests/run_all.py`.
+
+One thing to add to item 3, the 30 September run: after any new measurement
+lands in `PROJECT_PLAN.md`, re-run
+
+```bash
+python3 stage0/src/benchmark/export_benchmark.py
+```
+
+or the public benchmark page keeps showing the old number. The test suite fails
+until you do, which is the point.

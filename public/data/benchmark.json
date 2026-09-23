@@ -1,0 +1,116 @@
+{
+  "generatedFrom": "PROJECT_PLAN.md \u00b7 Live numbers",
+  "oldest": "2026-09-20",
+  "newest": "2026-09-23",
+  "rows": [
+    {
+      "id": "precision",
+      "label": "Precision on matches we charge for",
+      "metric": "Match precision, blended",
+      "target": "\u2265 90%",
+      "measured": "100.0% \u2713 PASSES \u2014 41 positive calls, 0 false positives, CI 91.4\u2013100%. 72 enriched hand labels. Dental only; the gate wants three niches",
+      "date": "2026-09-22"
+    },
+    {
+      "id": "precision_absence",
+      "label": "Precision on absence criteria alone",
+      "metric": "Match precision, absence criteria only",
+      "target": "\u2265 90%",
+      "measured": "100.0% \u2713 (lower bound 91.4%, 41 calls) \u2014 the gate reads this separately and it passes too",
+      "date": "2026-09-22"
+    },
+    {
+      "id": "recall",
+      "label": "Recall against a hand-built true-match set",
+      "metric": "Known-match recall (delivered)",
+      "target": "\u2265 60%",
+      "measured": "55.0% (11 of 20), CI 34.2\u201374.2% \u2014 UNDECIDED, no longer failing. Was 30.0% before generic detector hits were escalated to the model",
+      "date": "2026-09-22"
+    },
+    {
+      "id": "recall_ceiling",
+      "label": "The ceiling the crawl imposes on recall",
+      "metric": "Recall ceiling with the current crawl",
+      "target": "\u2014",
+      "measured": "75% (15 of 20 true matches readable). At 55.0% delivered, 3 abstentions separate the engine from the 60% target",
+      "date": "2026-09-22"
+    },
+    {
+      "id": "couldnt_tell",
+      "label": "Couldn't-tell, on sites we could read",
+      "metric": "Couldn't-tell on readable sites",
+      "target": "\u2264 25%",
+      "measured": "24.5% \u2713 over 1,000 businesses \u2014 thin margin, 11.8% if generic hits settle",
+      "date": "2026-09-22"
+    },
+    {
+      "id": "genuine_couldnt_tell",
+      "label": "Couldn't-tell, all causes separated",
+      "metric": "Genuine couldn't-tell (reachable, still unjudgeable)",
+      "target": "\u2264 25%",
+      "measured": "19.0\u201325.3% \u2713",
+      "date": "2026-09-20"
+    },
+    {
+      "id": "proof_validity",
+      "label": "Proofs found verbatim in the fetched page",
+      "metric": "Proof validity (quote found verbatim in fetched text)",
+      "target": "high",
+      "measured": "100% (11 of 11 model verdicts)",
+      "date": "2026-09-21"
+    },
+    {
+      "id": "cost_cold",
+      "label": "Cost to read and judge one business, cold",
+      "metric": "Cold cost per business",
+      "target": "\u2264 $0.010",
+      "measured": "$0.0032 Sonnet 5 \u2713 over 1,000, 696 cold-fetched (Haiku $0.0011, Opus $0.0074)",
+      "date": "2026-09-21"
+    },
+    {
+      "id": "cost_per_credit",
+      "label": "What a credit costs us, by band",
+      "metric": "Cost per credit, by band",
+      "target": "\u2264 $0.07",
+      "measured": "band 1 $0.0294 \u00b7 band 2 $0.0687 \u00b7 band 3 $0.0596 \u2713 \u2014 replaces \"blended cost per match \u2264 $0.04\", which priced against a threshold no buyer had validated",
+      "date": "2026-09-23"
+    },
+    {
+      "id": "coverage",
+      "label": "Open-data coverage against Google",
+      "metric": "Open-data coverage vs Google \u2014 overlap, not count (S0-04)",
+      "target": "\u2265 70%",
+      "measured": "veterinary 73.1\u201386.0% \u2713 \u00b7 dental 63.8\u201394.3% ? \u00b7 med spa 45.4\u201379.3% ? \u00b7 HVAC 31.1\u201347.8% \u2717",
+      "date": "2026-09-21"
+    },
+    {
+      "id": "wrong_website",
+      "label": "Businesses whose listed website is wrong \u2014 a ceiling on precision",
+      "metric": "Source data has the wrong website",
+      "target": "\u2014",
+      "measured": "5 of 70 (7%) \u2014 caps achievable precision",
+      "date": "2026-09-21"
+    },
+    {
+      "id": "noise_floor",
+      "label": "Run-to-run noise: the same code, the same corpus, twice",
+      "metric": "\u2014 measurement noise floor, identical code and frozen corpus",
+      "target": "\u2014",
+      "measured": "precision read 71.4% then 83.3% on two runs that differed in nothing. Below the Haiku\u2192Sonnet gap, no engine change is distinguishable from this",
+      "date": "2026-09-21"
+    },
+    {
+      "id": "settled_no_model",
+      "label": "Criteria settled with no model call at all",
+      "metric": "Criteria settled with no model call (the cost lever, S0-10)",
+      "target": "measure",
+      "measured": "35 of 100 dental criteria, live. 56.0\u201357.4% where a detector exists (2026-09-20) still stands",
+      "date": "2026-09-21"
+    }
+  ],
+  "notYetMeasured": [
+    "Warm cost per business",
+    "Weekly profile change rate (drives alert cost)",
+    "p95 time to first match, cold market"
+  ]
+}

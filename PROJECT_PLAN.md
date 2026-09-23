@@ -573,10 +573,34 @@ Tracked from day 60 because that is when the first cohort's first market runs dr
 **Gate to Stage 3.** 300 paying users; churn ≤ 6%; cost per credit ≤ $0.07 in every band;
 **≥ 60% of paying users running a second market by day 60** (see Metrics).
 
-- [ ] **S2-01 · Templates library** with public SEO pages showing live counts.
-- [ ] **S2-02 · Integrations** — HubSpot, Instantly, Smartlead, webhook.
+**Started early, and only where nothing in Stage 1 blocks it.** S1 is not finished —
+S1-07, S1-08's card step, S1-22, S1-06b's Sheets half and the four GTM items are all
+waiting on a credential, a date or a person. S2-01 and S2-04 need none of them, and
+S2-04 in particular is what S1-19 is supposed to launch *on*. The rest of Stage 2 waits.
+
+- [x] **S2-01 · Templates library** with public SEO pages showing counts. `src/lib/
+  templates.ts` derives the library from `signals.ts` rather than listing it, so a
+  template cannot exist for a signal the engine has no detector for — the risk being a
+  second, friendlier catalogue that drifts toward the searches buyers ask for.
+  `/templates` publishes three lists: proven with counts, runnable-but-unmeasured, and
+  refused with what each refusal would take. Four pages publish today
+  (`no-online-booking` 68, `online-booking` 108, `no-quote-form` 58, `quote-form` 51),
+  gated on the same `MIN_PROVEN_MATCHES` as S1-14 — one threshold, not two.
+  *Amended:* counts are **stored, not live** — see the decision log.
+  *Note:* presence counts are the complement of absence criteria that were run; every
+  such row is marked, and `stage0/tests/test_templates.mjs` fails if one is not.
+- [ ] **S2-02 · Integrations** — HubSpot, Instantly, Smartlead, webhook. *Blocked on:*
+  accounts, which are blocked on Stripe (S1-08).
 - [ ] **S2-03 · Agency plan and workspaces**, shared credit pool, white-label exports.
-- [ ] **S2-04 · Published benchmark page kept current**, updated monthly.
+  *Blocked on:* the same.
+- [x] **S2-04 · Published benchmark page kept current**, updated monthly. `/benchmark`
+  carries **no numbers of its own**: `stage0/src/benchmark/export_benchmark.py` reads
+  the Live numbers table above into `public/data/benchmark.json`, and the page renders
+  that. `--check` and `stage0/tests/test_benchmark_export.py` fail on drift, so a
+  measurement edited here without a re-export is a failing test rather than a stale
+  public claim. The four rows that undercut the headline — noise floor, wrong-website
+  ceiling, recall ceiling, genuine couldn't-tell — are pinned by name in that test.
+  *Still to do:* the monthly cadence is a calendar item, not code.
 - [ ] **S2-05 · UK and Canada coverage**, coverage-measured first per Change 1.
 - [ ] **S2-06 · Lifecycle automations B1–B6 and C1–C5** once volume justifies them.
 - [ ] **S2-07 · Pricing experiments** — Starter $29 vs $39; free plan 25 vs 10; rare-search
@@ -792,3 +816,6 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-23 | **Keeping link targets recovers socials 17×, and recovers no emails at all — half of S1-05b's justification is measured false** | 25 sites read fresh of 45 tried, with link targets kept. **A social link appears in an `href` on 68% of sites and in visible text on 4%** — a 17× recovery, and the reason the fetcher change was worth making. **Emails gained nothing.** Nine of the 25 publish an address, and every one of those is printed in visible text as well as linked, so `emails_recovered_from_mailto` is **0**. The S1-05b commit claimed "socials and mailto-only addresses become extractable"; the second half is now measured false and is retracted. `mailto:` is still worth storing, because it carries the address unambiguously where a regex over prose has to guess at boundaries — but it finds nothing a regex would miss. |
 | 2026-09-23 | **The first two runs of that measurement reported a bug of mine as a fact about the sites** | `validate_links.py` passed `["contact", "about"]` to `select_links`, which wants `(word, weight)` pairs — so it unpacked each string into characters and raised `ValueError: too many values to unpack` on **every single site**. A bare `except Exception: read = None` turned that into "not readable", and the script printed **"No site was readable. Nothing can be concluded."** That is precisely the failure this repository already has a rule against — *never blame the environment on the business* — committed by the script that was supposed to be measuring the businesses. It now counts exceptions by type, reports them, and **refuses to publish any number when more than 20% of attempts raised**, the same guard `benchmark/run.py` grew after an outage was reported as a finding. A second defect in the same script: the loop ran until it had N *successful* reads, so it could run forever — it burned 70 minutes on 30 sites before being stopped. It is now bounded by attempts and reports how many it managed against how many it tried. |
 | 2026-09-23 | **Three finished libraries were reachable from no screen in the product** | `events.ts`, `suppression.ts` and `checkout.ts` were each written, covered by their own tests, and imported by nothing but a marketing page reading a constant off them. That reads as done in a plan and is not: the opt-out page promised removal from future searches while nothing in the app filtered anything, and the event model existed without a single call site. Now wired — suppression is applied to `inRegion`, upstream of every count, dot, row and export, and four of the nine events fire from the confirm step and the results screen. `stage0/tests/test_wiring.py` checks the connections rather than the behaviour, including that no call site tries to pass a business name into an event, and it names the five events that remain unfired because they wait on accounts and a live scan. A deliberately grep-level test: it cannot show the product works, only that these parts are attached to it, which is what was missing. |
+| 2026-09-23 | **S2-01 ships stored counts where its own wording says "live counts"** | A template page that counts on demand pays for a market read every time a crawler visits, and crawlers visit far more than buyers do — the same reasoning that already governs S1-14's programmatic pages, applied to a second surface. A public page is the worst possible place to put an on-demand scan, because the traffic is unbounded and none of it is a buyer. The pages serve the count measured when those markets were last read, and say so in the first paragraph rather than in a footnote. `stage0/tests/test_templates.mjs` fails if that sentence is removed. |
+| 2026-09-23 | **The templates library would have told four public lies, and the fix is arithmetic that was already in the tallies** | The first version listed "businesses that have online booking" under *we have not measured a market for this*, while the dental and med-spa tallies held **108 businesses the engine had positively proved into it**. A market read for "has no online booking" settles both directions at once: a `match` is a business with no booking, a `no_match` is one where a booking widget was found. Not counting the second half is not caution, it is a false statement on a page whose entire argument is that we say what we measured. The complement now counts, and it is the **better**-evidenced half — it rests on a widget that was found, not on pages that were read and came back empty. Every derived row is marked with the criterion actually put to the site, links to no `/find` page (that page is about the criterion that was run), and is asserted against the raw tallies rather than recomputed. Published templates went 2 → 4. |
+| 2026-09-23 | **The benchmark page is forbidden from containing a number** | "Kept current" is a promise nobody keeps by intention, and a stale figure looks exactly like a fresh one — there is no visible symptom to notice. So the page renders `public/data/benchmark.json`, generated from the Live numbers table in this file, and `test_benchmark_export.py` re-runs the generator and diffs. The check earned its place immediately: the first draft typed `71.4%` and `83.3%` into the caveat prose, and those are precisely the two numbers that move on every re-run of the benchmark. They are now rendered from the row beside the prose. The generator also exits non-zero if a required row is renamed or dropped, rather than publishing a page with a hole in it, and it publishes `notYetMeasured` — the targets with no number — so that a list of what went well cannot read as complete. |
