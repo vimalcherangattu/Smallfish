@@ -180,6 +180,37 @@ test("a withheld reason can never land in a note column", () => {
   }
 });
 
+test("duplicate protection marks rows rather than dropping them", () => {
+  // Dropping rows the customer already has is the tempting version and the
+  // wrong one: they may be re-exporting on purpose, into a different tool,
+  // after their CRM ate the first file. An export that silently returns fewer
+  // rows than the screen showed is how people stop trusting exports.
+  // Distinct sites and places, or the dedup rule would correctly make these
+  // one business and the test would be measuring that instead.
+  const rows = [
+    matched({ id: "old", site: "old.example", lat: 1.5, lon: -2.5 }),
+    matched({ id: "new", site: "new.example", lat: 9.0, lon: -9.0 }),
+  ];
+  const csv = toCsv(rows, criteria, { old: "2026-08-01" });
+  const lines = csv.trimEnd().split("\r\n");
+  assert.equal(lines.length - 1, 2, "both rows must still ship");
+  const head = lines[0].split(",");
+  const first = head.indexOf("first_exported");
+  const isNew = head.indexOf("new_to_you");
+  assert.ok(first > 0 && isNew > 0, "the file must carry both columns");
+  const cells = lines.slice(1).map((l) => l.split(","));
+  assert.deepEqual(cells.map((c) => c[first]).sort(), ["", "2026-08-01"]);
+  assert.deepEqual(cells.map((c) => c[isNew]).sort(), ["no", "yes"]);
+});
+
+test("with no history, every row is new", () => {
+  const csv = toCsv([matched()], criteria);
+  const head = csv.split("\r\n")[0].split(",");
+  const row = csv.split("\r\n")[1].split(",");
+  assert.equal(row[head.indexOf("new_to_you")], "yes");
+  assert.equal(row[head.indexOf("first_exported")], "");
+});
+
 test("a UTF-8 BOM is present so Excel reads accents correctly", () => {
   assert.ok(toCsv([matched({ name: "Café Médi" })], criteria).startsWith("﻿"));
 });

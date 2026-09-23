@@ -469,8 +469,14 @@ Features 1–6 from the product document, plus the corrections above.
   answer to. The export button now states how many rows the file will carry, because a
   button that exports fewer rows than the table shows, without saying so, is how people
   stop trusting a file they are about to send to a client.
-- [ ] **S1-06b · Google Sheets export and duplicate protection.** Needs accounts, so it
-  follows S1-08.
+- [~] **S1-06b · Google Sheets export and duplicate protection.** **Duplicate protection is
+  built**; Sheets needs Google OAuth and is not. `toCsv` takes what this workspace has
+  exported before and adds `first_exported` and `new_to_you` per row. It **marks rather
+  than drops**: the obvious version removes rows the customer already has, and it is wrong
+  — they may be re-exporting on purpose, into another tool, or after their CRM ate the
+  first file, and an export that silently returns fewer rows than the screen showed is how
+  people stop trusting exports. A mail-merge gets what it needs to avoid emailing the same
+  practice twice, and the customer keeps the choice.
 - [ ] **S1-07 · Saved searches and alerts**, with the candidate-volume budget from S0-23
   enforced. **Alerts gate on the signals hash**, not on raw HTML or visible text.
   Measured on 60 dental sites re-read the same day, where nothing real had changed:

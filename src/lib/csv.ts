@@ -98,7 +98,24 @@ export function summaryToCsv(rows: { outcome: string; count: number }[]): string
   return "﻿" + lines.join("\r\n") + "\r\n";
 }
 
-export function toCsv(businesses: Business[], criteria: Criterion[]): string {
+export function toCsv(
+  businesses: Business[],
+  criteria: Criterion[],
+  /**
+   * Businesses this workspace has exported before, and when (S1-06b).
+   *
+   * Duplicate protection, and the shape of it matters. The obvious version is
+   * to drop rows the customer already has, and it is wrong: they may be
+   * re-exporting on purpose, into a different tool, after their CRM ate the
+   * first file. Silently returning fewer rows than the screen showed is the
+   * behaviour that makes people stop trusting an export.
+   *
+   * So nothing is dropped. Each row says whether it is new to this workspace
+   * and when it was first taken, which is what a mail-merge needs in order not
+   * to email the same practice twice — and which lets the customer decide.
+   */
+  exportedBefore: Record<string, string> = {},
+): string {
   // One row per business, not per candidate record. Two Overture listings for
   // one practice would otherwise be two rows in the file and two credits on
   // the bill — see `src/lib/billing.ts`.
@@ -119,6 +136,8 @@ export function toCsv(businesses: Business[], criteria: Criterion[]): string {
     "overall",
     "billable",
     "locations",
+    "first_exported",
+    "new_to_you",
     ...criteria.flatMap((c) => [
       `${c.id}__verdict`,
       `${c.id}__evidence`,
@@ -160,6 +179,8 @@ export function toCsv(businesses: Business[], criteria: Criterion[]): string {
         VERDICT_LABEL[overall],
         BILLABLE[overall] ? "yes" : "no",
         locations.get(b.id) ?? 1,
+        exportedBefore[b.id] ?? "",
+        exportedBefore[b.id] ? "no" : "yes",
         ...criteria.flatMap((c) => {
           const v = b.verdicts[c.id];
           return [
