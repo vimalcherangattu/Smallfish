@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import FreeCountPanel from "@/components/FreeCount";
 import { compact } from "@/lib/cost";
+import type { FreeCount } from "@/lib/count";
 import {
   MAX_CRITERIA,
   RARE_MATCH_RATE,
@@ -22,10 +24,16 @@ export default function SearchConfirm({
   index,
   onRun,
   onClose,
+  countFor,
+  onNeedMarket,
 }: {
   index: MarketIndex | null;
   onRun: (marketId: string, criterionId: string) => void;
   onClose: () => void;
+  /** The free sample for a resolved search, once its market data is loaded. */
+  countFor?: (marketId: string, criterionId: string) => FreeCount | null;
+  /** Ask for a market's data when the search resolves to one not yet loaded. */
+  onNeedMarket?: (marketId: string) => void;
 }) {
   const [text, setText] = useState("");
   const [dropped, setDropped] = useState<Set<string>>(new Set());
@@ -33,6 +41,17 @@ export default function SearchConfirm({
 
   const parsed = useMemo(() => parseSearch(text), [text]);
   const resolved = useMemo(() => resolveSearch(parsed, index), [parsed, index]);
+  const count = useMemo(
+    () =>
+      countFor && resolved.marketId && resolved.criterionId
+        ? countFor(resolved.marketId, resolved.criterionId)
+        : null,
+    [countFor, resolved.marketId, resolved.criterionId],
+  );
+
+  useEffect(() => {
+    if (resolved.marketId && !count) onNeedMarket?.(resolved.marketId);
+  }, [resolved.marketId, count, onNeedMarket]);
 
   const kept = parsed.criteria.filter((c) => !dropped.has(c.id));
   const asked = text.trim().length > 0;
@@ -254,30 +273,48 @@ export default function SearchConfirm({
           )}
 
           {resolved.marketId && resolved.criterionId && !blocked && (
-            <div className="rounded-md border border-[var(--line)] px-2.5 py-2">
-              <div className="flex items-baseline justify-between gap-2">
-                <span className="text-[11px] text-[var(--muted)]">
-                  Measured matches
-                </span>
-                <span className="tabular text-[15px] font-semibold">
-                  {compact(resolved.matches)}
-                </span>
-              </div>
-              {resolved.rare && (
-                <p className="mt-1 text-[11px] leading-snug text-[var(--unsure)]">
-                  That is under {Math.round(RARE_MATCH_RATE * 100)}% of the{" "}
-                  {compact(resolved.judged)} judged so far — a rare search.
-                  Widen the area or loosen a criterion before unlocking.
-                </p>
+            <>
+              {count ? (
+                // The sample is the count. It replaces the bare "measured
+                // matches" number that used to sit here — that number was the
+                // whole judged set, which is not what a visitor who has paid
+                // nothing is entitled to, and stating it as a single figure
+                // claimed a precision 25 reads cannot support.
+                <FreeCountPanel
+                  count={count}
+                  onUnlock={() =>
+                    onRun(resolved.marketId!, resolved.criterionId!)
+                  }
+                />
+              ) : (
+                <div className="rounded-md border border-[var(--line)] px-2.5 py-2">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="text-[11px] text-[var(--muted)]">
+                      Measured matches
+                    </span>
+                    <span className="tabular text-[15px] font-semibold">
+                      {compact(resolved.matches)}
+                    </span>
+                  </div>
+                  {resolved.rare && (
+                    <p className="mt-1 text-[11px] leading-snug text-[var(--unsure)]">
+                      That is under {Math.round(RARE_MATCH_RATE * 100)}% of the{" "}
+                      {compact(resolved.judged)} judged so far — a rare search.
+                      Widen the area or loosen a criterion before unlocking.
+                    </p>
+                  )}
+                  <button
+                    onClick={() =>
+                      onRun(resolved.marketId!, resolved.criterionId!)
+                    }
+                    disabled={!kept.length && !parsed.criteria.length}
+                    className="mt-2 w-full rounded-md bg-[var(--accent)] px-2.5 py-1.5 text-[11px] font-medium text-white disabled:opacity-40"
+                  >
+                    Show these on the map
+                  </button>
+                </div>
               )}
-              <button
-                onClick={() => onRun(resolved.marketId!, resolved.criterionId!)}
-                disabled={!kept.length && !parsed.criteria.length}
-                className="mt-2 w-full rounded-md bg-[var(--accent)] px-2.5 py-1.5 text-[11px] font-medium text-white disabled:opacity-40"
-              >
-                Show these on the map
-              </button>
-            </div>
+            </>
           )}
 
           {blocked && (

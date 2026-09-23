@@ -27,7 +27,7 @@ const {
   COST_PER_READ, BANDS, bandFor, PLANS, pricePerCredit, READS_PER_CREDIT,
   NO_HOPE_RATE, MAX_CRITERIA, SAMPLE_SIZE, planScan, scanEconomics,
   ABORT_CHECKS, MAX_LOSS_PER_SCAN_USD, breakEvenRate, checkRunHealth,
-  readAllowance, settleBand, wilsonUpper, worstCaseMonthly,
+  readAllowance, settleBand, wilsonUpper, worstCaseMonthly, quoteBand,
 } = await load("pricing");
 
 let failures = 0;
@@ -128,6 +128,18 @@ check("zero matches at the first check is always a stop",
 check("so one scan can lose at most $3.36, on any plan",
   Math.abs(MAX_LOSS_PER_SCAN_USD - 3.36) < 0.01,
   `${MAX_LOSS_PER_SCAN_USD.toFixed(2)}`);
+
+// --- the quote is conservative, because the point estimate was measured unsafe
+check("a lucky 4-in-25 on a band-2 market is NOT quoted band 1",
+  quoteBand(4, 25).credits > 1,
+  "this is the real Dallas med spa sample: 16% observed on a 6.2% market");
+check("a clearly common market is still quoted band 1",
+  quoteBand(13, 25).credits === 1, `got ${quoteBand(13, 25).credits}`);
+check("the quote is never cheaper than what the observed rate alone would say",
+  [0, 1, 2, 3, 4, 7, 9, 13, 20, 25].every(
+    (k) => quoteBand(k, 25).credits >= bandFor(k / 25).credits));
+check("and settlement can always undo an over-quote",
+  settleBand(quoteBand(4, 25).credits, 0.26) === 1);
 
 // --- the quote is a ceiling: sampling error may not cost the customer
 check("a scan that delivers a common rate is billed the cheap band, not the quote",

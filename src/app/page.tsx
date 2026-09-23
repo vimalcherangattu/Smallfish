@@ -1,14 +1,16 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import IcpBuilder from "@/components/IcpBuilder";
 import Results, { VerdictDot } from "@/components/Results";
 import SearchConfirm from "@/components/SearchConfirm";
 import type { Candidate } from "@/lib/icp";
 import { bboxOf, contains, areaSqMiles, type Region } from "@/lib/geo";
 import { COST, compact, estimateCost, money } from "@/lib/cost";
+import { freeCount } from "@/lib/count";
 import { downloadCsv, overallVerdict, toCsv } from "@/lib/csv";
+import { PLANS } from "@/lib/pricing";
 import {
   BILLABLE,
   VERDICT_LABEL,
@@ -65,6 +67,12 @@ export default function Page() {
       .catch(() => setIndex(null));
   }, []);
 
+  // Markets already fetched, so the free count on the confirm screen can sample
+  // a market the map is not currently showing without refetching megabytes.
+  const [loaded, setLoaded] = useState<Record<string, Market>>({});
+  const remember = (m: Market) =>
+    setLoaded((prev) => (prev[m.id] ? prev : { ...prev, [m.id]: m }));
+
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -73,6 +81,7 @@ export default function Page() {
       .then((m: Market) => {
         if (cancelled) return;
         setMarket(m);
+        remember(m);
         setRegion({ kind: "radius", center: m.center, miles: 25 });
         // Lead with the criterion that actually has verdicts today. `needsModel`
         // is true for every absence criterion by design, so it cannot be used
@@ -165,6 +174,38 @@ export default function Page() {
   }
   const adoptIcp = (c: Candidate) => adopt(c.marketId, c.criterionId);
 
+  /** The free sample behind the count on the confirm screen (S1-02). */
+  const countFor = useCallback(
+    (mid: string, cid: string) => {
+      const m = loaded[mid];
+      if (!m) return null;
+      const criteria = m.criteria.filter((c) => c.id === cid);
+      if (!criteria.length) return null;
+      return freeCount({
+        businesses: m.businesses,
+        criteria,
+        // The seed is the search itself, so two identical searches get an
+        // identical count — the same contract the confirm step already makes
+        // about its wording.
+        seed: `${mid}:${cid}`,
+        remainingCredits: PLANS.find((p) => p.id === "free")!.credits,
+      });
+    },
+    [loaded],
+  );
+
+  /** Fetch a market the confirm screen resolved to but the map has not loaded. */
+  const needMarket = useCallback(
+    (id: string) => {
+      if (loaded[id]) return;
+      fetch(`data/${id}.json`)
+        .then((r) => r.json())
+        .then((m: Market) => remember(m))
+        .catch(() => {});
+    },
+    [loaded],
+  );
+
   return (
     <main className="flex h-dvh flex-col lg:flex-row">
       {/* ---------------- Map ---------------- */}
@@ -243,6 +284,8 @@ export default function Page() {
             index={index}
             onRun={adopt}
             onClose={() => setSearchOpen(false)}
+            countFor={countFor}
+            onNeedMarket={needMarket}
           />
         )}
         <header className="border-b border-[var(--line)] px-4 py-3">

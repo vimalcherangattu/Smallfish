@@ -45,6 +45,35 @@ export function bandFor(sampleMatchRate: number) {
   return BANDS.find((b) => sampleMatchRate >= b.minRate) ?? BANDS[BANDS.length - 1];
 }
 
+/**
+ * The band to **quote**, from a sample — not `bandFor` on the observed rate.
+ *
+ * Quoting the point estimate was measured and it is not safe. A 25-business
+ * sample of a market whose true rate is 4% quotes a band too cheap **26.4% of
+ * the time**, and on a Pack every one of those loses money; at 6.2% — the
+ * measured med spa rate — it is 6.6%. The failure is not theoretical: a live
+ * sample of the measured Dallas med spa market drew 4 matches in 25, read
+ * 16%, and quoted band 1 on a market that is band 2.
+ *
+ * The abort does catch it, and that is precisely the problem. The abort's
+ * threshold is break-even *for the quoted band*, so an over-generous quote
+ * makes it fire sooner: the customer is quoted a cheap price, starts, and has
+ * their scan stopped at 200 reads by our own optimism. Better not to promise
+ * it.
+ *
+ * So the quote comes from the **80% one-sided lower bound** on the sample
+ * rate — the same confidence the abort uses, read from the other side. It
+ * takes "too cheap" at 6.2% from 6.6% to **0.4%**, and over-quotes a genuinely
+ * common market by two bands only 2.5% of the time. Those it does over-quote
+ * are made whole by `settleBand`, which bills the delivered band when that is
+ * cheaper. The quote can only go down, so being conservative here costs the
+ * customer nothing and costs us a worse-looking number on the confirm screen —
+ * which is falsifier (b) in `docs/PRICING.md` §6, and a thing to watch.
+ */
+export function quoteBand(matched: number, sampled: number) {
+  return bandFor(wilson(matched, sampled, ABORT_CONFIDENCE_Z).lo);
+}
+
 export type Plan = {
   id: string;
   name: string;
@@ -152,7 +181,7 @@ export const ABORT_CHECKS = [200, 400, 800, 1600] as const;
 export const MAX_LOSS_PER_SCAN_USD = ABORT_CHECKS[0] * COST_PER_READ;
 
 /**
- * Confidence used for the abort's one-sided bound — 80%, not 95%.
+ * Confidence used for the abort's one-sided bound, and for the band quote — 80%.
  *
  * The abort fires when the upper bound on the live match rate falls below
  * break-even, i.e. when the run is probably losing money. The confidence level
@@ -170,15 +199,58 @@ export const MAX_LOSS_PER_SCAN_USD = ABORT_CHECKS[0] * COST_PER_READ;
  */
 export const ABORT_CONFIDENCE_Z = 0.84;
 
-/** Upper end of the one-sided Wilson interval — small counts, so no normal approximation. */
-export function wilsonUpper(matches: number, reads: number, z = ABORT_CONFIDENCE_Z) {
-  if (reads <= 0) return 1;
+/**
+ * Wilson score interval — small counts, so no normal approximation.
+ *
+ * Used for two different jobs and they should not drift apart: the abort's
+ * one-sided bound below, and the free count's honest range in `count.ts`.
+ * Everywhere this project reports a rate, it reports this interval with it.
+ */
+export function wilson(matches: number, reads: number, z = 1.96) {
+  if (reads <= 0) return { lo: 0, hi: 1 };
   const r = matches / reads;
   const centre = (r + (z * z) / (2 * reads)) / (1 + (z * z) / reads);
   const half =
     (z * Math.sqrt((r * (1 - r)) / reads + (z * z) / (4 * reads * reads))) /
     (1 + (z * z) / reads);
-  return Math.min(1, centre + half);
+  return { lo: Math.max(0, centre - half), hi: Math.min(1, centre + half) };
+}
+
+/** One-sided upper bound, for the abort. */
+export const wilsonUpper = (matches: number, reads: number, z = ABORT_CONFIDENCE_Z) =>
+  wilson(matches, reads, z).hi;
+
+/**
+ * Wilson with Newcombe's continuity correction — for intervals we *show people*.
+ *
+ * Plain Wilson averages 95.2% coverage at n=25, which sounds fine and is not.
+ * Its coverage oscillates with the true rate and bottoms out at **86% near
+ * p=0.006** — the low rates where rare searches live, and the worst place in
+ * the product to be quietly overconfident. The corrected form is a little
+ * wider (0/25 reads [0, 16.6%] instead of [0, 13.3%]) and never dips below
+ * nominal: 97.4% mean, **95.1% worst**.
+ *
+ * Both are kept deliberately. A number shown to a customer must not under-cover,
+ * so the free count uses this one. The abort's threshold is a decision rule
+ * whose confidence level was tuned against measured loss and false-abort rates,
+ * so it stays on the plain form it was tuned with rather than being silently
+ * shifted by a change of estimator.
+ */
+export function wilsonCC(matches: number, reads: number, z = 1.96) {
+  if (reads <= 0) return { lo: 0, hi: 1 };
+  const n = reads;
+  const p = matches / n;
+  const q = 1 - p;
+  const d = 2 * (n + z * z);
+  const lo =
+    matches === 0
+      ? 0
+      : (2 * n * p + z * z - 1 - z * Math.sqrt(z * z - 2 - 1 / n + 4 * p * (n * q + 1))) / d;
+  const hi =
+    matches === n
+      ? 1
+      : (2 * n * p + z * z + 1 + z * Math.sqrt(z * z + 2 - 1 / n + 4 * p * (n * q - 1))) / d;
+  return { lo: Math.max(0, lo), hi: Math.min(1, hi) };
 }
 
 export type RunHealth =
