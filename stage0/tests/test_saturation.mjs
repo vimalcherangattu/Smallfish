@@ -68,6 +68,17 @@ check("no index at all publishes nothing rather than throwing",
     "if this passes at 19 the threshold is decorative");
 }
 
+// The sitemap is built from this same function, so a page that fails the gate
+// can never be advertised. Asserted rather than assumed, because "generate the
+// pages from A and the sitemap from B" is exactly how the two drift.
+check("the sitemap source is the published set, not a second list",
+  readFileSync("src/app/sitemap.ts", "utf8").includes("saturationSet"),
+  "if the sitemap ever hardcodes slugs, a refused page can still be advertised");
+check("and robots.txt keeps crawlers out of the demo and the API",
+  ["/api/", "/app"].every((p) =>
+    readFileSync("src/app/robots.ts", "utf8").includes(`"${p}"`)),
+  "several megabytes of JSON behind a client-rendered screen indexes nothing");
+
 console.log(`\n        published: ${pages.map((p) => `${p.slug} (${p.matches})`).join(", ")}`);
 console.log(`        refused:   ${refused.map((r) => `${r.slug} (${r.matches})`).join(", ")}`);
 
