@@ -92,7 +92,7 @@ async def read_one(client, url, robots, throttle) -> dict | None:
     }
 
 
-async def run(sample: int, seed: int) -> dict:
+async def run(sample: int, seed: int, max_attempts: int) -> dict:
     pool: list[str] = []
     for path in sorted(APP.glob("*.json")):
         if path.name == "index.json" or path.name.startswith("contacts-"):
@@ -106,31 +106,42 @@ async def run(sample: int, seed: int) -> dict:
 
     throttle, robots = DomainThrottle(), RobotsCache()
     got: list[dict] = []
+    attempts = 0
+    # **Bounded, and the first version was not.** It looped until it had
+    # `sample` *successful* reads, so with a slow or blocked network it could
+    # grind for hours and report nothing — it ran 70 minutes for 30 sites
+    # before being stopped. A measurement script that can run forever is a
+    # measurement nobody gets. This one stops after a fixed number of attempts
+    # and reports what it managed, with the attempt count, so a thin result is
+    # visibly thin rather than silently partial.
     async with httpx.AsyncClient(
         headers=HEADERS, timeout=TIMEOUT, follow_redirects=True, http2=True
     ) as client:
         for site in pool:
-            if len(got) >= sample:
+            if len(got) >= sample or attempts >= max_attempts:
                 break
             url = normalise_url(site or "")
             if not url:
                 continue
+            attempts += 1
             try:
                 read = await read_one(client, url, robots, throttle)
             except Exception:
                 read = None
             if read:
                 got.append(read)
-    return {"reads": got}
+    return {"reads": got, "attempts": attempts}
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--sample", type=int, default=80)
     ap.add_argument("--seed", type=int, default=20260923)
+    ap.add_argument("--max-attempts", type=int, default=90,
+                    help="stop after this many sites tried, however few succeeded")
     args = ap.parse_args()
 
-    out = asyncio.run(run(args.sample, args.seed))
+    out = asyncio.run(run(args.sample, args.seed, args.max_attempts))
     reads = out["reads"]
     n = len(reads)
     if not n:
@@ -149,7 +160,8 @@ def main() -> int:
     def pct(k: str) -> str:
         return f"{tally[k]:>4}  {100 * tally[k] / n:>5.1f}%"
 
-    print(f"\n{n} sites read fresh, with link targets kept\n")
+    print(f"\n{n} sites read fresh of {out['attempts']} tried, "
+          f"with link targets kept\n")
     print(f"  {'':<34}{'sites':>6}{'rate':>8}")
     print(f"  {'an email in visible text':<34}{pct('email_text')}")
     print(f"  {'an email only reachable via mailto:':<34}{pct('email_links')}")
@@ -172,6 +184,7 @@ def main() -> int:
         json.dumps(
             {
                 "sites_read": n,
+                "sites_attempted": out["attempts"],
                 "counts": dict(tally),
                 "emails_recovered_from_mailto": recovered_emails,
             },
