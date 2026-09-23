@@ -68,6 +68,13 @@ MAX_PAGES = 4
 # entry has no `internal_links`, defaults to 0, and would claim to be a
 # complete single-page site when nobody ever counted its links.
 CACHE_VERSION = 3  # link-selection fix changes which pages a read contains
+# **Not bumped to 4 when `Page.links` was added (S1-05b), on purpose.** A bump
+# means "the cached shape is wrong, re-fetch it", and these entries are not
+# wrong — they are complete for everything the judge reads, and merely lack a
+# field added later. Bumping would re-crawl 1,654 sites to collect one
+# attribute, which is the same impoliteness this file already refuses for a
+# detector retune. Entries without `links` are treated as "we did not look",
+# not as "this site has none", and the difference is carried to the screen.
 
 # Outcomes that describe US, not the site: a timeout, a proxy or transport
 # error, an outcome we could not classify. Everything else — dead, blocked,
@@ -93,6 +100,21 @@ class Page:
     text: str
     chars: int
     sha256: str
+    # Outbound link targets, kept because visible text does not carry them and
+    # some published facts live only in an `href` (S1-05b).
+    #
+    # The measurement that forced this: across 1,654 readable sites, a social
+    # URL appears in **visible text on 9 of them — 0.5%**. Social links are icon
+    # anchors, so the URL is in the attribute and the anchor's text is an image.
+    # The same is true of `mailto:` addresses behind an "Email us" button. With
+    # only text stored, the choice was to ship no socials or to guess
+    # `facebook.com/<business name>`, and guessing is the thing this product
+    # exists not to do.
+    #
+    # Deliberately narrow: only `mailto:`, `tel:` and links to the handful of
+    # social hosts. A business's whole link graph is not a fact about the
+    # business, and storing it would be storing a page copy by instalments.
+    links: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -283,6 +305,37 @@ def count_internal_links(html: str, base_url: str) -> int:
     return len(found)
 
 
+SOCIAL_HOSTS = (
+    "facebook.com",
+    "instagram.com",
+    "linkedin.com",
+    "twitter.com",
+    "x.com",
+    "youtube.com",
+    "tiktok.com",
+    "yelp.com",
+)
+_HREF = re.compile(r"""href\s*=\s*["']([^"']+)["']""", re.I)
+
+
+def contact_links(html: str) -> list[str]:
+    """`mailto:`, `tel:` and social profiles, in the order they appear.
+
+    Nothing else. See `Page.links` for why this is narrow rather than every
+    outbound link.
+    """
+    out: list[str] = []
+    for href in _HREF.findall(html or ""):
+        target = href.strip()
+        low = target.lower()
+        keep = low.startswith(("mailto:", "tel:")) or any(
+            f"//{host}" in low or f".{host}" in low for host in SOCIAL_HOSTS
+        )
+        if keep and target not in out:
+            out.append(target[:300])
+    return out
+
+
 def _page(url: str, result, html: str) -> Page:
     """`fetch_page` returns (PageResult, html) — the HTML is not on the result."""
     text = visible_text(html or "")
@@ -292,6 +345,7 @@ def _page(url: str, result, html: str) -> Page:
         text=text,
         chars=len(text),
         sha256=hashlib.sha256((html or "").encode()).hexdigest(),
+        links=contact_links(html or ""),
     )
 
 

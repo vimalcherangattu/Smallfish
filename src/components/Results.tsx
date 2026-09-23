@@ -177,10 +177,15 @@ const compactish = (n: number) => n.toLocaleString();
 /** Rows rendered at once. Density is for reading, not scanning (design P6). */
 const MAX_ROWS = 300;
 
+type Found = { value: string; page: string; how: string };
+
 export type PublishedContact = {
-  emails: { value: string; page: string; how: string }[];
-  phones: { value: string; page: string; how: string }[];
+  emails: Found[];
+  phones: Found[];
+  socials?: Found[];
   contactPage: string | null;
+  /** Whether the crawl behind this read kept link targets at all (S1-05b). */
+  linksKept?: boolean;
   /** Set when nothing could be attributed to this business at all. */
   withheld?: string;
   /** Set when the site names the town but never the business. */
@@ -235,6 +240,19 @@ function PublishedContacts({ found }: { found?: PublishedContact }) {
             </div>
           </li>
         ))}
+        {(found.socials ?? []).map((s) => (
+          <li key={s.value}>
+            <span className="text-[var(--muted)]">Social · </span>
+            <a
+              href={s.value}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium underline underline-offset-2"
+            >
+              {s.value.replace(/^https?:\/\/(www\.)?/, "").slice(0, 46)}
+            </a>
+          </li>
+        ))}
         {found.contactPage && (
           <li>
             <span className="text-[var(--muted)]">Contact form · </span>
@@ -255,9 +273,15 @@ function PublishedContacts({ found }: { found?: PublishedContact }) {
         </p>
       )}
       <p className="mt-1.5 text-[10px] leading-snug text-[var(--muted)] opacity-80">
-        Read from the pages linked above. Socials are missing on purpose — they
-        are icon links, and we do not store link targets yet, so any we showed
-        would be guessed.
+        Read from the pages linked above.{" "}
+        {/* "No socials" and "we did not look for socials" are different facts
+            and the second one is ours, not the business's. Saying which costs a
+            sentence and is the whole difference between a gap and a claim. */}
+        {found.linksKept
+          ? found.socials?.length
+            ? "Socials are the profiles this site links to."
+            : "This site links to no social profile we recognise."
+          : "Socials are missing because this site was read before we began keeping link targets — not because it has none."}
       </p>
     </div>
   );

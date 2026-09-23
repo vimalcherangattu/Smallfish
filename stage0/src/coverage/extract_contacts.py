@@ -112,12 +112,45 @@ def phones_in(text: str, known: str | None) -> list[tuple[str, str]]:
     return out
 
 
+SOCIAL_HOSTS = (
+    "facebook.com", "instagram.com", "linkedin.com", "twitter.com", "x.com",
+    "youtube.com", "tiktok.com", "yelp.com",
+)
+
+
 def contacts_for(read: dict, known_phone: str | None) -> dict:
-    """Every published contact in one site read, each with its page."""
-    found: dict = {"emails": [], "phones": [], "contactPage": None, "socials": []}
+    """Every published contact in one site read, each with its page.
+
+    Reads `page["links"]` when the crawl that produced the entry kept them
+    (S1-05b). Entries cached before that change simply do not have the field,
+    and the cache was deliberately not invalidated to collect it — so socials
+    appear for sites crawled since, and are absent rather than guessed for the
+    rest. `linksKept` says which case a business is in, so the screen can tell
+    "this business has no socials" from "we did not look".
+    """
+    found: dict = {
+        "emails": [], "phones": [], "contactPage": None, "socials": [],
+        "linksKept": any("links" in p for p in (read.get("pages") or [])),
+    }
     for page in read.get("pages") or []:
         text = page.get("text") or ""
         url = page.get("url") or ""
+        for link in page.get("links") or []:
+            low = link.lower()
+            if low.startswith("mailto:"):
+                addr = link[7:].split("?")[0].strip()
+                if EMAIL.fullmatch(addr) and not EMAIL_NOISE.search(addr):
+                    if not any(
+                        e["value"].lower() == addr.lower() for e in found["emails"]
+                    ):
+                        found["emails"].append(
+                            {"value": addr, "page": url, "how": "linked as mailto:"}
+                        )
+            elif any(f"//{h}" in low or f".{h}" in low for h in SOCIAL_HOSTS):
+                if link not in [s["value"] for s in found["socials"]]:
+                    found["socials"].append(
+                        {"value": link, "page": url, "how": "linked from the page"}
+                    )
         for addr in emails_in(text):
             if not any(e["value"].lower() == addr.lower() for e in found["emails"]):
                 found["emails"].append(
@@ -375,8 +408,12 @@ def main() -> int:
         f"phone, {totals['contactPage']} with a contact page."
     )
     print(
-        "\nSocials are deliberately absent. They are 0.5% recoverable from "
-        "visible text\nand the honest fix is a fetcher that keeps link targets."
+        "\nSocials are absent from every entry above, and `linksKept: false` says\n"
+        "why: these reads predate S1-05b, so the crawl never kept link targets.\n"
+        "That is a gap in what we looked for, not a fact about the businesses,\n"
+        "and the screen says so rather than showing an empty list as an answer.\n"
+        "Sites crawled from now on carry them; the cache was not invalidated to\n"
+        "backfill, because re-crawling 1,654 sites for one attribute is impolite."
     )
     return 0
 

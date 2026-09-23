@@ -436,9 +436,16 @@ Features 1–6 from the product document, plus the corrections above.
   contact page. Of the businesses with a cached read, **576 across three markets are
   withheld entirely** because the site is a chain or platform page or never names them,
   and 55 more ship with a caveat.
-- [ ] **S1-05b · Keep link targets in the fetcher**, so socials and mailto-only addresses
-  become extractable. One field on each page record in `site_probe.py`; everything
-  downstream in `extract_contacts.py` is already written to accept them.
+- [x] **S1-05b · Keep link targets in the fetcher**, so socials and mailto-only addresses
+  become extractable. `Page.links` in `engine/fetcher.py` keeps `mailto:`, `tel:` and the
+  recognised social hosts and **nothing else** — a business's whole link graph is not a
+  fact about the business, and storing it would be storing a page copy by instalments.
+  `CACHE_VERSION` is deliberately **not** bumped: a bump means "this shape is wrong,
+  re-fetch it", and 1,654 cached entries are not wrong, merely older than one field.
+  Re-crawling them all to collect an attribute is the same impoliteness this repo
+  already refuses for a detector retune. So a site read before the change reports
+  `linksKept: false`, and the screen says "we did not look" rather than "it has none".
+  Measured on a fresh sample by `coverage/validate_links.py`.
 - [x] **S1-06 · Export to CSV with proof columns.** Every row carries, per criterion, the
   verdict, the evidence and the one-line "how this is checked", plus a `why_it_matched`
   sentence usable in a cold email as written, and a `billable` column so the pricing
