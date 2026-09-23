@@ -496,11 +496,28 @@ Features 1–6 from the product document, plus the corrections above.
 ### Go-to-market
 
 - [ ] **S1-12 · 20 design partners** recruited and active.
-- [ ] **S1-13 · Saturation set defined** (Change 8): the specific niches × metros the
-  knowledge base fills first. Everything else waits.
-- [ ] **S1-14 · Programmatic pages for the saturation set only**, each gated on ≥ 20
-  matches and a passing sample precision check.
-- [ ] **S1-15 · Comparison pages** — Scrap.io, Outscraper, D7.
+- [x] **S1-13 · Saturation set defined** (Change 8). `src/lib/saturation.ts` derives it from
+  the measured index rather than a list someone typed, so it cannot claim a market that was
+  never read. Change 8 asks for the specific niches × metros to saturate first; today the
+  measured data supports three and refuses four, and the refusals are returned rather than
+  silently dropped, because a build that quietly discards what it cannot justify looks
+  identical to one with nothing to discard.
+- [x] **S1-14 · Programmatic pages for the saturation set only**, each gated on ≥ 20 proven
+  matches. `/find/[slug]`, statically generated. **Each serves a stored count, never a scan
+  per visitor** — the critique named this as a cost blow-up waiting to happen, and crawlers
+  visit far more than buyers do. Every page carries its couldn't-tell and blocked counts
+  beside the match count, because 42 matches out of 166 read is a different claim from 42
+  out of a whole market. Published today: dental Phoenix (42), HVAC Tampa (58), med spa
+  Dallas (26). Refused: four, three of them because nothing has been judged in that market
+  yet — which a test asserts reads differently from "zero matches". *Still to add:* the
+  sample precision check, once med spa and HVAC are labelled (S0-16).
+- [x] **S1-15 · Comparison pages** — Scrap.io, Outscraper, D7. `/compare`. Each row says
+  what the bulk exporters are genuinely better at — cost per row, volume, immediacy — and
+  there is a section headed *buy a scraper instead if any of these is true*. The reader is
+  comparing tools because they are about to spend money, and a comparison they can falsify
+  in one click loses them faster than no page at all. **No accuracy claim is made about
+  anyone else's product**, because S0-19 has not been run and publishing an unmeasured
+  accuracy comparison is the thing this project refuses everywhere else.
 - [ ] **S1-16 · Six automations live**: A1–A4 dogfood loop, A5 page generation, B2
   stuck-at-count nudge, C1 alerts (Change 9).
 - [ ] **S1-17 · Cold email at 50/day**, planned against a 1.5% positive reply rate
