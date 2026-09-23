@@ -479,10 +479,19 @@ Features 1–6 from the product document, plus the corrections above.
 - [ ] **S1-09 · Business opt-out flow** — public form, ownership verification via listed
   domain or phone, suppression within 7 days, with honest wording about already-exported
   rows (Critique, smaller notes).
-- [ ] **S1-10 · Internal API** (Change 10) — search, count, unlock — so GTM automations and
-  the n8n/Make templates have something to call.
-- [ ] **S1-11 · Event instrumentation** per the GTM event model, into PostHog and one
-  warehouse table.
+- [x] **S1-10 · Internal API** (Change 10). `/api/count` returns the free count as a range
+  with the sample behind it, from the same `freeCount` the product calls — a count on a
+  public page and a count in the app must be the same number produced the same way, or a
+  published figure is quoting something the product does not do. Not `force-static`: a
+  statically rendered route handler is evaluated at build time with a placeholder URL, so
+  every query came back "unknown market". *Still to add:* unlock, once accounts exist.
+- [x] **S1-11 · Event instrumentation.** `src/lib/events.ts`: nine events, each declaring
+  what it must carry. **No business identity can leave in an event** — identifying keys are
+  stripped at the sink rather than trusted to call sites, since the call site is where a
+  hurried `...business` spread happens, and a dropped key is reported so the leaking caller
+  is found. A stopped scan must carry its reason and read count, or it cannot be told from
+  a finished one and the dashboard can only show success. A thrown sink cannot break the
+  product. Vendor-agnostic; PostHog and a warehouse table are one sink each.
 
 ### Go-to-market
 
