@@ -225,6 +225,37 @@ body {
 
 @keyframes mkt-drift { from { transform: translateX(0) } to { transform: translateX(-50%) } }
 @keyframes mkt-driftb { from { transform: translateX(-50%) } to { transform: translateX(0) } }
+/* Bubbles, from the fish's mouth: up and to the left, since the mark faces
+   left. Three drifts rather than one, so a cluster never moves as a block. */
+@keyframes mkt-bubble {
+  0%   { transform: translate(0, 0) scale(0.35); opacity: 0 }
+  10%  { opacity: 0.9 }
+  55%  { opacity: 0.6 }
+  100% { transform: translate(-120px, -320px) scale(1.15); opacity: 0 }
+}
+@keyframes mkt-bubble2 {
+  0%   { transform: translate(0, 0) scale(0.3); opacity: 0 }
+  14%  { opacity: 0.75 }
+  60%  { opacity: 0.45 }
+  100% { transform: translate(-54px, -360px) scale(1.3); opacity: 0 }
+}
+@keyframes mkt-bubble3 {
+  0%   { transform: translate(0, 0) scale(0.45); opacity: 0 }
+  16%  { opacity: 0.8 }
+  62%  { opacity: 0.4 }
+  100% { transform: translate(-176px, -250px) scale(1); opacity: 0 }
+}
+.mkt .bub {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  animation-timing-function: cubic-bezier(0.35, 0.1, 0.5, 1);
+  animation-iteration-count: infinite;
+  animation-name: mkt-bubble;
+}
+.mkt .bub.b2 { animation-name: mkt-bubble2 }
+.mkt .bub.b3 { animation-name: mkt-bubble3 }
+
 @keyframes mkt-swim {
   0%   { transform: translate(0, 0) rotate(0deg) }
   50%  { transform: translate(-30px, -22px) rotate(-2deg) }
@@ -237,6 +268,9 @@ body {
 /* Motion is decoration here. Anyone who has asked for less of it gets none. */
 @media (prefers-reduced-motion: reduce) {
   .mkt .mq, .mkt .mq-slow, .mkt .swim { animation: none; }
+  /* Bubbles are pure decoration, so they go entirely rather than freezing
+     mid-drift at whatever opacity that keyframe happened to hold. */
+  .mkt .bub { animation: none; opacity: 0; }
   .mkt .lift:hover, .mkt .cta:hover { transform: none; }
 }
 

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Bubbles from "@/components/Bubbles";
 import Fish from "@/components/Fish";
 import { BANDS, PLANS } from "@/lib/pricing";
 import { SAMPLE_SIZE } from "@/lib/pricing";
@@ -83,6 +84,7 @@ export default function Home() {
           className="swim pointer-events-none absolute right-[-7%] top-[16%] z-0 opacity-70 max-xl:hidden"
         >
           <Fish variant="outline" width={720} strokeWidth={0.32} />
+          <Bubbles where="hero" scale={720 / 780} />
         </div>
 
         <header className="relative z-10 mx-auto max-w-[1340px] px-8 pb-24 pt-16">
@@ -381,7 +383,8 @@ export default function Home() {
 
       {/* ========================== closing CTA ========================== */}
       <section style={{ background: "#C8F03C", color: "#0E1520", position: "relative", overflow: "hidden" }}>
-        <div aria-hidden className="pointer-events-none absolute left-[-4%] top-[10%] opacity-30 max-lg:hidden">
+        <div aria-hidden className="swim pointer-events-none absolute left-[-4%] top-[10%] opacity-30 max-lg:hidden">
+          <Bubbles where="closer" colour="#0E1520" />
           <svg width="520" height="347" viewBox="0 0 48 32">
             <path d="M26 16 L44 5.5 Q41 16 44 26.5 Z" fill="none" stroke="#0E1520" strokeWidth="0.3" />
             <circle cx="17" cy="16" r="12" fill="none" stroke="#0E1520" strokeWidth="0.3" />
