@@ -78,10 +78,15 @@ export default function Page() {
    * suppressed business cannot appear in a count, on the map, in the list or
    * in an export. Filtering only at the export would leave it on screen, and
    * the opt-out page promises removal from searches, not just from files.
+   *
+   * Read from `/api/suppressed` rather than the static file, so that a removal
+   * takes effect on the next request once a database is configured instead of
+   * on the next deploy. With none configured the route serves the same file and
+   * says so, so this behaves exactly as it did before.
    */
   const [suppressed, setSuppressed] = useState<Set<string>>(new Set());
   useEffect(() => {
-    fetch("/data/suppressed.json")
+    fetch("/api/suppressed")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => d?.businessIds && setSuppressed(new Set(d.businessIds)))
       .catch(() => undefined);
