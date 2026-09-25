@@ -139,6 +139,21 @@ def main() -> int:
         "a 200 tells Clerk the event was handled and it stops retrying, so "
         "every signup before the secret was set would be silently dropped",
     )
+    # --- account creation does not depend on a webhook arriving ----------
+    page = read("app", "account", "page.tsx")
+    code = code_of(page)
+    check(
+        "the account page creates the workspace when the webhook did not",
+        "ensureWorkspace(" in code and "accountForUser(userId)" in code,
+        "a webhook is a single point of failure for the one thing every paying "
+        "customer needs, and the first real signup proved it — a TLS break "
+        "during a DNS migration meant the delivery never arrived",
+    )
+    check(
+        "and re-reads rather than assuming the write worked",
+        code.count("accountForUser(userId)") >= 2,
+    )
+
     check(
         "workspace creation is idempotent",
         "const existing = await accountForUser" in accounts

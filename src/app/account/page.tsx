@@ -1,9 +1,15 @@
 import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { CLERK_ENABLED } from "@/lib/clerk";
-import { credits, planOf, readsRemaining, type Entry } from "@/lib/ledger";
-import { accountForUser, balanceOf, ledgerOf, NotConfigured } from "@/lib/accounts";
-import { READS_PER_CREDIT } from "@/lib/pricing";
+import { credits, MILLI, planOf, readsRemaining, type Entry } from "@/lib/ledger";
+import {
+  accountForUser,
+  balanceOf,
+  ensureWorkspace,
+  ledgerOf,
+  NotConfigured,
+} from "@/lib/accounts";
+import { PLANS, READS_PER_CREDIT } from "@/lib/pricing";
 import NoAuth from "@/components/NoAuth";
 
 /** The account page (S1-08).
@@ -38,15 +44,54 @@ export default async function Account() {
 
   let body: React.ReactNode;
   try {
-    const account = await accountForUser(userId);
+    /**
+     * Make the workspace if the webhook did not.
+     *
+     * `user.created` was the only way an account came into existence, which
+     * made a webhook a single point of failure for the one thing every paying
+     * customer needs. That is a bad shape even when it works. A webhook is
+     * delivered *at least* once only if it can be delivered at all: a
+     * misconfigured endpoint, an expired signing secret, or a domain whose
+     * TLS breaks mid-migration all mean zero.
+     *
+     * The last one is not hypothetical. It happened on the first real signup:
+     * the Cloudflare cutover left `www` proxied without a certificate, Clerk's
+     * delivery failed at the handshake exactly as a browser did, and the
+     * person arrived signed in and account-less with nothing in the product
+     * able to put it right.
+     *
+     * So the webhook is now an optimisation — it makes the workspace before
+     * the customer's first page load — and this is the guarantee.
+     * `ensureWorkspace` looks for an existing membership first, and the
+     * `(account_id, user_id)` primary key is the backstop underneath that, so
+     * the two racing cannot mint two workspaces or two free grants.
+     *
+     * A write during a page render is unusual and deliberate. The alternative
+     * is showing a customer an error they have no way to act on.
+     */
+    let account = await accountForUser(userId);
+    if (!account) {
+      const plan = PLANS.find((p) => p.id === "free") ?? PLANS[0];
+      const person = await currentUser().catch(() => null);
+      const name =
+        [person?.firstName, person?.lastName].filter(Boolean).join(" ").trim() ||
+        person?.emailAddresses?.[0]?.emailAddress?.split("@")[0];
+      await ensureWorkspace({
+        clerkUserId: userId,
+        name: name ? `${name}'s workspace` : undefined,
+        planId: plan.id,
+        allowanceMilli: plan.credits * MILLI,
+        planName: plan.name,
+      });
+      account = await accountForUser(userId);
+    }
+
     if (!account) {
       body = (
-        <Problem title="You are signed in, but you have no workspace.">
-          A workspace is created by Clerk&rsquo;s <code className="mono">user.created</code>{" "}
-          webhook. If you signed up before that webhook was configured, or it
-          failed, this is what it looks like — the account simply was not made.
-          It is fixable and nothing was lost. See{" "}
-          <code className="mono">docs/SETUP.md</code> §2.3.
+        <Problem title="You are signed in, and we could not make you a workspace.">
+          That is ours rather than yours, and it should not happen. Nothing was
+          charged and nothing was lost. Tell us and we will put it right by
+          hand.
         </Problem>
       );
     } else {
