@@ -90,6 +90,30 @@ export const PLANS: Plan[] = [
   { id: "pack", name: "Pack", priceUsd: 19, credits: 100 },
 ];
 
+/**
+ * A one-dollar plan that exists only to prove the payment chain works.
+ *
+ * Deliberately **not** in `PLANS`. Everything that iterates plans — the pricing
+ * page, the comparison table, the worst-case solvency arithmetic — would
+ * otherwise pick it up and show customers a dollar plan, or reason about a
+ * margin that is not a real product.
+ *
+ * It grants **one credit**, so the ledger line it produces is true. Pointing a
+ * real plan's price id at a $1 product would have been quicker and would have
+ * written "Starter: 120 credits for the period" into an append-only ledger for
+ * a dollar — a line that cannot be deleted and does not describe what happened.
+ *
+ * It is reachable only while `STRIPE_PRICE_TEST` is set, and disappears with
+ * that variable. `stage0/tests/test_stripe.py` fails if it ever appears in
+ * `PLANS`.
+ */
+export const VERIFICATION_PLAN: Plan = {
+  id: "verify",
+  name: "Payment verification",
+  priceUsd: 1,
+  credits: 1,
+};
+
 export const pricePerCredit = (p: Plan) => (p.credits ? p.priceUsd / p.credits : 0);
 
 /**

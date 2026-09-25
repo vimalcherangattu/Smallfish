@@ -1,7 +1,6 @@
 import Stripe from "stripe";
-import { PLANS } from "@/lib/pricing";
 import { MILLI } from "@/lib/ledger";
-import { planForPriceId } from "@/lib/checkout";
+import { planFor, planForPriceId } from "@/lib/checkout";
 import { applyPaidPeriod, downgradeToFree, NotConfigured } from "@/lib/accounts";
 import { currentEnv } from "@/lib/db";
 
@@ -47,7 +46,9 @@ export const dynamic = "force-dynamic";
 
 type Result = { ok: boolean; [k: string]: unknown };
 
-const planById = (id: string) => PLANS.find((p) => p.id === id);
+// `planFor` rather than a PLANS lookup, so the one-dollar verification plan —
+// which is deliberately not in PLANS — resolves here too.
+const planById = (id: string) => planFor(id);
 
 export async function POST(request: Request) {
   const env = currentEnv();

@@ -172,6 +172,26 @@ def main() -> int:
         "record of what they were charged is what a dispute needs",
     )
 
+    # --- the one-dollar verification plan ----------------------------------
+    pricing = read("lib", "pricing.ts")
+    check(
+        "the verification plan is not in PLANS",
+        re.search(r"export const PLANS: Plan\[\] = \[(.*?)\];", pricing, re.S)
+        and "verify" not in re.search(r"export const PLANS: Plan\[\] = \[(.*?)\];", pricing, re.S).group(1),
+        "anything iterating PLANS would show customers a $1 plan, or reason "
+        "about a margin that is not a real product",
+    )
+    check(
+        "it grants one credit, so its ledger line is true",
+        re.search(r"VERIFICATION_PLAN: Plan = \{[^}]*credits:\s*1", pricing, re.S) is not None,
+        "pointing a real plan's price at a $1 product writes 'Starter: 120 "
+        "credits' into an append-only ledger for a dollar",
+    )
+    check(
+        "and it exists only while STRIPE_PRICE_TEST is set",
+        "env.STRIPE_PRICE_TEST" in checkout and "verificationEnabled" in checkout,
+    )
+
     # --- what is deliberately absent ---------------------------------------
     check(
         "payment failure is left unhandled, and says so",

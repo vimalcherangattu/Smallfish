@@ -18,7 +18,7 @@
  * makes the other two feel unnecessary.
  */
 
-import { PLANS, type Plan } from "@/lib/pricing";
+import { PLANS, VERIFICATION_PLAN, type Plan } from "@/lib/pricing";
 
 export type CheckoutIntent = {
   planId: string;
@@ -61,7 +61,13 @@ export function missingCredentials(
 }
 
 export const planFor = (id: string): Plan | undefined =>
-  PLANS.find((p) => p.id === id);
+  id === VERIFICATION_PLAN.id ? VERIFICATION_PLAN : PLANS.find((p) => p.id === id);
+
+/** Is the one-dollar verification purchase available on this deployment? It is
+ *  exactly as available as the environment variable that names its price. */
+export const verificationEnabled = (
+  env: Record<string, string | undefined> = currentEnv(),
+) => !!env.STRIPE_PRICE_TEST;
 
 /**
  * Begin a purchase.
@@ -165,6 +171,7 @@ export function priceIdFor(
     starter: env.STRIPE_PRICE_STARTER,
     growth: env.STRIPE_PRICE_GROWTH,
     agency: env.STRIPE_PRICE_AGENCY,
+    [VERIFICATION_PLAN.id]: env.STRIPE_PRICE_TEST,
   }[planId];
 }
 
@@ -181,9 +188,13 @@ export function planForPriceId(
       ["starter", env.STRIPE_PRICE_STARTER],
       ["growth", env.STRIPE_PRICE_GROWTH],
       ["agency", env.STRIPE_PRICE_AGENCY],
+      [VERIFICATION_PLAN.id, env.STRIPE_PRICE_TEST],
     ] as const
   ).find(([, p]) => p && p === priceId)?.[0];
-  return id ? PLANS.find((p) => p.id === id) : undefined;
+  if (!id) return undefined;
+  return id === VERIFICATION_PLAN.id
+    ? VERIFICATION_PLAN
+    : PLANS.find((p) => p.id === id);
 }
 
 /** What a plan costs, for a pricing page that cannot drift from the ledger. */

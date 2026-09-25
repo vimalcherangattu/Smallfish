@@ -9,8 +9,10 @@ import {
   ledgerOf,
   NotConfigured,
 } from "@/lib/accounts";
-import { PLANS, READS_PER_CREDIT } from "@/lib/pricing";
+import { PLANS, READS_PER_CREDIT, VERIFICATION_PLAN } from "@/lib/pricing";
 import NoAuth from "@/components/NoAuth";
+import BuyPlan from "@/components/BuyPlan";
+import { verificationEnabled } from "@/lib/checkout";
 
 /** The account page (S1-08).
  *
@@ -158,6 +160,24 @@ export default async function Account() {
               ))}
             </div>
           )}
+          {verificationEnabled() && (
+            <div className="mt-10 max-w-[62ch] rounded-xl border border-[var(--line)] bg-[var(--paper-2)] px-6 py-5">
+              <p className="mono text-[11px] uppercase tracking-wider text-[var(--ink-3)]">
+                payment verification · remove STRIPE_PRICE_TEST to hide this
+              </p>
+              <p className="mt-2 text-[15px] leading-relaxed text-[var(--ink-2)]">
+                A <strong className="font-semibold text-[var(--ink)]">real $1 charge</strong>{" "}
+                against the live keys, granting {VERIFICATION_PLAN.credits} credit. It
+                proves the whole chain — session, webhook, signature, the grant, and
+                the guard that refuses a redelivered event. Cancel and refund it
+                afterwards.
+              </p>
+              <div className="max-w-[260px]">
+                <BuyPlan planId={VERIFICATION_PLAN.id} name={VERIFICATION_PLAN.name} />
+              </div>
+            </div>
+          )}
+
           <p className="mt-6 max-w-[62ch] text-[14px] leading-relaxed text-[var(--ink-3)]">
             These lines cannot be edited or deleted, by us or by anybody — the
             database refuses it. A correction is a new line, so the history still
