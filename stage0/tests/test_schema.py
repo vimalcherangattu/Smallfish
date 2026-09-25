@@ -6,9 +6,16 @@ until the second caller, and billing gets a second caller — a webhook, a
 backfill, a support action. The database is where "impossible" can actually
 mean impossible.
 
-This reads the migration rather than a live database, because the database does
-not exist yet and the migration is the artifact that will create it. A lint,
-not an integration test, and it says so. It catches the specific losses:
+This reads the migrations, not a live database. That is a real limit and it was
+demonstrated the hard way: the schema shipped with two bugs no lint could see —
+`sum(milli)` ambiguous against an OUT parameter of the same name, which raised
+on the very first charge, and an `ON DELETE CASCADE` on a table whose trigger
+refuses every DELETE, so the cascade could never fire. Both migrations read
+perfectly. **Running them against Postgres is what found them**, and the
+eleven-case verification that did so is recorded in the decision log.
+
+So this is a lint, and what a lint is good for is catching a rule being
+*removed*. It catches the specific losses:
 
   * a missing primary key on (account_id, business_id) is a double charge
   * a mutable ledger is a balance whose history is a suggestion
@@ -54,6 +61,11 @@ def main() -> int:
         return 1
     sql = "\n".join(p.read_text() for p in MIGRATIONS)
     lower = sql.lower()
+    # SQL with the `--` comments stripped. Checks about what the schema *does*
+    # read this; checks about what it *says* read `lower`. The distinction is
+    # not pedantic — two checks here have already fired on the comment that
+    # explains why the thing they look for is absent.
+    code = re.sub(r"--[^\n]*", "", lower)
 
     # --- the double-charge guard -----------------------------------------
     unlocks = table(sql, "unlocks")
@@ -74,7 +86,7 @@ def main() -> int:
     )
     check(
         "no floating-point column anywhere near money",
-        not re.search(r"\b(real|double precision|float)\b", lower),
+        not re.search(r"\b(real|double precision|float)\b", code),
     )
     check(
         "every ledger line has to say what it was for",
@@ -149,6 +161,44 @@ def main() -> int:
         "events.ts strips them at the sink; this is the second line",
     )
 
+    # --- what running it against Postgres taught ------------------------
+    check(
+        "the balance sum qualifies its column",
+        re.search(r"sum\(\s*\w+\.milli\s*\)", lower) is not None,
+        "`milli` is also an OUT parameter of charge_for_match, so an "
+        "unqualified sum(milli) raises 42702 on the first charge",
+    )
+    check(
+        "ledger_entries does not claim a cascade it cannot perform",
+        re.search(
+            r"references public\.accounts \(id\) on delete restrict", lower
+        )
+        is not None
+        and not re.search(
+            r"add constraint ledger_entries_account_id_fkey[^;]*on delete cascade",
+            lower,
+        ),
+        "the append-only trigger refuses the DELETE a cascade issues, so the "
+        "cascade raised P0001 and could never have fired",
+    )
+
+    # --- identity is Clerk ----------------------------------------------
+    check(
+        "the policies read the Clerk subject from a verified JWT",
+        "auth.jwt() ->> 'sub'" in lower,
+        "there is no auth.users row for a Clerk user, so auth.uid() is null "
+        "and every policy would deny",
+    )
+    check(
+        "and member_of denies when the claim is absent",
+        "nullif(auth.jwt() ->> 'sub', '')" in lower,
+        "a policy that passes on a missing claim is the failure with no symptom",
+    )
+    check(
+        "account_members holds a text id, not a uuid into auth.users",
+        re.search(r"alter column user_id type text", lower) is not None,
+    )
+
     # --- the atomic charge -----------------------------------------------
     check(
         "charge_for_match locks the account row",
@@ -160,10 +210,7 @@ def main() -> int:
         re.search(r"revoke all on function public\.charge_for_match", lower) is not None,
     )
     # The pricing rules must NOT be restated in SQL: two sources of truth about
-    # money is the failure this split exists to prevent. Comments are stripped
-    # first — the comment explaining why bands are absent from the schema
-    # should not be what trips a check on bands being absent from the schema.
-    code = re.sub(r"--[^\n]*", "", lower)
+    # money is the failure this split exists to prevent.
     for term in ["band", "wilson", "settle", "0.15", "read_allowance"]:
         check(
             f"the schema does not restate pricing ({term})",
@@ -172,8 +219,10 @@ def main() -> int:
         )
 
     print(f"\n{len(failures)} failure(s)")
-    print("  note: a lint over the migration, not a live database test — "
-          "the database does not exist yet")
+    print("  note: a lint over the migrations, not a live database test. The "
+          "two bugs\n        this schema actually shipped were both invisible "
+          "to a lint — see the\n        docstring. Project xdqptokitwdhfuotfpph, "
+          "us-east-1, verified 2026-09-25.")
     return 1 if failures else 0
 
 

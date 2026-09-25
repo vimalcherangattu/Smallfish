@@ -33,6 +33,23 @@ export const REQUIRED_ENV = [
   ["SUPABASE_SERVICE_ROLE_KEY", "write ledger entries and record removals, server-side only"],
 ] as const;
 
+/**
+ * Login is Clerk; the database is Supabase. Two vendors, one joint.
+ *
+ * The joint is this: Clerk issues the JWT, Supabase verifies it as a
+ * third-party auth provider, and `auth.jwt() ->> 'sub'` inside the row-level
+ * policies is the Clerk user id. **Register Clerk in the Supabase dashboard or
+ * every policy denies** — `member_of` returns false when the claim is absent,
+ * so a workspace's own members cannot read their own balance. That is the
+ * right way round for it to fail: the broken state is visible immediately
+ * rather than quietly permissive.
+ */
+export const REQUIRED_AUTH_ENV = [
+  ["NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", "render the sign-in UI"],
+  ["CLERK_SECRET_KEY", "verify a session server-side"],
+  ["CLERK_WEBHOOK_SIGNING_SECRET", "trust user.created before making a workspace for it"],
+] as const;
+
 /** Read through `globalThis` so this compiles without node types — the tests
  *  build it standalone, and a rule that can only run inside Next.js is a rule
  *  that will not be tested. */
@@ -43,7 +60,17 @@ export const currentEnv = (): Record<string, string | undefined> =>
 export function missingCredentials(
   env: Record<string, string | undefined> = currentEnv(),
 ): string[] {
-  return REQUIRED_ENV.filter(([k]) => !env[k]).map(([k]) => k);
+  return [...REQUIRED_ENV, ...REQUIRED_AUTH_ENV]
+    .filter(([k]) => !env[k])
+    .map(([k]) => k);
+}
+
+/** Enough to sign someone in. Separate from the database credentials because
+ *  they fail separately and have different remedies. */
+export function canAuthenticate(
+  env: Record<string, string | undefined> = currentEnv(),
+) {
+  return REQUIRED_AUTH_ENV.every(([k]) => !!env[k]);
 }
 
 /** Enough to read the public list. The service role is a separate question. */
@@ -117,9 +144,15 @@ export function status(env: Record<string, string | undefined> = currentEnv()) {
   return {
     read: canRead(env),
     write: canWrite(env),
+    auth: canAuthenticate(env),
     missing,
     reason: missing.length
-      ? `Missing ${missing.map((k) => `${k} (${REQUIRED_ENV.find(([n]) => n === k)![1]})`).join("; ")}.`
+      ? `Missing ${missing
+          .map((k) => {
+            const all = [...REQUIRED_ENV, ...REQUIRED_AUTH_ENV];
+            return `${k} (${all.find(([n]) => n === k)![1]})`;
+          })
+          .join("; ")}.`
       : "Configured.",
   };
 }

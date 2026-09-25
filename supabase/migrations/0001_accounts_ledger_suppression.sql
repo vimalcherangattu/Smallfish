@@ -261,8 +261,12 @@ begin
     return;
   end if;
 
-  select coalesce(sum(milli), 0) into v_balance
-  from public.ledger_entries where account_id = p_account;
+  -- `le.` is load-bearing. `milli` is also an OUT parameter of this function,
+  -- so an unqualified `sum(milli)` is ambiguous and the function raises 42702
+  -- on the very first charge. Caught by running it against a real database;
+  -- no amount of reading the migration would have shown it.
+  select coalesce(sum(le.milli), 0) into v_balance
+  from public.ledger_entries le where le.account_id = p_account;
 
   if v_balance < p_cost_milli then
     return query select false, 'Not enough credits left.', 0::bigint;
