@@ -40,11 +40,26 @@ export const metadata = {
 const DENTAL = { read: 166, matched: 42, noMatch: 51, refused: 73 };
 const PROOF = { calls: 41, falsePositives: 0, low: "91.4", quotes: "544 of 544" };
 
-const MARKETS_A = [
-  "dental", "med spas", "HVAC", "vet clinics", "law firms", "pharmacies",
-];
-const MARKETS_B = [
-  "roofers", "dentists", "clinics", "plumbers", "studios", "garages",
+/**
+ * The four markets actually read, and the rest said as what they are.
+ *
+ * This replaced a two-row scrolling marquee of twelve verticals. Two problems
+ * with that, and the second is the serious one. It was busy — two rows of
+ * 76px display type moving at different speeds, above the fold of a page whose
+ * argument is careful measurement. And it **claimed twelve markets when four
+ * have been read**, padded with near-duplicates: "dental" and "dentists",
+ * "vet clinics" and "clinics". A page that distinguishes measured from claimed
+ * in every other section should not have a decorative list quietly asserting
+ * coverage.
+ *
+ * So: the measured ones carry their read counts, and everything else is a
+ * sentence about the method rather than a list posing as a catalogue.
+ */
+const MARKETS_READ = [
+  { name: "dental", metro: "Phoenix" },
+  { name: "med spas", metro: "Dallas" },
+  { name: "HVAC", metro: "Tampa" },
+  { name: "vet clinics", metro: "Columbus" },
 ];
 
 export default function Home() {
@@ -200,10 +215,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ========================== 01 · why ========================== */}
+      {/* ============================ why ============================ */}
+      {/* The outlined "01" that used to hang here went with the section
+          numbering. It was the last numeral on the page, which is exactly why
+          it read as strange — a sequence of one. */}
       <section id="why" className="mx-auto max-w-[1340px] px-8 py-20">
-        <div className="grid gap-10 lg:grid-cols-[120px_1fr]">
-          <span className="hang" style={{ fontSize: 96, lineHeight: 0.8 }}>01</span>
+        <div className="grid gap-10 lg:grid-cols-[1fr]">
           <div>
             <p className="dsp max-w-[24ch]" style={{ fontSize: "clamp(34px,5vw,66px)" }}>
               {DENTAL.read} sites read came back as{" "}
@@ -270,25 +287,23 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mt-16 overflow-hidden">
-          <div className="mq dsp" style={{ fontSize: "clamp(40px,7vw,76px)" }}>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <span key={i}>
-                {MARKETS_A.map((m) => (
-                  <span key={m} className="mr-10">{m}</span>
-                ))}
-              </span>
+        <div className="mx-auto mt-16 max-w-[1340px] px-8">
+          <div className="grid gap-px overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2 lg:grid-cols-4">
+            {MARKETS_READ.map((m) => (
+              <div key={m.name} className="bg-[var(--paper)] px-6 py-7">
+                <div className="dsp" style={{ fontSize: 28 }}>{m.name}</div>
+                <div className="mono mt-2 text-[12px]" style={{ color: "var(--ink-3)" }}>
+                  {m.metro} · read
+                </div>
+              </div>
             ))}
           </div>
-          <div className="mq-slow dsp hang mt-3" style={{ fontSize: "clamp(40px,7vw,76px)" }}>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <span key={i}>
-                {MARKETS_B.map((m) => (
-                  <span key={m} className="mr-10">{m}</span>
-                ))}
-              </span>
-            ))}
-          </div>
+          <p className="lede mt-8 max-w-[62ch]" style={{ color: "var(--ink-2)" }}>
+            Those four are the ones we have actually read. Any other market works
+            the same way — the criterion is read on the page, so nothing needs to
+            be built for a new one — but we have not read them, and a list of
+            verticals we have not touched would be a claim rather than a fact.
+          </p>
         </div>
 
         <div className="mx-auto mt-16 flex max-w-[1340px] flex-wrap items-baseline gap-4 px-8">
@@ -389,7 +404,22 @@ export default function Home() {
             </div>
           ))}
         </div>
-        <p className="mono mt-6 text-[12px]" style={{ color: "var(--ink-3)" }}>
+        <div className="mt-10 flex flex-wrap items-center gap-4">
+          <Link
+            href="/app"
+            className="inline-flex h-12 items-center rounded-full bg-[var(--lure)] px-6 text-[14px] font-semibold text-[var(--ink)]"
+          >
+            Start free — no card
+          </Link>
+          <Link
+            href="/pricing"
+            className="inline-flex h-12 items-center rounded-full border border-[var(--line-strong)] px-6 text-[14px] font-semibold"
+          >
+            Compare the plans
+          </Link>
+        </div>
+
+        <p className="mono mt-8 text-[12px]" style={{ color: "var(--ink-3)" }}>
           Non-matches are free · a wrong match is refunded on the spot · a
           business you unlocked stays yours for 12 months ·{" "}
           <Link href="/pricing" className="underline underline-offset-2">

@@ -223,10 +223,9 @@ body {
   box-shadow: 0 24px 48px rgba(14, 21, 32, 0.13);
 }
 
-@keyframes mkt-drift { from { transform: translateX(0) } to { transform: translateX(-50%) } }
-@keyframes mkt-driftb { from { transform: translateX(-50%) } to { transform: translateX(0) } }
 /* Bubbles, from the fish's mouth: up and to the left, since the mark faces
    left. Three drifts rather than one, so a cluster never moves as a block. */
+@keyframes mkt-drift { from { transform: translateX(0) } to { transform: translateX(-50%) } }
 @keyframes mkt-bubble {
   0%   { transform: translate(0, 0) scale(0.35); opacity: 0 }
   10%  { opacity: 0.9 }
@@ -261,8 +260,13 @@ body {
   50%  { transform: translate(-30px, -22px) rotate(-2deg) }
   100% { transform: translate(0, 0) rotate(0deg) }
 }
+/* `.mq` still drives the hero ticker — a single 11px mono line, which is what
+   a marquee is actually good for. `.mq-slow` and its reversed keyframes went
+   with the scrolling *market* list, which was two rows of 76px display type.
+   Removing both was the first attempt and it would have shipped the ticker as
+   a long overflowing line: dead CSS is worth deleting, and "unused" has to be
+   checked rather than assumed. */
 .mkt .mq { display: inline-block; white-space: nowrap; animation: mkt-drift 34s linear infinite; }
-.mkt .mq-slow { display: inline-block; white-space: nowrap; animation: mkt-driftb 58s linear infinite; }
 .mkt .swim { animation: mkt-swim 9s ease-in-out infinite; }
 
 /* The hero mark, at every width.
@@ -295,7 +299,7 @@ body {
 
 /* Motion is decoration here. Anyone who has asked for less of it gets none. */
 @media (prefers-reduced-motion: reduce) {
-  .mkt .mq, .mkt .mq-slow, .mkt .swim { animation: none; }
+  .mkt .mq, .mkt .swim { animation: none; }
   /* Bubbles are pure decoration, so they go entirely rather than freezing
      mid-drift at whatever opacity that keyframe happened to hold. */
   .mkt .bub { animation: none; opacity: 0; }
