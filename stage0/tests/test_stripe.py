@@ -129,10 +129,22 @@ def main() -> int:
         "planForPriceId" in checkout and "planForPriceId" in hook,
     )
     check(
-        "and an unknown price refuses rather than defaulting",
-        "Could not tell which plan" in hook_prose
-        and re.search(r"return id \? PLANS\.find", checkout) is not None,
+        "and the webhook refuses when it cannot tell which plan",
+        "Could not tell which plan" in hook_prose,
         "two plans could one day cost the same",
+    )
+    # The behaviour — an unknown price id resolving to nothing rather than a
+    # default — is asserted by *running* the function in test_s1_platform.mjs.
+    # This check only guards that that assertion still exists. The first version
+    # here grepped for `return id ? PLANS.find(`, which broke the moment the
+    # function was refactored while behaving identically: a test that fails on a
+    # rename is testing the author, not the code.
+    platform = (ROOT / "stage0" / "tests" / "test_s1_platform.mjs").read_text()
+    check(
+        "an unknown price id is covered behaviourally, not by grepping source",
+        'planForPriceId("price_ZZZ"' in platform and "=== undefined" in platform,
+        "if that assertion is deleted, nothing checks that an unrecognised "
+        "price fails to grant credits",
     )
 
     # --- applied at most once ---------------------------------------------
