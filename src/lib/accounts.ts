@@ -66,7 +66,22 @@ async function rest<T>(path: string, init?: RequestInit): Promise<T> {
     cache: "no-store",
   });
   if (!res.ok) throw new Error(`${init?.method ?? "GET"} ${path}: ${res.status} ${await res.text()}`);
-  return res.status === 204 ? (null as T) : ((await res.json()) as T);
+
+  // An empty body is not only a 204.
+  //
+  // `Prefer: return=minimal` makes PostgREST answer **201 Created with no
+  // body**, and the first version of this guarded against 204 alone — so
+  // `res.json()` threw on the member insert inside `ensureWorkspace`, which
+  // died before it reached `renew_period`. The visible result was a customer
+  // with a workspace, a membership row and **zero credits**: an account that
+  // looked created and was not funded. The row is what proved it —
+  // `period_start` was identical to `created_at` to the microsecond, and
+  // `renew_period` sets `period_start = now()`, so it plainly never ran.
+  //
+  // Read the text first and parse only if there is something to parse. The
+  // status code is not a reliable signal of whether a body exists.
+  const body = await res.text();
+  return (body ? (JSON.parse(body) as T) : (null as T));
 }
 
 /** Call one of the SQL functions. The atomic half of every money operation. */
@@ -77,23 +92,32 @@ const rpc = <T>(fn: string, args: Record<string, unknown>) =>
 
 /** The workspace this Clerk user belongs to, or null if they have none yet. */
 export async function accountForUser(clerkUserId: string): Promise<AccountRow | null> {
-  const rows = await rest<Array<{ accounts: AccountRow }>>(
-    `account_members?user_id=eq.${encodeURIComponent(clerkUserId)}&select=accounts(*)&limit=1`,
-  );
+  const rows =
+    (await rest<Array<{ accounts: AccountRow }> | null>(
+      `account_members?user_id=eq.${encodeURIComponent(clerkUserId)}&select=accounts(*)&limit=1`,
+    )) ?? [];
   return rows[0]?.accounts ?? null;
 }
 
 export async function balanceOf(accountId: string): Promise<number> {
-  const rows = await rest<Array<{ milli: number }>>(
-    `account_balances?account_id=eq.${accountId}&select=milli`,
-  );
+  const rows =
+    (await rest<Array<{ milli: number }> | null>(
+      `account_balances?account_id=eq.${accountId}&select=milli`,
+    )) ?? [];
   return rows[0]?.milli ?? 0;
 }
 
 export async function ledgerOf(accountId: string, limit = 100): Promise<Entry[]> {
-  const rows = await rest<
-    Array<{ kind: EntryKind; milli: number; at: string; business_id: string | null; why: string }>
-  >(`ledger_entries?account_id=eq.${accountId}&select=*&order=at.desc,id.desc&limit=${limit}`);
+  const rows =
+    (await rest<Array<{
+      kind: EntryKind;
+      milli: number;
+      at: string;
+      business_id: string | null;
+      why: string;
+    }> | null>(
+      `ledger_entries?account_id=eq.${accountId}&select=*&order=at.desc,id.desc&limit=${limit}`,
+    )) ?? [];
   return rows.map((r) => ({
     kind: r.kind,
     milli: Number(r.milli),
