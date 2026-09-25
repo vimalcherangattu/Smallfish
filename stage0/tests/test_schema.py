@@ -182,6 +182,38 @@ def main() -> int:
         "cascade raised P0001 and could never have fired",
     )
 
+    check(
+        "spend_reads computes the permitted figure before the update",
+        re.search(r"v_allowed := least\(greatest\(p_reads, 0\)", code) is not None
+        and not re.search(r"returning least\(greatest\(p_reads", code),
+        "inside a RETURNING clause reads_this_period is the value AFTER the "
+        "update, so the clamp is invisible to the caller and the read "
+        "allowance — the only bound on a criterion that matches nothing — "
+        "fails open",
+    )
+    check(
+        "every ledger-writing function takes the row lock",
+        all(
+            re.search(rf"function public\.{fn}\b.*?for update", code, re.S) is not None
+            for fn in ["charge_for_match", "refund_match", "renew_period", "spend_reads"]
+        ),
+        "two requests arriving together would otherwise both pass the same check",
+    )
+    check(
+        "a refund reads the amount from the ledger rather than recomputing it",
+        re.search(r"select le\.milli into v_charged", code) is not None,
+        "the band may have settled differently at the time",
+    )
+    check(
+        "and releases the unlock, so the business can be charged again later",
+        re.search(r"delete from public\.unlocks u", code) is not None,
+    )
+    for fn in ["refund_match", "renew_period", "spend_reads"]:
+        check(
+            f"{fn} is not callable by a client",
+            re.search(rf"revoke all on function public\.{fn}", code) is not None,
+        )
+
     # --- identity is Clerk ----------------------------------------------
     check(
         "the policies read the Clerk subject from a verified JWT",
