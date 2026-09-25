@@ -439,7 +439,7 @@ export default function Home() {
             {[
               ["Product", [["Try it", "/app"], ["Templates", "/templates"], ["Markets", "/find/dental-practices-with-no-online-booking-phoenix"], ["Pricing", "/pricing"]]],
               ["Company", [["Why it exists", "#why"], ["The benchmark", "/benchmark"], ["Compare", "/compare"], ["Remove my business", "/opt-out"]]],
-              ["Small print", [["How we crawl", "/opt-out"], ["What we do not do", "/compare"], ["What we get wrong", "/benchmark"]]],
+              ["Small print", [["Privacy", "/privacy"], ["Terms", "/terms"], ["How we crawl", "/bot"], ["What we get wrong", "/benchmark"]]],
             ].map(([title, links]) => (
               <div key={title as string}>
                 <span className="lab" style={{ color: "#5B6470" }}>{title as string}</span>

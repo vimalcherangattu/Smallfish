@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="120" viewBox="0 0 440 120" role="img" aria-label="Small Fish">
+  <!-- Mark plus wordmark, on the paper ground, for a header or a letterhead.
+       The name is set in IBM Plex Sans Medium — the product's own voice — and
+       is drawn as text rather than outlines so it stays selectable and
+       re-typesettable. Anywhere the font may not be present, export a PNG. -->
+  <rect width="440" height="120" fill="#EEF0EC"/>
+  <g transform="translate(28 36) scale(1.0)">
+    <path d="M26 16 L44 5.5 Q41 16 44 26.5 Z" fill="#C8F03C"/>
+    <circle cx="17" cy="16" r="12" fill="#C8F03C"/>
+    <circle cx="11.5" cy="12.5" r="2.3" fill="#0E1520"/>
+    <path d="M9.5 21 Q13.5 25 19 24.6" fill="none" stroke="#0E1520" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <text x="104" y="70" font-family="IBM Plex Sans, Inter, Helvetica, Arial, sans-serif"
+        font-size="40" font-weight="500" fill="#0E1520" letter-spacing="-0.5">small fish</text>
+</svg>

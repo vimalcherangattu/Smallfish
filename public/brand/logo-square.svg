@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Small Fish">
+  <!-- The Small Fish mark, square, for places that demand a square logo:
+       Google's OAuth consent screen, an app store tile, a social avatar.
+
+       Same four elements as `src/components/Fish.tsx` — tail, body, eye,
+       smile — on the deep ink ground from the design system. The mark sits
+       inside a 96px circle centred in the 120px square, because several
+       surfaces (Google account chooser among them) crop a logo to a circle
+       without warning, and a tail clipped off is worse than a smaller fish. -->
+  <rect width="120" height="120" rx="26" fill="#0E1520"/>
+  <g transform="translate(23 35.33) scale(1.54167)">
+    <path d="M26 16 L44 5.5 Q41 16 44 26.5 Z" fill="#C8F03C"/>
+    <circle cx="17" cy="16" r="12" fill="#C8F03C"/>
+    <circle cx="11.5" cy="12.5" r="2.3" fill="#0E1520"/>
+    <path d="M9.5 21 Q13.5 25 19 24.6" fill="none" stroke="#0E1520" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>
