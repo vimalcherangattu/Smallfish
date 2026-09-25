@@ -16,7 +16,8 @@ import { readFileSync, rmSync } from "node:fs";
 import { compileLib } from "./_tsmodules.mjs";
 
 const { dir, load } = compileLib(
-  ["src/lib/csv.ts", "src/lib/outreach.ts", "src/lib/signals.ts", "src/lib/types.ts"],
+  ["src/lib/csv.ts", "src/lib/entitlement.ts", "src/lib/outreach.ts",
+   "src/lib/signals.ts", "src/lib/types.ts"],
   "sfpriv-",
 );
 const { overallVerdict, nonMatchSummary, toCsv } = await load("csv");

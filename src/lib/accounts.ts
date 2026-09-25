@@ -265,6 +265,130 @@ export async function applyPaidPeriod(args: {
   return row;
 }
 
+// ----------------------------------------------------- destinations (S2-02) --
+//
+// These live here rather than in their own repository for one reason: `conn()`
+// above holds the service-role key, and a second file building the same
+// connection would be a second place that key is read, formatted and sent. One
+// is enough.
+//
+// The credential itself never passes through these functions in the clear.
+// `deliver.ts` seals it before it arrives and opens it after it leaves, so this
+// module handles ciphertext and a four-character hint — which means a stack
+// trace, a log line or an error message from here cannot carry a customer's
+// CRM token.
+
+export type DestinationRow = {
+  id: string;
+  account_id: string;
+  kind: string;
+  name: string;
+  target: string | null;
+  secret_hint: string;
+  created_at: string;
+  disabled_at: string | null;
+};
+
+export async function destinationsFor(accountId: string): Promise<DestinationRow[]> {
+  return (
+    (await rest<DestinationRow[] | null>(
+      `destinations?account_id=eq.${accountId}&disabled_at=is.null&select=*&order=created_at.desc`,
+    )) ?? []
+  );
+}
+
+export async function createDestination(args: {
+  accountId: string;
+  kind: string;
+  name: string;
+  target?: string | null;
+  /** Already sealed by `deliver.ts`. This function never sees a real token. */
+  cipher: string;
+  secretHint: string;
+}): Promise<DestinationRow> {
+  const [row] = await rest<DestinationRow[]>("destinations", {
+    method: "POST",
+    headers: { Prefer: "return=representation" },
+    body: JSON.stringify({
+      account_id: args.accountId,
+      kind: args.kind,
+      name: args.name,
+      target: args.target ?? null,
+      secret_hint: args.secretHint,
+    }),
+  });
+
+  await rest("destination_secrets", {
+    method: "POST",
+    headers: { Prefer: "return=minimal,resolution=merge-duplicates" },
+    body: JSON.stringify({ destination_id: row.id, cipher: args.cipher }),
+  });
+
+  return row;
+}
+
+/**
+ * A destination and its sealed credential, scoped to the account.
+ *
+ * `account_id=eq.` is in the query and not merely checked afterwards. The
+ * service role bypasses every policy, so an id from a request body would
+ * otherwise read another workspace's connection — the class of bug RLS exists
+ * to prevent, reintroduced by the one client that is allowed past it.
+ */
+export async function destinationWithCipher(
+  accountId: string,
+  destinationId: string,
+): Promise<{ destination: DestinationRow; cipher: string } | null> {
+  const rows =
+    (await rest<Array<DestinationRow & { destination_secrets: { cipher: string }[] }> | null>(
+      `destinations?id=eq.${encodeURIComponent(destinationId)}` +
+        `&account_id=eq.${accountId}&disabled_at=is.null` +
+        `&select=*,destination_secrets(cipher)&limit=1`,
+    )) ?? [];
+  const row = rows[0];
+  const cipher = row?.destination_secrets?.[0]?.cipher;
+  if (!row || !cipher) return null;
+
+  const { destination_secrets: _secrets, ...destination } = row;
+  return { destination, cipher };
+}
+
+export async function recordPush(args: {
+  accountId: string;
+  destinationId: string;
+  businessId: string;
+  externalId?: string | null;
+}): Promise<void> {
+  await rpc("record_push", {
+    p_account: args.accountId,
+    p_destination: args.destinationId,
+    p_business: args.businessId,
+    p_external: args.externalId ?? null,
+  });
+}
+
+/** Businesses this workspace pushed that have since asked to be removed.
+ *
+ *  `suppression.ts` tells an owner the truth — a row already exported cannot be
+ *  recalled. A row already *pushed* is different, because we kept the record id
+ *  the destination gave it, so the customer can be told exactly what to delete
+ *  rather than being told it is too late. */
+export async function pushedThenSuppressed(accountId: string) {
+  return (
+    (await rest<
+      Array<{
+        destination_id: string;
+        destination_kind: string;
+        destination_name: string;
+        business_id: string;
+        external_id: string | null;
+        last_pushed_at: string;
+        remove_by: string;
+      }>
+    >(`pushed_then_suppressed?account_id=eq.${accountId}&select=*&order=remove_by.asc`)) ?? []
+  );
+}
+
 /**
  * A cancelled subscription returns the workspace to Free.
  *

@@ -15,7 +15,8 @@ import { compileLib } from "./_tsmodules.mjs";
 // csv.ts pulls in outreach.ts for the three outreach columns, which pulls in
 // signals.ts; all of them have to be compiled together.
 const { dir, load } = compileLib(
-  ["src/lib/csv.ts", "src/lib/outreach.ts", "src/lib/signals.ts", "src/lib/types.ts"],
+  ["src/lib/csv.ts", "src/lib/entitlement.ts", "src/lib/outreach.ts",
+   "src/lib/signals.ts", "src/lib/types.ts"],
   "sfcsv-",
 );
 const { toCsv, whyItMatched, overallVerdict, nonMatchSummary, summaryToCsv } =

@@ -17,8 +17,8 @@ import { readFileSync, rmSync } from "node:fs";
 import { compileLib } from "./_tsmodules.mjs";
 
 const { dir, load } = compileLib(
-  ["src/lib/billing.ts", "src/lib/csv.ts", "src/lib/outreach.ts",
-   "src/lib/signals.ts", "src/lib/types.ts"],
+  ["src/lib/billing.ts", "src/lib/csv.ts", "src/lib/entitlement.ts",
+   "src/lib/outreach.ts", "src/lib/signals.ts", "src/lib/types.ts"],
   "sfbill-",
 );
 const { billingKey, groupForBilling, duplicatesIn, hostOf } = await load("billing");

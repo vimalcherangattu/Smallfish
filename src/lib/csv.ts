@@ -21,6 +21,7 @@
  */
 
 import { groupForBilling } from "@/lib/billing";
+import { overallVerdict, refusalFor, type Entitlement } from "@/lib/entitlement";
 import { outreachFor } from "@/lib/outreach";
 import {
   BILLABLE,
@@ -29,6 +30,11 @@ import {
   type Criterion,
   type VerdictKind,
 } from "@/lib/types";
+
+// `overallVerdict` moved to `entitlement.ts` — it is the first half of "may
+// this row leave?", and S2-02's push has to ask the same question. Re-exported
+// here so the callers that already import it from this module keep working.
+export { overallVerdict };
 
 /** RFC 4180. Quote when the value contains a delimiter, quote or newline. */
 function cell(value: string | number | null | undefined): string {
@@ -48,24 +54,6 @@ export function whyItMatched(b: Business, criteria: Criterion[]): string {
     v?.proof ? `${c.text} (${v.proof})` : c.text,
   );
   return `${b.name} ${clauses.join("; ")}.`;
-}
-
-/** The weakest verdict across the criteria asked for: a match needs all of them. */
-export function overallVerdict(b: Business, criteria: Criterion[]): VerdictKind {
-  const kinds = criteria.map(
-    (c) => (b.verdicts[c.id]?.verdict ?? "unread") as VerdictKind,
-  );
-  return kinds.includes("no_match")
-    ? "no_match"
-    : kinds.every((k) => k === "match")
-      ? "match"
-      : kinds.includes("blocked")
-        ? "blocked"
-        : kinds.includes("couldnt_tell")
-          ? "couldnt_tell"
-          : kinds.includes("needs_model")
-            ? "needs_model"
-            : "unread";
 }
 
 /**
@@ -115,12 +103,15 @@ export function toCsv(
    * to email the same practice twice — and which lets the customer decide.
    */
   exportedBefore: Record<string, string> = {},
+  /** Suppression, and — when it is switched on — paid unlocks. One gate, shared
+   *  with the CRM push, so that a row refused in one place is refused in both. */
+  ent: Entitlement = {},
 ): string {
   // One row per business, not per candidate record. Two Overture listings for
   // one practice would otherwise be two rows in the file and two credits on
   // the bill — see `src/lib/billing.ts`.
   const groups = groupForBilling(
-    businesses.filter((b) => BILLABLE[overallVerdict(b, criteria)]),
+    businesses.filter((b) => !refusalFor(b, criteria, ent)),
   );
   const locations = new Map(groups.map((g) => [g.lead.id, g.all.length]));
   const leads = new Set(groups.map((g) => g.lead.id));
@@ -162,8 +153,9 @@ export function toCsv(
 
   for (const b of businesses) {
     const overall = overallVerdict(b, criteria);
-    // Matched rows only. Everything else is a count, via `nonMatchSummary`.
-    if (!BILLABLE[overall]) continue;
+    // Matched rows only, and nothing that asked to be left out. Everything else
+    // is a count, via `nonMatchSummary`.
+    if (refusalFor(b, criteria, ent)) continue;
     // And one row per business: a duplicate listing rides on its lead's row.
     if (!leads.has(b.id)) continue;
 

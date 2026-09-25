@@ -37,6 +37,16 @@ export function compileLib(sources, prefix = "sf-") {
         noEmit: false,
         baseUrl: process.cwd(),
         paths: { "@/*": ["./src/*"] },
+        // `deliver.ts` imports `node:crypto`. Without this, tsc cannot resolve
+        // a builtin and fails the whole compile — which looks like a broken
+        // test rather than a missing type package.
+        //
+        // `typeRoots` has to be absolute: the generated tsconfig lives in a
+        // temp directory, and the default is resolved relative to the config
+        // file, so tsc looks for `/tmp/…/node_modules/@types` and finds
+        // nothing.
+        types: ["node"],
+        typeRoots: [join(process.cwd(), "node_modules", "@types")],
       },
       files: sources.map((f) => join(process.cwd(), f)),
     }),
