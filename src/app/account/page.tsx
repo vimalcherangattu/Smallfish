@@ -166,11 +166,13 @@ export default async function Account() {
                 payment verification · remove STRIPE_PRICE_TEST to hide this
               </p>
               <p className="mt-2 text-[15px] leading-relaxed text-[var(--ink-2)]">
-                A <strong className="font-semibold text-[var(--ink)]">real $1 charge</strong>{" "}
-                against the live keys, granting {VERIFICATION_PLAN.credits} credit. It
-                proves the whole chain — session, webhook, signature, the grant, and
-                the guard that refuses a redelivered event. Cancel and refund it
-                afterwards.
+                A <strong className="font-semibold text-[var(--ink)]">real charge</strong>{" "}
+                against the live keys, for whatever amount the Stripe price named by{" "}
+                <code className="mono text-[13px]">STRIPE_PRICE_TEST</code> is set to —
+                Stripe shows it at checkout, and this page deliberately does not
+                repeat it. Grants {VERIFICATION_PLAN.credits} credit. It proves the
+                whole chain: session, webhook, signature, the grant, and the guard
+                that refuses a redelivered event. Cancel and refund it afterwards.
               </p>
               <div className="max-w-[260px]">
                 <BuyPlan planId={VERIFICATION_PLAN.id} name={VERIFICATION_PLAN.name} />

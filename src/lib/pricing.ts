@@ -106,6 +106,16 @@ export const PLANS: Plan[] = [
  * It is reachable only while `STRIPE_PRICE_TEST` is set, and disappears with
  * that variable. `stage0/tests/test_stripe.py` fails if it ever appears in
  * `PLANS`.
+ *
+ * **`priceUsd` here is a gate, not a price.** The real amount and its currency
+ * live in the Stripe price that `STRIPE_PRICE_TEST` names, and nothing in this
+ * repository knows what they are. The field is 1 only because `startCheckout`
+ * refuses any plan whose `priceUsd` is 0 — that is the free-plan rule and it
+ * must keep working. The first version of the account page read this field and
+ * told the customer "a real $1 charge", which was wrong the moment the price
+ * turned out to be ₹2. A price written in two places is a price that diverges,
+ * so the screen no longer states an amount at all: Stripe shows it at checkout,
+ * where it is true.
  */
 export const VERIFICATION_PLAN: Plan = {
   id: "verify",
