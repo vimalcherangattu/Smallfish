@@ -1,48 +1,94 @@
 @import "tailwindcss";
 
+/* The product's palette, from `docs/design-system.md` §3 — cool paper, deep
+ * ink, one lure. These were a warm-grey and teal set of their own invention
+ * until 2026-09-25; remapping the existing token names onto the design system's
+ * values means every screen already built inherits it, rather than a new shell
+ * looking designed and the rest looking foreign.
+ *
+ * Two rules from §3 that the names have to carry, because a token nobody can
+ * misuse is better than a rule in a document:
+ *
+ *   - **Lure is never text on a light ground.** `--lure` is for fills only;
+ *     `--lure-text` is the twin to write with. They are different colours and
+ *     that is deliberate.
+ *   - **Lure appears once per screen**, on the one main action. It is not
+ *     available as a verdict colour, which is why the verdict tokens below are
+ *     muted and separate.
+ */
 :root {
-  --bg: #fbfaf8;
-  --panel: #ffffff;
-  --ink: #16181d;
-  --muted: #646b78;
-  --line: #e4e2dd;
-  --accent: #0f6d5f;
-  --accent-soft: #e6f2ef;
-  --match: #0f6d5f;
-  --no: #8a8f9a;
-  --unsure: #a8690b;
-  --unsure-soft: #fdf3e2;
-  --unread: #9aa0ab;
+  --bg: #eef0ec;          /* shallows — the app ground */
+  --raised: #f6f7f4;      /* shallows, raised — sidebar and wells */
+  --panel: #ffffff;       /* surface — cards, tables */
+  --fill: #e3e6e0;        /* tracks, selected nav */
+  --ink: #0e1520;         /* deep ink */
+  --ink-2: #36404c;
+  --muted: #5b6470;       /* ink 3 */
+  --line: #d5d9d2;
+  --line-strong: #b9bfb6;
+
+  --lure: #c8f03c;        /* the only brand colour. Fills only. */
+  --lure-hover: #b5de28;
+  --lure-text: #4a6508;   /* because lure is never text on light grounds */
+  --lure-mark: #e4f5a6;   /* only ever behind quoted evidence */
+
+  /* Verdict colours stay muted and never decorate (§3). The design system
+   * names them kelp / brass / slate but the exact hexes are not in the PDF's
+   * extractable text — these are chosen to sit in that description and should
+   * be replaced from the PDF, which is the authority. */
+  --accent: #2f6b4f;      /* kelp — a fit */
+  --accent-soft: #e4ede8;
+  --match: #2f6b4f;
+  --no: #5b6470;          /* slate — not a fit */
+  --unsure: #8a6414;      /* brass — pending is a real answer, never grey */
+  --unsure-soft: #f4ecd9;
+  --unread: #949ba6;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #101217;
-    --panel: #171a20;
-    --ink: #ecedef;
-    --muted: #99a0ad;
-    --line: #272b33;
-    --accent: #4fbfa8;
-    --accent-soft: #14312c;
-    --match: #4fbfa8;
-    --no: #757b86;
-    --unsure: #e0a44a;
+--bg: #0e1520;
+    --raised: #131c29;
+    --panel: #16202e;
+    --fill: #1d2937;
+    --ink: #eef0ec;
+    --ink-2: #b9bfb6;
+    --muted: #8b95a3;
+    --line: #26303c;
+    --line-strong: #3a4653;
+    --lure: #c8f03c;
+    --lure-hover: #d6f95e;
+    --lure-text: #c8f03c;
+    --lure-mark: #2c3a15;
+    --accent: #6fbf95;
+    --accent-soft: #16302a;
+    --match: #6fbf95;
+    --no: #8b95a3;
+    --unsure: #d9a441;
     --unsure-soft: #33280f;
     --unread: #6b7280;
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #101217;
-  --panel: #171a20;
-  --ink: #ecedef;
-  --muted: #99a0ad;
-  --line: #272b33;
-  --accent: #4fbfa8;
-  --accent-soft: #14312c;
-  --match: #4fbfa8;
-  --no: #757b86;
-  --unsure: #e0a44a;
+--bg: #0e1520;
+  --raised: #131c29;
+  --panel: #16202e;
+  --fill: #1d2937;
+  --ink: #eef0ec;
+  --ink-2: #b9bfb6;
+  --muted: #8b95a3;
+  --line: #26303c;
+  --line-strong: #3a4653;
+  --lure: #c8f03c;
+  --lure-hover: #d6f95e;
+  --lure-text: #c8f03c;
+  --lure-mark: #2c3a15;
+  --accent: #6fbf95;
+  --accent-soft: #16302a;
+  --match: #6fbf95;
+  --no: #8b95a3;
+  --unsure: #d9a441;
   --unsure-soft: #33280f;
   --unread: #6b7280;
 }
@@ -385,3 +431,120 @@ body {
   transition: border-color 0.18s ease, color 0.18s ease;
 }
 .mkt .hs-chip:hover { border-color: var(--lure); color: #EEF0EC; }
+
+/* ===================================================================== app ==
+ *
+ * The product surface, per `docs/design-system.md` §2 and §4. The marketing
+ * site keeps its own `.mkt` block; this one is for signed-in screens.
+ *
+ * **Three voices, and the point of them is that a label is not needed.** Type
+ * says who is speaking: the product in Plex Sans, the business's own words in
+ * Fraunces, and anything we computed in Plex Mono. A quoted sentence set in the
+ * UI face reads as our claim about the business rather than theirs, which is
+ * the one confusion this product cannot afford.
+ */
+.sf-h1 { font: 500 32px/38px var(--font-display), Georgia, serif; letter-spacing: -0.01em; }
+.sf-h2 { font: 600 20px/26px var(--font-sans), sans-serif; }
+.sf-h3 { font: 600 15px/21px var(--font-sans), sans-serif; }
+.sf-body { font: 400 15px/24px var(--font-sans), sans-serif; }
+.sf-small { font: 400 13px/20px var(--font-sans), sans-serif; }
+/* Anything deterministic we computed — scores, counts, deltas, sources,
+ * timestamps. Tabular figures so a column of numbers lines up. */
+.sf-data {
+  font: 400 13px/18px var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.sf-label {
+  font: 500 11px/16px var(--font-mono), ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+/* The business speaks. Always serif, and §4 says always with a source. */
+.sf-evidence { font: 400 17px/25px var(--font-display), Georgia, serif; }
+/* The marker goes behind quoted evidence and nowhere else. */
+.sf-mark {
+  background: var(--lure-mark);
+  box-shadow: 0 0 0 2px var(--lure-mark);
+  border-radius: 1px;
+}
+
+.sf-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+/* The one main action on a screen. Lure fill, ink text — never lure text. */
+.sf-btn-lure {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--lure);
+  color: #0e1520;
+  font: 600 14px var(--font-sans), sans-serif;
+  cursor: pointer;
+  transition: background 0.16s ease;
+}
+.sf-btn-lure:hover:not(:disabled) { background: var(--lure-hover); }
+.sf-btn-lure:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.sf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  font: 500 14px var(--font-sans), sans-serif;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+.sf-btn:hover:not(:disabled) { background: var(--fill); }
+.sf-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.sf-input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  font: 400 15px var(--font-sans), sans-serif;
+  outline: none;
+}
+.sf-input::placeholder { color: var(--muted); }
+.sf-input:focus { border-color: var(--ink-2); }
+
+/* Sidebar navigation. Selected uses the fill token, never lure — lure is
+ * spent on the one action, and a nav item is not it. */
+.sf-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font: 500 14px var(--font-sans), sans-serif;
+  color: var(--ink-2);
+  text-decoration: none;
+}
+.sf-nav:hover { background: var(--fill); color: var(--ink); }
+.sf-nav[aria-current="page"] { background: var(--fill); color: var(--ink); }
+
+/* Pending has its own colour and never reads as a failure (§P2). */
+.sf-pending {
+  background: var(--unsure-soft);
+  color: var(--unsure);
+  border: 1px solid color-mix(in srgb, var(--unsure) 30%, transparent);
+}

@@ -44,7 +44,10 @@ def all_sources() -> str:
 
 
 def main() -> int:
-    app = read("app", "app", "page.tsx")
+    # The map screen moved to /app/explore on 2026-09-25 when the app grew a
+    # shell around it; `/app` is now the overview. These checks are about the
+    # screen that shows and exports rows, which is the explore one.
+    app = read("app", "app", "explore", "page.tsx")
     confirm = read("components", "SearchConfirm.tsx")
     sources = all_sources()
 

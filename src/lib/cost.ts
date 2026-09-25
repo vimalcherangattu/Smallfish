@@ -11,6 +11,18 @@
  */
 
 export const COST = {
+  /**
+   * What one cold read actually cost, measured.
+   *
+   * `PROJECT_PLAN.md`'s Live numbers, 2026-09-23: **$0.0168 ± 0.0002 per
+   * business read**, flat across all three markets. `coldPerBusiness` below is
+   * the *planning* figure the cost model was built on and is deliberately left
+   * alone — several decision-log entries reason about it and would stop making
+   * sense if it moved. Anything shown to a customer uses this one: a screen
+   * that prices a scan off an estimate when a measurement exists is the same
+   * error as a verdict without a quote.
+   */
+  measuredPerRead: 0.0168,
   /** Fetch, extract a profile, judge — a business never read before. */
   coldPerBusiness: 0.01,
   /** Judge against a cached profile. */
