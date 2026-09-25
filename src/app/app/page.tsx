@@ -38,18 +38,42 @@ const ORDER: VerdictKind[] = [
   "unread",
 ];
 
+/**
+ * A market and criterion named in the URL, if the visitor arrived from one.
+ *
+ * The home page's result block links straight to the market it just counted,
+ * and a link that lands on some other market is worse than no link: the
+ * visitor read a count for dental in Phoenix and arrived at med spas in
+ * Dallas, with nothing to tell them why.
+ *
+ * Read from `window.location` in a lazy initialiser rather than through
+ * `useSearchParams`, which would put this whole page behind a Suspense
+ * boundary for two strings that are known before the first paint. Both are
+ * validated against the index before anything loads — a market id from a URL
+ * is a stranger's input, and it is interpolated into a fetch path.
+ */
+function fromUrl(): { market: string | null; criterion: string | null } {
+  if (typeof window === "undefined") return { market: null, criterion: null };
+  const q = new URLSearchParams(window.location.search);
+  const ok = (s: string | null) => (s && /^[a-z0-9_-]{1,60}$/.test(s) ? s : null);
+  return { market: ok(q.get("market")), criterion: ok(q.get("criterion")) };
+}
+
 export default function Page() {
   const [index, setIndex] = useState<MarketIndex | null>(null);
   const [market, setMarket] = useState<Market | null>(null);
-  const [marketId, setMarketId] = useState("med-spa-dallas");
+  const [marketId, setMarketId] = useState(() => fromUrl().market ?? "med-spa-dallas");
   const [region, setRegion] = useState<Region | null>(null);
   const [drawing, setDrawing] = useState(false);
   const [criterionId, setCriterionId] = useState<string>("");
   const [icpOpen, setIcpOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   /** Set when the ICP flow picks a market, so the criterion it chose survives
-   *  the market load that would otherwise overwrite it with `mostDecided`. */
-  const [pendingCriterion, setPendingCriterion] = useState<string | null>(null);
+   *  the market load that would otherwise overwrite it with `mostDecided`.
+   *  A criterion named in the URL uses the same channel, for the same reason. */
+  const [pendingCriterion, setPendingCriterion] = useState<string | null>(
+    () => fromUrl().criterion,
+  );
   const [show, setShow] = useState<Set<VerdictKind>>(
     new Set(["match", "couldnt_tell"]),
   );

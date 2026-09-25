@@ -309,3 +309,79 @@ body {
 @layer base {
   .mkt a { color: inherit; }
 }
+
+/* ---------------------------------------------------- the hero search row --
+ *
+ * Three fields and a button on one line at desktop width, stacked full-width
+ * on a phone. The fields sit on the dark hero, so they carry their own light
+ * surface rather than inheriting the page's — a transparent input on #0E1520
+ * reads as decoration, and nobody types into decoration.
+ *
+ * `min-width: 0` on the field is load-bearing: a grid item's default is
+ * `auto`, which for an input means its intrinsic size, so the three columns
+ * refuse to shrink and the row overflows the container instead of dividing it.
+ */
+.mkt .hs-row {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+  align-items: end;
+}
+@media (min-width: 900px) {
+  .mkt .hs-row {
+    grid-template-columns: 1.1fr 0.9fr 1.2fr auto;
+  }
+}
+.mkt .hs-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+.mkt .hs-field input {
+  width: 100%;
+  height: 54px;
+  box-sizing: border-box;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid #26303C;
+  background: #131C29;
+  color: #EEF0EC;
+  font: 400 16px var(--font-sans), sans-serif;
+  outline: none;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+.mkt .hs-field input::placeholder { color: #5B6470; }
+.mkt .hs-field input:focus {
+  border-color: var(--lure);
+  background: #16202E;
+}
+.mkt .hs-go {
+  height: 54px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--lure);
+  color: #0E1520;
+  font: 600 15px var(--font-sans), sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease;
+}
+.mkt .hs-go:hover { background: var(--lure-hover); }
+.mkt .hs-go:disabled { opacity: 0.55; cursor: default; }
+
+.mkt .hs-chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #26303C;
+  background: #131C29;
+  color: #B9BFB6;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font: 400 13px var(--font-sans), sans-serif;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.18s ease, color 0.18s ease;
+}
+.mkt .hs-chip:hover { border-color: var(--lure); color: #EEF0EC; }

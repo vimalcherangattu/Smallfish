@@ -1,0 +1,198 @@
+/**
+ * The home page's acceptance checks, run against the page it actually renders.
+ *
+ *     npm run build && node stage0/tests/test_home_copy.mjs
+ *
+ * The 2026-09-25 rewrite came with a list of checks — no analyst vocabulary
+ * above the fold, the unreadable-sites figure stated once and always with its
+ * billing consequence, every count leading with matches. Those are the sort of
+ * thing that holds for a week and then erodes one well-meaning edit at a time,
+ * so they are a test.
+ *
+ * It reads `.next/server/app/index.html`, the prerendered page, rather than
+ * `page.tsx`. That distinction is the whole point: a check against the source
+ * would pass on a number that lives in a comment and fail on one that never
+ * reaches a visitor. What matters is what is on the screen.
+ *
+ * It skips loudly, with exit 2, when there is no build — a copy test that
+ * silently passes because nothing was compiled is worse than no test.
+ */
+
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+
+const page = path.join(process.cwd(), ".next", "server", "app", "index.html");
+if (!existsSync(page)) {
+  console.error(
+    "No prerendered home page. Run `npm run build` first — this test checks the\n" +
+      "rendered page, not the source, and there is nothing to check without one.",
+  );
+  process.exit(2);
+}
+
+const html = readFileSync(page, "utf8");
+// Visible words only. Class names, data attributes and inlined JSON payloads
+// are not copy, and a check that reads them fails on things nobody can see.
+const text = html
+  .replace(/<script[\s\S]*?<\/script>/gi, " ")
+  .replace(/<style[\s\S]*?<\/style>/gi, " ")
+  .replace(/<[^>]+>/g, " ")
+  .replace(/&[a-z]+;|&#\d+;/gi, (m) =>
+    ({ "&rsquo;": "’", "&ldquo;": "“", "&rdquo;": "”", "&amp;": "&", "&nbsp;": " " })[
+      m.toLowerCase()
+    ] ?? " ",
+  )
+  .replace(/\s+/g, " ")
+  .trim();
+
+const headings = [...html.matchAll(/<h[12][^>]*>([\s\S]*?)<\/h[12]>/gi)].map((m) =>
+  m[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(),
+);
+
+let failures = 0;
+const check = (name, cond, detail = "") => {
+  if (cond) console.log(`  pass  ${name}`);
+  else {
+    failures += 1;
+    console.log(`  FAIL  ${name}${detail ? ": " + detail : ""}`);
+  }
+};
+
+const count = (needle) => text.toLowerCase().split(needle.toLowerCase()).length - 1;
+
+// --- numbers nobody measured -------------------------------------------------
+//
+// `544 of 544 quotes verified` was on this page for days. It appears nowhere in
+// PROJECT_PLAN.md, the coverage report or benchmark.json — it was invented, on
+// the page whose argument is that we do not do that. The other two are from the
+// rewrite brief and were never measured either.
+for (const [figure, why] of [
+  ["544", "quotes verified — the measured figure is 11 of 11 model verdicts"],
+  ["612", "med spa sites read — 200 were read, 145 settled"],
+  ["of 612", "same"],
+]) {
+  check(`the page does not claim "${figure}"`, !text.includes(figure), why);
+}
+check(
+  "and the med spa read is not reported as 212 matches",
+  !/212\s+(med|matched|businesses)/i.test(text),
+  "26 matched of 145 settled is the measured number",
+);
+
+// --- the numbers it does claim, against the measured tallies ------------------
+const idx = JSON.parse(
+  readFileSync(path.join(process.cwd(), "public", "data", "index.json"), "utf8"),
+);
+const dental = idx.markets.find((m) => m.id === "dental-phoenix");
+const t = dental.tallies.no_online_booking;
+const settled = t.match + t.no_match + t.couldnt_tell + t.blocked;
+
+check(
+  `the dental read is stated as ${settled} sites, which is what was read`,
+  text.includes(String(settled)),
+  `tallies say ${t.match} match, ${t.no_match} no, ${t.couldnt_tell} couldn't tell, ${t.blocked} blocked`,
+);
+check(
+  `and ${t.match} matches, which is what matched`,
+  new RegExp(`\\b${t.match}\\b`).test(text),
+);
+check(
+  `and ${t.couldnt_tell + t.blocked} it could not read`,
+  new RegExp(`\\b${t.couldnt_tell + t.blocked}\\b`).test(text),
+  "couldn't-tell plus blocked, because both are 'we could not say'",
+);
+
+// --- vocabulary --------------------------------------------------------------
+//
+// The buyer says leads, clients, niche, campaign. "Accounts", "criterion",
+// "verdict" and "refusal" are ours, and a headline is where a word costs the
+// most.
+for (const word of ["criterion", "verdict", "refusal", "refused to guess"]) {
+  const offending = headings.filter((h) => h.toLowerCase().includes(word));
+  check(
+    `no headline says "${word}"`,
+    offending.length === 0,
+    offending.join(" | "),
+  );
+}
+check(
+  'no headline calls a business an "account"',
+  !headings.some((h) => /\baccounts?\b/i.test(h)),
+  headings.filter((h) => /\baccounts?\b/i.test(h)).join(" | "),
+);
+
+// --- honesty, once, with the consequence -------------------------------------
+//
+// The unreadable-sites figure used to appear four times, each time as a virtue.
+// Once, attached to "you're not billed", is the whole of it.
+const fourInTen = count("four in ten") + count("40%") + count("about 40");
+check(
+  "the unreadable-sites figure appears exactly once",
+  fourInTen === 1,
+  `found ${fourInTen} times`,
+);
+check(
+  "and the section that states it also says it costs nothing",
+  /never billed/i.test(text) || /cost you nothing/i.test(text),
+);
+
+// --- win first ---------------------------------------------------------------
+//
+// A visitor who reads "73 we couldn't judge" before "42 you can call" has been
+// told what we failed at before they know what they get.
+const matchPos = text.indexOf(`${t.match} practices`);
+const couldntPos = text.indexOf(`${t.couldnt_tell + t.blocked} we`);
+check(
+  "the real-result section leads with matches, not with what we could not read",
+  matchPos > -1 && couldntPos > -1 && matchPos < couldntPos,
+  `matches at ${matchPos}, couldn't-read at ${couldntPos}`,
+);
+
+// --- one niche, said out loud ------------------------------------------------
+check(
+  "precision is not claimed across three markets when it was measured on one",
+  !/across three markets/i.test(text),
+  "41 calls were dental in Phoenix alone",
+);
+check(
+  "and the page says which niche it was measured on",
+  /dental in phoenix/i.test(text),
+);
+
+// --- price legibility --------------------------------------------------------
+for (const plan of ["Starter", "Growth", "Agency"]) {
+  check(
+    `${plan} says what it buys in plain words, not only in credits`,
+    new RegExp(`${plan}[\\s\\S]{0,200}?(month|cities|markets|city)`, "i").test(text),
+  );
+}
+
+// --- things that are built, and things that are not --------------------------
+//
+// The brief's "what you get" section promised saved-search alerts and a Google
+// Sheets export. `alerts.ts` rests on a change rate nobody has measured, and
+// S1-06b's Sheets half was never built. A page that promises them is writing a
+// cheque the product does not cover.
+check(
+  "the page does not promise change alerts",
+  !/tell you when a business/i.test(text) && !/new ones as they appear/i.test(text),
+  "alerts.ts carries measured: false on every budget it returns",
+);
+check(
+  "nor a Google Sheets export",
+  !/google sheets/i.test(text),
+  "S1-06b's Sheets half needs a Google verification review and was not built",
+);
+
+// --- the search is real ------------------------------------------------------
+check(
+  "the hero asks for a niche and a city",
+  /I sell to/i.test(text) && /\bin\b/i.test(text),
+);
+check(
+  "and says the count is free and needs no card",
+  /no sign-up/i.test(text) && /no card/i.test(text),
+);
+
+console.log(`\n${failures} failure(s)`);
+process.exit(failures ? 1 : 0);
