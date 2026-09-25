@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { REMOVAL_DAYS } from "@/lib/suppression";
+import OptOutForm from "@/components/OptOutForm";
 
 /** The public opt-out page (S1-09).
  *
@@ -43,15 +44,27 @@ export default function OptOut() {
         <section className="mt-10">
           <h2 className="text-[15px] font-semibold">How to be removed</h2>
           <p className="mt-3 text-[15px] leading-relaxed text-[var(--ink-2)]">
-            Email <span className="mono">opt-out@smallfish.example</span> from an
-            address at your own domain, or from the phone number on your
-            listing, with the name of your business. We verify it that way
-            because an opt-out anyone could file for anyone else would be a tool
-            for erasing a competitor.
+            Give us your website or the phone number on your listing. That finds
+            every listing we hold for you, including other branches if you have
+            them.
+          </p>
+
+          <OptOutForm />
+
+          <p className="mt-6 text-[15px] leading-relaxed text-[var(--ink-2)]">
+            Filing it here does not remove you on its own, and we would rather
+            say so than let you find out later. We confirm through the contact
+            already on your listing — not the one you type above — because your
+            website and phone number are public, so anyone could type them. An
+            opt-out anyone could file for anyone else would be a tool for erasing
+            a competitor, and this one is not going to be that.
           </p>
           <p className="mt-3 text-[15px] leading-relaxed text-[var(--ink-2)]">
-            You will be gone from every future search and export within{" "}
-            <strong>{REMOVAL_DAYS} days</strong>.
+            Once confirmed you are gone from every future search and export,
+            within <strong>{REMOVAL_DAYS} days</strong> and usually the same day.
+            You can also just email{" "}
+            <span className="mono">opt-out@smallfish.example</span> from an
+            address at your own domain, which verifies itself.
           </p>
         </section>
 

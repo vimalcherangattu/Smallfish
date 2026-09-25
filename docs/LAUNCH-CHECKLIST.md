@@ -63,6 +63,81 @@ python3 stage0/src/coverage/export_app_data.py   # regenerate public/data
 
 ---
 
+## 1b · Supabase and Clerk — set six variables, register one provider
+
+The database exists: project **`xdqptokitwdhfuotfpph`**, region us-east-1, both
+migrations applied and verified. Nothing else in this list depends on it, but
+the opt-out form and every future account does.
+
+**Set these on Vercel.** Two you already have:
+
+```
+NEXT_PUBLIC_SUPABASE_URL       https://xdqptokitwdhfuotfpph.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY  sb_publishable_QGev5OOW5t5taPGcQV6wnQ_aQXLdMO6
+```
+
+The third is in the Supabase dashboard under **Project settings → API keys →
+`service_role`**. It bypasses every row-level policy, so it is server-side only
+and must never be given the `NEXT_PUBLIC_` prefix:
+
+```
+SUPABASE_SERVICE_ROLE_KEY      (copy it; do not commit it)
+```
+
+Then three from Clerk, after creating an application there:
+
+```
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+CLERK_SECRET_KEY
+CLERK_WEBHOOK_SIGNING_SECRET
+```
+
+**And one step that is easy to miss and fails silently-ish:** in Supabase, under
+**Authentication → Sign In / Providers → Third-party auth**, add Clerk. Until
+you do, `auth.jwt()` carries no claims, `member_of` returns false for everyone,
+and a signed-in customer cannot read their own balance. It fails closed rather
+than open, which is the right way round, but it will look like a bug in the app.
+
+**Verify:** the opt-out form at `/opt-out` stops saying *"the database this
+would be recorded in is not configured on this deployment"* and starts saying
+*"Filed... you are not removed yet."*
+
+---
+
+## 1c · The confirmation step for removals is manual, and that is on purpose
+
+The opt-out form files a **pending** request. It does not remove anybody,
+because a website and a phone number are public — they are on the business's
+own site, which is where we got them — so typing one proves nothing. A form
+that removed on typing would be the competitor-erasure tool the page itself
+warns about.
+
+Confirmation goes to the contact already on the listing. **There is no mailer
+yet**, so until there is, that step is you. To see what is waiting, in the
+Supabase SQL editor:
+
+```sql
+select business_id, method, requested_at, remove_by
+from public.suppressions
+where effective_at is null
+order by remove_by;
+```
+
+To make one effective once you have confirmed with the owner:
+
+```sql
+update public.suppressions set effective_at = now()
+where business_id = '<the id>';
+```
+
+It takes effect on the next request — `/api/suppressed` is never cached.
+
+**This is a real gap, not a finished feature.** A transactional mailer
+(Resend, Postmark) plus a confirmation token would close it, and it is the
+smallest remaining piece of S1-09.
+
+---
+
 ## 2 · Stripe — the only thing between you and taking money
 
 Every pricing rule is built and tested: banded charging, refunds, the

@@ -100,3 +100,35 @@ export function applySuppression<T extends { id: string }>(
 ): T[] {
   return rows.filter((r) => !suppressed.has(r.id));
 }
+
+/** A listing, as much of one as matching a removal request needs. */
+export type Listing = { id: string; site?: string | null; phone?: string | null };
+
+/**
+ * Every listing a removal request covers.
+ *
+ * Takes what the owner has — their website or the phone on their listing —
+ * rather than a business id, which they have no way of knowing. A domain is
+ * matched first and, if it hits, a phone is not tried: a claim that is clearly
+ * a domain should not fall through to a digit match on the few characters that
+ * happen to be numeric.
+ *
+ * **It returns every branch.** One domain over several locations is the case
+ * the billing rules already had to handle — 23 Phoenix listings share
+ * `aspendental.com` — and a removal that reached only the one location whose id
+ * someone happened to find would leave the other 22 listed. Matching on the
+ * contact rather than the id gets that right by construction.
+ */
+export function findListings<T extends Listing>(all: T[], claim: string): T[] {
+  const raw = claim.trim();
+  const asDomain = domainOf(raw.includes("@") ? raw.split("@").pop()! : raw);
+  if (asDomain) {
+    const hits = all.filter((l) => domainOf(l.site) === asDomain);
+    if (hits.length) return hits;
+  }
+  const asPhone = digits(raw).slice(-10);
+  if (asPhone.length === 10) {
+    return all.filter((l) => digits(l.phone ?? "").slice(-10) === asPhone);
+  }
+  return [];
+}
