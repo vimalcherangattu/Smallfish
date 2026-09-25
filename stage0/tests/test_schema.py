@@ -33,6 +33,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _source import code_of  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[2]
 MIGRATIONS = sorted((ROOT / "supabase" / "migrations").glob("*.sql"))
 
@@ -61,11 +64,10 @@ def main() -> int:
         return 1
     sql = "\n".join(p.read_text() for p in MIGRATIONS)
     lower = sql.lower()
-    # SQL with the `--` comments stripped. Checks about what the schema *does*
-    # read this; checks about what it *says* read `lower`. The distinction is
-    # not pedantic — two checks here have already fired on the comment that
-    # explains why the thing they look for is absent.
-    code = re.sub(r"--[^\n]*", "", lower)
+    # Checks about what the schema *does* read this; checks about what it
+    # *says* read `lower`. See `_source.py`: two checks in this file alone have
+    # fired on the comment explaining why the thing they look for is absent.
+    code = code_of(lower, sql=True)
 
     # --- the double-charge guard -----------------------------------------
     unlocks = table(sql, "unlocks")
