@@ -240,6 +240,13 @@ export async function applyPaidPeriod(args: {
   planName: string;
   customerId?: string | null;
   subscriptionId?: string | null;
+  /**
+   * Identifies the **billing period**, not the event. Two different Stripe
+   * events describe one new subscription — `checkout.session.completed` and
+   * `invoice.paid` — and the event id cannot tell that they are the same
+   * purchase. Without this a single payment grants twice.
+   */
+  periodKey?: string | null;
 }): Promise<{ applied: boolean; reason: string | null }> {
   const [row] = await rpc<Array<{ applied: boolean; reason: string | null }>>(
     "apply_paid_period",
@@ -252,6 +259,7 @@ export async function applyPaidPeriod(args: {
       p_plan_name: args.planName,
       p_customer: args.customerId ?? null,
       p_subscription: args.subscriptionId ?? null,
+      p_period_key: args.periodKey ?? null,
     },
   );
   return row;

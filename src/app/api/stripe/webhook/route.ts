@@ -139,6 +139,10 @@ async function handle(event: Stripe.Event): Promise<Result> {
         customerId: typeof session.customer === "string" ? session.customer : null,
         subscriptionId:
           typeof session.subscription === "string" ? session.subscription : null,
+        // The first period of this subscription. `invoice.paid` for the same
+        // purchase computes the identical key and is therefore refused — see
+        // migration 0005, and the ₹2 payment that granted twice.
+        periodKey: subscriptionPeriodKey(session.subscription, "create"),
       });
       return { ok: true, ...applied, plan: plan.id, accountId };
     }
@@ -153,9 +157,15 @@ async function handle(event: Stripe.Event): Promise<Result> {
       const invoice = event.data.object as Stripe.Invoice & {
         subscription?: string | { id?: string } | null;
         subscription_details?: { metadata?: Record<string, string> | null } | null;
+        billing_reason?: string | null;
+        period_start?: number | null;
       };
       const line = invoice.lines?.data?.[0] as
-        | { metadata?: Record<string, string> | null; pricing?: { price_details?: { price?: string } } }
+        | {
+            metadata?: Record<string, string> | null;
+            pricing?: { price_details?: { price?: string } };
+            period?: { start?: number };
+          }
         | undefined;
       const accountId =
         line?.metadata?.account_id ??
@@ -182,6 +192,15 @@ async function handle(event: Stripe.Event): Promise<Result> {
         customerId: typeof invoice.customer === "string" ? invoice.customer : null,
         subscriptionId:
           typeof invoice.subscription === "string" ? invoice.subscription : null,
+        // "create" for the subscription's first invoice, so it collides with
+        // the checkout session's key; the period start for every renewal after
+        // it, so each cycle grants exactly once.
+        periodKey: subscriptionPeriodKey(
+          invoice.subscription,
+          invoice.billing_reason === "subscription_create"
+            ? "create"
+            : String(line?.period?.start ?? invoice.period_start ?? "cycle"),
+        ),
       });
       return { ok: true, ...applied, plan: plan.id, accountId };
     }
@@ -203,6 +222,22 @@ async function handle(event: Stripe.Event): Promise<Result> {
       // Acknowledged so Stripe stops retrying something we do not act on.
       return { ok: true, ignored: event.type };
   }
+}
+
+/**
+ * `<subscription>:<period>` — the key that makes one purchase one grant.
+ *
+ * Null when the subscription is unknown, which falls back to event-id
+ * deduplication alone. That is weaker, and it is better than inventing a key
+ * that might collide with a different subscription's period and silently
+ * refuse a grant somebody paid for.
+ */
+function subscriptionPeriodKey(
+  subscription: string | { id?: string } | null | undefined,
+  period: string,
+): string | null {
+  const id = typeof subscription === "string" ? subscription : subscription?.id;
+  return id ? `${id}:${period}` : null;
 }
 
 /** The price id on a completed session, fetched only when metadata did not

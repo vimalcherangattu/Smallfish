@@ -167,6 +167,30 @@ def main() -> int:
         "land inside it",
     )
     check(
+        "and the billing period is a second, separate key",
+        re.search(r"create unique index if not exists webhook_events_period_idx", migrations)
+        is not None
+        and "p_period_key" in migrations,
+        "checkout.session.completed and invoice.paid both describe one new "
+        "subscription and carry different event ids, so an event-id key alone "
+        "lets a single purchase grant twice — measured on the first live payment",
+    )
+    check(
+        "both events compute the same key for a subscription's first period",
+        hook.count("subscriptionPeriodKey(") >= 2 and '"create"' in hook,
+    )
+    check(
+        "and a renewal keys on its own period start, not on 'create'",
+        "subscription_create" in hook and "period?.start" in hook,
+        "otherwise every monthly renewal would collide with the first and be "
+        "refused, which is the opposite failure: a customer pays and gets nothing",
+    )
+    check(
+        "the old signature is dropped, not left callable",
+        re.search(r"drop function if exists public\.apply_paid_period", migrations) is not None,
+        "a call that omits the period key is a call that can double-grant",
+    )
+    check(
         "a repeat returns applied=false rather than raising",
         "unique_violation" in migrations and "Already applied." in migrations,
     )
