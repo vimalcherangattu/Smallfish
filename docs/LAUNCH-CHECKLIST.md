@@ -12,8 +12,9 @@ this project has been caught by the gap before.
 
 ## 0 · Redeploy first, before anything else
 
-Your deployment at `smallfish-eta.vercel.app` is **behind `main`**. The fish, the
-bubbles, the sitemap and the last three days of product work are not on it.
+**The domain is live: https://www.getsmallfish.com.** Everything below assumes
+it. Credentials and their exact steps have moved to **`docs/SETUP.md`**, which
+is the one to work through; this file is the wider launch list.
 
 **Do:** trigger a redeploy from Vercel, or push any commit.
 

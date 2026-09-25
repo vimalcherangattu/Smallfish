@@ -53,7 +53,7 @@ DATA = ROOT / "stage0" / "data"
 # site owner what we fetch and how to stop us; the address is a monitored
 # inbox, because that page offers it as the way to have a business removed.
 # Overridable for a custom domain or a different inbox.
-BOT_URL = os.environ.get("SMALLFISH_BOT_URL", "https://smallfish-eta.vercel.app/bot")
+BOT_URL = os.environ.get("SMALLFISH_BOT_URL", "https://www.getsmallfish.com/bot")
 CONTACT = os.environ.get("SMALLFISH_BOT_CONTACT", "getsmallfish@gmail.com")
 USER_AGENT = (
     f"SmallFishBot/0.1 (+{BOT_URL}; "

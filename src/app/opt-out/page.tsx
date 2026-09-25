@@ -63,7 +63,7 @@ export default function OptOut() {
             Once confirmed you are gone from every future search and export,
             within <strong>{REMOVAL_DAYS} days</strong> and usually the same day.
             You can also just email{" "}
-            <span className="mono">opt-out@smallfish.example</span> from an
+            <span className="mono">getsmallfish@gmail.com</span> from an
             address at your own domain, which verifies itself.
           </p>
         </section>

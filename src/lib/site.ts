@@ -5,4 +5,4 @@
  *  domain without touching either.
  */
 export const SITE =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://smallfish-eta.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.getsmallfish.com";

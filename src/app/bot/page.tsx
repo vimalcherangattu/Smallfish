@@ -55,7 +55,7 @@ export default function BotPage() {
       </p>
 
       <pre className="mt-4 overflow-x-auto rounded-md border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-[11px] leading-relaxed">
-        {UA} (+https://smallfish-eta.vercel.app/bot;{"\n"}
+        {UA} (+https://www.getsmallfish.com/bot;{"\n"}
         {"  "}local business relevance research; contact: {CONTACT})
       </pre>
 
