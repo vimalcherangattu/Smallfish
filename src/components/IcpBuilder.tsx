@@ -33,6 +33,56 @@ export default function IcpBuilder({
   const [text, setText] = useState("");
 
   const inference = useMemo(() => inferFromOffer(text), [text]);
+
+  const [siteUrl, setSiteUrl] = useState("");
+  const [reading, setReading] = useState(false);
+  const [siteNote, setSiteNote] = useState<string | null>(null);
+  /** Shown because the product's rule is that a claim carries the sentence it
+   *  came from. An extracted offer is a claim about the customer's own
+   *  business, and they are the one person who can tell instantly whether we
+   *  read it right. */
+  const [quotes, setQuotes] = useState<Array<{ field: string; quote: string }>>([]);
+
+  async function readMySite() {
+    setReading(true);
+    setSiteNote(null);
+    setQuotes([]);
+    try {
+      const res = await fetch("/api/read-seller", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: siteUrl }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        setSiteNote(data.reason);
+        return;
+      }
+      setText(data.description);
+      const p = data.profile;
+      setQuotes(
+        (["sells", "problem", "serves", "geography"] as const)
+          .filter((f) => p[f])
+          .map((f) => ({ field: f, quote: p[f].quote })),
+      );
+      const missing = (["sells", "problem", "serves", "geography"] as const).filter(
+        (f) => !p[f],
+      );
+      setSiteNote(
+        `Read ${p.pagesRead.length} page${p.pagesRead.length === 1 ? "" : "s"}.` +
+          (missing.length
+            ? ` The site does not say: ${missing.join(", ")}. That is what it says, not what we failed to find — add it above if it matters.`
+            : "") +
+          (p.dropped.length
+            ? ` ${p.dropped.length} claim${p.dropped.length === 1 ? " was" : "s were"} dropped for having no supporting sentence on the page.`
+            : ""),
+      );
+    } catch {
+      setSiteNote("That did not reach us. Type what you sell instead.");
+    } finally {
+      setReading(false);
+    }
+  }
   const candidates = useMemo(
     () => candidatesFor(inference, index),
     [inference, index],
@@ -69,7 +119,40 @@ export default function IcpBuilder({
           placeholder="e.g. We answer calls 24/7 so clinics stop losing after-hours bookings."
           className="mt-1.5 w-full resize-none rounded-md border border-[var(--line)] bg-[var(--bg)] px-2 py-1.5 text-[12px] leading-snug"
         />
-        <div className="mt-1.5 flex flex-wrap gap-1.5">
+        {/* S1-22: read it from their own site instead of asking them to
+            describe it. The whole reason this flow exists is a buyer who
+            cannot name their vertical and gap — asking them to type a precise
+            description of their own offer asks for the thing they came here
+            unable to do. */}
+        <div className="mt-2 flex gap-1.5">
+          <input
+            value={siteUrl}
+            onChange={(e) => setSiteUrl(e.target.value)}
+            placeholder="or paste your website and we will read it"
+            className="min-w-0 flex-1 rounded-md border border-[var(--line)] bg-[var(--bg)] px-2 py-1.5 text-[11px]"
+          />
+          <button
+            onClick={readMySite}
+            disabled={reading || siteUrl.trim().length < 4}
+            className="shrink-0 rounded-md border border-[var(--line)] px-2.5 py-1.5 text-[11px] font-medium disabled:opacity-40"
+          >
+            {reading ? "Reading…" : "Read it"}
+          </button>
+        </div>
+        {siteNote && (
+          <p className="mt-1.5 text-[10px] leading-snug text-[var(--muted)]">{siteNote}</p>
+        )}
+        {quotes.length > 0 && (
+          <ul className="mt-1.5 space-y-1">
+            {quotes.map((q) => (
+              <li key={q.field} className="text-[10px] leading-snug text-[var(--muted)]">
+                <span className="font-semibold">{q.field}</span> — &ldquo;{q.quote}&rdquo;
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="mt-2 flex flex-wrap gap-1.5">
           {NAMED_OFFERS.map((o) => (
             <button
               key={o.id}
