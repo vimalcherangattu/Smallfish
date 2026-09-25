@@ -234,7 +234,7 @@ export default function Home() {
       {/* ======================= 02 · the line ======================= */}
       <section style={{ background: "#0E1520", color: "#EEF0EC" }}>
         <div className="mx-auto max-w-[1340px] px-8 py-24">
-          <span className="lab" style={{ color: "#5B6470" }}>02 — the line</span>
+          <span className="lab" style={{ color: "#5B6470" }}>the line</span>
           <h2 className="dsp mt-8 max-w-[16ch]" style={{ fontSize: "clamp(40px,7vw,88px)" }}>
             It stops at drafted. It never sends.
           </h2>
@@ -257,7 +257,7 @@ export default function Home() {
       {/* ======================== 03 · markets ======================== */}
       <section id="markets" className="py-24">
         <div className="mx-auto max-w-[1340px] px-8">
-          <span className="lab" style={{ color: "var(--ink-3)" }}>03 — markets</span>
+          <span className="lab" style={{ color: "var(--ink-3)" }}>markets</span>
           <div className="mt-8 grid gap-10 lg:grid-cols-[1.3fr_1fr]">
             <h2 className="dsp max-w-[20ch]" style={{ fontSize: "clamp(32px,4.6vw,56px)" }}>
               Anywhere the good accounts are too small to be in a database.
@@ -347,7 +347,7 @@ export default function Home() {
 
       {/* ======================== 05 · pricing ======================== */}
       <section className="mx-auto max-w-[1340px] px-8 py-20">
-        <span className="lab" style={{ color: "var(--ink-3)" }}>05 — pricing</span>
+        <span className="lab" style={{ color: "var(--ink-3)" }}>pricing</span>
         <div className="mt-8 grid gap-10 lg:grid-cols-[1.3fr_1fr]">
           <h2 className="dsp max-w-[20ch]" style={{ fontSize: "clamp(32px,4.6vw,56px)" }}>
             One meter. Businesses you matched.
