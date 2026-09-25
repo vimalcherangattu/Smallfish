@@ -62,7 +62,7 @@ export default function Home() {
             <span className="text-[15px] font-medium">small fish</span>
           </span>
           <div className="flex items-center gap-8">
-            <a href="#demo" className="navlink hidden sm:inline">Try it</a>
+            <a href="#markets-live" className="navlink hidden sm:inline">Try it</a>
             <a href="#why" className="navlink hidden sm:inline">Why it exists</a>
             <Link href="/templates" className="navlink hidden sm:inline">Templates</Link>
             <Link href="/benchmark" className="navlink hidden sm:inline">Benchmark</Link>
@@ -120,7 +120,7 @@ export default function Home() {
             list them. None of them opens the websites and works out which ones
             you should actually call.
           </p>
-          <a href="#demo" className="lab mt-10 inline-flex items-center gap-2" style={{ color: "#C8F03C" }}>
+          <a href="#markets-live" className="lab mt-10 inline-flex items-center gap-2" style={{ color: "#C8F03C" }}>
             ↓ Watch it read a real market, free
           </a>
         </header>
@@ -139,8 +139,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ============================ demo ============================ */}
-      <section id="demo" className="mx-auto max-w-[1340px] px-8 py-24">
+      {/* ======================= a live market ======================= */}
+      <section id="markets-live" className="mx-auto max-w-[1340px] px-8 py-24">
         <div className="grid items-start gap-12 lg:grid-cols-[1fr_1fr]">
           <div>
             <span className="lab" style={{ color: "var(--ink-3)" }}>
@@ -155,7 +155,7 @@ export default function Home() {
               too, with the reason. Nothing is generated.
             </p>
             <Link href="/app" className="cta mt-10">
-              Open the demo
+              Open a market
               <span aria-hidden>→</span>
             </Link>
           </div>
@@ -411,16 +411,23 @@ export default function Home() {
         </div>
         <div className="relative mx-auto grid max-w-[1340px] gap-12 px-8 py-24 lg:grid-cols-[1.4fr_1fr]">
           <h2 className="dsp max-w-[16ch]" style={{ fontSize: "clamp(38px,6.4vw,84px)" }}>
-            You just watched it read one market. Point it at yours.
+            It has already read four markets. Point it at yours.
           </h2>
           <div className="self-end">
             <Link
               href="/app"
               className="inline-flex h-14 items-center rounded-full bg-[#0E1520] px-7 text-[15px] font-medium text-[#EEF0EC]"
             >
-              Open the demo →
+              Open a market →
             </Link>
-            <p className="lab mt-5" style={{ color: "#4A6508" }}>
+            {/* Not `.lab` here. 11px uppercase mono with 0.14em tracking reads
+                fine on paper; on the saturated lure ground it is the least
+                legible text on the page. Same colour token, larger and with
+                normal tracking. */}
+            <p
+              className="mono mt-5 text-[14px]"
+              style={{ color: "#3A5006", letterSpacing: "0.01em" }}
+            >
               Measured data · no sign-up · no card
             </p>
           </div>
