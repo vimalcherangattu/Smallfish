@@ -32,7 +32,18 @@ export type AccountRow = {
   period_start: string;
   created_at: string;
   closed_at: string | null;
+  /** While in the future, matches cost this workspace nothing — see 0008.
+   *  Charges are still written to the ledger, at zero, so the history is a
+   *  complete record of what was taken rather than a gap. */
+  comped_until?: string | null;
+  comped_read_budget?: number | null;
 };
+
+/** Is this workspace comped right now? Read from the row rather than computed
+ *  anywhere else, because Postgres is what actually decides it in
+ *  `charge_for_match` and a second opinion here would only ever be wrong. */
+export const isComped = (a: Pick<AccountRow, "comped_until">) =>
+  !!a.comped_until && new Date(a.comped_until).getTime() > Date.now();
 
 export class NotConfigured extends Error {
   constructor() {

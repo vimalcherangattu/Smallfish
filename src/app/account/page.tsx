@@ -6,6 +6,7 @@ import {
   accountForUser,
   balanceOf,
   ensureWorkspace,
+  isComped,
   ledgerOf,
   NotConfigured,
 } from "@/lib/accounts";
@@ -114,8 +115,33 @@ export default async function Account() {
         readsThisPeriod: account.reads_this_period,
       });
 
+      const comped = isComped(account);
+
       body = (
         <>
+          {/* A comped workspace has to say so, on the page whose job is to let
+              someone reconstruct their own balance. A tester whose balance
+              never moves and who is never told why has been handed exactly the
+              unexplained number this page exists to avoid — and the zero lines
+              below would be a mystery rather than a record. */}
+          {comped && (
+            <div className="mt-10 rounded-xl border border-[var(--line)] bg-[var(--paper-2)] px-6 py-5">
+              <p className="mono text-[11px] uppercase tracking-wider text-[var(--ink-3)]">
+                comped workspace · until{" "}
+                {new Date(account.comped_until!).toISOString().slice(0, 10)}
+              </p>
+              <p className="mt-2 text-[15px] leading-relaxed text-[var(--ink-2)]">
+                Matches cost this workspace nothing while that date is in the
+                future. Every unlock is still written below at{" "}
+                <strong className="font-semibold text-[var(--ink)]">zero</strong>,
+                with what it would have cost, so the record of what you took is
+                complete. Reading is capped at{" "}
+                {(account.comped_read_budget ?? 0).toLocaleString()} sites a
+                period — a cost bound on us, not a limit on you.
+              </p>
+            </div>
+          )}
+
           <p className="mono mt-10 text-[54px] leading-none">{credits(milli)}</p>
           <p className="mt-3 text-[16px] leading-relaxed text-[var(--ink-2)]">
             credits on {plan.name}. Only a proven match costs one — a no-match, a
@@ -123,8 +149,21 @@ export default async function Account() {
             and the lines below say which was which.
           </p>
 
+          {/* The id, because comping somebody is done by workspace and nobody
+              can send us an id they have never been shown. */}
+          <p className="mono mt-6 text-[12px] text-[var(--ink-3)]">
+            workspace {account.id}
+          </p>
+
           <div className="mt-12 grid gap-8 border-t border-[var(--line)] pt-10 sm:grid-cols-3">
-            <Stat n={String(readsLeft)} of={`of ${plan.credits * READS_PER_CREDIT}`}>
+            <Stat
+              n={String(
+                comped
+                  ? Math.max(0, (account.comped_read_budget ?? 0) - account.reads_this_period)
+                  : readsLeft,
+              )}
+              of={`of ${(comped ? (account.comped_read_budget ?? 0) : plan.credits * READS_PER_CREDIT).toLocaleString()}`}
+            >
               sites left to read this period. This is what bounds the bill when a
               criterion matches nothing at all
             </Stat>
