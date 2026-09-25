@@ -397,8 +397,14 @@ export default function Page() {
             <a href="/" className="text-[15px] font-semibold tracking-tight hover:underline">
               Small Fish
             </a>
-            <span className="text-[10px] text-[var(--muted)]">
-              Stage 0 · measured data
+            <span className="flex items-baseline gap-3 text-[10px] text-[var(--muted)]">
+              {/* A plain link rather than Clerk's own components. Those need
+                  ClerkProvider, which is mounted only when a publishable key
+                  exists, so using them here would couple this screen — which
+                  works perfectly without an account — to auth being
+                  configured. /account degrades on its own. */}
+              <a href="/account" className="hover:underline">Your account</a>
+              <span>Stage 0 · measured data</span>
             </span>
           </div>
           <p className="mt-0.5 text-[11px] leading-snug text-[var(--muted)]">

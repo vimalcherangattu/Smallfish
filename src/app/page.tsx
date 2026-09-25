@@ -67,6 +67,11 @@ export default function Home() {
             <Link href="/templates" className="navlink hidden sm:inline">Templates</Link>
             <Link href="/benchmark" className="navlink hidden sm:inline">Benchmark</Link>
             <Link href="/pricing" className="navlink hidden sm:inline">Pricing</Link>
+            {/* Quiet, and deliberately so. This page's argument is that the
+                free count needs no account; a loud "Sign up" beside it would
+                contradict the thing it is trying to prove. An account holds a
+                balance — it is not the way in. */}
+            <Link href="/account" className="navlink hidden sm:inline">Sign in</Link>
             <Link
               href="/app"
               className="rounded-full bg-[#C8F03C] px-4 py-2 text-[13px] font-medium text-[#0E1520]"
@@ -437,7 +442,7 @@ export default function Home() {
               </p>
             </div>
             {[
-              ["Product", [["Try it", "/app"], ["Templates", "/templates"], ["Markets", "/find/dental-practices-with-no-online-booking-phoenix"], ["Pricing", "/pricing"]]],
+              ["Product", [["Try it", "/app"], ["Your account", "/account"], ["Templates", "/templates"], ["Markets", "/find/dental-practices-with-no-online-booking-phoenix"], ["Pricing", "/pricing"]]],
               ["Company", [["Why it exists", "#why"], ["The benchmark", "/benchmark"], ["Compare", "/compare"], ["Remove my business", "/opt-out"]]],
               ["Small print", [["Privacy", "/privacy"], ["Terms", "/terms"], ["How we crawl", "/bot"], ["What we get wrong", "/benchmark"]]],
             ].map(([title, links]) => (
