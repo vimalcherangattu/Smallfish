@@ -13,6 +13,7 @@ import { track } from "@/lib/events";
 import { applySuppression } from "@/lib/suppression";
 import { freeCount } from "@/lib/count";
 import { downloadCsv, overallVerdict, toCsv } from "@/lib/csv";
+import PushToDestination from "@/components/PushToDestination";
 import { MILLI } from "@/lib/ledger";
 import { PLANS } from "@/lib/pricing";
 import {
@@ -416,24 +417,11 @@ export default function Page() {
             onNeedMarket={needMarket}
           />
         )}
+        {/* The wordmark, the account link and the tagline that used to sit here
+            all moved into the app shell in `src/app/app/layout.tsx`. Two
+            headers stacked on one screen is how a product reads as two
+            products bolted together. */}
         <header className="border-b border-[var(--line)] px-4 py-3">
-          <div className="flex items-baseline justify-between gap-2">
-            <a href="/" className="text-[15px] font-semibold tracking-tight hover:underline">
-              Small Fish
-            </a>
-            <span className="flex items-baseline gap-3 text-[10px] text-[var(--muted)]">
-              {/* A plain link rather than Clerk's own components. Those need
-                  ClerkProvider, which is mounted only when a publishable key
-                  exists, so using them here would couple this screen — which
-                  works perfectly without an account — to auth being
-                  configured. /account degrades on its own. */}
-              <a href="/account" className="hover:underline">Your account</a>
-              <span>Stage 0 · measured data</span>
-            </span>
-          </div>
-          <p className="mt-0.5 text-[11px] leading-snug text-[var(--muted)]">
-            Find local businesses by what they actually do, and prove every match.
-          </p>
 
           {/* The front door the product document specifies: one box. The
               market list below is the Stage 0 reality — four measured
@@ -600,6 +588,11 @@ export default function Page() {
                 </button>
               ))}
             </div>
+
+            {/* The other end of the loop. Hidden entirely when no destination is
+                connected — an empty dropdown beside an export button is a
+                feature advertising itself rather than doing anything. */}
+            <PushToDestination market={market.id} criterion={criterionId} />
 
             <div className="flex items-center justify-between gap-2 border-b border-[var(--line)] px-4 py-2">
               <span className="text-[11px] text-[var(--muted)]">
