@@ -223,6 +223,55 @@ export async function spendReads(accountId: string, reads: number, allowance: nu
   );
 }
 
+/**
+ * Apply a paid period, at most once for a given Stripe event.
+ *
+ * The idempotency is in the database, not here: `apply_paid_period` claims the
+ * event id with a primary key inside the same transaction that grants the
+ * credits. Doing it in TypeScript would be two round trips with a gap in the
+ * middle, and Stripe's retries are fast enough to land inside that gap.
+ */
+export async function applyPaidPeriod(args: {
+  eventId: string;
+  kind: string;
+  accountId: string;
+  planId: string;
+  allowanceMilli: number;
+  planName: string;
+  customerId?: string | null;
+  subscriptionId?: string | null;
+}): Promise<{ applied: boolean; reason: string | null }> {
+  const [row] = await rpc<Array<{ applied: boolean; reason: string | null }>>(
+    "apply_paid_period",
+    {
+      p_event_id: args.eventId,
+      p_kind: args.kind,
+      p_account: args.accountId,
+      p_plan_id: args.planId,
+      p_allowance_milli: args.allowanceMilli,
+      p_plan_name: args.planName,
+      p_customer: args.customerId ?? null,
+      p_subscription: args.subscriptionId ?? null,
+    },
+  );
+  return row;
+}
+
+/**
+ * A cancelled subscription returns the workspace to Free.
+ *
+ * The account is not closed and **the ledger is not touched**. Credits already
+ * paid for stay until the period rolls, and the record of what someone was
+ * charged is the one thing a billing dispute needs.
+ */
+export async function downgradeToFree(accountId: string): Promise<void> {
+  await rest(`accounts?id=eq.${accountId}`, {
+    method: "PATCH",
+    headers: { Prefer: "return=minimal" },
+    body: JSON.stringify({ plan_id: "free", stripe_subscription_id: null }),
+  });
+}
+
 // The last line of defence on the service-role key. `window` is absent on the
 // server and present in every browser; if this module is ever pulled into a
 // client bundle, the page fails loudly at import rather than quietly shipping

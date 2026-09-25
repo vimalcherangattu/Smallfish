@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BuyPlan from "@/components/BuyPlan";
 import { BANDS, COST_PER_READ, MAX_LOSS_PER_SCAN_USD, PLANS, READS_PER_CREDIT } from "@/lib/pricing";
 import { NO_WEBSITE_UNLOCK, UNLOCK_MONTHS, credits } from "@/lib/ledger";
 
@@ -53,6 +54,16 @@ export default function Pricing() {
                 {p.credits} common matches, or {Math.floor(p.credits / 3)} rare
                 ones
               </div>
+              {p.priceUsd === 0 ? (
+                <Link
+                  href="/app"
+                  className="mt-5 block rounded-full border border-[var(--line-strong)] px-4 py-2.5 text-center text-[13px] font-semibold"
+                >
+                  Start free
+                </Link>
+              ) : (
+                <BuyPlan planId={p.id} name={p.name} />
+              )}
             </div>
           ))}
         </div>

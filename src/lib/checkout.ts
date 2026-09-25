@@ -24,6 +24,14 @@ export type CheckoutIntent = {
   planId: string;
   /** Where Stripe should send the customer back to. */
   returnUrl: string;
+  /**
+   * The workspace being upgraded. It travels to Stripe and comes back on the
+   * webhook, which is the only reliable way to know *whose* payment arrived —
+   * an email address is not, because a customer can pay with a different one
+   * from the one they signed up with, and matching on it would credit the
+   * wrong workspace.
+   */
+  accountId: string;
 };
 
 export type CheckoutResult =
@@ -92,17 +100,90 @@ export async function startCheckout(
     };
   }
 
-  // Deliberately unimplemented until the keys exist. Writing a session call and
-  // a webhook verifier against no key produces code that compiles, looks
-  // finished and has never once been run — which is worse than an honest gap,
-  // because the gap is visible and the code is not.
+  const price = priceIdFor(plan.id, env);
+  if (!price) {
+    return {
+      ok: false,
+      missing: [],
+      reason: `No Stripe price is configured for the ${plan.name} plan.`,
+    };
+  }
+
+  try {
+    // Loaded here rather than at the top of the file, so that everything else
+    // in this module — which plan a price id belongs to, which credentials are
+    // missing, what a plan costs — stays importable with no SDK, no keys and
+    // no network. That is the same rule `pricing.ts` and `ledger.ts` follow,
+    // and it is why 86 assertions about money run in a plain node process.
+    const { default: Stripe } = await import("stripe");
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY!);
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      line_items: [{ price, quantity: 1 }],
+      success_url: `${intent.returnUrl}?paid=1`,
+      cancel_url: `${intent.returnUrl}?paid=0`,
+      // Both, deliberately. `client_reference_id` rides on the session and
+      // `metadata` rides on the subscription, so the workspace is recoverable
+      // from the first payment *and* from every monthly invoice after it.
+      client_reference_id: intent.accountId,
+      subscription_data: {
+        metadata: { account_id: intent.accountId, plan_id: plan.id },
+      },
+      metadata: { account_id: intent.accountId, plan_id: plan.id },
+      allow_promotion_codes: true,
+    });
+
+    if (!session.url) {
+      return {
+        ok: false,
+        missing: [],
+        reason: "Stripe created a session without a URL to send you to.",
+      };
+    }
+    return { ok: true, url: session.url, provider: "stripe" };
+  } catch (err) {
+    // Stripe's own message, not a generic one. "Something went wrong" on a
+    // payment screen is where customers stop.
+    return {
+      ok: false,
+      missing: [],
+      reason: `Stripe refused the checkout: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    };
+  }
+}
+
+/** Which price id belongs to a plan. Named per plan rather than looked up by
+ *  amount, because two plans could one day cost the same and an amount lookup
+ *  would then charge for the wrong one. */
+export function priceIdFor(
+  planId: string,
+  env: Record<string, string | undefined> = currentEnv(),
+): string | undefined {
   return {
-    ok: false,
-    missing: [],
-    reason:
-      "Credentials are present but the Stripe session call is not written yet. " +
-      "It is the last step and it needs a real key to be written against, not a guess.",
-  };
+    starter: env.STRIPE_PRICE_STARTER,
+    growth: env.STRIPE_PRICE_GROWTH,
+    agency: env.STRIPE_PRICE_AGENCY,
+  }[planId];
+}
+
+/** The plan a Stripe price id belongs to — the webhook's direction of travel.
+ *  Returns undefined rather than guessing, because guessing here grants the
+ *  wrong number of credits. */
+export function planForPriceId(
+  priceId: string | null | undefined,
+  env: Record<string, string | undefined> = currentEnv(),
+): Plan | undefined {
+  if (!priceId) return undefined;
+  const id = (
+    [
+      ["starter", env.STRIPE_PRICE_STARTER],
+      ["growth", env.STRIPE_PRICE_GROWTH],
+      ["agency", env.STRIPE_PRICE_AGENCY],
+    ] as const
+  ).find(([, p]) => p && p === priceId)?.[0];
+  return id ? PLANS.find((p) => p.id === id) : undefined;
 }
 
 /** What a plan costs, for a pricing page that cannot drift from the ledger. */

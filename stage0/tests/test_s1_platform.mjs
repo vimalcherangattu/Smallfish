@@ -37,13 +37,45 @@ const check = (name, cond, detail = "") => {
     /Nothing was charged/.test(r.reason));
 }
 {
-  const full = Object.fromEntries(C.REQUIRED_ENV.map(([k]) => [k, "x"]));
-  const r = await C.startCheckout({ planId: "starter", returnUrl: "/" }, full);
-  check("with keys present it still refuses, because the call is unwritten",
-    r.ok === false && r.missing.length === 0);
-  check("and says so rather than returning a fake session url",
-    /not written yet/.test(r.reason),
-    "a checkout that silently no-ops in dev is how billing ships untested");
+  // Superseded 2026-09-25. This block used to assert that `startCheckout`
+  // refused *even with credentials present*, because the session call was
+  // deliberately unwritten until real keys existed. The keys exist and it is
+  // written, so that assertion is now wrong to keep — but the property it was
+  // protecting is not. It was never "refuse always"; it was **never return a
+  // session url that was not obtained from Stripe**, because a checkout that
+  // silently no-ops in development is how billing ships untested.
+  //
+  // So the check becomes: with plausible-looking but fake keys, it must fail
+  // against Stripe and say why, rather than inventing a url.
+  const full = Object.fromEntries(C.REQUIRED_ENV.map(([k]) => [k, "sk_test_not_a_real_key"]));
+  const r = await C.startCheckout(
+    { planId: "starter", returnUrl: "/", accountId: "acc-1" },
+    full,
+  );
+  check("with fake keys it fails against Stripe rather than inventing a url",
+    r.ok === false && !("url" in r),
+    `got ${JSON.stringify(r).slice(0, 120)}`);
+  check("and passes Stripe's own refusal through",
+    /Stripe refused the checkout/.test(r.reason ?? ""),
+    '"something went wrong" on a payment screen is where customers stop');
+}
+{
+  // A price id must exist for the plan being bought, and the mapping must run
+  // both directions without drifting — a price that maps to the wrong plan
+  // grants the wrong number of credits.
+  const env = {
+    STRIPE_PRICE_STARTER: "price_S", STRIPE_PRICE_GROWTH: "price_G",
+    STRIPE_PRICE_AGENCY: "price_A",
+  };
+  check("a plan resolves to its price id", C.priceIdFor("growth", env) === "price_G");
+  check("and a price id resolves back to that same plan",
+    C.planForPriceId("price_G", env)?.id === "growth");
+  check("an unknown price id resolves to nothing, rather than a default",
+    C.planForPriceId("price_ZZZ", env) === undefined,
+    "defaulting here grants credits for a plan nobody bought");
+  check("and a missing price id is not treated as a match",
+    C.planForPriceId(null, env) === undefined &&
+      C.planForPriceId(undefined, {}) === undefined);
 }
 {
   const r = await C.startCheckout({ planId: "free", returnUrl: "/" }, {});
