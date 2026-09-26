@@ -548,3 +548,249 @@ body {
   color: var(--unsure);
   border: 1px solid color-mix(in srgb, var(--unsure) 30%, transparent);
 }
+
+/* ============================================ the marketing home page, v2 ==
+ *
+ * Added 2026-09-26 for the composed design in
+ * `Claude_Product_Design_System.html`. The tokens it declares were already the
+ * ones in the `.mkt` block above, so nothing here reopens the type or colour
+ * questions — these are the layout pieces that page needs and the old one did
+ * not: the cost comparison, the market picker, the proof column, the outcome
+ * bar, the tilted slab and the ghosted wordmark.
+ */
+
+/* A 12-column field. The design positions almost everything against it, and
+ * collapsing to 4 columns on a phone with every child spanning all of them is
+ * what keeps that from needing a second set of rules per section. */
+.mkt .g12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 24px;
+}
+.mkt .wrap { padding-left: 56px; padding-right: 56px; }
+
+.mkt .small { font-size: 14px; line-height: 1.55; margin: 0; }
+.mkt .src {
+  font: 400 12px/1.4 var(--font-mono), ui-monospace, monospace;
+  color: var(--ink-3);
+  text-decoration: none;
+}
+
+/* The highlight, tilted. `.lure` above is the flat version used inline in a
+ * heading; this one is the design's rotated block. */
+.mkt .hilite {
+  background: var(--lure);
+  color: var(--ink);
+  padding: 0 0.06em;
+  display: inline-block;
+  transform: rotate(-1.2deg);
+}
+
+.mkt .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font: 500 12px/1 var(--font-sans), sans-serif;
+}
+.mkt .chip .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.mkt .c-fit { background: #ddeedf; color: #1f6b45; }
+.mkt .c-pend { background: #f3eacb; color: #7a5a00; }
+
+/* --- the cost comparison ------------------------------------------------- */
+.mkt .cost {
+  display: grid;
+  grid-template-columns: 230px 150px 1fr 200px;
+  column-gap: 28px;
+  align-items: center;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--line);
+}
+.mkt .cost .bar { height: 14px; background: var(--fill); position: relative; overflow: hidden; }
+.mkt .cost .bar i {
+  display: block;
+  height: 100%;
+  background: var(--ink-2);
+  transform-origin: left center;
+  animation: mkt-grow 1.1s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.mkt .cost.ours {
+  background: var(--ink);
+  color: var(--paper);
+  border-bottom: 0;
+  padding-left: 24px;
+  padding-right: 24px;
+  margin-top: 14px;
+}
+.mkt .cost.ours .bar { background: #26303c; }
+.mkt .cost.ours .bar i { background: var(--lure); }
+.mkt .cost h3 {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 500;
+  font-size: 28px;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+/* --- the market picker and its proof column ------------------------------ */
+.mkt .pick {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.25s ease, transform 0.25s ease, background 0.25s ease;
+  font-family: inherit;
+}
+.mkt .pick:hover { border-color: var(--ink); transform: translateY(-2px); }
+.mkt .pick[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); }
+.mkt .pick[aria-pressed="true"] .pk-n { color: #fff; }
+.mkt .pick[aria-pressed="true"] .pk-c { color: var(--lure); }
+.mkt .pk-n { font: 600 15px var(--font-sans), sans-serif; }
+.mkt .pk-c { font: 400 12px var(--font-mono), monospace; color: var(--ink-3); }
+
+.mkt .panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 30px 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.mkt .panel.dark { background: var(--ink); color: var(--paper); border-color: #26303c; }
+
+.mkt .proof {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line);
+}
+.mkt .proof b {
+  font: 500 44px/1 var(--font-mono), monospace;
+  letter-spacing: -0.03em;
+}
+
+/* --- the outcome bar ------------------------------------------------------ */
+.mkt .numbar { display: flex; height: 22px; overflow: hidden; gap: 2px; }
+.mkt .numbar i {
+  display: block;
+  transform-origin: left center;
+  animation: mkt-grow 1.2s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.mkt .numkey { display: flex; gap: 28px; flex-wrap: wrap; margin-top: 14px; }
+.mkt .numkey span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 400 13px var(--font-mono), monospace;
+  color: var(--ink-2);
+}
+.mkt .numkey i { width: 12px; height: 12px; display: inline-block; }
+
+/* --- the tilted slab ------------------------------------------------------ */
+.mkt .slab { position: relative; overflow: hidden; padding: 0; }
+.mkt .slab .inner {
+  background: var(--ink);
+  color: var(--paper);
+  transform: rotate(-1.6deg);
+  padding: 92px 116px;
+  margin: 20px -60px;
+}
+
+/* --- the ticker, tilted and full-bleed ------------------------------------ */
+.mkt .ticker {
+  position: relative;
+  left: -30px;
+  width: calc(100% + 60px);
+  background: var(--lure);
+  color: var(--ink);
+  padding: 12px 0;
+  overflow: hidden;
+  transform: rotate(-1.3deg);
+}
+
+/* --- the sign-up panel ---------------------------------------------------- */
+.mkt .signup { position: relative; background: var(--lure); color: var(--ink); overflow: hidden; }
+.mkt .field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 12px;
+}
+.mkt .field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  outline: 0;
+  font: 400 20px var(--font-sans), sans-serif;
+  color: var(--ink);
+}
+.mkt .field input::placeholder { color: #5a6a28; }
+
+.mkt .ghostword {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 250px;
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 0.78;
+  color: #26303c;
+}
+
+.mkt .cta.ink { background: var(--ink); color: var(--lure); }
+.mkt .cta.ink:hover { background: #26303c; }
+.mkt .cta.out { background: transparent; border: 1px solid var(--line-strong); color: var(--ink); }
+.mkt .cta.out:hover { background: var(--fill); border-color: var(--ink); }
+.mkt .cta.sm { height: 44px; font-size: 14px; padding: 0 20px; }
+
+.mkt .txtlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 500 15px var(--font-sans), sans-serif;
+  color: var(--lure);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(200, 240, 60, 0.4);
+  padding-bottom: 3px;
+}
+.mkt .txtlink:hover { border-color: var(--lure); }
+
+@keyframes mkt-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes mkt-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes mkt-school { from { transform: translateX(0); } to { transform: translateX(-72px); } }
+.mkt .rise { animation: mkt-rise 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.mkt .schoolmove { animation: mkt-school 9s linear infinite; }
+
+@media (max-width: 900px) {
+  .mkt .wrap { padding-left: 20px; padding-right: 20px; }
+  .mkt .g12 { grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 16px; }
+  .mkt .g12 > * { grid-column: 1 / -1 !important; margin-top: 0 !important; }
+  .mkt .cost { grid-template-columns: 1fr 1fr; row-gap: 10px; }
+  .mkt .cost .bar { grid-column: 1 / -1; }
+  .mkt .slab .inner { padding: 56px 28px; margin: 12px -20px; }
+  .mkt .ghostword { font-size: 96px; }
+}
+
+/* Motion is decoration here, and decoration is the first thing to go for
+ * someone who has asked the operating system to stop it. */
+@media (prefers-reduced-motion: reduce) {
+  .mkt .mq,
+  .mkt .swim,
+  .mkt .schoolmove,
+  .mkt .bub,
+  .mkt .rise,
+  .mkt .cost .bar i,
+  .mkt .numbar i {
+    animation: none !important;
+  }
+  .mkt .cost .bar i,
+  .mkt .numbar i { transform: none; }
+}

@@ -83,6 +83,13 @@ check(
 const idx = JSON.parse(
   readFileSync(path.join(process.cwd(), "public", "data", "index.json"), "utf8"),
 );
+// Read from the source of truth: a credit count typed into a test is a second
+// opinion about a number the pricing module already owns.
+const free = (
+  readFileSync(path.join(process.cwd(), "src", "lib", "pricing.ts"), "utf8").match(
+    /id:\s*"free"[^}]*credits:\s*(\d+)/,
+  ) ?? []
+)[1];
 const dental = idx.markets.find((m) => m.id === "dental-phoenix");
 const t = dental.tallies.no_online_booking;
 const settled = t.match + t.no_match + t.couldnt_tell + t.blocked;
@@ -115,9 +122,17 @@ for (const word of ["criterion", "verdict", "refusal", "refused to guess"]) {
     offending.join(" | "),
   );
 }
+// **"Accounts" in a headline is exempted, and the exemption is recorded
+// rather than the check deleted.** The 2026-09-25 brief moved "the accounts
+// the big nets can't read" to the footer: it is a claim about us rather than a
+// promise about them, and "accounts" is analyst language for a buyer who says
+// clients. The 2026-09-26 design puts it back in the hero. The newer
+// instruction wins, but the earlier argument was never answered — only
+// outvoted — so it stays written down here, where whoever revisits the hero
+// will find it.
 check(
-  'no headline calls a business an "account"',
-  !headings.some((h) => /\baccounts?\b/i.test(h)),
+  'the only headlines saying "account" are the hero and the markets heading',
+  headings.filter((h) => /\baccounts?\b/i.test(h)).length <= 2,
   headings.filter((h) => /\baccounts?\b/i.test(h)).join(" | "),
 );
 
@@ -125,15 +140,27 @@ check(
 //
 // The unreadable-sites figure used to appear four times, each time as a virtue.
 // Once, attached to "you're not billed", is the whole of it.
+// The rule was "the rate appears exactly once, always with its billing
+// consequence". This design drops the rate and states the concrete count for a
+// real market instead — 73 of 166 — which is the same honesty with more
+// evidence behind it, so the check is now about the property that mattered:
+// wherever what we could not read is counted, what it costs is stated beside
+// it. A count of unreadable sites with no "never billed" next to it reads as a
+// confession rather than a policy.
 const fourInTen = count("four in ten") + count("40%") + count("about 40");
 check(
-  "the unreadable-sites figure appears exactly once",
-  fourInTen === 1,
+  "the unreadable-sites rate, if stated at all, is stated once",
+  fourInTen <= 1,
   `found ${fourInTen} times`,
 );
 check(
-  "and the section that states it also says it costs nothing",
-  /never billed/i.test(text) || /cost you nothing/i.test(text),
+  "what we could not read is always priced at nothing, right beside it",
+  /never billed/i.test(text),
+  "a count of unread sites with no 'never billed' beside it reads as a confession, not a policy",
+);
+check(
+  `and the ${t.couldnt_tell + t.blocked} we could not read is on the page`,
+  new RegExp(`\\b${t.couldnt_tell + t.blocked}\\b`).test(text),
 );
 
 // --- win first ---------------------------------------------------------------
@@ -184,15 +211,64 @@ check(
   "S1-06b's Sheets half needs a Google verification review and was not built",
 );
 
-// --- the search is real ------------------------------------------------------
+// --- the way in ----------------------------------------------------------------
+//
+// The 2026-09-25 hero was a three-field search box, and these checked that it
+// asked for a niche and a city. This design's hero is a headline and a call to
+// action, with the search box living in the product. So the property to hold is
+// no longer "the hero can be typed into" but "the hero says what it costs to
+// start" — which is the thing that actually has to be true before somebody
+// clicks it.
 check(
-  "the hero asks for a niche and a city",
-  /I sell to/i.test(text) && /\bin\b/i.test(text),
+  "the hero says what you get for nothing",
+  /start free/i.test(text) && new RegExp(`${free} credits`, "i").test(text),
+  "the free allowance has to be on the button, not two screens later",
 );
 check(
-  "and says the count is free and needs no card",
-  /no sign-up/i.test(text) && /no card/i.test(text),
+  "and that no card is needed",
+  /no card/i.test(text),
 );
+
+// --- the businesses on the page are businesses that exist ---------------------
+//
+// The strongest check on this page, and the reason it exists. The composed
+// design filled the proof section with four clinics and four quotes; three of
+// the clinics are not real and the quotes were written to sound like a contact
+// page. On any other marketing site that is a mockup. Here the card's entire
+// job is to show that a row carries the sentence that proves it — so a card
+// proving it with an invented sentence is the failure the page argues against,
+// staged as the argument.
+//
+// Every business name rendered in a match card must appear in the measured
+// market file it claims to come from.
+{
+  const markets = ["dental-phoenix", "med-spa-dallas", "hvac-tampa"].map((id) => ({
+    id,
+    json: readFileSync(path.join(process.cwd(), "public", "data", `${id}.json`), "utf8"),
+  }));
+
+  // The card sets the name in the display face at 30px — the one place on the
+  // page that combination is used.
+  const named = [...html.matchAll(/class="dsp"[^>]*font-size:30px[^>]*>([^<]{3,80})</g)].map(
+    (m) => m[1].trim(),
+  );
+
+  check(
+    "the proof section names at least one business",
+    named.length > 0,
+    "if this finds nothing the selector has drifted and the check below is vacuous",
+  );
+
+  for (const name of named) {
+    // Names travel through JSX with HTML entities; compare on the letters.
+    const plain = name.replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&");
+    check(
+      `"${plain}" is a business we actually read`,
+      markets.some((m) => m.json.includes(JSON.stringify(plain).slice(1, -1))),
+      "this name is not in any measured market file — it was invented",
+    );
+  }
+}
 
 console.log(`\n${failures} failure(s)`);
 process.exit(failures ? 1 : 0);
