@@ -46,7 +46,8 @@ type Opted = {
 
 export default function DestinationsPage() {
   const [loading, setLoading] = useState(true);
-  const [reason, setReason] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
+  const [signedIn, setSignedIn] = useState(true);
   const [rows, setRows] = useState<Destination[]>([]);
   const [catalogue, setCatalogue] = useState<Record<string, Spec>>({});
   const [opted, setOpted] = useState<Opted[]>([]);
@@ -63,16 +64,17 @@ export default function DestinationsPage() {
     try {
       const res = await fetch("/api/integrations");
       const body = await res.json();
-      if (!body.ok) {
-        setReason(body.reason ?? "Could not load destinations.");
-      } else {
-        setReason(null);
-        setRows(body.destinations ?? []);
-        setCatalogue(body.catalogue ?? {});
-        setOpted(body.optedOutAfterPush ?? []);
-      }
+      // The read never fails for an ordinary reason — not signed in, no
+      // workspace and no database all come back as an empty list with a note
+      // saying which. Only a genuine fault reaches the catch.
+      setNote(body.note ?? null);
+      setSignedIn(body.signedIn !== false);
+      setRows(body.destinations ?? []);
+      setCatalogue(body.catalogue ?? {});
+      setOpted(body.optedOutAfterPush ?? []);
     } catch {
-      setReason("Could not reach the server.");
+      setNote("Could not reach the server. Nothing here is lost.");
+      setSignedIn(false);
     }
     setLoading(false);
   }
@@ -117,12 +119,19 @@ export default function DestinationsPage() {
         cannot defend.
       </p>
 
-      {reason && (
-        <p className="sf-body sf-card mt-8 p-5 text-[var(--ink-2)]">{reason}</p>
+      {note && (
+        <div className="sf-card mt-8 flex flex-wrap items-center gap-4 p-5">
+          <p className="sf-body text-[var(--ink-2)]">{note}</p>
+          {!signedIn && (
+            <a href="/sign-in" className="sf-btn ml-auto">
+              Sign in
+            </a>
+          )}
+        </div>
       )}
 
       {/* --------------------------------------------------- what is connected */}
-      {!loading && !reason && (
+      {!loading && (
         <section className="mt-10">
           <h2 className="sf-h2">Connected</h2>
           {rows.length === 0 ? (
@@ -168,7 +177,7 @@ export default function DestinationsPage() {
       )}
 
       {/* ------------------------------------------------------- connect one - */}
-      {!reason && (
+      {signedIn && (
         <section className="mt-12">
           <h2 className="sf-h2">Connect one</h2>
           <form onSubmit={connect} className="sf-card mt-4 space-y-5 p-6">

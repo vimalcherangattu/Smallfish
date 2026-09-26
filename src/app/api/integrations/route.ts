@@ -89,9 +89,61 @@ async function workspace() {
   return { accountId: account.id };
 }
 
+/**
+ * Reading the destination list is not an action that can fail.
+ *
+ * This used to reuse `workspace()`, so a signed-out visitor opening the app got
+ * a 401 — or a 503 on a deployment without accounts — and a red line in their
+ * console on every single page load, for the entirely ordinary fact of not
+ * being signed in. **A GET whose honest answer is "none" answers 200 with
+ * none.** Non-2xx is kept for the writes below, where the request really
+ * cannot proceed.
+ *
+ * `signedIn` travels with the empty list so the page can tell "you have no
+ * destinations" from "you cannot have any yet", which are different sentences
+ * and want different buttons.
+ */
 export async function GET() {
-  const w = await workspace();
-  if (w.error) return w.error;
+  const empty = (signedIn: boolean, note: string) =>
+    Response.json({
+      ok: true,
+      signedIn,
+      note,
+      destinations: [],
+      optedOutAfterPush: [],
+      catalogue: DESTINATIONS,
+    });
+
+  if (!CLERK_ENABLED) {
+    return empty(false, "Accounts are not switched on on this deployment.");
+  }
+
+  let userId: string | null = null;
+  try {
+    ({ userId } = await auth());
+  } catch {
+    return empty(false, "Sign in to connect a destination.");
+  }
+  if (!userId) return empty(false, "Sign in to connect a destination.");
+
+  let accountId: string;
+  try {
+    const account = await accountForUser(userId);
+    if (!account) {
+      return empty(
+        true,
+        "Open your account page once to create a workspace, then you can connect one.",
+      );
+    }
+    accountId = account.id;
+  } catch (err) {
+    if (err instanceof NotConfigured) {
+      return empty(false, "The database is not configured on this deployment.");
+    }
+    throw err;
+  }
+
+  const w = { accountId };
 
   try {
     const [destinations, opted] = await Promise.all([
