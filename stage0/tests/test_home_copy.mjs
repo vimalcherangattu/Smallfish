@@ -1,18 +1,23 @@
 /**
- * The home page's acceptance checks, run against the page it actually renders.
+ * The marketing pages say only what the repository can support.
  *
  *     npm run build && node stage0/tests/test_home_copy.mjs
  *
- * The 2026-09-25 rewrite came with a list of checks — no analyst vocabulary
- * above the fold, the unreadable-sites figure stated once and always with its
- * billing consequence, every count leading with matches. Those are the sort of
- * thing that holds for a week and then erodes one well-meaning edit at a time,
- * so they are a test.
+ * It reads the prerendered HTML in `.next/server/app`, not the source. That
+ * distinction is the whole point: a check against `page.tsx` would pass on a
+ * number that lives in a comment and fail on one that never reaches a visitor.
+ * What matters is what is on the screen.
  *
- * It reads `.next/server/app/index.html`, the prerendered page, rather than
- * `page.tsx`. That distinction is the whole point: a check against the source
- * would pass on a number that lives in a comment and fail on one that never
- * reaches a visitor. What matters is what is on the screen.
+ * ## Why it covers four pages rather than one
+ *
+ * On 2026-09-26 the home page was cut to seven blocks and most of its content
+ * moved: the benchmark and the refusals to `/how-we-check`, the essayistic
+ * lines to `/why-it-exists`, the market picker to `/markets`. Eleven checks in
+ * this file went red at once, and every one of them was still worth making —
+ * just on a different page.
+ *
+ * Deleting them would have been the easy read of a red suite and the wrong one.
+ * A guarantee does not stop mattering because the paragraph carrying it moved.
  *
  * It skips loudly, with exit 2, when there is no build — a copy test that
  * silently passes because nothing was compiled is worse than no test.
@@ -21,33 +26,15 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-const page = path.join(process.cwd(), ".next", "server", "app", "index.html");
-if (!existsSync(page)) {
+const OUT = path.join(process.cwd(), ".next", "server", "app");
+
+if (!existsSync(path.join(OUT, "index.html"))) {
   console.error(
-    "No prerendered home page. Run `npm run build` first — this test checks the\n" +
-      "rendered page, not the source, and there is nothing to check without one.",
+    "No prerendered pages. Run `npm run build` first — this test checks the\n" +
+      "rendered HTML, not the source, and there is nothing to check without it.",
   );
   process.exit(2);
 }
-
-const html = readFileSync(page, "utf8");
-// Visible words only. Class names, data attributes and inlined JSON payloads
-// are not copy, and a check that reads them fails on things nobody can see.
-const text = html
-  .replace(/<script[\s\S]*?<\/script>/gi, " ")
-  .replace(/<style[\s\S]*?<\/style>/gi, " ")
-  .replace(/<[^>]+>/g, " ")
-  .replace(/&[a-z]+;|&#\d+;/gi, (m) =>
-    ({ "&rsquo;": "’", "&ldquo;": "“", "&rdquo;": "”", "&amp;": "&", "&nbsp;": " " })[
-      m.toLowerCase()
-    ] ?? " ",
-  )
-  .replace(/\s+/g, " ")
-  .trim();
-
-const headings = [...html.matchAll(/<h[12][^>]*>([\s\S]*?)<\/h[12]>/gi)].map((m) =>
-  m[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(),
-);
 
 let failures = 0;
 const check = (name, cond, detail = "") => {
@@ -58,213 +45,188 @@ const check = (name, cond, detail = "") => {
   }
 };
 
-const count = (needle) => text.toLowerCase().split(needle.toLowerCase()).length - 1;
+/** Visible words only. Class names, data attributes and inlined JSON payloads
+ *  are not copy, and a check that reads them fails on things nobody can see. */
+function visible(file) {
+  const p = path.join(OUT, file);
+  if (!existsSync(p)) return null;
+  return readFileSync(p, "utf8")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&[a-z]+;|&#x?[0-9a-f]+;/gi, (m) =>
+      ({ "&rsquo;": "’", "&ldquo;": "“", "&rdquo;": "”", "&amp;": "&", "&nbsp;": " " })[
+        m.toLowerCase()
+      ] ?? " ",
+    )
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
-// --- numbers nobody measured -------------------------------------------------
+const home = visible("index.html");
+const accuracy = visible("how-we-check.html");
+const markets = visible("markets.html");
+const why = visible("why-it-exists.html");
+const everywhere = [home, accuracy, markets, why].filter(Boolean).join("\n");
+
+for (const [name, text] of [
+  ["home", home],
+  ["how-we-check", accuracy],
+  ["markets", markets],
+  ["why-it-exists", why],
+]) {
+  check(`${name} rendered`, !!text && text.length > 400, `${text?.length ?? 0} chars`);
+}
+
+// --- numbers nobody measured, anywhere on the site ---------------------------
 //
-// `544 of 544 quotes verified` was on this page for days. It appears nowhere in
+// `544 of 544 quotes verified` has now arrived in three separate design
+// documents and was live on the site for days. It appears nowhere in
 // PROJECT_PLAN.md, the coverage report or benchmark.json — it was invented, on
-// the page whose argument is that we do not do that. The other two are from the
-// rewrite brief and were never measured either.
-for (const [figure, why] of [
+// the pages whose argument is that we do not do that.
+for (const [figure, why_] of [
   ["544", "quotes verified — the measured figure is 11 of 11 model verdicts"],
   ["612", "med spa sites read — 200 were read, 145 settled"],
-  ["of 612", "same"],
+  ["Maplewick", "a clinic that appears in three design documents and no data file"],
 ]) {
-  check(`the page does not claim "${figure}"`, !text.includes(figure), why);
+  check(`no page claims "${figure}"`, !everywhere.includes(figure), why_);
 }
 check(
-  "and the med spa read is not reported as 212 matches",
-  !/212\s+(med|matched|businesses)/i.test(text),
+  "and no page reports the med spa read as 212 matches",
+  !/212\s+(med|matched|businesses)/i.test(everywhere),
   "26 matched of 145 settled is the measured number",
 );
 
-// --- the numbers it does claim, against the measured tallies ------------------
+// --- the numbers the site does claim, against the measured tallies -----------
 const idx = JSON.parse(
   readFileSync(path.join(process.cwd(), "public", "data", "index.json"), "utf8"),
 );
-// Read from the source of truth: a credit count typed into a test is a second
-// opinion about a number the pricing module already owns.
-const free = (
-  readFileSync(path.join(process.cwd(), "src", "lib", "pricing.ts"), "utf8").match(
-    /id:\s*"free"[^}]*credits:\s*(\d+)/,
-  ) ?? []
-)[1];
 const dental = idx.markets.find((m) => m.id === "dental-phoenix");
 const t = dental.tallies.no_online_booking;
-const settled = t.match + t.no_match + t.couldnt_tell + t.blocked;
+const couldntRead = t.couldnt_tell + t.blocked;
 
 check(
-  `the dental read is stated as ${settled} sites, which is what was read`,
-  text.includes(String(settled)),
-  `tallies say ${t.match} match, ${t.no_match} no, ${t.couldnt_tell} couldn't tell, ${t.blocked} blocked`,
+  `the home page leads with the ${t.match} that matched`,
+  new RegExp(`\\b${t.match}\\b`).test(home),
+  "the count a visitor came for",
 );
 check(
-  `and ${t.match} matches, which is what matched`,
-  new RegExp(`\\b${t.match}\\b`).test(text),
-);
-check(
-  `and ${t.couldnt_tell + t.blocked} it could not read`,
-  new RegExp(`\\b${t.couldnt_tell + t.blocked}\\b`).test(text),
-  "couldn't-tell plus blocked, because both are 'we could not say'",
+  "and does not open with what we could not read",
+  !new RegExp(`\\b${couldntRead}\\b`).test(home ?? ""),
+  "that belongs on the accuracy page, not in the first screen",
 );
 
-// --- vocabulary --------------------------------------------------------------
+// --- honesty, moved but not lost ---------------------------------------------
 //
-// The buyer says leads, clients, niche, campaign. "Accounts", "criterion",
-// "verdict" and "refusal" are ours, and a headline is where a word costs the
-// most.
-for (const word of ["criterion", "verdict", "refusal", "refused to guess"]) {
-  const offending = headings.filter((h) => h.toLowerCase().includes(word));
-  check(
-    `no headline says "${word}"`,
-    offending.length === 0,
-    offending.join(" | "),
-  );
-}
-// **"Accounts" in a headline is exempted, and the exemption is recorded
-// rather than the check deleted.** The 2026-09-25 brief moved "the accounts
-// the big nets can't read" to the footer: it is a claim about us rather than a
-// promise about them, and "accounts" is analyst language for a buyer who says
-// clients. The 2026-09-26 design puts it back in the hero. The newer
-// instruction wins, but the earlier argument was never answered — only
-// outvoted — so it stays written down here, where whoever revisits the hero
-// will find it.
+// The rule was "the unreadable-sites rate appears once, always with its billing
+// consequence". The rate moved to /how-we-check with the rest of the method.
+// It still has to carry the consequence, wherever it lives.
 check(
-  'the only headlines saying "account" are the hero and the markets heading',
-  headings.filter((h) => /\baccounts?\b/i.test(h)).length <= 2,
-  headings.filter((h) => /\baccounts?\b/i.test(h)).join(" | "),
-);
-
-// --- honesty, once, with the consequence -------------------------------------
-//
-// The unreadable-sites figure used to appear four times, each time as a virtue.
-// Once, attached to "you're not billed", is the whole of it.
-// The rule was "the rate appears exactly once, always with its billing
-// consequence". This design drops the rate and states the concrete count for a
-// real market instead — 73 of 166 — which is the same honesty with more
-// evidence behind it, so the check is now about the property that mattered:
-// wherever what we could not read is counted, what it costs is stated beside
-// it. A count of unreadable sites with no "never billed" next to it reads as a
-// confession rather than a policy.
-const fourInTen = count("four in ten") + count("40%") + count("about 40");
-check(
-  "the unreadable-sites rate, if stated at all, is stated once",
-  fourInTen <= 1,
-  `found ${fourInTen} times`,
+  "the accuracy page states the unreadable-sites rate",
+  /four in ten/i.test(accuracy ?? ""),
 );
 check(
-  "what we could not read is always priced at nothing, right beside it",
-  /never billed/i.test(text),
-  "a count of unread sites with no 'never billed' beside it reads as a confession, not a policy",
+  "and prices it at nothing in the same breath",
+  /never billed/i.test(accuracy ?? "") || /cost you nothing/i.test(accuracy ?? ""),
 );
-check(
-  `and the ${t.couldnt_tell + t.blocked} we could not read is on the page`,
-  new RegExp(`\\b${t.couldnt_tell + t.blocked}\\b`).test(text),
-);
-
-// --- win first ---------------------------------------------------------------
-//
-// A visitor who reads "73 we couldn't judge" before "42 you can call" has been
-// told what we failed at before they know what they get.
-const matchPos = text.indexOf(`${t.match} practices`);
-const couldntPos = text.indexOf(`${t.couldnt_tell + t.blocked} we`);
-check(
-  "the real-result section leads with matches, not with what we could not read",
-  matchPos > -1 && couldntPos > -1 && matchPos < couldntPos,
-  `matches at ${matchPos}, couldn't-read at ${couldntPos}`,
-);
-
-// --- one niche, said out loud ------------------------------------------------
 check(
   "precision is not claimed across three markets when it was measured on one",
-  !/across three markets/i.test(text),
-  "41 calls were dental in Phoenix alone",
+  !/across three markets/i.test(everywhere),
 );
 check(
-  "and the page says which niche it was measured on",
-  /dental in phoenix/i.test(text),
+  "and the accuracy page says it is one niche of three",
+  /one niche of three/i.test(accuracy ?? ""),
 );
 
-// --- price legibility --------------------------------------------------------
-for (const plan of ["Starter", "Growth", "Agency"]) {
-  check(
-    `${plan} says what it buys in plain words, not only in credits`,
-    new RegExp(`${plan}[\\s\\S]{0,200}?(month|cities|markets|city)`, "i").test(text),
-  );
+// --- vocabulary, on the pages a stranger reads first -------------------------
+//
+// "Accounts", "criterion", "verdict" and "refusal" are our words. The home page
+// is where one costs the most. `/why-it-exists` is exempt: it carries the older
+// essayistic copy on purpose, for a reader who is already interested.
+const homeHeadings = [
+  ...(readFileSync(path.join(OUT, "index.html"), "utf8").matchAll(
+    /<h[12][^>]*>([\s\S]*?)<\/h[12]>/gi,
+  ) ?? []),
+].map((m) => m[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+
+for (const word of ["criterion", "verdict", "refusal", "account"]) {
+  const bad = homeHeadings.filter((h) => new RegExp(`\\b${word}s?\\b`, "i").test(h));
+  check(`no home headline says "${word}"`, bad.length === 0, bad.join(" | "));
 }
 
-// --- things that are built, and things that are not --------------------------
+// --- the one action ----------------------------------------------------------
 //
-// The brief's "what you get" section promised saved-search alerts and a Google
-// Sheets export. `alerts.ts` rests on a change rate nobody has measured, and
-// S1-06b's Sheets half was never built. A page that promises them is writing a
-// cheque the product does not cover.
+// The 2026-09-26 copy is built around a single call to action, and sets its own
+// condition for which one: sign-up only if a stranger can describe a market and
+// get a real list back, otherwise the waitlist. Either is fine; having neither,
+// or both, is not.
+const signUp = /sign up free/i.test(home ?? "");
+const waitlist = /join the waitlist/i.test(home ?? "");
 check(
-  "the page does not promise change alerts",
-  !/tell you when a business/i.test(text) && !/new ones as they appear/i.test(text),
+  "the home page has exactly one kind of call to action",
+  signUp !== waitlist,
+  `sign-up: ${signUp}, waitlist: ${waitlist}`,
+);
+check(
+  "and it says what happens next, under the button",
+  /no card/i.test(home ?? "") || /a few at a time/i.test(home ?? ""),
+);
+
+// --- things that are built, and things that are not --------------------------
+check(
+  "no page promises change alerts",
+  !/tell you when a business/i.test(everywhere) && !/new ones as they appear/i.test(everywhere),
   "alerts.ts carries measured: false on every budget it returns",
 );
 check(
   "nor a Google Sheets export",
-  !/google sheets/i.test(text),
+  !/google sheets/i.test(everywhere),
   "S1-06b's Sheets half needs a Google verification review and was not built",
 );
 
-// --- the way in ----------------------------------------------------------------
+// --- every business named on the site is one that exists ---------------------
 //
-// The 2026-09-25 hero was a three-field search box, and these checked that it
-// asked for a niche and a city. This design's hero is a headline and a call to
-// action, with the search box living in the product. So the property to hold is
-// no longer "the hero can be typed into" but "the hero says what it costs to
-// start" — which is the thing that actually has to be true before somebody
-// clicks it.
-check(
-  "the hero says what you get for nothing",
-  /start free/i.test(text) && new RegExp(`${free} credits`, "i").test(text),
-  "the free allowance has to be on the button, not two screens later",
-);
-check(
-  "and that no card is needed",
-  /no card/i.test(text),
-);
-
-// --- the businesses on the page are businesses that exist ---------------------
-//
-// The strongest check on this page, and the reason it exists. The composed
-// design filled the proof section with four clinics and four quotes; three of
-// the clinics are not real and the quotes were written to sound like a contact
-// page. On any other marketing site that is a mockup. Here the card's entire
-// job is to show that a row carries the sentence that proves it — so a card
-// proving it with an invented sentence is the failure the page argues against,
-// staged as the argument.
-//
-// Every business name rendered in a match card must appear in the measured
-// market file it claims to come from.
+// The strongest check here, and the reason this file exists. Design documents
+// keep arriving with plausible clinics and plausible quotes in the example
+// cards — three of the four in the 2026-09-26 design were invented. On any
+// other marketing site that is a mockup; here the card's whole job is to show
+// that a row carries the sentence that proves it.
 {
-  const markets = ["dental-phoenix", "med-spa-dallas", "hvac-tampa"].map((id) => ({
-    id,
-    json: readFileSync(path.join(process.cwd(), "public", "data", `${id}.json`), "utf8"),
-  }));
-
-  // The card sets the name in the display face at 30px — the one place on the
-  // page that combination is used.
-  const named = [...html.matchAll(/class="dsp"[^>]*font-size:30px[^>]*>([^<]{3,80})</g)].map(
-    (m) => m[1].trim(),
+  const files = ["dental-phoenix", "med-spa-dallas", "hvac-tampa"].map((id) =>
+    readFileSync(path.join(process.cwd(), "public", "data", `${id}.json`), "utf8"),
   );
 
+  // Business names are set in the display face: 30px on the markets cards, 26px
+  // in the home page's single example row.
+  const named = [];
+  for (const [file, sizes] of [
+    ["index.html", [26]],
+    ["markets.html", [30, 24]],
+  ]) {
+    if (!existsSync(path.join(OUT, file))) continue;
+    const html = readFileSync(path.join(OUT, file), "utf8");
+    for (const size of sizes) {
+      for (const m of html.matchAll(
+        new RegExp(`class="dsp"[^>]*font-size:${size}px[^>]*>([^<]{3,80})<`, "g"),
+      )) {
+        named.push([file, m[1].trim()]);
+      }
+    }
+  }
+
   check(
-    "the proof section names at least one business",
-    named.length > 0,
+    "the example rows name at least two businesses",
+    named.length >= 2,
     "if this finds nothing the selector has drifted and the check below is vacuous",
   );
 
-  for (const name of named) {
-    // Names travel through JSX with HTML entities; compare on the letters.
+  for (const [file, name] of named) {
     const plain = name.replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&");
+    // "small fish" is the wordmark, not a business.
+    if (/^small fish$/i.test(plain)) continue;
     check(
-      `"${plain}" is a business we actually read`,
-      markets.some((m) => m.json.includes(JSON.stringify(plain).slice(1, -1))),
+      `"${plain}" on ${file} is a business we actually read`,
+      files.some((f) => f.includes(JSON.stringify(plain).slice(1, -1))),
       "this name is not in any measured market file — it was invented",
     );
   }

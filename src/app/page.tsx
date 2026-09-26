@@ -4,190 +4,150 @@ import path from "node:path";
 
 import Bubbles from "@/components/Bubbles";
 import Fish from "@/components/Fish";
-import MarketProof, { type MarketCard } from "@/components/MarketProof";
 import School from "@/components/School";
-import { BANDS, PLANS, SAMPLE_SIZE } from "@/lib/pricing";
-import { VERDICT_LABEL, type Market, type VerdictKind } from "@/lib/types";
+import { CTA_HREF, CTA_LABEL, CTA_NOTE, CTA_NOTE_LONG, NAV_CTA, SIGNUP_OPEN } from "@/lib/launch";
+import { outreachFor } from "@/lib/outreach";
+import { PLANS } from "@/lib/pricing";
+import type { Market } from "@/lib/types";
 
 /**
- * The marketing home page, composed to `Claude_Product_Design_System.html`
- * (2026-09-26).
+ * The home page, to the 2026-09-26 copy: seven blocks, one action.
  *
- * The layout, the type, the colour and the voice are the design's. Four things
- * in it are not shipped as written, and each is the same kind of problem:
+ * The previous page argued the method before it said what arrives in your
+ * hands. This one says what arrives, shows one real row, and stops. Everything
+ * it dropped is still on the site — the benchmark and the refusals moved to
+ * `/how-we-check`, the essayistic lines to `/why-it-exists`, the market picker
+ * to `/markets`.
  *
- *   design                                | what is here, and why
- *   --------------------------------------|-------------------------------------
- *   four invented businesses and quotes   | real rows from `public/data`
- *   "544 of 544 quotes verified"          | 11 of 11 — 544 was never measured
- *   "41 matches across three markets"     | 41 calls, dental in Phoenix alone
- *   "Vet · Denver · 143 sites"            | the vet market is Columbus, OH
+ * ## Four places the copy is not shipped verbatim, all the same kind
  *
- * The first is the important one. A mockup fills a card with a plausible clinic
- * and a plausible sentence, and on almost any other site that is fine. Here the
- * card exists to demonstrate that a row carries the sentence that proves it —
- * so demonstrating it with an invented sentence is the exact failure the page
- * is arguing against. Every business named below was read, and every line under
- * a name is the line the engine recorded.
+ *   as written                              | shipped, and why
+ *   ----------------------------------------|----------------------------------
+ *   "20 BUSINESSES FREE"                    | "up to 20" — 20 *credits*, and a
+ *                                           | rare match costs 2 or 3, so 20 is
+ *                                           | the ceiling, not the promise
+ *   "Name, phone, email, website"           | "the contact details they
+ *                                           | publish" — only 32.4% of the
+ *                                           | 1,572 businesses we hold contacts
+ *                                           | for published an email at all
+ *   Maplewick Family Dental, (602) 555-0148 | a real matched clinic, its real
+ *                                           | published phone
+ *   "544 of 544 quotes verified"            | 11 of 11. `544` appears nowhere
+ *                                           | in any measurement, and this is
+ *                                           | the third document to carry it
  *
- * `544` has now been caught twice. It appears nowhere in `PROJECT_PLAN.md`, the
- * coverage report or `benchmark.json`.
+ * The example row is the one that matters. The copy's build list asks for
+ * "real values in the block 2 row, from a finished read", so this assembles it
+ * from `public/data` at render: a business that was read, the phone it
+ * publishes on its own site, and the sentence `outreach.ts` writes from the
+ * evidence. Maplewick has appeared in three design documents and exists in
+ * none of the data.
  *
- * **One thing here contradicts the previous brief**, which is worth flagging
- * rather than quietly reconciling: that brief moved "The accounts the big nets
- * can't read" to the footer, on the grounds that it is a claim about us rather
- * than a promise about them, and that "accounts" is analyst language. This
- * design puts it back in the hero. The newer instruction wins and the line is
- * in the hero — but the earlier reasoning has not been answered, only
- * outvoted, and `test_home_copy.mjs` records the exemption instead of silently
- * dropping the check.
+ * ## And one condition the copy set for itself
+ *
+ * It says the buttons may only say "Sign up free" if a new user can describe a
+ * market and get a real list back, and gives the exact fallback if not. They
+ * cannot — cold reads need a model key — so `lib/launch.ts` holds the switch
+ * and the buttons say waitlist. Every other word is the copy's.
  */
 
 export const metadata = {
-  title: "Small Fish — the accounts the big nets can't read",
+  title: "Small Fish — find the local businesses that fit what you sell",
   description:
-    "Tell us the kind of local business you sell to and where. We read every one " +
-    "of their websites and send back the ones that qualify, each with the sentence " +
-    "that proves it.",
+    "Tell us who you sell to and where. We check every local business one by one " +
+    "and send back the ones that fit, with contacts and a line on why each one fits.",
+  openGraph: {
+    title: "42 dental clinics in Phoenix still take bookings by phone.",
+    description:
+      "Small Fish checks local businesses one by one and gives you only the ones " +
+      "that fit what you sell.",
+  },
 };
 
-/* Measured. PROJECT_PLAN.md · Live numbers · 2026-09-22/23. */
-const DENTAL = { read: 166, matched: 42, noMatch: 51, couldntRead: 73 };
+/** Measured: PROJECT_PLAN.md · Live numbers · 2026-09-22. */
+const PHOENIX_MATCHES = 42;
 
 /**
- * When the markets on this page were read.
+ * One real row for block 2.
  *
- * From `PROJECT_PLAN.md`'s Live numbers, because **the exported market files
- * do not carry a read date** — `export_app_data.py` writes counts and tallies
- * and no timestamp. Evidence goes stale, so the date belongs on the evidence
- * line, and until the export carries one it has to be stated here. It should
- * move into the data: a date typed beside a number is a date that stops being
- * true without anything failing.
+ * Picky, for two reasons that have already bitten. It needs a business whose
+ * site is its own — Overture's `website` field sometimes carries a franchise's
+ * or a manufacturer's domain — and it needs a contact the business actually
+ * published, which `extract_contacts.py` withholds for shared domains because
+ * anything on them belongs to someone it cannot identify.
  */
-const READ_ON = "2026-09-22";
+async function exampleRow() {
+  try {
+    const [market, contacts] = await Promise.all([
+      readFile(path.join(process.cwd(), "public", "data", "dental-phoenix.json"), "utf8").then(
+        (t) => JSON.parse(t) as Market,
+      ),
+      readFile(
+        path.join(process.cwd(), "public", "data", "contacts-dental-phoenix.json"),
+        "utf8",
+      ).then(
+        (t) =>
+          (JSON.parse(t) as {
+            contacts: Record<
+              string,
+              {
+                emails?: { value: string }[];
+                phones?: { value: string; page: string }[];
+                contactPage?: string | null;
+                withheld?: string;
+              }
+            >;
+          }).contacts,
+      ),
+    ]);
 
-/** Markets to show in the proof section, and which criterion to show for each.
- *  Only criteria something actually settled: `vet-columbus` is read but neither
- *  of its criteria produced a single match, so a card for it would be an empty
- *  demonstration of the thing being demonstrated. */
-const SHOWN: { file: string; criterion: string; niche: string }[] = [
-  { file: "dental-phoenix", criterion: "no_online_booking", niche: "Dental" },
-  { file: "med-spa-dallas", criterion: "no_online_booking", niche: "Med spa" },
-  { file: "hvac-tampa", criterion: "no_quote_form", niche: "HVAC" },
-];
+    const criterion = market.criteria.find((c) => c.id === "no_online_booking");
+    if (!criterion) return null;
 
-const host = (url: string | null) =>
-  (url ?? "").replace(/^https?:\/\//, "").replace(/^www\./, "").split(/[/?#]/)[0];
+    for (const b of market.businesses) {
+      if (b.verdicts.no_online_booking?.verdict !== "match") continue;
+      if (!b.site || !b.read?.pages) continue;
+      const c = contacts[b.id];
+      if (!c || c.withheld || !c.phones?.length) continue;
 
-/**
- * Build the proof cards from the measured markets.
- *
- * Deliberately picky about which row it shows. It skips a business whose
- * `website` belongs to someone else — Overture's `website` field sometimes
- * carries a manufacturer's or a franchise's domain, and the plan records
- * finding "AAA Accurate Dental Care" listed against `advancedsmilescenter.com`.
- * A home page whose example row points at the wrong company's site is the worst
- * possible place for that defect to surface.
- */
-async function proofCards(): Promise<MarketCard[]> {
-  const cards: MarketCard[] = [];
+      // `outreachFor` writes in the **customer's** voice — "I read 4 pages of
+      // their site" is an opener they will send. Under a "Why it fits" label
+      // that is the wrong speaker: it reads as the visitor claiming to have
+      // done the reading. So the sentence is composed here from the same three
+      // facts the verdict rests on — pages read, whose site, and what was
+      // looked for — which is a restatement of the record rather than a second
+      // opinion about it. Requiring an icebreaker first keeps the row to
+      // businesses `outreach.ts` would also vouch for.
+      const o = outreachFor(b, [criterion]);
+      if (!o.icebreaker) continue;
+      const domain = b.site.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
 
-  for (const s of SHOWN) {
-    let market: Market;
-    try {
-      market = JSON.parse(
-        await readFile(path.join(process.cwd(), "public", "data", `${s.file}.json`), "utf8"),
-      ) as Market;
-    } catch {
-      continue;
+      return {
+        name: b.name,
+        where: b.addr.split(",").slice(-2).join(",").trim(),
+        phone: c.phones[0].value,
+        email: c.emails?.[0]?.value ?? null,
+        contactPage: c.contactPage ?? null,
+        site: domain,
+        why:
+          `We read ${b.read.pages} pages of ${domain}, including the ones that ` +
+          `would carry a booking link, and found none.`,
+      };
     }
-
-    const criterion = market.criteria.find((c) => c.id === s.criterion);
-    if (!criterion) continue;
-
-    const verdictOf = (b: (typeof market.businesses)[number]) =>
-      (b.verdicts[s.criterion]?.verdict ?? "unread") as VerdictKind;
-
-    // A site whose host does not resemble the business name is the Overture
-    // defect above. Cheap heuristic, and it only has to be right about the one
-    // row that ends up on the page.
-    const looksOwn = (name: string, site: string | null) => {
-      const h = host(site).split(".")[0].replace(/[^a-z0-9]/gi, "").toLowerCase();
-      const words = name.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter((w) => w.length > 3);
-      return !!h && words.some((w) => h.includes(w));
-    };
-
-    const matches = market.businesses
-      .filter((b) => verdictOf(b) === "match" && b.site && b.read?.pages)
-      .filter((b) => looksOwn(b.name, b.site))
-      .sort((a, b) => (b.read?.pages ?? 0) - (a.read?.pages ?? 0));
-
-    const misses = market.businesses
-      .filter((b) => verdictOf(b) === "no_match" && b.site && b.read?.pages)
-      .filter((b) => looksOwn(b.name, b.site))
-      .sort((a, b) => (b.read?.pages ?? 0) - (a.read?.pages ?? 0));
-
-    const match = matches[0];
-    const miss = misses[0];
-    if (!match || !miss) continue;
-
-    const judged = market.businesses.filter((b) => {
-      const v = verdictOf(b);
-      return v !== "unread" && v !== "needs_model";
-    }).length;
-
-    cards.push({
-      key: s.file,
-      niche: s.niche,
-      metro: market.metro,
-      judged,
-      question: criterion.text,
-      explain: criterion.explain,
-      match: {
-        name: match.name,
-        evidence:
-          match.verdicts[s.criterion]?.proof ??
-          match.verdicts[s.criterion]?.reason ??
-          "",
-        source: `${host(match.site)} · read ${READ_ON}`,
-        pages: match.read?.pages ?? 0,
-      },
-      miss: {
-        name: miss.name,
-        verdict: VERDICT_LABEL[verdictOf(miss)],
-        reason:
-          miss.verdicts[s.criterion]?.reason ??
-          "No reason was recorded, which is itself a defect.",
-        // A restatement of the recorded reason, not a new claim: the engine
-        // found the thing the criterion says is absent, so the criterion is
-        // false here. Kept generic on purpose — the moment this starts
-        // describing what was found, it is asserting something the record does
-        // not carry.
-        plain:
-          `We found what the search said should be missing, so "${criterion.text}" ` +
-          `is not true of them. Nothing was charged.`,
-        source: host(miss.site),
-        pages: miss.read?.pages ?? 0,
-      },
-    });
+  } catch {
+    return null;
   }
-
-  return cards;
+  return null;
 }
 
 export default async function Home() {
-  const cards = await proofCards();
+  const row = await exampleRow();
   const free = PLANS.find((p) => p.id === "free")!;
   const paid = PLANS.filter((p) => ["starter", "growth", "agency"].includes(p.id));
-  const starter = PLANS.find((p) => p.id === "starter")!;
-  /* $29 / 120 credits. Computed, so it cannot drift from `pricing.ts`. */
-  const per100 = Math.round((starter.priceUsd / starter.credits) * 100);
-
-  const pct = (n: number) => ((n / DENTAL.read) * 100).toFixed(1);
 
   return (
     <main className="mkt">
-      {/* ================================ hero ================================ */}
+      {/* ============================== 1 · hero ============================== */}
       <header
         style={{
           position: "relative",
@@ -202,11 +162,10 @@ export default async function Home() {
           className="schoolmove"
           aria-hidden
         >
-          <School width={1600} height={700} />
+          <School width={1600} height={620} />
         </div>
-
-        <div style={{ position: "absolute", right: -180, top: 200 }} className="swim" aria-hidden>
-          <Fish variant="outline" width={780} strokeWidth={0.35} />
+        <div style={{ position: "absolute", right: -180, top: 170 }} className="swim" aria-hidden>
+          <Fish variant="outline" width={720} strokeWidth={0.35} />
           <Bubbles where="hero" />
         </div>
 
@@ -223,50 +182,31 @@ export default async function Home() {
         >
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
             <Fish width={39} />
-            <span
-              className="dsp"
-              style={{ fontSize: 24, fontWeight: 600, color: "#EEF0EC", lineHeight: 1 }}
-            >
+            <span className="dsp" style={{ fontSize: 24, fontWeight: 600, color: "#EEF0EC", lineHeight: 1 }}>
               small fish
             </span>
           </Link>
-          <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-            <a className="navlink max-sm:hidden" href="#cost">Why it exists</a>
-            <a className="navlink max-sm:hidden" href="#accuracy">Accuracy</a>
-            <a className="navlink max-sm:hidden" href="#markets">Markets</a>
-            <a className="navlink max-sm:hidden" href="#pricing">Pricing</a>
-            <Link className="navlink max-sm:hidden" href="/sign-in">Sign in</Link>
-            <Link className="cta sm" href="/app">Start free</Link>
+          <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+            <Link className="navlink max-sm:hidden" href="/how-we-check">How we check</Link>
+            <Link className="navlink max-sm:hidden" href="/markets">Markets</Link>
+            <Link className="navlink max-sm:hidden" href="/pricing">Pricing</Link>
+            <Link className="navlink max-sm:hidden" href="/app">Sign in</Link>
+            <Link className="cta sm" href={CTA_HREF}>{NAV_CTA}</Link>
           </div>
         </nav>
 
-        <div className="wrap g12" style={{ position: "relative", paddingTop: 74 }}>
-          <p className="lab" style={{ gridColumn: "span 7", color: "#8A929B" }}>
-            Local market intelligence the databases cannot see
-          </p>
+        <div className="wrap g12" style={{ position: "relative", paddingTop: 66 }}>
           <h1
             className="dsp"
-            style={{
-              gridColumn: "span 11",
-              fontSize: "clamp(48px,9.2vw,132px)",
-              marginTop: 34,
-            }}
+            style={{ gridColumn: "1 / span 10", fontSize: "clamp(42px,7.4vw,108px)" }}
           >
-            The accounts
-            <br />
-            <span style={{ display: "inline-block", marginLeft: "10vw" }}>
-              the <span className="hilite">big nets</span>
-            </span>
-            <br />
-            <span style={{ display: "inline-block", marginLeft: "3vw" }}>can&rsquo;t read.</span>
+            Get the local businesses that{" "}
+            <span className="hilite">actually fit</span> what you sell.
           </h1>
-          <p
-            className="lede"
-            style={{ gridColumn: "1 / span 6", marginTop: 52, fontSize: 22 }}
-          >
-            Tell us the kind of local business you sell to and where. We read every
-            one of their websites and send back the ones that qualify — each with
-            the sentence from their own site that proves it.
+          <p className="lede" style={{ gridColumn: "1 / span 6", marginTop: 48, fontSize: 22 }}>
+            Tell us who you sell to and where. We check every business one by one
+            and send back the ones that fit — with names, contacts, and one line
+            on why each one fits.
           </p>
           <div
             style={{
@@ -274,191 +214,100 @@ export default async function Home() {
               marginTop: 40,
               display: "flex",
               alignItems: "center",
-              gap: 28,
+              gap: 24,
               flexWrap: "wrap",
             }}
           >
-            <Link className="cta" href="/app">
-              Start free — {free.credits} credits
-              <span aria-hidden>→</span>
-            </Link>
-            <a className="txtlink" href="#accuracy">
-              See a market we read
-            </a>
-            <span className="lab" style={{ color: "#8A929B" }}>No card</span>
+            <Link className="cta" href={CTA_HREF}>{CTA_LABEL}</Link>
+            <span className="lab" style={{ color: "#8A929B" }}>
+              {SIGNUP_OPEN ? `Up to ${free.credits} businesses free · no card` : CTA_NOTE}
+            </span>
           </div>
         </div>
 
-        <div className="ticker" style={{ marginTop: 88 }}>
+        <div className="ticker" style={{ marginTop: 84 }}>
           <span className="mq lab">
-            {Array.from({ length: 4 }).map((_, i) => (
+            {Array.from({ length: 5 }).map((_, i) => (
               <span key={i}>
-                READ THE SITE &nbsp;·&nbsp; CITE THE SENTENCE &nbsp;·&nbsp; SAY WHEN WE
-                CAN&rsquo;T &nbsp;·&nbsp; CHARGE FOR MATCHES ONLY &nbsp;·&nbsp;{" "}
+                WE CHECK EVERY ONE &nbsp;·&nbsp; WE TELL YOU WHY IT FITS &nbsp;·&nbsp; YOU ONLY
+                PAY FOR THE ONES THAT DO &nbsp;·&nbsp;{" "}
               </span>
             ))}
           </span>
         </div>
       </header>
 
-      {/* =========================== what it replaces =========================== */}
-      <section id="cost" className="wrap" style={{ paddingTop: 110, paddingBottom: 120 }}>
-        <div className="g12" style={{ alignItems: "end" }}>
-          <p className="lab" style={{ gridColumn: "span 3", color: "var(--ink-3)" }}>
-            100 businesses you can actually call
-          </p>
-          <h2 className="dsp" style={{ gridColumn: "1 / span 8", fontSize: 56, marginTop: 18 }}>
-            Every other way costs you a day, or a salary.
-          </h2>
-        </div>
-
-        <div style={{ marginTop: 52 }}>
-          <div className="cost" style={{ borderTop: "2px solid var(--ink)", paddingTop: 18 }}>
-            <p className="lab" style={{ color: "var(--ink-3)" }}>Where it comes from</p>
-            <p className="lab" style={{ color: "var(--ink-3)" }}>What you pay</p>
-            <p className="lab" style={{ color: "var(--ink-3)" }}>Hours of your time</p>
-            <p className="lab" style={{ color: "var(--ink-3)" }}>What you end up with</p>
+      {/* =========================== 2 · one example =========================== */}
+      <section className="wrap" style={{ paddingTop: 96, paddingBottom: 96 }}>
+        <div className="g12" style={{ rowGap: 36 }}>
+          <div style={{ gridColumn: "1 / span 5" }}>
+            <p className="lab" style={{ color: "var(--ink-3)" }}>You ask for</p>
+            <p className="dsp" style={{ fontSize: "clamp(24px,2.6vw,34px)", marginTop: 12 }}>
+              Dental clinics in Phoenix that still take bookings by phone.
+            </p>
           </div>
-
-          {/* The three prices are what buyers report paying, recorded with the
-              pricing decision — about $2 a lead from a freelancer, $200–500 a
-              month for an agency. They are anchors from conversations, not
-              measurements of ours, and the line under the table says so. */}
-          <CostRow
-            name="Buy a list"
-            price="$2"
-            note="a lead"
-            bar={57}
-            delay={0.05}
-            outcome="Rows, then an afternoon opening sites to check them"
-          />
-          <CostRow
-            name="Build it yourself"
-            price="$0"
-            bar={100}
-            delay={0.15}
-            outcome="Names and websites, the easy half. Nobody does it twice"
-          />
-          <CostRow
-            name="Hire someone"
-            price="$200–500"
-            note="a month"
-            bar={12}
-            delay={0.25}
-            outcome="Good work, in one person's head, that leaves when they do"
-          />
-          <div className="cost ours">
-            <h3 style={{ color: "#EEF0EC" }}>Small Fish</h3>
-            <span className="mono" style={{ fontSize: 20, color: "#C8F03C" }}>
-              ${per100}
-            </span>
-            <span className="bar">
-              <i style={{ width: "3%", animationDelay: "0.35s" }} />
-            </span>
-            <span className="small" style={{ color: "#B9BFB6" }}>
-              100 qualified businesses, each with the sentence that proves it
-            </span>
+          <div style={{ gridColumn: "7 / span 5" }}>
+            <p className="lab" style={{ color: "var(--ink-3)" }}>You get</p>
+            <p className="dsp" style={{ fontSize: "clamp(24px,2.6vw,34px)", marginTop: 12 }}>
+              {PHOENIX_MATCHES} clinics. Name, website, the contact details they
+              publish, and one line on why each one fits.
+            </p>
           </div>
         </div>
-        <p className="lab" style={{ color: "var(--ink-3)", marginTop: 22 }}>
-          Bars are your hours, not ours · non-matches are free · the three prices
-          above are what buyers told us they pay, not figures we measured
-        </p>
-      </section>
 
-      {/* ============================== accuracy ============================== */}
-      <section id="accuracy" style={{ background: "#FFFFFF", padding: "110px 0 120px" }}>
-        <div className="wrap g12" style={{ alignItems: "end" }}>
-          <h2 className="dsp" style={{ gridColumn: "1 / span 8", fontSize: 56 }}>
-            A match is only a match when a sentence proves it.
-          </h2>
-          <p className="lede" style={{ gridColumn: "9 / span 4", color: "var(--ink-2)" }}>
-            Markets we have read end to end. Every row below came out of those
-            files — the business, the evidence and the page it was found on.
-          </p>
-        </div>
-
-        {cards.length > 0 ? (
-          <MarketProof markets={cards} />
+        {row ? (
+          <div className="panel lift" style={{ marginTop: 44 }}>
+            <p className="dsp" style={{ fontSize: 26 }}>{row.name}</p>
+            <p className="src">
+              {row.where} · {row.phone}
+              {row.email ? ` · ${row.email}` : ""}
+              {!row.email && row.contactPage ? " · contact form" : ""} · {row.site}
+            </p>
+            <p className="cite" style={{ marginTop: 6 }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600 }}>
+                Why it fits:{" "}
+              </span>
+              <span className="mark">{row.why}</span>
+            </p>
+          </div>
         ) : (
-          <p className="wrap lede" style={{ marginTop: 40, color: "var(--ink-2)" }}>
-            The measured markets are not on this deployment, so there is nothing
-            to show here rather than something made up.
+          <p className="lede" style={{ marginTop: 44, color: "var(--ink-2)" }}>
+            The measured markets are not on this deployment, so there is no row to
+            show here rather than one made up.
           </p>
         )}
       </section>
 
-      {/* ============================== the number ============================== */}
-      <section id="numbers" className="wrap" style={{ paddingTop: 110, paddingBottom: 120 }}>
-        <div className="g12">
-          <p className="dsp" style={{ gridColumn: "1 / span 10", fontSize: 62, lineHeight: 1.08 }}>
-            <span className="hilite" style={{ transform: "rotate(-.8deg)" }}>
-              {DENTAL.matched} practices worth calling
-            </span>
-            , out of {DENTAL.read} read — alongside {DENTAL.noMatch} clear no&rsquo;s
-            and {DENTAL.couldntRead} we refused to guess about, each with the reason
-            why.
-          </p>
-        </div>
-        <div style={{ marginTop: 56, maxWidth: 1100 }}>
-          <span className="numbar">
-            <i style={{ width: `${pct(DENTAL.matched)}%`, background: "#C8F03C", animationDelay: "0.1s" }} />
-            <i style={{ width: `${pct(DENTAL.noMatch)}%`, background: "#36404C", animationDelay: "0.25s" }} />
-            <i style={{ width: `${pct(DENTAL.couldntRead)}%`, background: "#E0CF8E", animationDelay: "0.4s" }} />
-          </span>
-          <span className="numkey">
-            <span>
-              <i style={{ background: "#C8F03C" }} />
-              {DENTAL.matched} matches · worth a call
-            </span>
-            <span>
-              <i style={{ background: "#36404C" }} />
-              {DENTAL.noMatch} clear no&rsquo;s · with the line that ruled them out
-            </span>
-            <span>
-              <i style={{ background: "#E0CF8E" }} />
-              {DENTAL.couldntRead} we couldn&rsquo;t read · never billed
-            </span>
-          </span>
-        </div>
-      </section>
-
-      {/* ============================ stops at drafted ============================ */}
-      <section className="slab">
-        <div className="inner">
-          <div className="g12" style={{ rowGap: 32 }}>
-            <h2 className="dsp" style={{ gridColumn: "1 / span 10", fontSize: 86 }}>
-              It stops at drafted. It never sends.
-            </h2>
-            <p className="lede" style={{ gridColumn: "1 / span 5", color: "#B9BFB6" }}>
-              Sending means domains, warmup, bounce handling and somebody&rsquo;s
-              reputation. That is a different company, and it is where most tools
-              in this category quietly fail their customers.
+      {/* ======================== 3 · what's in the list ======================== */}
+      <section style={{ background: "#FFFFFF" }}>
+        <div className="wrap" style={{ paddingTop: 96, paddingBottom: 96 }}>
+          <div className="dsp" style={{ fontSize: "clamp(26px,3.4vw,44px)", maxWidth: "24ch", lineHeight: 1.22 }}>
+            <p style={{ margin: 0 }}>Every business that fits, with nothing made up.</p>
+            <p style={{ margin: "0.55em 0 0" }}>
+              Phone, email and contact form exactly as they publish them.
             </p>
-            <p className="lede" style={{ gridColumn: "7 / span 5", color: "#B9BFB6" }}>
-              Finished research goes into the sequencer you already use, and a
-              person approves every email. Nothing we hand you was invented, which
-              is also why these lists don&rsquo;t bounce.
+            <p style={{ margin: "0.55em 0 0" }}>
+              One line on why each one fits what you asked for.
+            </p>
+            <p style={{ margin: "0.55em 0 0" }}>
+              CSV, or straight into the tool you already use.
             </p>
           </div>
         </div>
       </section>
 
-      {/* ============================ where it works ============================ */}
-      <section id="markets" style={{ paddingTop: 100, paddingBottom: 110, overflow: "hidden" }}>
-        <div className="wrap g12" style={{ alignItems: "end", marginBottom: 48 }}>
-          <h2 className="dsp" style={{ gridColumn: "1 / span 7", fontSize: 56 }}>
-            Anywhere the good accounts are too small to be in a database.
+      {/* ===================== 4 · any local business, anywhere ===================== */}
+      <section style={{ paddingTop: 96, paddingBottom: 96, overflow: "hidden" }}>
+        <div className="wrap g12" style={{ alignItems: "end", marginBottom: 44 }}>
+          <h2 className="dsp" style={{ gridColumn: "1 / span 7", fontSize: "clamp(30px,4.4vw,56px)" }}>
+            Any local business, anywhere in the US.
           </h2>
           <p className="lede" style={{ gridColumn: "9 / span 4", color: "var(--ink-2)" }}>
-            What you are looking for is read off the page, so a new market needs no
-            code and no catalogue — only businesses whose websites have enough on
-            them to read.
+            Clinics, salons, contractors, garages, law firms, studios, agencies,
+            shops. One city, a county, or a whole state. If they have a website,
+            we can check them.
           </p>
         </div>
-        {/* These are kinds of business the method works on, not markets we have
-            read. The heading and the line below it both say so; an earlier
-            version of this marquee did not, and it read as a coverage claim. */}
         <div
           style={{
             transform: "rotate(-2deg)",
@@ -480,80 +329,45 @@ export default async function Home() {
             ))}
           </span>
         </div>
-        <div
-          className="wrap"
-          style={{ display: "flex", gap: 14, alignItems: "center", marginTop: 44 }}
-        >
-          <span className="lab" style={{ color: "var(--ink-3)" }}>One requirement</span>
-          <span style={{ flexGrow: 1, height: 1, background: "var(--line)" }} />
-          <span className="lede" style={{ color: "var(--ink-2)" }}>
-            the business has a website with enough on it to read
-          </span>
-        </div>
       </section>
 
-      {/* ============================== pricing ============================== */}
-      <section id="pricing" className="wrap" style={{ paddingBottom: 130 }}>
-        <div className="g12" style={{ alignItems: "end" }}>
-          <h2 className="dsp" style={{ gridColumn: "1 / span 7", fontSize: 56 }}>
-            You pay for matches, not for rows.
-          </h2>
-          <p className="lede" style={{ gridColumn: "9 / span 4", color: "var(--ink-2)" }}>
-            A match costs {BANDS[0].credits}, {BANDS[1].credits} or {BANDS[2].credits}{" "}
-            credits depending on how rare it is in your market, and the rate is
-            shown before anything is spent.
-          </p>
-        </div>
-
-        <div style={{ marginTop: 44 }}>
-          <div className="prow" style={{ borderTop: "2px solid var(--ink)" }}>
-            <span className="dsp" style={{ fontSize: 32 }}>
-              {free.name}{" "}
-              <span className="mono" style={{ fontSize: 26, fontWeight: 500 }}>$0</span>
-            </span>
-            <span className="lede" style={{ color: "var(--ink-2)" }}>
-              {free.credits} credits · a {SAMPLE_SIZE}-business sample per search
-            </span>
-            <span className="small" style={{ color: "var(--ink-3)" }}>
-              Enough to see whether the reading is any good
-            </span>
-            <Link className="cta out" href="/app">Start free</Link>
-          </div>
-          {paid.map((p) => (
-            <div key={p.id} className="prow">
-              <span className="dsp" style={{ fontSize: 32 }}>
-                {p.name}{" "}
-                <span className="mono" style={{ fontSize: 26, fontWeight: 500 }}>
-                  ${p.priceUsd}
-                </span>
-              </span>
-              <span className="lede" style={{ color: "var(--ink-2)" }}>
-                {p.credits} credits · {p.credits} common matches, or{" "}
-                {Math.floor(p.credits / BANDS[2].credits)} rare ones
-              </span>
-              <span className="small" style={{ color: "var(--ink-3)" }}>
-                {p.id === "starter" && "About a month of prospecting in one city"}
-                {p.id === "growth" && "Several cities, and the searches you keep running"}
-                {p.id === "agency" && "Ten client markets, each kept separate"}
-              </span>
-              <Link className={p.id === "growth" ? "cta" : "cta out"} href="/pricing">
-                Choose {p.name}
-              </Link>
+      {/* ====================== 5 · why not the usual way ====================== */}
+      <section className="wrap" style={{ paddingBottom: 96 }}>
+        <div className="g12" style={{ rowGap: 28 }}>
+          {[
+            ["Bought lists", "Stale rows, and none of them say who actually fits."],
+            ["Scraping it yourself", "Gets you names and websites. Someone still has to open all of them."],
+            ["Hiring someone", "Slow, and it costs more than the software you're selling."],
+          ].map(([title, line], i) => (
+            <div key={title} style={{ gridColumn: `${1 + i * 4} / span 3` }}>
+              <p className="lab" style={{ color: "var(--ink-3)" }}>{title}</p>
+              <p className="lede" style={{ marginTop: 12, color: "var(--ink-2)" }}>{line}</p>
             </div>
           ))}
-          <p className="lab" style={{ color: "var(--ink-3)", marginTop: 22 }}>
-            Non-matches are free · a wrong match is refunded on the spot · a business
-            you unlocked stays yours for 12 months
-          </p>
         </div>
       </section>
 
-      {/* =============================== sign up =============================== */}
-      <section
-        id="signup"
-        className="signup wrap"
-        style={{ paddingTop: 104, paddingBottom: 112 }}
-      >
+      {/* ============================= 6 · pricing ============================= */}
+      <section className="wrap" style={{ paddingBottom: 110 }}>
+        <div className="g12" style={{ alignItems: "end", rowGap: 20 }}>
+          <h2 className="dsp" style={{ gridColumn: "1 / span 7", fontSize: "clamp(30px,4.4vw,56px)" }}>
+            You only pay for the businesses that fit.
+          </h2>
+          <div style={{ gridColumn: "9 / span 4" }}>
+            <p className="lede" style={{ color: "var(--ink-2)" }}>
+              ${paid[0].priceUsd}, ${paid[1].priceUsd} or ${paid[2].priceUsd} a
+              month, depending on how many you need. The ones that don&rsquo;t fit
+              cost nothing.
+            </p>
+            <Link className="txtlink" href="/pricing" style={{ color: "var(--lure-text)", marginTop: 18 }}>
+              See pricing →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================== 7 · close ============================== */}
+      <section className="signup wrap" style={{ paddingTop: 96, paddingBottom: 104 }}>
         <div
           style={{ position: "absolute", right: -130, bottom: -110, opacity: 0.45 }}
           className="swim"
@@ -567,53 +381,16 @@ export default async function Home() {
             <path d="M9.5 21 Q13.5 25 19 24.6" fill="none" stroke="#0E1520" strokeWidth="0.345" strokeLinecap="round" />
           </svg>
         </div>
-
-        <div className="g12" style={{ position: "relative" }}>
-          <div
-            style={{
-              gridColumn: "1 / span 5",
-              display: "flex",
-              flexDirection: "column",
-              gap: 24,
-            }}
-          >
-            <h2 className="dsp" style={{ fontSize: 64 }}>
-              Start with {free.credits} credits and a market of your choosing.
-            </h2>
-            <p className="lede" style={{ color: "#2C3A08" }}>
-              Pick your business type and city, and the first {SAMPLE_SIZE} reads run
-              while you watch. No card, and non-matches never cost a credit.
-            </p>
-          </div>
-
-          {/* The design has this collect an email and answer with "check your
-              inbox". We have Clerk, so it goes to the real sign-up instead:
-              a form that pretends to enrol somebody and does nothing is a
-              worse first impression than one honest button. */}
-          <div
-            style={{
-              gridColumn: "7 / span 5",
-              display: "flex",
-              flexDirection: "column",
-              gap: 26,
-              justifyContent: "center",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
-              <Link className="cta ink" href="/sign-up">
-                Create your account
-                <span aria-hidden>→</span>
-              </Link>
-              <span className="lab" style={{ color: "#3A4F05" }}>
-                {free.credits} credits · no card · cancel any time
-              </span>
-            </div>
-            <p className="small" style={{ color: "#2C3A08" }}>
-              Or{" "}
-              <Link href="/app" style={{ textDecoration: "underline" }}>
-                run a search first
-              </Link>{" "}
-              — the count is free and needs no account at all.
+        <div className="g12" style={{ position: "relative", rowGap: 28 }}>
+          <h2 className="dsp" style={{ gridColumn: "1 / span 6", fontSize: "clamp(36px,5.4vw,68px)" }}>
+            Try it on your own market.
+          </h2>
+          <div style={{ gridColumn: "8 / span 5", alignSelf: "end" }}>
+            <Link className="cta ink" href={CTA_HREF}>{CTA_LABEL}</Link>
+            <p className="lab" style={{ color: "#3A4F05", marginTop: 18, letterSpacing: "0.08em" }}>
+              {SIGNUP_OPEN
+                ? `Up to ${free.credits} businesses free · no card · nothing to install`
+                : CTA_NOTE_LONG}
             </p>
           </div>
         </div>
@@ -640,59 +417,47 @@ export default async function Home() {
           <School width={620} height={200} />
         </div>
 
-        <div className="g12" style={{ position: "relative" }}>
-          <div
-            style={{
-              gridColumn: "1 / span 4",
-              display: "flex",
-              flexDirection: "column",
-              gap: 16,
-            }}
-          >
+        <div className="g12" style={{ position: "relative", rowGap: 32 }}>
+          <div style={{ gridColumn: "1 / span 4", display: "flex", flexDirection: "column", gap: 16 }}>
             <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
               <Fish width={39} />
-              <span
-                className="dsp"
-                style={{ fontSize: 24, fontWeight: 600, color: "#EEF0EC", lineHeight: 1 }}
-              >
+              <span className="dsp" style={{ fontSize: 24, fontWeight: 600, color: "#EEF0EC", lineHeight: 1 }}>
                 small fish
               </span>
             </Link>
-            <span className="small" style={{ color: "#8A929B" }}>
-              We read the site, cite the sentence, say when we can&rsquo;t, and charge
-              for matches only.
+            <span className="small" style={{ color: "#8A929B", fontStyle: "italic" }}>
+              We read, we cite, and we say when we could not tell. We never send.
             </span>
           </div>
 
           <FooterCol
+            column={7}
             title="Product"
             links={[
-              ["Accuracy", "#accuracy"],
-              ["Templates", "/templates"],
+              ["Markets", "/markets"],
               ["Pricing", "/pricing"],
-              ["Start free", "/app"],
+              ["Sign in", "/app"],
             ]}
           />
           <FooterCol
+            column={9}
             title="Company"
             links={[
-              ["Why it exists", "#cost"],
-              ["What we get wrong", "/benchmark"],
-              ["Compare", "/compare"],
+              ["How we check", "/how-we-check"],
+              ["Why it exists", "/why-it-exists"],
               ["Remove my business", "/opt-out"],
             ]}
-            column={9}
           />
-          <div style={{ gridColumn: "11 / span 2", display: "flex", flexDirection: "column", gap: 12 }}>
-            <span className="lab" style={{ color: "#5B6470" }}>Small print</span>
-            <span className="small" style={{ color: "#8A929B" }}>
-              Only business information companies publish themselves. Removal on
-              request.
-            </span>
-            <Link className="navlink" href="/privacy">Privacy</Link>
-            <Link className="navlink" href="/terms">Terms</Link>
-            <Link className="navlink" href="/bot">How we crawl</Link>
-          </div>
+          <FooterCol
+            column={11}
+            title="Small print"
+            links={[
+              ["Privacy", "/privacy"],
+              ["Terms", "/terms"],
+              ["How we crawl", "/bot"],
+              ["What we get wrong", "/benchmark"],
+            ]}
+          />
         </div>
 
         <div style={{ position: "relative", height: 140, overflow: "hidden" }} aria-hidden>
@@ -703,58 +468,17 @@ export default async function Home() {
   );
 }
 
-function CostRow({
-  name,
-  price,
-  note,
-  bar,
-  delay,
-  outcome,
-}: {
-  name: string;
-  price: string;
-  note?: string;
-  bar: number;
-  delay: number;
-  outcome: string;
-}) {
-  return (
-    <div className="cost">
-      <h3>{name}</h3>
-      <span className="mono" style={{ fontSize: 20, whiteSpace: "nowrap" }}>
-        {price}
-        {note && (
-          <span style={{ fontSize: 13, color: "var(--ink-3)" }}> {note}</span>
-        )}
-      </span>
-      <span className="bar">
-        <i style={{ width: `${bar}%`, animationDelay: `${delay}s` }} />
-      </span>
-      <span className="small" style={{ color: "var(--ink-2)" }}>
-        {outcome}
-      </span>
-    </div>
-  );
-}
-
 function FooterCol({
   title,
   links,
-  column = 7,
+  column,
 }: {
   title: string;
   links: [string, string][];
-  column?: number;
+  column: number;
 }) {
   return (
-    <div
-      style={{
-        gridColumn: `${column} / span 2`,
-        display: "flex",
-        flexDirection: "column",
-        gap: 12,
-      }}
-    >
+    <div style={{ gridColumn: `${column} / span 2`, display: "flex", flexDirection: "column", gap: 12 }}>
       <span className="lab" style={{ color: "#5B6470" }}>{title}</span>
       {links.map(([label, href]) => (
         <Link key={label} className="navlink" href={href}>
