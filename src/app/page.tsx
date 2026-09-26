@@ -292,8 +292,8 @@ export default async function Home() {
             className="small"
             style={{ gridColumn: "10 / span 3", color: "var(--ink-3)", alignSelf: "end" }}
           >
-            Forty-four seconds, no voiceover: the list you would have bought,
-            the sites you would have opened, and what comes back instead.
+            The list you would have bought, the sites you would have opened,
+            and what comes back instead.
           </p>
         </div>
       </section>
