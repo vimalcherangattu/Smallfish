@@ -156,3 +156,56 @@ export function status(env: Record<string, string | undefined> = currentEnv()) {
       : "Configured.",
   };
 }
+
+/**
+ * Every suppressed business id, from the file **and** the database.
+ *
+ * One reader, because there were briefly three. `/api/suppressed` did the union
+ * correctly; the export and push routes each hand-rolled their own and read
+ * only the committed file — so a business that opted out since the last deploy
+ * would still have been exported and pushed to a CRM. That is the opposite of
+ * what the opt-out page promises, and unlike the crash that led me here it
+ * would have failed silently.
+ *
+ * The union, not the newer of the two. The committed file is the historical
+ * record and the database is the live one; a business in either asked to be
+ * left out, and which store holds the request is our filing problem rather than
+ * theirs.
+ *
+ * **Never throws.** A suppression read that fails must not take down an export
+ * — but it must not silently un-suppress anybody either, so a failure falls
+ * back to the committed file, which can only ever be a subset. `whyDegraded`
+ * says so, for callers that can surface it.
+ */
+export async function suppressedIds(
+  readFile: (p: string) => Promise<string>,
+  publicDataDir: string,
+): Promise<{ ids: Set<string>; whyDegraded: string | null }> {
+  let fromFile: string[] = [];
+  try {
+    const raw = await readFile(`${publicDataDir}/suppressed.json`);
+    // The file is an object with a `note` and `businessIds` — not a bare array.
+    // Passing it straight to `new Set()` throws "object is not iterable", which
+    // is exactly how this was found.
+    fromFile = (JSON.parse(raw) as { businessIds?: string[] }).businessIds ?? [];
+  } catch {
+    fromFile = [];
+  }
+
+  try {
+    const live = await fetchSuppressed();
+    if (live) return { ids: new Set([...fromFile, ...live.businessIds]), whyDegraded: null };
+    return {
+      ids: new Set(fromFile),
+      whyDegraded: "No database configured, so this is the committed file only.",
+    };
+  } catch (err) {
+    return {
+      ids: new Set(fromFile),
+      whyDegraded:
+        "The database could not be read, so this is the committed file only. " +
+        "Businesses suppressed since the last deploy are missing from it. " +
+        String(err instanceof Error ? err.message : err),
+    };
+  }
+}

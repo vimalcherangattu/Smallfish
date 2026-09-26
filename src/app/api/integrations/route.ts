@@ -12,6 +12,7 @@ import {
   recordPush,
 } from "@/lib/accounts";
 import { CLERK_ENABLED } from "@/lib/clerk";
+import { suppressedIds } from "@/lib/db";
 import {
   deliver,
   encryptionConfigured,
@@ -326,10 +327,13 @@ export async function PUT(request: Request) {
   // The suppression list is the app's, read the same way every other surface
   // reads it. A destination that skipped it would be the one place the
   // seven-day promise quietly did not apply.
-  const suppressed = new Set<string>(
-    await readFile(path.join(process.cwd(), "public", "data", "suppressed.json"), "utf8")
-      .then((t) => JSON.parse(t) as string[])
-      .catch(() => []),
+  // One reader for both surfaces, and it reads the database as well as the
+  // committed file — see `suppressedIds`. Hand-rolling this here read only the
+  // file, so anyone who opted out since the last deploy would still have gone
+  // out in an export.
+  const { ids: suppressed } = await suppressedIds(
+    (f) => readFile(f, "utf8"),
+    path.join(process.cwd(), "public", "data"),
   );
 
   const published: Record<string, string> = {};

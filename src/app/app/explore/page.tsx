@@ -13,6 +13,7 @@ import { track } from "@/lib/events";
 import { applySuppression } from "@/lib/suppression";
 import { freeCount } from "@/lib/count";
 import { downloadCsv, overallVerdict, toCsv } from "@/lib/csv";
+import ExportButton from "@/components/ExportButton";
 import PushToDestination from "@/components/PushToDestination";
 import RecordRun from "@/components/RecordRun";
 import { MILLI } from "@/lib/ledger";
@@ -600,39 +601,16 @@ export default function Page() {
 
             <PushToDestination market={market.id} criterion={criterionId} />
 
-            <div className="flex items-center justify-between gap-2 border-b border-[var(--line)] px-4 py-2">
-              <span className="text-[11px] text-[var(--muted)]">
-                {compact(exportable)} unlocked ·{" "}
-                {compact(visible.length - exportable)} as counts
-              </span>
-              <button
-                onClick={() => {
-                  const csv = toCsv(forExport, market.criteria);
-                  downloadCsv(`smallfish-${market.id}.csv`, csv);
-                  track("export_downloaded", {
-                    rows: exportable,
-                    withheld: visible.length - exportable,
-                    market: market.id,
-                  });
-                }}
-                disabled={!exportable}
-                // The file carries matched rows only, so the button says how
-                // many that is. A button that exports fewer rows than the table
-                // shows, without saying so, is how people lose trust in a file
-                // they are about to send to a client.
-                title={
-                  exportable < visible.length
-                    ? `${visible.length - exportable} non-matches stay out of the file — ` +
-                      `you did not unlock them, so their names are not yours to export. ` +
-                      `Their reasons are in the summary above.`
-                    : undefined
-                }
-                className="rounded-md border border-[var(--line)] px-2.5 py-1 text-[11px] font-medium hover:bg-[var(--accent-soft)] disabled:opacity-40"
-              >
-                Export {compact(exportable)} matched row
-                {exportable === 1 ? "" : "s"} with proof
-              </button>
-            </div>
+            {/* The file is built and charged for on the server — see
+                `src/app/api/export/route.ts`. It used to be assembled here in
+                the browser, which is why every part of the billing system was
+                finished and none of it had ever been called. */}
+            <ExportButton
+              market={market.id}
+              criterion={criterionId}
+              rows={exportable}
+              withheld={visible.length - exportable}
+            />
 
             {/* S1-26. A search that found almost nothing is where the product
                 usually loses someone; the honest move is to say the region is

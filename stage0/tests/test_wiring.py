@@ -69,7 +69,12 @@ def main() -> int:
     for event, where, file in [
         ("count_shown", confirm, "SearchConfirm"),
         ("search_confirmed", confirm, "SearchConfirm"),
-        ("export_downloaded", app, "the app"),
+        # The export moved out of the explore screen into `ExportButton` on
+        # 2026-09-26, when building the file became a server call that spends a
+        # credit. What matters is that the event fires from the product at all,
+        # not which component holds it — so this one is checked against the
+        # whole source tree rather than a named file.
+        ("export_downloaded", sources, "the export button"),
         ("match_refunded", app, "the app"),
     ]:
         check(f"{event} fires from {file}", f'"{event}"' in where)
