@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import Bubbles from "@/components/Bubbles";
+import Explainer from "@/components/Explainer";
 import Fish from "@/components/Fish";
 import School from "@/components/School";
 import { CTA_HREF, CTA_LABEL, CTA_NOTE, CTA_NOTE_LONG, NAV_CTA, SIGNUP_OPEN } from "@/lib/launch";
@@ -276,6 +277,25 @@ export default async function Home() {
             show here rather than one made up.
           </p>
         )}
+      </section>
+
+      {/* ============================ the explainer ============================ */}
+      {/* After the example, not before it. The row above is the strongest thing
+          on the page and a video in front of it would be a gate on the argument.
+          This shows what that row tells, for whoever would rather watch. */}
+      <section className="wrap" style={{ paddingBottom: 96 }}>
+        <div className="g12">
+          <div style={{ gridColumn: "1 / span 8" }}>
+            <Explainer />
+          </div>
+          <p
+            className="small"
+            style={{ gridColumn: "10 / span 3", color: "var(--ink-3)", alignSelf: "end" }}
+          >
+            Forty-four seconds, no voiceover: the list you would have bought,
+            the sites you would have opened, and what comes back instead.
+          </p>
+        </div>
       </section>
 
       {/* ======================== 3 · what's in the list ======================== */}

@@ -50,12 +50,24 @@ const BASE = (process.argv[2] ?? "http://localhost:3000").replace(/\/$/, "");
 /** Failures that belong to the environment rather than the product. */
 const IGNORE = [/tile\.openstreetmap\.org/, /ERR_CERT_AUTHORITY_INVALID/];
 
+/**
+ * Links to files rather than pages.
+ *
+ * A crawler that navigates to an mp4 and then waits for `networkidle` waits
+ * forever — the browser starts streaming and never goes idle. The explainer's
+ * `<video>` carries a download link as its no-support fallback, which is
+ * exactly the kind of correct markup that hung this check the first time it
+ * ran. Assets are fetched and checked for a status below, not navigated to.
+ */
+const ASSET = /\.(mp4|webm|mov|pdf|zip|csv|jpe?g|png|svg|gif|webp|ico|txt|xml)$/i;
+
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium",
 });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
 
 const seen = new Set();
+const assets = new Set();
 const queue = ["/"];
 const status = new Map();
 const problems = [];
@@ -98,7 +110,24 @@ while (queue.length) {
       continue;
     }
     const clean = href.split("#")[0];
-    if (clean.startsWith("/") && !seen.has(clean) && !queue.includes(clean)) queue.push(clean);
+    if (!clean.startsWith("/") || seen.has(clean)) continue;
+
+    if (ASSET.test(clean)) {
+      // Fetched, not navigated to. A broken asset link is still a broken link,
+      // so it is checked — just without handing it to the renderer.
+      if (!assets.has(clean)) {
+        assets.add(clean);
+        const res = await fetch(BASE + clean, { method: "HEAD" }).catch(() => null);
+        if (!res || !res.ok) {
+          problems.push([route, `asset ${clean} -> ${res ? res.status : "unreachable"}`]);
+        } else {
+          status.set(clean, res.status);
+        }
+      }
+      continue;
+    }
+
+    if (!queue.includes(clean)) queue.push(clean);
   }
   await page.close();
 }
