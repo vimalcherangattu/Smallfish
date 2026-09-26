@@ -400,6 +400,72 @@ export async function pushedThenSuppressed(accountId: string) {
   );
 }
 
+// ------------------------------------------------------------ runs (S2-12) --
+
+export type RunRow = {
+  account_id: string;
+  market_id: string;
+  criterion_id: string;
+  query: string | null;
+  scope: "city" | "state" | "country" | null;
+  region_label: string | null;
+  matched: number;
+  judged: number;
+  tallies: Record<string, number>;
+  first_run_at: string;
+  last_run_at: string;
+  times: number;
+};
+
+/** Every search this workspace has run, most recent first. */
+export async function runsFor(accountId: string, limit = 50): Promise<RunRow[]> {
+  return (
+    (await rest<RunRow[] | null>(
+      `runs?account_id=eq.${accountId}&select=*&order=last_run_at.desc&limit=${limit}`,
+    )) ?? []
+  );
+}
+
+export async function runFor(
+  accountId: string,
+  marketId: string,
+  criterionId: string,
+): Promise<RunRow | null> {
+  const rows =
+    (await rest<RunRow[] | null>(
+      `runs?account_id=eq.${accountId}` +
+        `&market_id=eq.${encodeURIComponent(marketId)}` +
+        `&criterion_id=eq.${encodeURIComponent(criterionId)}&select=*&limit=1`,
+    )) ?? [];
+  return rows[0] ?? null;
+}
+
+/** Record that a search was run. Upserts, so opening the same market twice is
+ *  one row with `times = 2` rather than two identical entries. */
+export async function recordRun(args: {
+  accountId: string;
+  marketId: string;
+  criterionId: string;
+  query?: string | null;
+  scope?: string | null;
+  regionLabel?: string | null;
+  matched?: number;
+  judged?: number;
+  tallies?: Record<string, number>;
+}): Promise<void> {
+  await rpc("record_run", {
+    p_account: args.accountId,
+    p_market: args.marketId,
+    p_criterion: args.criterionId,
+    p_query: args.query ?? null,
+    p_scope: args.scope ?? null,
+    p_region: args.regionLabel ?? null,
+    p_matched: args.matched ?? 0,
+    p_judged: args.judged ?? 0,
+    p_tallies: args.tallies ?? {},
+  });
+}
+
 /**
  * A cancelled subscription returns the workspace to Free.
  *

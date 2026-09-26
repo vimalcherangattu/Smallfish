@@ -92,6 +92,10 @@ for (const [label, path] of [
   ["accounts", "accounts?select=*"],
   ["members", "account_members?select=*"],
   ["webhook receipts", "webhook_events?select=*"],
+  ["destinations", "destinations?select=*"],
+  ["stored credentials", "destination_secrets?select=*"],
+  ["push receipts", "pushes?select=*"],
+  ["run history", "runs?select=*"],
 ]) {
   const { status, body } = await get(path);
   const empty = Array.isArray(body) && body.length === 0;

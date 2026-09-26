@@ -14,6 +14,7 @@ import { applySuppression } from "@/lib/suppression";
 import { freeCount } from "@/lib/count";
 import { downloadCsv, overallVerdict, toCsv } from "@/lib/csv";
 import PushToDestination from "@/components/PushToDestination";
+import RecordRun from "@/components/RecordRun";
 import { MILLI } from "@/lib/ledger";
 import { PLANS } from "@/lib/pricing";
 import {
@@ -592,6 +593,11 @@ export default function Page() {
             {/* The other end of the loop. Hidden entirely when no destination is
                 connected — an empty dropdown beside an export button is a
                 feature advertising itself rather than doing anything. */}
+            {/* Bookkeeping, deliberately alongside the results rather than in
+                front of them: the history write must never be able to delay or
+                break what the person came for. */}
+            <RecordRun market={market.id} criterion={criterionId} />
+
             <PushToDestination market={market.id} criterion={criterionId} />
 
             <div className="flex items-center justify-between gap-2 border-b border-[var(--line)] px-4 py-2">

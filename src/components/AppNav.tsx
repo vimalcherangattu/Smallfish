@@ -16,14 +16,16 @@ import Fish from "@/components/Fish";
  * Every item here goes somewhere that exists. A nav that lists features to
  * come is how a product feels unfinished in the one place a customer looks to
  * find out what it does — anything unbuilt stays off this list until it is not.
- * "Runs" belongs here and is absent for exactly that reason: searches are not
- * persisted yet, so the page would be an empty promise with a link on it.
+ * "Runs" was absent for exactly that reason until 2026-09-26, when searches
+ * started being kept. It is here now because the page behind it has something
+ * in it.
  */
 
 const ITEMS: { href: string; label: string; hint: string }[] = [
   { href: "/app", label: "Overview", hint: "Where things stand" },
   { href: "/app/search", label: "Search", hint: "Find businesses by what their site says" },
   { href: "/app/icp", label: "Who to target", hint: "Turn what you sell into things we can check" },
+  { href: "/app/runs", label: "Runs", hint: "Every search you have run" },
   { href: "/app/explore", label: "Explore a market", hint: "The markets already read, on a map" },
   { href: "/app/destinations", label: "Destinations", hint: "Where matched rows go" },
 ];
