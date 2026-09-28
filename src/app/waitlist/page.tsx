@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import Fish from "@/components/Fish";
 import WaitlistForm from "@/components/WaitlistForm";
@@ -25,6 +26,12 @@ export const metadata = {
 };
 
 export default function WaitlistPage() {
+  // Sign-up opened on 2026-09-28, so a waitlist is a queue for a door that is
+  // already open. The route stays — it is linked from old posts and emails —
+  // but it sends people to the thing they were waiting for rather than asking
+  // them for an address we would never write to.
+  if (SIGNUP_OPEN) redirect("/sign-up");
+
   const free = PLANS.find((p) => p.id === "free")!;
 
   return (

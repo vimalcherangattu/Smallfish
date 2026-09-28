@@ -13,26 +13,36 @@
  *   > become **Join the waitlist**, and the line under them becomes *We're
  *   > letting people in a few at a time.*
  *
- * **That condition is not met today**, and it is worth being precise about
- * why, because it is close. Somebody can sign up right now and get a real list
- * — names, contacts, evidence, a CSV — for any of the three markets that have
- * been read. What they cannot do is describe a market of their own and have it
- * read, because reading one cold needs a model key that is not set in any
- * environment. The copy's promise is "tell us who you sell to and where", and
- * that is the half that does not work.
+ * **Decided 2026-09-28: the door opens anyway.** Sign-up is the call to
+ * action everywhere and the waitlist is retired.
  *
- * So the switch is here, it is one boolean, and flipping it changes exactly
- * what the document says it should. Everything else on the page — every other
- * word, every link, every block — is identical either way.
+ * The condition above is still not fully met, and it is worth writing down
+ * exactly which half works, because the honest version of this decision
+ * depends on it. Somebody can sign up right now and get a real list — names,
+ * phone numbers, a drafted opener, a CSV — for any market that has been read.
+ * What they cannot yet do is name a market of their own and have it read
+ * cold; that pipeline lives in `stage0/` and does not run on the web app.
+ *
+ * So the risk this flag was protecting against is real, and the answer to it
+ * is not a closed door — it is `/app` telling the truth. A search we have not
+ * read says so plainly and offers the ones that are ready, rather than
+ * returning an empty list or the nearest market pretending to be the one that
+ * was asked for. `test_leads.mjs` holds that: an unread trade returns nothing,
+ * never the nearest market.
+ *
+ * A waitlist would have been the safer-looking choice and the less honest one,
+ * because it withholds a product that genuinely works for the markets it
+ * covers.
  */
 
 /**
- * `false` until a stranger can describe their own market and get it read.
+ * `true` since 2026-09-28. Sign-up is the only call to action.
  *
- * Flip this the day the model key is set and a cold read works end to end.
- * Nothing else needs to change.
+ * Kept as a switch rather than deleted: if sign-up ever has to close again —
+ * capacity, abuse, a pricing change — this is still the one boolean that does
+ * it, and every other word on every page is identical either way.
  */
-export const SIGNUP_OPEN = false;
+export const SIGNUP_OPEN = true;
 
 /** The primary action, everywhere it appears. */
 export const CTA_LABEL = SIGNUP_OPEN ? "Sign up free →" : "Join the waitlist →";
