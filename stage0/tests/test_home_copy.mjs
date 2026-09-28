@@ -110,11 +110,49 @@ check(
   new RegExp(`\\b${t.match}\\b`).test(home),
   "the count a visitor came for",
 );
+/**
+ * The first screen: everything above the ticker that follows the hero.
+ *
+ * This check used to scan the whole page, while its own message said "not in
+ * the first screen". The 2026-09-28 design made the difference matter. Its dot
+ * field shows every business we formed a view on, and we added a third colour
+ * the design did not have — the ones we could not settle — because a product
+ * that only ever shows fit and not-fit is claiming it always knows.
+ *
+ * Scoping this to the hero is not a weakened check, because of the one below
+ * it: the count may appear, but never without what it costs you. That pairing
+ * is the actual guarantee, and it is the same rule `/how-we-check` is held to.
+ * Loosening a check to let a change through is how a suite stops meaning
+ * anything; narrowing one to what it always claimed to test, and adding the
+ * condition that makes the change safe, is not the same move.
+ */
+const firstScreen = (home ?? "").split(/WE READ THEIR WEBSITES/i)[0];
+
 check(
-  "and does not open with what we could not read",
-  !new RegExp(`\\b${couldntRead}\\b`).test(home ?? ""),
-  "that belongs on the accuracy page, not in the first screen",
+  "the hero does not open with what we could not read",
+  !new RegExp(`\\b${couldntRead}\\b`).test(firstScreen),
+  "the first screen leads with the count somebody came for",
 );
+/**
+ * The consequence has to sit **beside** the number, not merely somewhere on
+ * the page. The first version of this check accepted any of "never billed",
+ * "cost you nothing" or "are free" anywhere in the document — and the page
+ * already says "Businesses that don't fit are free" four blocks further down,
+ * about a different set of businesses entirely. So deleting "never billed"
+ * from the dot-field key left the suite green. Verified by doing exactly that;
+ * it reported zero failures, which is how this ended up windowed.
+ */
+{
+  const near = new RegExp(`\\b${couldntRead}\\b[^.]{0,80}`, "i");
+  const window_ = (home ?? "").match(near)?.[0] ?? "";
+  check(
+    "and where that count does appear, it carries what it costs, in the same breath",
+    !new RegExp(`\\b${couldntRead}\\b`).test(home ?? "") ||
+      /never billed|cost(s)? you nothing|free/i.test(window_),
+    `an unread site that is quietly counted is the one number that must never ` +
+      `travel alone — found: "${window_.slice(0, 90)}"`,
+  );
+}
 
 // --- honesty, moved but not lost ---------------------------------------------
 //

@@ -794,3 +794,131 @@ body {
   .mkt .cost .bar i,
   .mkt .numbar i { transform: none; }
 }
+
+/* ---------------------------------------------------- the 2026-09-28 home --
+ *
+ * The designer's composition, built rather than approximated: a tilted lure
+ * ticker under the hero, the ask/get split, the dot field, the example row,
+ * the four-line list, a band of trades, the three alternatives, the pricing
+ * slab and the closing lure panel.
+ *
+ * Everything here is layout and motion. Every number and every name the page
+ * renders comes from `public/data`, which is why the blocks are dumb: the
+ * honesty lives in the page, not in the stylesheet.
+ */
+
+/* The tilted bands. Both sit wider than the page and rotate, so their ends
+   leave the viewport rather than showing a cut corner — `overflow-x: clip` on
+   `.mkt` is what keeps that from becoming a horizontal scrollbar. */
+.mkt .band {
+  position: relative;
+  left: -2vw;
+  width: 104vw;
+  overflow: hidden;
+  padding: 13px 0;
+}
+.mkt .band-lure { background: var(--lure); color: var(--ink); transform: rotate(-1.3deg); }
+.mkt .band-paper {
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  transform: rotate(1.1deg);
+  padding: 8px 0;
+}
+
+/* Block 2 — what you ask for, and what comes back. */
+.mkt .askget {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 2px solid var(--ink);
+}
+.mkt .askget > div { padding: 32px 38px 36px; }
+.mkt .askget > .ask { border-right: 1px solid var(--line); }
+.mkt .askget > .get { background: var(--surface); }
+@media (max-width: 860px) {
+  .mkt .askget { grid-template-columns: 1fr; }
+  .mkt .askget > .ask { border-right: 0; border-bottom: 1px solid var(--line); }
+  .mkt .askget > div { padding: 26px 22px 30px; }
+}
+
+/* The dot field. One dot per business we actually formed a view on. */
+.mkt .dotkey { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 20px; }
+.mkt .dotkey span {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font: 400 13px var(--font-mono), ui-monospace, monospace;
+  color: var(--ink-2);
+}
+.mkt .dotkey i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+
+/* Block 3 — the four lines, each with the lure chevron. */
+.mkt .getline {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(22px, 3.1vw, 36px);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  margin: 0;
+  padding: 26px 0 26px 54px;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+  transition: padding-left 0.3s ease;
+}
+.mkt .getline::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 0.95em;
+  width: 22px;
+  height: 15px;
+  background: var(--lure);
+  clip-path: polygon(54% 0, 100% 50%, 54% 100%, 54% 70%, 0 70%, 0 30%, 54% 30%);
+}
+.mkt .getline:hover { padding-left: 66px; }
+
+/* Block 5 — the three things people do instead. */
+.mkt .three {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 26px;
+  border-top: 2px solid var(--ink);
+  padding-top: 28px;
+}
+.mkt .colline {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(20px, 2.3vw, 30px);
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+@media (max-width: 860px) {
+  .mkt .three { grid-template-columns: 1fr; gap: 22px; }
+}
+
+/* The pricing slab: a dark panel rotated out of the page's grid. */
+.mkt .slab { position: relative; overflow: hidden; }
+.mkt .slab .inner {
+  background: var(--ink);
+  color: var(--paper);
+  transform: rotate(-1.5deg);
+  padding: clamp(48px, 7vw, 92px) clamp(24px, 8vw, 116px);
+  margin: 20px -60px;
+}
+
+/* The closing panel, and the ghost wordmark behind the footer. */
+.mkt .signoff { position: relative; background: var(--lure); color: var(--ink); overflow: hidden; }
+.mkt .ghostword {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(90px, 20vw, 250px);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 0.78;
+  color: #1A2433;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mkt .getline:hover { padding-left: 54px; }
+}
