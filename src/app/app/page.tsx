@@ -2,55 +2,56 @@ import Link from "next/link";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { accountForUser, balanceOf, destinationsFor, isComped } from "@/lib/accounts";
-import { CLERK_ENABLED } from "@/lib/clerk";
-import { credits } from "@/lib/ledger";
-import type { MarketIndex } from "@/lib/types";
+import LeadList from "@/components/LeadList";
+import RecordRun from "@/components/RecordRun";
 import SearchBox from "@/components/SearchBox";
+import { suppressedIds } from "@/lib/db";
+import { buildLeads, marketFor, type Contacts } from "@/lib/leads";
+import { splitQuery } from "@/lib/query";
+import { resolveRegion, type Places } from "@/lib/region";
+import type { Market, MarketIndex } from "@/lib/types";
 
 /**
- * The overview.
+ * The product, on one screen.
  *
- * It answers three questions in the order somebody actually asks them: what can
- * I do right now, what did I do last time, and what is this costing me. The
- * search box is first because the answer to the first question is always "run a
- * search" — a dashboard whose primary action is buried under its own statistics
- * has the priorities of the person who built it, not the person using it.
+ * ## What this replaced
  *
- * **What is shown is what is true.** There is no placeholder card for a feature
- * that does not exist; where something is not built, the space it would take is
- * simply not there. A dashboard padded with empty widgets is how a product
- * feels unfinished even when it works.
+ * Three screens and about nine clicks: a dashboard of credit counters, a
+ * confirm page quoting "1,000 websites, about $16.80 of reading", and a map
+ * with radius buttons, a market dropdown, six verdict filter chips and a
+ * footnote about Overture listings and the absence-proof rule. All of it was
+ * true and most of it was ours to worry about, not the user's. Somebody came to
+ * find dentists to call and had to operate a measurement rig first.
  *
- * Server component: the account reads hold the service-role key.
+ * Now: type a sentence, get the businesses. The engine is unchanged — this is
+ * the same data, the same verdicts, the same refusals — but the page leads with
+ * the answer and keeps the method one click behind it.
+ *
+ * ## Why the results render here rather than on `/app/search`
+ *
+ * A second route is a second page load and a second thing to look at. The box
+ * submits to `/app?q=…`, which is this page, so the answer appears under the
+ * box that asked for it. `/app/search` still resolves — old links and the
+ * saved-run history point at it — and redirects here.
+ *
+ * ## Server component, on purpose
+ *
+ * The market files are megabytes and the browser needs forty rows. Everything
+ * is assembled in `buildLeads` before a byte is sent, which is also why there
+ * is no loading state: the list is in the HTML.
  */
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Find businesses — Small Fish" };
 
-async function marketIndex(): Promise<MarketIndex | null> {
+async function json<T>(name: string): Promise<T | null> {
   try {
-    const file = path.join(process.cwd(), "public", "data", "index.json");
-    return JSON.parse(await readFile(file, "utf8")) as MarketIndex;
+    return JSON.parse(
+      await readFile(path.join(process.cwd(), "public", "data", name), "utf8"),
+    ) as T;
   } catch {
     return null;
   }
-}
-
-/** The markets with a criterion something actually settled. A market whose
- *  every verdict is `needs_model` has been listed, not read, and offering it
- *  hands somebody an empty result that looks like a bug. */
-function readable(index: MarketIndex | null) {
-  if (!index) return [];
-  const out: { id: string; niche: string; metro: string; criterionId: string; text: string; matches: number }[] = [];
-  for (const m of index.markets) {
-    for (const c of m.criteria) {
-      const matches = m.tallies?.[c.id]?.match ?? 0;
-      if (matches > 0) {
-        out.push({ id: m.id, niche: m.niche, metro: m.metro, criterionId: c.id, text: c.text, matches });
-      }
-    }
-  }
-  return out.sort((a, b) => b.matches - a.matches);
 }
 
 const LABEL: Record<string, string> = {
@@ -59,122 +60,151 @@ const LABEL: Record<string, string> = {
   hvac: "HVAC companies",
   veterinary: "Vet clinics",
 };
-const label = (n: string) => LABEL[n] ?? n.replace(/_/g, " ");
 
-export default async function Overview() {
-  const index = await marketIndex();
-  const markets = readable(index);
-
-  let account: Awaited<ReturnType<typeof accountForUser>> = null;
-  let milli = 0;
-  let destinations = 0;
-  if (CLERK_ENABLED) {
-    try {
-      const { auth } = await import("@clerk/nextjs/server");
-      const { userId } = await auth();
-      if (userId) {
-        account = await accountForUser(userId);
-        if (account) {
-          [milli, destinations] = await Promise.all([
-            balanceOf(account.id),
-            destinationsFor(account.id).then((d) => d.length),
-          ]);
-        }
+/** The searches that return something today, as sentences somebody would type
+ *  rather than a list of market ids. */
+function suggestions(index: MarketIndex | null) {
+  if (!index) return [];
+  const out: { q: string; n: number }[] = [];
+  for (const m of index.markets) {
+    for (const c of m.criteria) {
+      const n = m.tallies?.[c.id]?.match ?? 0;
+      if (n > 0) {
+        const niche = (LABEL[m.niche] ?? m.niche.replace(/_/g, " ")).toLowerCase();
+        const city = m.metro.split(",")[0].trim();
+        out.push({ q: `${niche} in ${city} that ${c.text}`, n });
       }
-    } catch {
-      // A database that is not configured on this deployment must not take the
-      // page down — the search below needs none of it.
-      account = null;
+    }
+  }
+  return out.sort((a, b) => b.n - a.n);
+}
+
+export default async function App({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q = "" } = await searchParams;
+  const query = q.trim();
+
+  const [index, places] = await Promise.all([
+    json<MarketIndex>("index.json"),
+    json<Places>("places-us.json"),
+  ]);
+
+  const split = splitQuery(query);
+  const hit = query ? marketFor(index, split.what, split.where) : null;
+
+  let result = null;
+  if (hit) {
+    const [market, contacts, sup] = await Promise.all([
+      json<Market>(`${hit.market.id}.json`),
+      json<Contacts & { contacts?: Contacts }>(`contacts-${hit.market.id}.json`),
+      suppressedIds(
+        (p) => readFile(p, "utf8"),
+        path.join(process.cwd(), "public", "data"),
+      ).catch(() => ({ ids: new Set<string>(), whyDegraded: null })),
+    ]);
+    if (market) {
+      result = buildLeads({
+        query,
+        index,
+        market,
+        contacts: (contacts?.contacts ?? {}) as Contacts,
+        suppressed: sup.ids,
+      });
     }
   }
 
-  const comped = account ? isComped(account) : false;
+  // Somewhere real, but not read yet. Different sentence from "we don't know
+  // where that is", and the difference is the whole product.
+  const region = !hit && places && split.where ? resolveRegion(places, split.where) : null;
+  const picks = suggestions(index);
 
   return (
-    <div className="mx-auto max-w-[1100px] px-6 py-10 sm:px-10">
-      <h1 className="sf-h1">Find the businesses worth calling.</h1>
-      <p className="sf-body mt-3 max-w-[60ch] text-[var(--ink-2)]">
-        Say what you sell, where, and the one thing that decides whether a
-        business is a fit. We read their websites and hand back only the ones
-        that match, each with the sentence that proves it.
-      </p>
+    <div className="mx-auto max-w-[1000px] px-6 py-10 sm:px-10">
+      {!query && (
+        <>
+          <h1 className="sf-h1">Who do you want to find?</h1>
+          <p className="sf-body mt-3 max-w-[58ch] text-[var(--ink-2)]">
+            A trade, a place, and the one thing that makes a business worth your
+            call. You get their number and a line to open with.
+          </p>
+        </>
+      )}
 
-      <div className="mt-8">
-        <SearchBox />
+      <div className={query ? "" : "mt-8"}>
+        <SearchBox initial={query} />
       </div>
 
-      {/* --------------------------------------------------- the workspace -- */}
-      <div className="mt-12 grid gap-4 sm:grid-cols-3">
-        <div className="sf-card p-5">
-          <p className="sf-label">Credits</p>
-          <p className="sf-h1 mt-2">{account ? credits(milli) : "—"}</p>
-          <p className="sf-small mt-2 text-[var(--muted)]">
-            {comped
-              ? "Comped — matches cost this workspace nothing"
-              : account
-                ? "Only a proven match costs one"
-                : CLERK_ENABLED
-                  ? "Sign in to see your balance"
-                  : "Accounts are not switched on here"}
+      {/* ------------------------------------------------------- the answer -- */}
+      {result && result.leads.length > 0 && (
+        <>
+          <LeadList result={result} />
+          {/* Kept beside the results, never in front of them: the history write
+              must not be able to delay or break what the person came for. */}
+          <RecordRun market={result.marketId} criterion={result.criterionId} />
+        </>
+      )}
+
+      {/* A search we understood, in a place we know, that nobody has read yet. */}
+      {query && !result && (
+        <div className="sf-card mt-8 p-6">
+          <p className="sf-h2">
+            We haven&rsquo;t been through {split.what || "those"}
+            {region ? ` in ${region.label}` : split.where ? ` in ${split.where}` : ""} yet.
           </p>
-          {account && (
-            <Link href="/account" className="sf-small mt-3 inline-block text-[var(--lure-text)]">
-              Every line →
-            </Link>
+          <p className="sf-body mt-3 max-w-[64ch] text-[var(--ink-2)]">
+            {split.where && !region ? (
+              <>
+                We couldn&rsquo;t place <strong>{split.where}</strong>. A US city
+                or state works — try the city on its own.
+              </>
+            ) : (
+              <>
+                Nothing about your search is unusual; these are just the places
+                we have finished. Tell us and we will put it next in the queue.
+              </>
+            )}
+          </p>
+
+          {picks.length > 0 && (
+            <div className="mt-6 border-t border-[var(--line)] pt-5">
+              <p className="sf-label">Ready right now</p>
+              <div className="mt-3 flex flex-col gap-2">
+                {picks.slice(0, 4).map((p) => (
+                  <Link
+                    key={p.q}
+                    href={`/app?q=${encodeURIComponent(p.q)}`}
+                    className="sf-small flex items-baseline justify-between gap-4 rounded-md border border-[var(--line)] px-3 py-2.5 hover:border-[var(--line-strong)]"
+                  >
+                    <span className="text-[var(--ink)]">{p.q}</span>
+                    <span className="sf-data shrink-0 text-[var(--accent)]">{p.n}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
           )}
         </div>
+      )}
 
-        <div className="sf-card p-5">
-          <p className="sf-label">Markets read</p>
-          <p className="sf-h1 mt-2">{new Set(markets.map((m) => m.id)).size}</p>
-          <p className="sf-small mt-2 text-[var(--muted)]">
-            read in full, with every verdict on the page it came from
-          </p>
-          <Link href="/app/explore" className="sf-small mt-3 inline-block text-[var(--lure-text)]">
-            Open one →
-          </Link>
-        </div>
-
-        <div className="sf-card p-5">
-          <p className="sf-label">Destinations</p>
-          <p className="sf-h1 mt-2">{account ? destinations : "—"}</p>
-          <p className="sf-small mt-2 text-[var(--muted)]">
-            where matched rows go — HubSpot, a sequencer, or a webhook
-          </p>
-          <Link href="/app/destinations" className="sf-small mt-3 inline-block text-[var(--lure-text)]">
-            {destinations ? "Manage" : "Connect one"} →
-          </Link>
-        </div>
-      </div>
-
-      {/* ------------------------------------------------- already read ----- */}
-      {markets.length > 0 && (
-        <section className="mt-14">
-          <h2 className="sf-h2">Read in full, right now</h2>
-          <p className="sf-body mt-2 max-w-[62ch] text-[var(--ink-2)]">
-            These have been read end to end, so they open instantly and every
-            verdict carries its evidence. Any other market works the same way —
-            the thing you are looking for is read on the page, so nothing has to
-            be built for a new one.
-          </p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            {markets.map((m) => (
+      {/* ------------------------------------------------- the empty state -- */}
+      {!query && picks.length > 0 && (
+        <div className="mt-12">
+          <p className="sf-label">Ready right now</p>
+          <div className="mt-3 flex flex-col gap-2">
+            {picks.map((p) => (
               <Link
-                key={`${m.id}:${m.criterionId}`}
-                href={`/app/explore?market=${m.id}&criterion=${m.criterionId}`}
-                className="sf-card flex items-baseline justify-between gap-4 p-5 hover:border-[var(--line-strong)]"
+                key={p.q}
+                href={`/app?q=${encodeURIComponent(p.q)}`}
+                className="sf-card flex items-baseline justify-between gap-4 p-4 hover:border-[var(--line-strong)]"
               >
-                <span>
-                  <span className="sf-h3">
-                    {label(m.niche)} in {m.metro}
-                  </span>
-                  <span className="sf-small mt-1 block text-[var(--muted)]">{m.text}</span>
-                </span>
-                <span className="sf-data shrink-0 text-[var(--accent)]">{m.matches} matched</span>
+                <span className="sf-body text-[var(--ink)]">{p.q}</span>
+                <span className="sf-data shrink-0 text-[var(--accent)]">{p.n} to call</span>
               </Link>
             ))}
           </div>
-        </section>
+        </div>
       )}
     </div>
   );

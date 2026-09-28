@@ -8,26 +8,25 @@ import Fish from "@/components/Fish";
 /**
  * The product's navigation.
  *
- * **Literal words only**, per `docs/design-system.md` §4: Search, Runs,
- * Exports, Watchlist. No "reel in", no "cast a net", no fish anywhere near a
- * verdict. The mark in the corner is the one place the brand is allowed to be
- * a brand, because the design itself puts it there.
+ * **Literal words only**, per `docs/design-system.md` §4. No "reel in", no
+ * "cast a net". The mark in the corner is the one place the brand is allowed to
+ * be a brand, because the design itself puts it there.
  *
- * Every item here goes somewhere that exists. A nav that lists features to
- * come is how a product feels unfinished in the one place a customer looks to
- * find out what it does — anything unbuilt stays off this list until it is not.
- * "Runs" was absent for exactly that reason until 2026-09-26, when searches
- * started being kept. It is here now because the page behind it has something
- * in it.
+ * Three items, down from six. "Overview" was a page of counters in front of the
+ * search box and is now the search box; "Explore a market" opened a map with
+ * radius buttons and verdict filters; "Who to target" was a second front door
+ * for the same question the box already asks. A product that does one thing
+ * should not offer six places to start doing it.
+ *
+ * The map still exists at `/app/explore` for picking a region by hand, and the
+ * ICP builder at `/app/icp`. Neither is a front door any more, so neither is
+ * in the nav.
  */
 
 const ITEMS: { href: string; label: string; hint: string }[] = [
-  { href: "/app", label: "Overview", hint: "Where things stand" },
-  { href: "/app/search", label: "Search", hint: "Find businesses by what their site says" },
-  { href: "/app/icp", label: "Who to target", hint: "Turn what you sell into things we can check" },
-  { href: "/app/runs", label: "Runs", hint: "Every search you have run" },
-  { href: "/app/explore", label: "Explore a market", hint: "The markets already read, on a map" },
-  { href: "/app/destinations", label: "Destinations", hint: "Where matched rows go" },
+  { href: "/app", label: "Find businesses", hint: "Say who you want and where" },
+  { href: "/app/runs", label: "Saved searches", hint: "Every list you have pulled" },
+  { href: "/app/destinations", label: "Send to", hint: "HubSpot, a sequencer, or a webhook" },
 ];
 
 export default function AppNav() {

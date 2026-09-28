@@ -11,17 +11,29 @@ import { useState } from "react";
  * interface: they came to find carpenters in Austin, and the first thing the
  * screen asked them for was a bounding box.
  *
- * So: a sentence. `query.ts` splits it, the next screen shows the split back in
- * editable fields, and nothing is refused for being an unfamiliar trade — the
- * engine reads a criterion off the page, so a vertical nobody anticipated is
- * not a special case.
+ * So: a sentence. `query.ts` splits it and `/app` answers it on the same
+ * screen — there is no confirm step in between, because a page that quotes a
+ * cost per website read before showing a single business is the measurement
+ * engine asking permission to be a product.
+ *
+ * Nothing is refused for being an unfamiliar trade: the engine reads what you
+ * asked for off the page, so a vertical nobody anticipated is not a special
+ * case.
  */
 
+/**
+ * Three searches that return a list today.
+ *
+ * They used to include "carpenters in Austin that don't show pricing", which is
+ * a perfectly good search and a terrible suggestion: offering somebody a button
+ * whose only possible outcome is "we haven't read that yet" is a demo of the
+ * thing the product cannot do. The examples are the front door; the honest
+ * not-read-yet state belongs where somebody arrives at it themselves.
+ */
 const EXAMPLES = [
+  "dental practices in Phoenix that have no online booking",
+  "HVAC companies in Tampa that have no quote form",
   "med spas in Dallas that have no online booking",
-  "carpenters in Austin that don't show pricing",
-  "HVAC companies in Tampa with no quote form",
-  "dental practices in Phoenix that don't take bookings online",
 ];
 
 export default function SearchBox({ initial = "" }: { initial?: string }) {
@@ -32,7 +44,7 @@ export default function SearchBox({ initial = "" }: { initial?: string }) {
     e.preventDefault();
     const text = q.trim();
     if (!text) return;
-    router.push(`/app/search?q=${encodeURIComponent(text)}`);
+    router.push(`/app?q=${encodeURIComponent(text)}`);
   }
 
   return (
@@ -47,7 +59,7 @@ export default function SearchBox({ initial = "" }: { initial?: string }) {
           autoComplete="off"
         />
         <button type="submit" className="sf-btn-lure shrink-0 sm:h-[52px] sm:px-7">
-          See how many
+          Find them
         </button>
       </form>
 
@@ -59,7 +71,7 @@ export default function SearchBox({ initial = "" }: { initial?: string }) {
             type="button"
             onClick={() => {
               setQ(e);
-              router.push(`/app/search?q=${encodeURIComponent(e)}`);
+              router.push(`/app?q=${encodeURIComponent(e)}`);
             }}
             className="sf-small rounded-full border border-[var(--line)] bg-[var(--panel)] px-3 py-1.5 text-[var(--ink-2)] hover:border-[var(--line-strong)]"
           >

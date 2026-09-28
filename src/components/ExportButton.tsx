@@ -28,6 +28,7 @@ export default function ExportButton({
   criterion,
   rows,
   withheld,
+  variant = "inline",
 }: {
   market: string;
   criterion: string;
@@ -35,6 +36,14 @@ export default function ExportButton({
    *  file; this is only what the button promises. */
   rows: number;
   withheld: number;
+  /**
+   * `inline` is the original: a strip inside the map panel, 11px, with the
+   * unlocked/withheld tally beside it. `primary` is the one on the results
+   * screen, where this is the main thing a person does with a finished list and
+   * so looks like it — and where "Export 42 matched rows with proof" was three
+   * pieces of our vocabulary in a six-word button.
+   */
+  variant?: "inline" | "primary";
 }) {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
@@ -83,6 +92,26 @@ export default function ExportButton({
       setNote("Could not reach the server. Nothing was charged.");
     }
     setBusy(false);
+  }
+
+  if (variant === "primary") {
+    return (
+      <div className="text-right">
+        <button onClick={run} disabled={busy || !rows} className="sf-btn-lure disabled:opacity-40">
+          {busy ? "Preparing…" : `Download all ${rows}`}
+        </button>
+        {note && (
+          <p className="sf-small mt-2 max-w-[38ch] text-[var(--muted)]">
+            {note}{" "}
+            {signIn && (
+              <a href={signIn} className="underline underline-offset-2">
+                Sign in
+              </a>
+            )}
+          </p>
+        )}
+      </div>
+    );
   }
 
   return (
