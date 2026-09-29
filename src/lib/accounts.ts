@@ -492,3 +492,98 @@ if (typeof window !== "undefined") {
       "handler or a server component, never from a client component.",
   );
 }
+
+/* ======================================================= long reads (S1) ==
+ *
+ * A read that takes longer than a page load gets a row, so somebody can close
+ * the tab and come back. See `src/lib/jobs.ts` for why the estimate is derived
+ * from the crawler's real settings rather than padded.
+ */
+
+export interface JobRow {
+  id: string;
+  account_id: string;
+  query: string;
+  market_id: string | null;
+  criterion_id: string | null;
+  region_label: string | null;
+  state: "queued" | "reading" | "judging" | "done" | "failed";
+  sites_total: number;
+  sites_read: number;
+  sites_judged: number;
+  matched: number;
+  unclear: number;
+  estimate_seconds: number;
+  notify_email: string | null;
+  notified_at: string | null;
+  failure: string | null;
+  created_at: string;
+  started_at: string | null;
+  finished_at: string | null;
+}
+
+export async function queueJob(args: {
+  accountId: string;
+  query: string;
+  marketId?: string | null;
+  criterionId?: string | null;
+  regionLabel?: string | null;
+  sites: number;
+  estimateSeconds: number;
+  notifyEmail?: string | null;
+}): Promise<string> {
+  return (await rpc("queue_job", {
+    p_account: args.accountId,
+    p_query: args.query,
+    p_market: args.marketId ?? null,
+    p_criterion: args.criterionId ?? null,
+    p_region: args.regionLabel ?? null,
+    p_sites: args.sites,
+    p_estimate: args.estimateSeconds,
+    p_email: args.notifyEmail ?? null,
+  })) as unknown as string;
+}
+
+/** One job, for the progress page. Scoped to the account so a guessed id from
+ *  another workspace reads as missing rather than as somebody else's work. */
+export async function jobFor(accountId: string, id: string): Promise<JobRow | null> {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  const rows = (await rest<JobRow[] | null>(
+    `jobs?id=eq.${id}&account_id=eq.${accountId}&select=*&limit=1`,
+  )) ?? [];
+  return rows[0] ?? null;
+}
+
+export async function jobsFor(accountId: string, limit = 20): Promise<JobRow[]> {
+  return (
+    (await rest<JobRow[] | null>(
+      `jobs?account_id=eq.${accountId}&select=*&order=created_at.desc&limit=${limit}`,
+    )) ?? []
+  );
+}
+
+/** The worker's write. Counters only go up; see `advance_job`. */
+export async function advanceJob(args: {
+  id: string;
+  state?: JobRow["state"];
+  read?: number;
+  judged?: number;
+  matched?: number;
+  unclear?: number;
+  failure?: string | null;
+}): Promise<void> {
+  await rpc("advance_job", {
+    p_job: args.id,
+    p_state: args.state ?? null,
+    p_read: args.read ?? null,
+    p_judged: args.judged ?? null,
+    p_matched: args.matched ?? null,
+    p_unclear: args.unclear ?? null,
+    p_failure: args.failure ?? null,
+  });
+}
+
+/** True only for the caller that won the right to send the note. */
+export async function claimJobNotification(id: string): Promise<boolean> {
+  return Boolean(await rpc("mark_job_notified", { p_job: id }));
+}

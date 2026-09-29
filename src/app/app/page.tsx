@@ -4,11 +4,12 @@ import path from "node:path";
 
 import LeadList from "@/components/LeadList";
 import RecordRun from "@/components/RecordRun";
+import QueueRead from "@/components/QueueRead";
 import SearchBox from "@/components/SearchBox";
 import { suppressedIds } from "@/lib/db";
 import { buildLeads, marketFor, type Contacts } from "@/lib/leads";
 import { splitQuery } from "@/lib/query";
-import { resolveRegion, type Places } from "@/lib/region";
+import { readsFor, resolveRegion, type Places } from "@/lib/region";
 import type { Market, MarketIndex } from "@/lib/types";
 
 /**
@@ -167,6 +168,12 @@ export default async function App({
               </>
             )}
           </p>
+
+          {/* A place we can put a number on: offer to read it, with the real
+              cost in time. `readsFor` is the same region maths the API uses to
+              size the job, so this button does not promise a different wait
+              from the one the row records. */}
+          {region && <QueueRead query={query} sites={readsFor(region)} />}
 
           {picks.length > 0 && (
             <div className="mt-6 border-t border-[var(--line)] pt-5">
