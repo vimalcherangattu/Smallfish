@@ -43,7 +43,7 @@ export function MarketingNav({ dark = false }: { dark?: boolean }) {
   );
 }
 
-export function MarketingFooter() {
+export function MarketingFooter({ flush = false }: { flush?: boolean }) {
   const cols: [string, [string, string][]][] = [
     ["Product", [["Markets", "/markets"], ["Pricing", "/pricing"], ["Sign in", "/app"]]],
     [
@@ -71,7 +71,11 @@ export function MarketingFooter() {
         background: "#0E1520",
         color: "#B9BFB6",
         padding: "56px 56px 48px",
-        marginTop: 80,
+        // `flush` is for a page that already ends on ink — the home page sets
+        // its ghost wordmark on the same colour directly above. With the
+        // default 80px the page's own paper showed through between the two as
+        // a white band, which read as a rendering fault rather than a gap.
+        marginTop: flush ? 0 : 80,
       }}
     >
       <div className="g12" style={{ rowGap: 32 }}>

@@ -66,6 +66,10 @@ interface Showcase {
   notFit: number;
   unclear: number;
   checked: number;
+  /** Every dental business Overture lists in Phoenix — the size of the list
+   *  somebody would otherwise buy, and the only big number on this page a
+   *  stranger can size up without being told what it counts. */
+  listed: number;
   name: string;
   city: string;
   phone: string | null;
@@ -121,6 +125,7 @@ async function showcase(): Promise<Showcase | null> {
     notFit,
     unclear,
     checked: fit + notFit + unclear,
+    listed: market.counts?.candidates ?? 0,
     name: b.name,
     city: b.addr.split(",").slice(-2).join(",").trim(),
     phone: prettyPhone((usable ? c.phones?.[0]?.value : null) ?? b.phone ?? null),
@@ -274,9 +279,15 @@ export default async function Home() {
         <>
           {/* --------------------------------- 3 · forty, not six hundred -- */}
           <section className="wrap" style={{ paddingTop: 84, paddingBottom: 0 }}>
+            {/* The copy's shape — a small number against a big one — needs the
+                big one to be a number the reader can size up. "166" is how many
+                we formed a view on, which is ours, not theirs: against 42 it
+                reads as an arbitrary near-ratio and lands as nothing. The list
+                they would otherwise work from is every dental business in
+                Phoenix, and 42 against that is the claim being made. */}
             <h2 className="dsp" style={{ fontSize: "clamp(32px,5.2vw,66px)", maxWidth: "19ch" }}>
-              Talk to the {s.fit} who need you. Not the{" "}
-              {s.checked} you&rsquo;d open yourself.
+              Talk to the {s.fit} who need you. Not all{" "}
+              {s.listed.toLocaleString()} dental clinics in Phoenix.
             </h2>
           </section>
 
@@ -292,8 +303,8 @@ export default async function Home() {
               <div className="get">
                 <p className="lab" style={{ color: "var(--lure-text)" }}>You get</p>
                 <p className="dsp" style={{ fontSize: "clamp(24px,3.2vw,38px)", marginTop: 16, lineHeight: 1.15 }}>
-                  <span className="lure">{s.fit} clinics.</span> Not {s.checked}. Only
-                  the ones that match.
+                  <span className="lure">{s.fit} clinics.</span> Only the ones
+                  that match.
                 </p>
               </div>
             </div>
@@ -355,9 +366,13 @@ export default async function Home() {
       )}
 
       {/* --------------------------------------------- 4 · the guide speaks -- */}
-      <section className="wrap" style={{ paddingTop: 88 }}>
-        <div className="g12" style={{ rowGap: 22 }}>
-          <h2 className="dsp" style={{ gridColumn: "1 / span 7", fontSize: "clamp(28px,4.4vw,56px)" }}>
+      <section className="wrap" style={{ paddingTop: 76 }}>
+        {/* `alignItems: end` sets the paragraph on the headline's last line.
+            Left at the default it hung from the top of a four-line headline
+            with a screen of white under it, reading as two unrelated things
+            rather than a statement and its answer. */}
+        <div className="g12" style={{ rowGap: 20, alignItems: "end" }}>
+          <h2 className="dsp" style={{ gridColumn: "1 / span 7", fontSize: "clamp(26px,3.6vw,46px)" }}>
             We know what it&rsquo;s like to open forty websites and still not
             know who to call.
           </h2>
@@ -367,41 +382,56 @@ export default async function Home() {
           </p>
         </div>
 
-        {/* The proof line the copy asks for, standing in for the testimonial
-            until there are users to quote. Rendered from the tallies rather
-            than typed, so it cannot drift from the dot field above it. */}
+        {/* The proof line, standing in for the testimonial until there are
+            users to quote — so it has to carry the block, not sit in the
+            corner of it as an 12px chip. Full width, the two numbers in lure
+            at reading size, and rendered from the same tallies as the dot
+            field so the two cannot drift apart. */}
         {s && (
-          <p
-            className="lab"
+          <div
             style={{
-              marginTop: 34,
-              padding: "16px 22px",
+              marginTop: 40,
               background: "var(--ink)",
-              color: "var(--lure)",
-              fontSize: 12,
-              display: "inline-block",
+              padding: "24px 30px",
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "baseline",
+              justifyContent: "space-between",
+              gap: 16,
             }}
           >
-            WE CHECKED {s.checked} DENTAL WEBSITES IN PHOENIX &nbsp;·&nbsp; {s.fit} WERE A FIT
-          </p>
+            <span className="lab" style={{ color: "#5B6470" }}>Measured in Phoenix</span>
+            <span className="mono" style={{ color: "#B9BFB6", fontSize: "clamp(15px,1.7vw,20px)" }}>
+              <strong style={{ color: "var(--lure)", fontWeight: 500 }}>{s.checked}</strong>{" "}
+              dental websites checked &nbsp;·&nbsp;{" "}
+              <strong style={{ color: "var(--lure)", fontWeight: 500 }}>{s.fit}</strong> were a fit
+            </span>
+          </div>
         )}
       </section>
 
       {/* ------------------------------------------------------ 5 · the plan -- */}
-      <section className="wrap" style={{ paddingTop: 84 }}>
-        <h2 className="dsp" style={{ fontSize: "clamp(30px,4.6vw,58px)" }}>
+      <section className="wrap" style={{ paddingTop: 76 }}>
+        <h2 className="dsp" style={{ fontSize: "clamp(28px,4.2vw,52px)" }}>
           Here&rsquo;s how it works.
         </h2>
-        <div className="three" style={{ marginTop: 30 }}>
+        <div className="three" style={{ marginTop: 28 }}>
           {[
             ["1", "Tell us who you sell to and where.", "A type of business and a city."],
             ["2", "We check them one by one.", "Each on their own website."],
             ["3", "Get only the ones that fit.", "Each with an opening email, ready to go."],
           ].map(([n, head, sub]) => (
-            <div key={n} style={{ display: "flex", flexDirection: "column", gap: 12, paddingRight: 16 }}>
-              <span className="mono" style={{ fontSize: 34, color: "var(--lure-text)", lineHeight: 1 }}>{n}</span>
-              <p className="colline">{head}</p>
-              <p className="small" style={{ color: "var(--ink-2)" }}>{sub}</p>
+            // `minHeight: 100%` + `marginTop: auto` on the last line pins the
+            // three sub-lines to one baseline. Without it each column was as
+            // tall as its own heading, so a two-line heading pushed its sub-line
+            // a line below its neighbour's and the row read as misaligned.
+            <div
+              key={n}
+              style={{ display: "flex", flexDirection: "column", gap: 10, paddingRight: 20, minHeight: "100%" }}
+            >
+              <span className="mono" style={{ fontSize: 30, color: "var(--lure-text)", lineHeight: 1 }}>{n}</span>
+              <p className="colline" style={{ fontSize: "clamp(19px,2vw,26px)" }}>{head}</p>
+              <p className="small" style={{ color: "var(--ink-2)", marginTop: "auto", paddingTop: 10 }}>{sub}</p>
             </div>
           ))}
         </div>
@@ -496,12 +526,17 @@ export default async function Home() {
             already lure. Bubbles inside the same positioned box, for the same
             reason as the hero's. */}
         <div
-          style={{ position: "absolute", right: -130, bottom: -110, opacity: 0.45, zIndex: 0 }}
+          // Down and further out than the design's placement. At
+          // right:-130/bottom:-110 the circle ran straight through "20
+          // BUSINESSES FREE · NO CARD · NOTHING TO INSTALL", which wraps to two
+          // lines at desktop width — the text sits above it in z-order and
+          // still read as struck through.
+          style={{ position: "absolute", right: -210, bottom: -200, opacity: 0.4, zIndex: 0 }}
           className="swim"
           aria-hidden
         >
           <Bubbles where="closer" colour="#0E1520" />
-          <Fish variant="outline" width={520} strokeWidth={0.3} outlineColour="#0E1520" />
+          <Fish variant="outline" width={470} strokeWidth={0.3} outlineColour="#0E1520" />
         </div>
 
         <div className="wrap" style={{ position: "relative", zIndex: 1, paddingTop: 84, paddingBottom: 84 }}>
@@ -529,13 +564,26 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* The ghost wordmark the design puts above the footer, sitting on the
-          footer's own ink so the two read as one block. */}
-      <div style={{ background: "#0E1520", overflow: "hidden", paddingTop: 34 }} aria-hidden>
-        <p className="ghostword wrap" style={{ margin: 0, whiteSpace: "nowrap" }}>small fish</p>
+      {/* The ghost wordmark and the footer are one ink block.
+          Two things were wrong. They were separate elements, and the footer's
+          default 80px top margin let the page's paper through between them as
+          a white band — a rendering fault, not a gap. And the wordmark was set
+          at up to 250px with its own padding, so it took a whole screen of
+          dark on the way to the footer and read as an empty section.
+          It is a watermark: smaller, and the footer is pulled up over its
+          lower half so the two overlap the way the design draws them. */}
+      <div style={{ background: "#0E1520", overflow: "hidden" }}>
+        <p
+          className="ghostword wrap"
+          aria-hidden
+          style={{ margin: 0, whiteSpace: "nowrap", paddingTop: 26 }}
+        >
+          small fish
+        </p>
+        <div style={{ marginTop: "-0.34em" }}>
+          <MarketingFooter flush />
+        </div>
       </div>
-
-      <MarketingFooter />
     </main>
   );
 }

@@ -891,6 +891,10 @@ body {
   gap: 26px;
   border-top: 2px solid var(--ink);
   padding-top: 28px;
+  /* Columns share a height, so a last line pushed down with `margin-top: auto`
+     lands on the same baseline in all three. The grid default is `stretch`,
+     but the items set their own `min-height: 100%` against it. */
+  align-items: stretch;
 }
 .mkt .colline {
   font-family: var(--font-display), Georgia, serif;
@@ -918,7 +922,9 @@ body {
 .mkt .signoff { position: relative; background: var(--lure); color: var(--ink); overflow: hidden; }
 .mkt .ghostword {
   font-family: var(--font-display), Georgia, serif;
-  font-size: clamp(90px, 20vw, 250px);
+  /* A watermark behind the footer, not a section of its own. At 20vw it stood
+     250px tall on a laptop and filled a screen with dark nothing. */
+  font-size: clamp(64px, 13vw, 168px);
   font-weight: 600;
   letter-spacing: -0.045em;
   line-height: 0.78;
