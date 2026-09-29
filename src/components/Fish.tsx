@@ -15,17 +15,26 @@ export default function Fish({
   width = 39,
   className,
   strokeWidth,
+  outlineColour,
 }: {
   variant?: "solid" | "outline" | "solid-dark";
   width?: number;
   className?: string;
   /** Outline only. The design scales this down as the mark grows. */
   strokeWidth?: number;
+  /**
+   * Outline only: what to draw the line in. Lure by default, which is right on
+   * the dark hero and invisible on the lure panel at the foot of the page —
+   * which is why that panel used to carry a hand-copied duplicate of this SVG
+   * with the colour changed. One mark, one shape, a colour where it varies.
+   */
+  outlineColour?: string;
 }) {
   const outline = variant === "outline";
   const body = variant === "solid-dark" ? "#0E1520" : "#C8F03C";
   const detail = variant === "solid-dark" ? "#C8F03C" : "#0E1520";
   const stroke = strokeWidth ?? 0.35;
+  const line = outlineColour ?? "#C8F03C";
 
   return (
     <svg
@@ -40,7 +49,7 @@ export default function Fish({
       <path
         d="M26 16 L44 5.5 Q41 16 44 26.5 Z"
         fill={outline ? "none" : body}
-        stroke={outline ? "#C8F03C" : undefined}
+        stroke={outline ? line : undefined}
         strokeWidth={outline ? stroke : undefined}
       />
       <circle
@@ -48,14 +57,14 @@ export default function Fish({
         cy="16"
         r="12"
         fill={outline ? "none" : body}
-        stroke={outline ? "#C8F03C" : undefined}
+        stroke={outline ? line : undefined}
         strokeWidth={outline ? stroke : undefined}
       />
-      <circle cx="11.5" cy="12.5" r="2.3" fill={outline ? "#C8F03C" : detail} />
+      <circle cx="11.5" cy="12.5" r="2.3" fill={outline ? line : detail} />
       <path
         d="M9.5 21 Q13.5 25 19 24.6"
         fill="none"
-        stroke={outline ? "#C8F03C" : detail}
+        stroke={outline ? line : detail}
         strokeWidth={outline ? stroke * 1.15 : 2}
         strokeLinecap="round"
       />

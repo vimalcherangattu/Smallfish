@@ -327,17 +327,24 @@ body {
   right: -12%;
   bottom: 4%;
   width: clamp(260px, 46vw, 720px);
-  opacity: 0.5;
   z-index: 0;
   pointer-events: none;
 }
 @media (min-width: 1024px) {
-  .mkt .hero-fish { right: -9%; bottom: auto; top: 20%; opacity: 0.6 }
+  .mkt .hero-fish { right: -9%; bottom: auto; top: 20% }
 }
 @media (min-width: 1280px) {
-  .mkt .hero-fish { right: -7%; top: 16%; opacity: 0.7 }
+  .mkt .hero-fish { right: -7%; top: 16% }
 }
-.mkt .hero-fish svg { width: 100%; height: auto; display: block }
+/* The fade belongs to the mark, not to the box.
+   It used to sit on `.hero-fish`, which was fine while the only child was the
+   fish. The bubbles live in the same box — they have to, because their
+   positions are percentages of it — so a container opacity of 0.5 multiplied
+   through their own keyframes and the air coming out of the fish's mouth
+   topped out at 0.45. They read as smudges rather than bubbles. */
+.mkt .hero-fish svg { width: 100%; height: auto; display: block; opacity: 0.5 }
+@media (min-width: 1024px) { .mkt .hero-fish svg { opacity: 0.6 } }
+@media (min-width: 1280px) { .mkt .hero-fish svg { opacity: 0.7 } }
 
 /* Bubbles are placed as a percentage of the fish's own box, so they stay at
    its mouth however the mark is scaled. Fixed pixel offsets drifted away from

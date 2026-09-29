@@ -3,7 +3,9 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import Explainer from "@/components/Explainer";
+import Bubbles from "@/components/Bubbles";
 import Fish from "@/components/Fish";
+import School from "@/components/School";
 import { MarketingFooter, MarketingNav } from "@/components/MarketingChrome";
 import { CTA_HREF, CTA_LABEL, CTA_NOTE, CTA_NOTE_LONG } from "@/lib/launch";
 import { composeMessage, host, prettyPhone } from "@/lib/leads";
@@ -206,8 +208,27 @@ export default async function Home() {
           </div>
         </div>
 
+        {/* The school drifting behind the headline. Sits first and lowest so
+            the nav and the type stay above it — everything after this in the
+            hero carries `zIndex: 1`. */}
+        <div
+          style={{ position: "absolute", left: -80, top: 0, width: 1600, opacity: 0.55, zIndex: 0 }}
+          className="schoolmove"
+          aria-hidden
+        >
+          <School width={1600} height={620} />
+        </div>
+
+        {/* The mark, and its bubbles.
+            `Bubbles` is positioned in percentages of *this* container, so it
+            has to live inside it — rendering it as a sibling puts six circles
+            in the top-left corner of the page. And the mark is the outline
+            variant: the design draws it as a line, and a solid lure fish that
+            size becomes the loudest thing on the screen, louder than the
+            headline it sits behind. */}
         <div className="hero-fish swim" aria-hidden>
-          <Fish width={720} />
+          <Fish variant="outline" width={720} strokeWidth={0.35} />
+          <Bubbles where="hero" />
         </div>
       </section>
 
@@ -400,7 +421,19 @@ export default async function Home() {
 
       {/* ------------------------------------------------------- sign-off --- */}
       <section className="signoff">
-        <div className="wrap" style={{ paddingTop: 84, paddingBottom: 84 }}>
+        {/* Its own mark, drawn in ink rather than lure because the panel is
+            already lure. Bubbles inside the same positioned box, for the same
+            reason as the hero's. */}
+        <div
+          style={{ position: "absolute", right: -130, bottom: -110, opacity: 0.45, zIndex: 0 }}
+          className="swim"
+          aria-hidden
+        >
+          <Bubbles where="closer" colour="#0E1520" />
+          <Fish variant="outline" width={520} strokeWidth={0.3} outlineColour="#0E1520" />
+        </div>
+
+        <div className="wrap" style={{ position: "relative", zIndex: 1, paddingTop: 84, paddingBottom: 84 }}>
           <div className="g12" style={{ rowGap: 30, alignItems: "center" }}>
             <h2 className="dsp" style={{ gridColumn: "1 / span 7", fontSize: "clamp(38px,6.4vw,84px)" }}>
               Try it on your own city.
