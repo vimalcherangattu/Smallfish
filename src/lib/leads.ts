@@ -1,6 +1,7 @@
 import { groupForBilling } from "@/lib/billing";
 import { outreachFor } from "@/lib/outreach";
 import { splitQuery } from "@/lib/query";
+import { signalForCriterion } from "@/lib/signals";
 import { applySuppression } from "@/lib/suppression";
 import type { Business, Criterion, Market, MarketIndex } from "@/lib/types";
 
@@ -220,31 +221,50 @@ export function composeMessage(b: Business, criterion: Criterion): string | null
   if (b.verdicts[criterion.id]?.verdict !== "match") return null;
 
   const where = host(b.site) ?? "your site";
-  const thing = criterion.text
-    .replace(/^has no /i, "")
-    .replace(/^is not /i, "")
-    .replace(/^does not /i, "");
+  const signal = signalForCriterion(criterion.text);
+  const thing =
+    signal?.label ??
+    criterion.text.replace(/^has no /i, "").replace(/^is not /i, "").replace(/^does not /i, "");
 
-  const opener =
+  // 1. What is true of their site, said the way the recipient would say it.
+  //
+  //    The previous version opened "I went through 2 pages of yoursite.com and
+  //    couldn't find online booking anywhere", which is three mistakes in one
+  //    sentence: it is about us rather than them, it volunteers that we looked
+  //    at only two pages, and it reads like surveillance. How thoroughly we
+  //    read is *our* evidence and belongs on our screen, under "how we know".
+  const observation =
     criterion.type === "absence"
-      ? `I went through ${r.pages} page${r.pages === 1 ? "" : "s"} of ${where} and couldn't find ${thing} anywhere.`
+      ? `There's no ${thing} on ${where}${b.phone ? " — everything points at the phone" : ""}.`
       : `I noticed ${where} ${criterion.text.replace(/^has /i, "has ")}.`;
 
-  // One specific observation, picked from what was actually recorded. Each
-  // branch is a fact in `ReadResult`, not an inference about the business.
-  let detail = "";
+  // 2. Why that costs them something, in their terms. Straight from the signal
+  //    catalogue, which carries a consequence only for signals we can prove;
+  //    an uncatalogued gap gets stated and left alone rather than given an
+  //    invented cost.
+  const consequence = signal?.costsWhenMissing
+    ? `That means ${signal.costsWhenMissing}.`
+    : null;
+
+  // 3. The one observation that lowers the perceived size of the job. Each
+  //    branch is a recorded fact, never an inference about the business.
+  let easier: string | null = null;
   if (criterion.type === "absence" && r.quote) {
-    detail = " There's an enquiry form, but nothing that lets someone pick a time themselves.";
+    easier = "You already take enquiries through the site, so the form habit is there — this is the next step, not a new one.";
   } else if (r.chat) {
-    detail = " You're already running chat, so the appetite for handling this online is clearly there.";
+    easier = "You already run chat, so the appetite for handling this online is clearly there.";
   } else if (r.cms.length) {
     const label = CMS_LABEL[r.cms[0]] ?? r.cms[0];
-    detail = ` It's built on ${label}, so this is normally an add-on rather than a rebuild.`;
-  } else if (b.phone) {
-    detail = " Everything points at the phone number instead.";
+    easier = `You're on ${label}, so this is usually an add-on rather than a rebuild.`;
   }
 
-  return `${opener}${detail} Worth a quick look?`;
+  // 4. A small ask. Not "worth a quick look?" at nothing in particular — a
+  //    named, cheap next step the recipient can say yes or no to in a second.
+  const ask = "Happy to show you what it would look like on your own site — worth a short reply?";
+
+  return ["Hi there,", [observation, consequence].filter(Boolean).join(" "), easier, ask]
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 export function buildLeads({

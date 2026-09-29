@@ -55,6 +55,15 @@ const SHOWCASE = { file: "dental-phoenix", criterion: "no_online_booking" };
  *  copy test loudly instead of silently dropping the card. */
 const SHOWCASE_BUSINESS = "Simply Dentistry";
 
+const CMS_NAME: Record<string, string> = {
+  wordpress: "WordPress",
+  wix: "Wix",
+  squarespace: "Squarespace",
+  shopify: "Shopify",
+  webflow: "Webflow",
+  godaddy_website_builder: "GoDaddy",
+};
+
 const TRADES = [
   "dentists", "salons", "plumbers", "garages",
   "gyms", "law firms", "shops", "clinics",
@@ -70,12 +79,27 @@ interface Showcase {
    *  somebody would otherwise buy, and the only big number on this page a
    *  stranger can size up without being told what it counts. */
   listed: number;
+  /** Listings with no website at all — nothing to read, and a bought list
+   *  carries them anyway. */
+  noSite: number;
+  /** Listings sharing a domain with another listing: chains and platform
+   *  pages, where nothing published can be attributed to one location. */
+  sharedRows: number;
+  worstDomain: string;
+  worstDomainRows: number;
+  blocked: number;
+  couldntTell: number;
+  /** The second real business in the junk list's "keep" rows. */
+  keep2: string;
   name: string;
   city: string;
   phone: string | null;
   email: string | null;
   domain: string | null;
   message: string | null;
+  pagesRead: number;
+  cms: string | null;
+  address: string;
 }
 
 async function showcase(): Promise<Showcase | null> {
@@ -105,6 +129,28 @@ async function showcase(): Promise<Showcase | null> {
   const b = market.businesses.find((x) => x.name === SHOWCASE_BUSINESS);
   if (!b) return null;
 
+  // The junk-list block's rejection reasons, counted rather than imagined.
+  // The design shipped eight named clinics — "Cedar Point Dental · closed in
+  // 2024", "Sonoran Smile Co · email bounced" — and seven of the eight names
+  // are in no data file we hold. Publishing a trading claim like that about a
+  // business that may well exist is the one invention on this page that could
+  // do somebody real harm, so the rows are the real categories instead.
+  const domains = new Map<string, number>();
+  for (const x of market.businesses) {
+    const h = host(x.site);
+    if (h) domains.set(h, (domains.get(h) ?? 0) + 1);
+  }
+  let worstDomain = "";
+  let worstDomainRows = 0;
+  let sharedRows = 0;
+  for (const [d, n2] of domains) {
+    if (n2 > 1) sharedRows += n2;
+    if (n2 > worstDomainRows) {
+      worstDomainRows = n2;
+      worstDomain = d;
+    }
+  }
+
   let contacts: Record<string, { emails?: { value: string }[]; phones?: { value: string }[]; withheld?: string | null }> = {};
   try {
     contacts = JSON.parse(
@@ -126,12 +172,29 @@ async function showcase(): Promise<Showcase | null> {
     unclear,
     checked: fit + notFit + unclear,
     listed: market.counts?.candidates ?? 0,
+    noSite: (market.counts?.candidates ?? 0) - (market.counts?.withSite ?? 0),
+    sharedRows,
+    worstDomain,
+    worstDomainRows,
+    blocked: n("blocked"),
+    couldntTell: n("couldnt_tell"),
+    keep2:
+      market.businesses.find(
+        (x) =>
+          x.name !== SHOWCASE_BUSINESS &&
+          x.verdicts[SHOWCASE.criterion]?.verdict === "match" &&
+          !contacts[x.id]?.withheld &&
+          (contacts[x.id]?.emails?.length ?? 0) > 0,
+      )?.name ?? "",
     name: b.name,
     city: b.addr.split(",").slice(-2).join(",").trim(),
     phone: prettyPhone((usable ? c.phones?.[0]?.value : null) ?? b.phone ?? null),
     email: (usable ? c.emails?.[0]?.value : null) ?? null,
     domain: host(b.site),
     message: composeMessage(b, criterion),
+    pagesRead: b.read?.pages ?? 0,
+    cms: b.read?.cms?.[0] ?? null,
+    address: b.addr,
   };
 }
 
@@ -251,9 +314,10 @@ export default async function Home() {
       </div>
 
       {/* ------------------------------------------------- 2 · the villain -- */}
-      <section className="wrap" style={{ paddingTop: 90 }}>
-        <div className="g12" style={{ rowGap: 22 }}>
-          <h2 className="dsp" style={{ gridColumn: "1 / span 7", fontSize: "clamp(32px,5.2vw,66px)" }}>
+      <section className="wrap tight">
+        <p className="lab eyebrow">What a bought list actually costs</p>
+        <div className="g12" style={{ rowGap: "var(--s3)" }}>
+          <h2 className="dsp h-sec" style={{ gridColumn: "1 / span 7" }}>
             Junk lists cost you more than money.
           </h2>
           <div style={{ gridColumn: "8 / span 5" }}>
@@ -262,10 +326,7 @@ export default async function Home() {
               days checking websites by hand. And you still don&rsquo;t know who
               to call first.
             </p>
-            {/* The sting, in the design's one-phrase-on-lure treatment. It is
-                the only place on the page a full sentence gets the brand
-                colour, which is what makes it land. */}
-            <p className="dsp" style={{ fontSize: "clamp(19px,2.1vw,26px)", marginTop: 24, lineHeight: 1.3 }}>
+            <p className="dsp" style={{ fontSize: "clamp(18px,2vw,25px)", marginTop: "var(--s3)", lineHeight: 1.3 }}>
               <span className="lure">
                 Every email to the wrong business makes the next one less likely
                 to land.
@@ -273,6 +334,49 @@ export default async function Home() {
             </p>
           </div>
         </div>
+
+        {s && (
+          <>
+            {/* Eight rows off a list you would pay for.
+                The design named eight clinics and gave each a trading claim —
+                "closed in 2024", "email bounced". Seven of the eight names are
+                in no file we hold, and a false claim of that kind about a real
+                business is the one invention here that could do harm. So these
+                are the categories, each with its own measured count from the
+                3,126 dental listings Overture has for Phoenix, and the two
+                keepers are businesses we actually read. */}
+            <div className="junk">
+              {[
+                [`${s.noSite.toLocaleString()} rows`, "no website at all — nothing to check"],
+                [`${s.sharedRows.toLocaleString()} rows`, "share a domain with another listing"],
+                // Nested under the row above rather than beside it: these 23
+                // are part of that 1,192, and listing them as a separate line
+                // read as double counting.
+                [`${s.worstDomainRows} of those`, `one chain, all on ${s.worstDomain}`],
+                [`${s.notFit} rows`, "already have what you'd be selling"],
+                [`${s.blocked} rows`, "the site refused to be read"],
+                [`${s.couldntTell} rows`, "read, and still not clear either way"],
+              ].map(([nm, why]) => (
+                <div className="jrow out" key={nm + why}>
+                  <span className="nm">{nm}</span>
+                  <span className="lead" aria-hidden />
+                  <span className="why">{why}</span>
+                </div>
+              ))}
+              {[s.name, s.keep2].filter(Boolean).map((nm) => (
+                <div className="jrow keep" key={nm}>
+                  <span className="nm">{nm}</span>
+                  <span className="lead" aria-hidden />
+                  <span className="why">a fit</span>
+                </div>
+              ))}
+            </div>
+            <p className="lab" style={{ marginTop: "var(--s3)", color: "var(--ink-3)" }}>
+              {s.listed.toLocaleString()} rows &nbsp;·&nbsp; {s.fit} worth sending
+              &nbsp;·&nbsp; {s.checked} of them read so far
+            </p>
+          </>
+        )}
       </section>
 
       {s && (
@@ -323,44 +427,169 @@ export default async function Home() {
             </div>
           </section>
 
-          {/* ------------------------------------------------- the one row -- */}
-          <section className="wrap" style={{ paddingTop: 44 }}>
-            <div className="card lift" style={{ boxShadow: "0 30px 60px rgba(14,21,32,.08)", overflow: "hidden" }}>
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  gap: 32,
-                  padding: "32px 38px 26px",
-                  borderBottom: "1px solid var(--line)",
-                }}
-              >
-                <div>
-                  <p className="dsp" style={{ fontSize: "clamp(26px,3vw,34px)" }}>{s.name}</p>
-                  <p className="mono" style={{ marginTop: 8, fontSize: 13, color: "var(--ink-3)" }}>{s.city}</p>
+          {/* ---------------------------------------- how we can tell it -- */}
+          <section className="wrap tight">
+            <p className="lab eyebrow">How we can tell</p>
+            <h2 className="dsp h-sec wide">
+              We read their website the way you would. Just faster.
+            </h2>
+            <p className="lede" style={{ marginTop: "var(--s3)", maxWidth: "58ch", color: "var(--ink-2)" }}>
+              This is the page we read for one clinic in Scottsdale, and the
+              four things we took off it. Each marker is numbered to the finding
+              beside it.
+            </p>
+
+            <div className="readergrid">
+              <div className="browsercol">
+                {/* A drawing of their page, not a screenshot of it: we store
+                    extracted facts, never page copies, so the mock carries only
+                    what our own read recorded — the domain, the pages read, the
+                    phone, the platform, and that there is no booking route. */}
+                <div className="browser">
+                  <div className="chrome">
+                    <span style={{ display: "flex", gap: 5 }} aria-hidden>
+                      {["#D5D9D2", "#D5D9D2", "#D5D9D2"].map((c, i) => (
+                        <i key={i} style={{ width: 9, height: 9, borderRadius: "50%", background: c, display: "block" }} />
+                      ))}
+                    </span>
+                    <span className="url">{s.domain}</span>
+                    <span className="lab" style={{ color: "var(--ink-3)", whiteSpace: "nowrap" }}>
+                      {s.pagesRead} pages read
+                    </span>
+                  </div>
+
+                  <div className="sitemenu">
+                    <span style={{ fontWeight: 600, color: "var(--ink)" }}>{s.name}</span>
+                    <span>Home</span>
+                    <span>About</span>
+                    <span>Services</span>
+                    <span>Contact</span>
+                    <span className="pin" style={{ top: -13, right: -13 }} aria-hidden>1</span>
+                  </div>
+
+                  <div className="sitehero">
+                    <h4>The page we read, as the crawler saw it.</h4>
+                    <div className="btnrow" style={{ display: "flex", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
+                      <span className="mono" style={{ fontSize: 13, background: "var(--ink)", color: "var(--paper)", padding: "9px 14px" }}>
+                        {s.phone}
+                      </span>
+                      <span className="mono" style={{ fontSize: 13, border: "1px solid var(--line-strong)", padding: "9px 14px" }}>
+                        Directions
+                      </span>
+                      <span className="pin" style={{ top: 22, right: -13 }} aria-hidden>2</span>
+                    </div>
+                  </div>
+
+                  <div className="sitecards">
+                    {["Cleanings", "Whitening", "Implants"].map((t) => (
+                      <div key={t}>
+                        <b>{t}</b>
+                        <i /><i style={{ width: "70%" }} />
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="sitefoot">
+                    {s.address}
+                    {s.cms && <> &nbsp;·&nbsp; Powered by {CMS_NAME[s.cms] ?? s.cms}</>}
+                    <span className="pin" style={{ bottom: -13, right: -13 }} aria-hidden>3</span>
+                  </div>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 7, textAlign: "right", fontSize: 15, color: "var(--ink-2)" }}>
-                  {s.phone && <span className="mono">{s.phone}</span>}
-                  {s.email && <span className="mono">{s.email}</span>}
-                  {s.domain && <span className="mono">{s.domain}</span>}
+              </div>
+
+              <div className="findcol">
+                {[
+                  ["1", "Online booking", "Not found",
+                   "No booking link anywhere in the menu, and the only thing to click is a phone number.",
+                   `read across ${s.pagesRead} pages`],
+                  ["2", "Phone", s.phone ?? "—",
+                   "Printed on the page itself, so this is the number they want used.",
+                   "read on the page"],
+                  ["3", "Built on", s.cms ? (CMS_NAME[s.cms] ?? s.cms) : "—",
+                   "Named in the footer. Booking is normally an add-on here, not a rebuild.",
+                   "read in the footer"],
+                ].map(([i, k, v, why, src]) => (
+                  <div className="find" key={i}>
+                    <span className="idx">{i}</span>
+                    <span>
+                      <b>{k}</b>
+                      <span className="val">{v}</span>
+                      <p>{why}</p>
+                      <span className="src">{src}</span>
+                    </span>
+                  </div>
+                ))}
+                {/* The finding that is not a finding, and the best thing on
+                    this page: we say so rather than filling the field. */}
+                <div className="find none">
+                  <span className="idx">—</span>
+                  <span>
+                    <b>Owner&rsquo;s name</b>
+                    <span className="val">We couldn&rsquo;t tell</span>
+                    <p>
+                      There is no name anywhere on the site, so the field stays
+                      empty. We would rather leave a blank than invent one.
+                    </p>
+                    <span className="src">nothing found</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ------------------------------------------------- the one row -- */}
+          <section className="wrap tight" style={{ paddingTop: 0 }}>
+            <p className="lab eyebrow">And this is the row it becomes</p>
+            <div className="rowcard">
+              <div className="head">
+                <div>
+                  <p className="name">{s.name}</p>
+                  <p className="place">{s.city}</p>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, textAlign: "right" }}>
+                  {s.phone && <span className="mono" style={{ fontSize: 15 }}>{s.phone}</span>}
+                  {s.email && <span className="mono" style={{ fontSize: 15 }}>{s.email}</span>}
+                  {s.domain && <span className="mono" style={{ fontSize: 15, color: "var(--ink-3)" }}>{s.domain}</span>}
                 </div>
               </div>
 
               {s.message && (
-                <div style={{ padding: "28px 38px 34px", background: "var(--paper-2)" }}>
+                <div className="mailwrap">
                   <p className="lab" style={{ color: "var(--lure-text)" }}>Your opening email</p>
-                  <p className="cite" style={{ fontSize: 21, lineHeight: 1.55, marginTop: 14, maxWidth: "62ch" }}>
-                    {s.message}
-                  </p>
+                  {/* Rendered as the paragraphs it is written in. As one block
+                      it read as a wall; the draft is four short beats —
+                      greeting, what is true of their site, why it costs them
+                      something, and the ask. */}
+                  {s.message.split("\n\n").map((para, i) => (
+                    <p
+                      key={i}
+                      className="cite"
+                      style={{ fontSize: "clamp(17px,1.8vw,20px)", lineHeight: 1.55, marginTop: i === 0 ? 14 : 14, maxWidth: "58ch" }}
+                    >
+                      {para}
+                    </p>
+                  ))}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "var(--s3)",
+                      justifyContent: "space-between",
+                      marginTop: "var(--s4)",
+                      paddingTop: "var(--s3)",
+                      borderTop: "1px solid var(--line)",
+                    }}
+                  >
+                    <span className="small" style={{ color: "var(--ink-3)" }}>
+                      Every line traces back to something on the page above.
+                    </span>
+                    <span className="lab" style={{ color: "var(--ink-3)" }}>
+                      You edit it · you send it · we never send anything
+                    </span>
+                  </div>
                 </div>
               )}
             </div>
-            <p className="small" style={{ marginTop: 14, color: "var(--ink-3)" }}>
-              Written from what is on their site, not from a template. You edit
-              it and send it from your own inbox — we never send anything.
-            </p>
           </section>
         </>
       )}
@@ -411,60 +640,113 @@ export default async function Home() {
       </section>
 
       {/* ------------------------------------------------------ 5 · the plan -- */}
-      <section className="wrap" style={{ paddingTop: 76 }}>
-        <h2 className="dsp" style={{ fontSize: "clamp(28px,4.2vw,52px)" }}>
-          Here&rsquo;s how it works.
-        </h2>
-        <div className="three" style={{ marginTop: 28 }}>
-          {[
-            ["1", "Tell us who you sell to and where.", "A type of business and a city."],
-            ["2", "We check them one by one.", "Each on their own website."],
-            ["3", "Get only the ones that fit.", "Each with an opening email, ready to go."],
-          ].map(([n, head, sub]) => (
-            // `minHeight: 100%` + `marginTop: auto` on the last line pins the
-            // three sub-lines to one baseline. Without it each column was as
-            // tall as its own heading, so a two-line heading pushed its sub-line
-            // a line below its neighbour's and the row read as misaligned.
-            <div
-              key={n}
-              style={{ display: "flex", flexDirection: "column", gap: 10, paddingRight: 20, minHeight: "100%" }}
-            >
-              <span className="mono" style={{ fontSize: 30, color: "var(--lure-text)", lineHeight: 1 }}>{n}</span>
-              <p className="colline" style={{ fontSize: "clamp(19px,2vw,26px)" }}>{head}</p>
-              <p className="small" style={{ color: "var(--ink-2)", marginTop: "auto", paddingTop: 10 }}>{sub}</p>
+      <section className="wrap tight">
+        <p className="lab eyebrow">Three steps</p>
+        <h2 className="dsp h-sec">Here&rsquo;s how it works.</h2>
+
+        <div className="steps">
+          <div className="step">
+            <div className="stepart">
+              <div className="miniform">
+                <div className="minifield"><span>who</span> dentists</div>
+                <div className="minifield"><span>where</span> Phoenix</div>
+                <span className="sf-btn-lure" style={{ height: 34, fontSize: 13, pointerEvents: "none" }}>
+                  Find them
+                </span>
+              </div>
             </div>
-          ))}
+            <div className="stepbody">
+              <span className="stepnum">01</span>
+              <h3>Tell us who you sell to and where.</h3>
+              <p>A type of business and a city. That&rsquo;s the whole form.</p>
+            </div>
+          </div>
+
+          <div className="step">
+            <div className="stepart">
+              <div className="sheets" aria-hidden><i /><i /><i /></div>
+            </div>
+            <div className="stepbody">
+              <span className="stepnum">02</span>
+              <h3>We read them one by one.</h3>
+              <p>Each on its own website, page by page. No guessing from a database.</p>
+            </div>
+          </div>
+
+          <div className="step">
+            <div className="stepart">
+              <div className="minirow">
+                <div className="top">
+                  <span className="dot" aria-hidden />
+                  <span className="nm2">{s?.name ?? "A business that fits"}</span>
+                </div>
+                <i className="ln" /><i className="ln s" />
+                <span className="mail">opening email ready</span>
+              </div>
+            </div>
+            <div className="stepbody">
+              <span className="stepnum">03</span>
+              <h3>Get only the ones that fit.</h3>
+              <p>Contacts, the reason it fits, and an email you can send as it is.</p>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* ------------------------------------------------ any trade, any city */}
-      <section className="wrap" style={{ paddingTop: 84 }}>
-        <div className="g12" style={{ rowGap: 20 }}>
-          <h2 className="dsp" style={{ gridColumn: "1 / span 6", fontSize: "clamp(32px,5vw,62px)" }}>
-            Any local business. Any city in the US.
-          </h2>
-          {/* The design's line stopped at the promise. Ours names what is
-              finished, because a stranger who signs up today gets the three
-              markets that are read — not every city in America. */}
-          <p className="lede" style={{ gridColumn: "8 / span 5", color: "var(--ink-2)" }}>
-            Nothing has to be built for a new trade — what you are looking for
-            is read off the page. Three cities are read in full today. Tell us
-            yours when you sign up and it goes next.
-          </p>
+      <section className="wrap tight">
+        <p className="lab eyebrow">Coverage</p>
+        <h2 className="dsp h-sec wide">Any local business. Any city in the US.</h2>
+
+        <div className="mapgrid">
+          <div className="mapcol">
+            <p className="lede" style={{ color: "var(--ink-2)", maxWidth: "52ch" }}>
+              Nothing has to be built for a new trade — what you are looking for
+              is read off the page, not looked up in a list of industries we
+              prepared in advance.
+            </p>
+            <div className="mqband">
+              <div className="mq dsp" style={{ fontSize: "clamp(26px,4vw,54px)" }}>
+                {Array.from({ length: 3 }, (_, i) => (
+                  <span key={i}>
+                    {TRADES.map((t) => (
+                      <span key={t} style={{ marginRight: "0.5em" }}>{t}</span>
+                    ))}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="legcol">
+            <div className="legrow">
+              <i style={{ background: "var(--lure)" }} />
+              <span>
+                <b>Phoenix, Austin, Tampa</b>
+                <span>Read in full today, so a search here comes back at once.</span>
+              </span>
+            </div>
+            <div className="legrow">
+              <i style={{ background: "var(--line-strong)" }} />
+              <span>
+                <b>Everywhere else</b>
+                {/* The design promised "the answer comes back the same day".
+                    Reading a city cold is not switched on at all yet, so that
+                    is a delivery date we cannot keep — it says what happens
+                    instead. */}
+                <span>We start reading a city the first time somebody asks for it.</span>
+              </span>
+            </div>
+            <div className="legrow">
+              <i style={{ background: "var(--ink)" }} />
+              <span>
+                <b>Any trade, no setup</b>
+                <span>Dentists, salons, plumbers, garages, gyms, law firms. Nothing is hard-coded per industry.</span>
+              </span>
+            </div>
+          </div>
         </div>
       </section>
-
-      <div className="band band-paper" style={{ marginTop: 40 }}>
-        <div className="mq dsp" style={{ fontSize: "clamp(34px,6vw,76px)" }}>
-          {Array.from({ length: 3 }, (_, i) => (
-            <span key={i}>
-              {TRADES.map((t) => (
-                <span key={t} style={{ marginRight: "0.5em" }}>{t}</span>
-              ))}
-            </span>
-          ))}
-        </div>
-      </div>
 
       {/* --------------------------------------------------------- the film -- */}
       <section className="wrap" style={{ paddingTop: 84, maxWidth: 980, marginLeft: "auto", marginRight: "auto" }}>
@@ -472,34 +754,46 @@ export default async function Home() {
       </section>
 
       {/* ------------------------------------------------------- the price -- */}
-      <section className="slab" style={{ marginTop: 92 }}>
-        <div className="inner">
-          <div className="g12" style={{ rowGap: 26, alignItems: "center" }}>
-            <h2 className="dsp" style={{ gridColumn: "1 / span 6", fontSize: "clamp(32px,5vw,64px)", color: "#EEF0EC" }}>
-              You only pay for businesses that fit.
-            </h2>
-            <div style={{ gridColumn: "8 / span 5" }}>
-              <p className="lede" style={{ color: "#B9BFB6" }}>
-                $29, $79 or $199 a month. How many you need decides which one.
+      <section className="slab-v3">
+        <div className="wrap">
+          <p className="lab eyebrow" style={{ color: "#5B6470" }}>Pricing</p>
+          <div className="g12" style={{ rowGap: "var(--s4)" }}>
+            <div style={{ gridColumn: "1 / span 6" }}>
+              <h2 className="dsp h-sec" style={{ color: "#EEF0EC" }}>
+                You only pay for businesses that fit.
+              </h2>
+              <div className="prices">
+                {["$29", "$79", "$199"].map((p2) => (
+                  <span className="price" key={p2}>
+                    <b>{p2}</b>
+                    <span>a month</span>
+                  </span>
+                ))}
+              </div>
+              <p className="small" style={{ color: "#B9BFB6", marginTop: "var(--s3)" }}>
+                How many businesses you need decides which one.
               </p>
-              {/* The four promises. Each is enforced somewhere in the repo —
-                  BILLABLE gates the charge, contacts carry their source page,
+            </div>
+
+            <div style={{ gridColumn: "8 / span 5" }}>
+              {/* Each of these is enforced somewhere in the repo, which is why
+                  they can be printed as promises: BILLABLE gates the charge,
+                  every published contact carries the page it came from,
                   nothing in the codebase sends mail, and the free plan is 20
-                  credits — which is why they can be printed as promises. */}
-              <ul style={{ listStyle: "none", padding: 0, margin: "26px 0 0", display: "grid", gap: 9 }}>
+                  credits. */}
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: "var(--s2)" }}>
                 {[
                   "Businesses that don’t fit are free.",
                   "Every contact comes from their own website.",
                   "We never send anything. You do.",
                   "Your first 20 are free. No card.",
                 ].map((line) => (
-                  <li key={line} className="small" style={{ color: "#EEF0EC", display: "flex", gap: 10 }}>
+                  <li key={line} style={{ display: "flex", gap: 12, color: "#EEF0EC", fontSize: 16, lineHeight: 1.5 }}>
                     <span aria-hidden style={{ color: "var(--lure)" }}>→</span>
                     {line}
                   </li>
                 ))}
               </ul>
-
               <Link
                 href="/pricing"
                 className="sf-tap"
@@ -507,7 +801,7 @@ export default async function Home() {
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 8,
-                  marginTop: 22,
+                  marginTop: "var(--s4)",
                   color: "var(--lure)",
                   fontWeight: 500,
                   borderBottom: "1px solid rgba(200,240,60,.45)",
