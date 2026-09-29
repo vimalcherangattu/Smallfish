@@ -126,7 +126,21 @@ check(
  * anything; narrowing one to what it always claimed to test, and adding the
  * condition that makes the change safe, is not the same move.
  */
-const firstScreen = (home ?? "").split(/WE READ THEIR WEBSITES/i)[0];
+/**
+ * Everything before the page's first `<h2>` — the hero, structurally.
+ *
+ * The first version split on the marquee's words. That tied the check to a
+ * phrase in the copy, so rewording the marquee silently widened the check to
+ * the whole page and it failed on a block four screens down. A boundary made
+ * of copy is not a boundary; the hero is "up to the first section heading",
+ * and that is what this reads.
+ */
+const heroHtml = readFileSync(path.join(OUT, "index.html"), "utf8").split(/<h2\b/i)[0];
+const firstScreen = heroHtml
+  .replace(/<script[\s\S]*?<\/script>/gi, " ")
+  .replace(/<style[\s\S]*?<\/style>/gi, " ")
+  .replace(/<[^>]+>/g, " ")
+  .replace(/\s+/g, " ");
 
 check(
   "the hero does not open with what we could not read",

@@ -12,32 +12,32 @@ import { composeMessage, host, prettyPhone } from "@/lib/leads";
 import type { Market, VerdictKind } from "@/lib/types";
 
 /**
- * The home page, built from the designer's composition of 2026-09-28.
+ * The home page: the copy document's nine blocks, in the designer's composition.
  *
- * ## What was adopted, and what was corrected
+ * Two sources, and they agree about more than they disagree. "Small Fish — Home
+ * Page (simple)" (rev 8) sets the **argument** — a StoryBrand run where the
+ * reader is the hero, the junk list is the villain and we are the guide. The
+ * design document of 2026-09-28 sets the **form** — the tilted lure ticker, the
+ * ask/get split, the dot field, the example row, the slab, the lure sign-off.
+ * Every block below is the copy's; every treatment is the design's.
  *
- * The layout, the type, the tilted bands, the dot field, the example row and
- * every word of structure are the design's. Four **numbers and names** in it
- * were not measurements, and each one is replaced here by what the repository
- * can actually show. This is the fourth design document in a row to arrive
- * with invented data in the example card, which is why `test_home_copy.mjs`
- * checks the rendered HTML rather than trusting anybody's good intentions —
- * including mine.
+ * ## Where the copy is not used as written
  *
- * | The design said | What is true |
+ * | It says | What ships, and why |
  * |---|---|
- * | "42 clinics. Not 600." with "558 that don't, checked and left out" | 42 is right. 600 and 558 are invented: we formed a view on **166** dental sites in Phoenix — 42 fit, 51 did not, 73 we could not tell. |
- * | "We look at every website" | We read 200 of the 2,778 Phoenix dental listings that have one. "Every" is the one word this product cannot use. |
- * | Maplewick Family Dental, Dr Alvarez, (602) 555-0148, hello@maplewickdental.com | No such clinic. The card now shows **Simply Dentistry** in Scottsdale, with the phone and address published on their own site. |
- * | An opening email offering to "set up online booking for Phoenix practices" | We do not know what a visitor sells until they tell us, so we cannot write that. The card shows the draft the product actually produces, from evidence. |
+ * | "We check every business", in the hero and the marquee | "We check them one by one." We read 200 of the 2,778 Phoenix dental listings with a website. The claim the copy is reaching for is that nothing is sampled or guessed, and that survives without the word "every" — which is the one word this product cannot use. |
+ * | "Talk to the forty who need you. Not the six hundred who don't." | The forty is right; six hundred is not a number anybody measured. It renders from the tallies: 42 who need you, against the 166 you would otherwise open yourself. That is also the better claim, because 166 is the work we actually removed. |
+ * | Maplewick Family Dental, Dr Alvarez, "we set up online booking for Phoenix practices" | No such clinic, and we cannot know what a visitor sells. The row is Simply Dentistry in Scottsdale with its own published phone and email, and the draft is what `composeMessage` produces. |
+ * | "See it in 45 seconds", "No autoplay" | The file is 44 seconds, measured. It autoplays muted because the user asked for that directly on 2026-09-27, which outranks the document. |
+ * | "Or get a free sample list for your city →" | Left out. There is no such flow, and a link to nothing is worse than no link. |
  *
  * ## Why the example row is assembled rather than written
  *
  * It is read out of `public/data/dental-phoenix.json` at build time and its
  * message comes from the same `composeMessage` the product runs. If that data
  * changes the card changes; if the clinic opts out it disappears. A marketing
- * page whose proof is hard-coded is a screenshot, and a screenshot is the
- * thing this page is arguing against.
+ * page whose proof is hard-coded is a screenshot, and a screenshot is the thing
+ * this page is arguing against.
  */
 
 export const metadata = {
@@ -182,7 +182,7 @@ export default async function Home() {
             className="dsp"
             style={{ fontSize: "clamp(44px,8.6vw,124px)", maxWidth: "15ch", color: "#EEF0EC" }}
           >
-            We find the local businesses that are{" "}
+            Only the local businesses that{" "}
             <span
               style={{
                 background: "var(--lure)",
@@ -192,14 +192,13 @@ export default async function Home() {
                 transform: "rotate(-1.2deg)",
               }}
             >
-              right for what you sell.
+              fit what you sell.
             </span>
           </h1>
 
           <p className="lede" style={{ marginTop: 34, maxWidth: "46ch", color: "#B9BFB6" }}>
-            Tell us the type of business and the city. We read their websites
-            one by one. You get only the ones that fit, each with an opening
-            email written for that business.
+            Tell us who you sell to and where. We check them one by one. You
+            get only the ones that fit, each with an opening email.
           </p>
 
           <div style={{ marginTop: 30 }}>
@@ -239,17 +238,50 @@ export default async function Home() {
         <div className="mq lab" style={{ fontSize: 12 }}>
           {Array.from({ length: 4 }, (_, i) => (
             <span key={i}>
-              WE READ THEIR WEBSITES &nbsp;·&nbsp; YOU GET ONLY THE ONES THAT FIT
+              WE CHECK THEM ONE BY ONE &nbsp;·&nbsp; YOU GET ONLY THE ONES THAT FIT
               &nbsp;·&nbsp; EACH ONE COMES WITH AN OPENING EMAIL &nbsp;·&nbsp;
             </span>
           ))}
         </div>
       </div>
 
+      {/* ------------------------------------------------- 2 · the villain -- */}
+      <section className="wrap" style={{ paddingTop: 90 }}>
+        <div className="g12" style={{ rowGap: 22 }}>
+          <h2 className="dsp" style={{ gridColumn: "1 / span 7", fontSize: "clamp(32px,5.2vw,66px)" }}>
+            Junk lists cost you more than money.
+          </h2>
+          <div style={{ gridColumn: "8 / span 5" }}>
+            <p className="lede" style={{ color: "var(--ink-2)" }}>
+              Most of the businesses on them will never buy from you. You lose
+              days checking websites by hand. And you still don&rsquo;t know who
+              to call first.
+            </p>
+            {/* The sting, in the design's one-phrase-on-lure treatment. It is
+                the only place on the page a full sentence gets the brand
+                colour, which is what makes it land. */}
+            <p className="dsp" style={{ fontSize: "clamp(19px,2.1vw,26px)", marginTop: 24, lineHeight: 1.3 }}>
+              <span className="lure">
+                Every email to the wrong business makes the next one less likely
+                to land.
+              </span>
+            </p>
+          </div>
+        </div>
+      </section>
+
       {s && (
         <>
+          {/* --------------------------------- 3 · forty, not six hundred -- */}
+          <section className="wrap" style={{ paddingTop: 84, paddingBottom: 0 }}>
+            <h2 className="dsp" style={{ fontSize: "clamp(32px,5.2vw,66px)", maxWidth: "19ch" }}>
+              Talk to the {s.fit} who need you. Not the{" "}
+              {s.checked} you&rsquo;d open yourself.
+            </h2>
+          </section>
+
           {/* ------------------------------------------------ ask and get -- */}
-          <section className="wrap" style={{ paddingTop: 76 }}>
+          <section className="wrap" style={{ paddingTop: 34 }}>
             <div className="askget">
               <div className="ask">
                 <p className="lab" style={{ color: "var(--ink-3)" }}>You ask for</p>
@@ -322,16 +354,55 @@ export default async function Home() {
         </>
       )}
 
-      {/* ------------------------------------------------- what you get ----- */}
-      <section className="wrap" style={{ paddingTop: 80 }}>
-        <div>
+      {/* --------------------------------------------- 4 · the guide speaks -- */}
+      <section className="wrap" style={{ paddingTop: 88 }}>
+        <div className="g12" style={{ rowGap: 22 }}>
+          <h2 className="dsp" style={{ gridColumn: "1 / span 7", fontSize: "clamp(28px,4.4vw,56px)" }}>
+            We know what it&rsquo;s like to open forty websites and still not
+            know who to call.
+          </h2>
+          <p className="lede" style={{ gridColumn: "8 / span 5", color: "var(--ink-2)" }}>
+            So we do the checking for you. Every business, one by one, on its
+            own website. Nothing is guessed and nothing is made up.
+          </p>
+        </div>
+
+        {/* The proof line the copy asks for, standing in for the testimonial
+            until there are users to quote. Rendered from the tallies rather
+            than typed, so it cannot drift from the dot field above it. */}
+        {s && (
+          <p
+            className="lab"
+            style={{
+              marginTop: 34,
+              padding: "16px 22px",
+              background: "var(--ink)",
+              color: "var(--lure)",
+              fontSize: 12,
+              display: "inline-block",
+            }}
+          >
+            WE CHECKED {s.checked} DENTAL WEBSITES IN PHOENIX &nbsp;·&nbsp; {s.fit} WERE A FIT
+          </p>
+        )}
+      </section>
+
+      {/* ------------------------------------------------------ 5 · the plan -- */}
+      <section className="wrap" style={{ paddingTop: 84 }}>
+        <h2 className="dsp" style={{ fontSize: "clamp(30px,4.6vw,58px)" }}>
+          Here&rsquo;s how it works.
+        </h2>
+        <div className="three" style={{ marginTop: 30 }}>
           {[
-            "Only the businesses that fit. Nothing else in the list.",
-            "Their phone, email and website, taken from their own site.",
-            "An opening email for each one, written for that business.",
-            "A file you can download and use today.",
-          ].map((line) => (
-            <p key={line} className="getline">{line}</p>
+            ["1", "Tell us who you sell to and where.", "A type of business and a city."],
+            ["2", "We check them one by one.", "Each on their own website."],
+            ["3", "Get only the ones that fit.", "Each with an opening email, ready to go."],
+          ].map(([n, head, sub]) => (
+            <div key={n} style={{ display: "flex", flexDirection: "column", gap: 12, paddingRight: 16 }}>
+              <span className="mono" style={{ fontSize: 34, color: "var(--lure-text)", lineHeight: 1 }}>{n}</span>
+              <p className="colline">{head}</p>
+              <p className="small" style={{ color: "var(--ink-2)" }}>{sub}</p>
+            </div>
           ))}
         </div>
       </section>
@@ -365,22 +436,6 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* ------------------------------------------------ the alternatives -- */}
-      <section className="wrap" style={{ paddingTop: 84 }}>
-        <div className="three">
-          {[
-            ["Lists you buy", "The rows are old. Most of them are wrong for you."],
-            ["Scraping it yourself", "You get names. You still have to check every one."],
-            ["Hiring someone", "It takes days and costs more."],
-          ].map(([label, line]) => (
-            <div key={label} style={{ display: "flex", flexDirection: "column", gap: 12, paddingRight: 16 }}>
-              <p className="lab" style={{ color: "var(--ink-3)" }}>{label}</p>
-              <p className="colline">{line}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* --------------------------------------------------------- the film -- */}
       <section className="wrap" style={{ paddingTop: 84, maxWidth: 980, marginLeft: "auto", marginRight: "auto" }}>
         <Explainer />
@@ -391,14 +446,30 @@ export default async function Home() {
         <div className="inner">
           <div className="g12" style={{ rowGap: 26, alignItems: "center" }}>
             <h2 className="dsp" style={{ gridColumn: "1 / span 6", fontSize: "clamp(32px,5vw,64px)", color: "#EEF0EC" }}>
-              You pay only for the businesses that fit.
+              You only pay for businesses that fit.
             </h2>
             <div style={{ gridColumn: "8 / span 5" }}>
               <p className="lede" style={{ color: "#B9BFB6" }}>
                 $29, $79 or $199 a month. How many you need decides which one.
-                Businesses that don&rsquo;t fit are free, and so are the ones we
-                couldn&rsquo;t tell about.
               </p>
+              {/* The four promises. Each is enforced somewhere in the repo —
+                  BILLABLE gates the charge, contacts carry their source page,
+                  nothing in the codebase sends mail, and the free plan is 20
+                  credits — which is why they can be printed as promises. */}
+              <ul style={{ listStyle: "none", padding: 0, margin: "26px 0 0", display: "grid", gap: 9 }}>
+                {[
+                  "Businesses that don’t fit are free.",
+                  "Every contact comes from their own website.",
+                  "We never send anything. You do.",
+                  "Your first 20 are free. No card.",
+                ].map((line) => (
+                  <li key={line} className="small" style={{ color: "#EEF0EC", display: "flex", gap: 10 }}>
+                    <span aria-hidden style={{ color: "var(--lure)" }}>→</span>
+                    {line}
+                  </li>
+                ))}
+              </ul>
+
               <Link
                 href="/pricing"
                 style={{
@@ -435,9 +506,15 @@ export default async function Home() {
 
         <div className="wrap" style={{ position: "relative", zIndex: 1, paddingTop: 84, paddingBottom: 84 }}>
           <div className="g12" style={{ rowGap: 30, alignItems: "center" }}>
-            <h2 className="dsp" style={{ gridColumn: "1 / span 7", fontSize: "clamp(38px,6.4vw,84px)" }}>
-              Try it on your own city.
-            </h2>
+            <div style={{ gridColumn: "1 / span 7" }}>
+              <h2 className="dsp" style={{ fontSize: "clamp(38px,6.4vw,84px)" }}>
+                From guessing to knowing.
+              </h2>
+              <p className="lede" style={{ marginTop: 20, maxWidth: "34ch", color: "#2C3A15" }}>
+                Stop working from junk lists. Start with the businesses that
+                need you.
+              </p>
+            </div>
             <div style={{ gridColumn: "9 / span 4" }}>
               <Link
                 className="cta"
