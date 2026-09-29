@@ -771,9 +771,14 @@ body {
 .mkt .txtlink:hover { border-color: var(--lure); }
 
 @keyframes mkt-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes mkt-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+/* `mkt-rise` and the ungated `.mkt .rise` rule that used it are gone.
+   There were two behaviours fighting over one class name: an animation that
+   faded everything in 0.45s after load regardless of where the reader was, and
+   the scroll reveal added with the v3 choreography. Two rules for one idea, and
+   the old one was not gated on `.js`, so an element could be left transparent
+   on a page where nothing was ever going to bring it back. `.rise` now means
+   exactly one thing — see "the v3 choreography" at the foot of this file. */
 @keyframes mkt-school { from { transform: translateX(0); } to { transform: translateX(-72px); } }
-.mkt .rise { animation: mkt-rise 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
 .mkt .schoolmove { animation: mkt-school 9s linear infinite; }
 
 @media (max-width: 900px) {
@@ -793,7 +798,6 @@ body {
   .mkt .swim,
   .mkt .schoolmove,
   .mkt .bub,
-  .mkt .rise,
   .mkt .cost .bar i,
   .mkt .numbar i {
     animation: none !important;
@@ -1310,4 +1314,134 @@ body {
   .mkt .minirow .mail,
   .mkt .minifield span,
   .mkt .chrome .url { font-size: 12px; }
+}
+
+/* ============================================ the v3 choreography (motion) ==
+ *
+ * The design document carries as much behaviour as layout, and the first build
+ * of it shipped the composition and none of the movement. This is that half:
+ * reveals on scroll, the measured numbers counting up, cards leaning toward the
+ * pointer, the markers pinging, the marquee stopping when you look at it.
+ *
+ * ## Every rule here is gated on `.js`
+ *
+ * `Motion.tsx` puts that class on `<html>`. Without it — no JavaScript, or the
+ * moment before hydration — `.rise` and `.stagger` are simply visible, because
+ * an element that starts at `opacity: 0` and waits for a script is an element
+ * that is *gone* if the script never arrives. Content first, movement second.
+ *
+ * ## And all of it stops for reduced motion
+ *
+ * The design ends on `* { animation: none !important }` and that is right.
+ * Anyone who has asked their operating system to stop things moving has asked
+ * for this too, and it is not a preference to be second-guessed for the sake
+ * of a nice reveal.
+ */
+
+/* ---------- reveal on scroll -------------------------------------------- */
+.js .mkt .rise {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.75s cubic-bezier(0.2, 0.7, 0.3, 1),
+              transform 0.75s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.js .mkt .rise.in { opacity: 1; transform: none; }
+
+/* A group whose children arrive one after another. The delay is on the child
+   so the stagger survives any number of them. */
+.js .mkt .stagger > * {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.js .mkt .stagger.in > * { opacity: 1; transform: none; }
+.js .mkt .stagger.in > *:nth-child(1) { transition-delay: 0.04s }
+.js .mkt .stagger.in > *:nth-child(2) { transition-delay: 0.10s }
+.js .mkt .stagger.in > *:nth-child(3) { transition-delay: 0.16s }
+.js .mkt .stagger.in > *:nth-child(4) { transition-delay: 0.22s }
+.js .mkt .stagger.in > *:nth-child(5) { transition-delay: 0.28s }
+.js .mkt .stagger.in > *:nth-child(6) { transition-delay: 0.34s }
+.js .mkt .stagger.in > *:nth-child(7) { transition-delay: 0.40s }
+.js .mkt .stagger.in > *:nth-child(8) { transition-delay: 0.46s }
+
+/* The strike-through on a rejected row draws itself as the row arrives. This
+   is why it is painted as a background rather than `text-decoration`: a
+   decoration cannot be animated from nothing to full width. */
+.js .mkt .jrow.out .nm { background-size: 0 1px; transition: background-size 0.55s cubic-bezier(0.4, 0, 0.2, 1); }
+.js .mkt .stagger.in .jrow.out .nm { background-size: 100% 1px; }
+.js .mkt .stagger.in > .jrow:nth-child(1) .nm { transition-delay: 0.20s }
+.js .mkt .stagger.in > .jrow:nth-child(2) .nm { transition-delay: 0.27s }
+.js .mkt .stagger.in > .jrow:nth-child(3) .nm { transition-delay: 0.34s }
+.js .mkt .stagger.in > .jrow:nth-child(4) .nm { transition-delay: 0.41s }
+.js .mkt .stagger.in > .jrow:nth-child(5) .nm { transition-delay: 0.48s }
+.js .mkt .stagger.in > .jrow:nth-child(6) .nm { transition-delay: 0.55s }
+
+/* ---------- cards lean toward the pointer -------------------------------- */
+.mkt .scene { perspective: 1500px; }
+.mkt [data-tilt] {
+  transform: rotate(var(--rot, 0deg)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.3, 1), box-shadow 0.5s ease;
+  will-change: transform;
+}
+
+/* ---------- the markers ping --------------------------------------------- */
+@keyframes mkt-ping {
+  0%   { transform: scale(1);   opacity: 0.9 }
+  70%  { transform: scale(2.1); opacity: 0 }
+  100% { transform: scale(2.1); opacity: 0 }
+}
+.mkt .pin::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid var(--lure);
+  opacity: 0;
+  animation: mkt-ping 3.4s ease-out infinite;
+}
+.mkt .pin.p2::after { animation-delay: 1.1s; }
+.mkt .pin.p3::after { animation-delay: 2.2s; }
+
+/* ---------- the live dot on the finished row ----------------------------- */
+@keyframes mkt-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(200, 240, 60, 0.75) }
+  70%  { box-shadow: 0 0 0 9px rgba(200, 240, 60, 0) }
+  100% { box-shadow: 0 0 0 0 rgba(200, 240, 60, 0) }
+}
+.mkt .minirow .dot { animation: mkt-pulse 2.6s ease-out infinite; }
+
+/* ---------- the dot field lands one dot at a time ------------------------ */
+@keyframes mkt-dotin {
+  from { opacity: 0; transform: scale(0.4) }
+  to   { opacity: 1; transform: scale(1) }
+}
+.js .mkt .dotfield.in circle { animation: mkt-dotin 0.5s ease-out both; }
+.js .mkt .dotfield circle { opacity: 0; transform-box: fill-box; transform-origin: center; }
+
+/* ---------- a marquee stops when you look at it -------------------------- */
+.mkt .mqband:hover .mq,
+.mkt .band:hover .mq { animation-play-state: paused; }
+
+/* ---------- small hovers the design specifies ---------------------------- */
+.mkt .find { transition: padding-left 0.32s cubic-bezier(0.2, 0.7, 0.3, 1), background 0.3s ease; }
+.mkt .find:hover { padding-left: 12px; background: var(--paper-2); }
+.mkt .price { transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.3, 1); }
+.mkt .price:hover { transform: translateY(-4px); }
+.mkt [data-magnet] { transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.3, 1), background 0.2s ease; }
+
+/* ---------- and none of it, for anyone who asked --------------------------
+ *
+ * The design's own last rule, kept verbatim in spirit: everything stops. The
+ * reveals are neutralised rather than frozen, because a `.rise` left at
+ * `opacity: 0` with its transition disabled is content that never appears. */
+@media (prefers-reduced-motion: reduce) {
+  .mkt *, .mkt *::before, .mkt *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .js .mkt .rise,
+  .js .mkt .stagger > * { opacity: 1 !important; transform: none !important; }
+  .js .mkt .dotfield circle { opacity: 1 !important; }
+  .js .mkt .jrow.out .nm { background-size: 100% 1px !important; }
+  .mkt [data-tilt] { transform: rotate(var(--rot, 0deg)) !important; }
 }

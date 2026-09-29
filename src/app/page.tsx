@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import Explainer from "@/components/Explainer";
+import Motion from "@/components/Motion";
 import Bubbles from "@/components/Bubbles";
 import Fish from "@/components/Fish";
 import School from "@/components/School";
@@ -219,6 +220,7 @@ function Dots({ fit, notFit, unclear }: { fit: number; notFit: number; unclear: 
     <svg
       viewBox={`0 0 ${cols * 16} ${rows * 16}`}
       width="100%"
+      className="dotfield"
       role="img"
       aria-label={`${total} businesses checked: ${fit} fit, ${notFit} did not, ${unclear} could not be told either way`}
       style={{ display: "block" }}
@@ -241,6 +243,9 @@ export default async function Home() {
 
   return (
     <main className="mkt">
+      {/* The choreography. Installs `.js` on <html>, so nothing above is
+          hidden until it is certain something can reveal it again. */}
+      <Motion />
       {/* ------------------------------------------------------------ hero -- */}
       <section style={{ background: "var(--ink)", color: "var(--paper)", position: "relative", overflow: "hidden", paddingBottom: 30 }}>
         <MarketingNav dark />
@@ -270,7 +275,7 @@ export default async function Home() {
           </p>
 
           <div style={{ marginTop: 30 }}>
-            <Link className="cta" href={CTA_HREF}>{CTA_LABEL}</Link>
+            <Link className="cta" data-magnet href={CTA_HREF}>{CTA_LABEL}</Link>
             <p className="lab" style={{ marginTop: 14, color: "#8A929B" }}>{CTA_NOTE}</p>
           </div>
         </div>
@@ -345,7 +350,7 @@ export default async function Home() {
                 are the categories, each with its own measured count from the
                 3,126 dental listings Overture has for Phoenix, and the two
                 keepers are businesses we actually read. */}
-            <div className="junk">
+            <div className="junk rise stagger" data-tilt>
               {[
                 [`${s.noSite.toLocaleString()} rows`, "no website at all — nothing to check"],
                 [`${s.sharedRows.toLocaleString()} rows`, "share a domain with another listing"],
@@ -390,8 +395,10 @@ export default async function Home() {
                 they would otherwise work from is every dental business in
                 Phoenix, and 42 against that is the claim being made. */}
             <h2 className="dsp" style={{ fontSize: "clamp(32px,5.2vw,66px)", maxWidth: "19ch" }}>
-              Talk to the {s.fit} who need you. Not all{" "}
-              {s.listed.toLocaleString()} dental clinics in Phoenix.
+              Talk to the <span data-count={s.fit}>{s.fit}</span> who need you.
+              Not all{" "}
+              <span data-count={s.listed}>{s.listed.toLocaleString()}</span>{" "}
+              dental clinics in Phoenix.
             </h2>
           </section>
 
@@ -407,7 +414,7 @@ export default async function Home() {
               <div className="get">
                 <p className="lab" style={{ color: "var(--lure-text)" }}>You get</p>
                 <p className="dsp" style={{ fontSize: "clamp(24px,3.2vw,38px)", marginTop: 16, lineHeight: 1.15 }}>
-                  <span className="lure">{s.fit} clinics.</span> Only the ones
+                  <span className="lure"><span data-count={s.fit}>{s.fit}</span> clinics.</span> Only the ones
                   that match.
                 </p>
               </div>
@@ -440,12 +447,12 @@ export default async function Home() {
             </p>
 
             <div className="readergrid">
-              <div className="browsercol">
+              <div className="browsercol scene rise">
                 {/* A drawing of their page, not a screenshot of it: we store
                     extracted facts, never page copies, so the mock carries only
                     what our own read recorded — the domain, the pages read, the
                     phone, the platform, and that there is no booking route. */}
-                <div className="browser">
+                <div className="browser" data-tilt>
                   <div className="chrome">
                     <span style={{ display: "flex", gap: 5 }} aria-hidden>
                       {["#D5D9D2", "#D5D9D2", "#D5D9D2"].map((c, i) => (
@@ -476,7 +483,7 @@ export default async function Home() {
                       <span className="mono" style={{ fontSize: 13, border: "1px solid var(--line-strong)", padding: "9px 14px" }}>
                         Directions
                       </span>
-                      <span className="pin" style={{ top: 22, right: -13 }} aria-hidden>2</span>
+                      <span className="pin p2" style={{ top: 22, right: -13 }} aria-hidden>2</span>
                     </div>
                   </div>
 
@@ -492,12 +499,12 @@ export default async function Home() {
                   <div className="sitefoot">
                     {s.address}
                     {s.cms && <> &nbsp;·&nbsp; Powered by {CMS_NAME[s.cms] ?? s.cms}</>}
-                    <span className="pin" style={{ bottom: -13, right: -13 }} aria-hidden>3</span>
+                    <span className="pin p3" style={{ bottom: -13, right: -13 }} aria-hidden>3</span>
                   </div>
                 </div>
               </div>
 
-              <div className="findcol">
+              <div className="findcol stagger">
                 {[
                   ["1", "Online booking", "Not found",
                    "No booking link anywhere in the menu, and the only thing to click is a phone number.",
@@ -540,7 +547,7 @@ export default async function Home() {
           {/* ------------------------------------------------- the one row -- */}
           <section className="wrap tight" style={{ paddingTop: 0 }}>
             <p className="lab eyebrow">And this is the row it becomes</p>
-            <div className="rowcard">
+            <div className="rowcard rise" data-tilt>
               <div className="head">
                 <div>
                   <p className="name">{s.name}</p>
@@ -631,9 +638,14 @@ export default async function Home() {
           >
             <span className="lab" style={{ color: "#5B6470" }}>Measured in Phoenix</span>
             <span className="mono" style={{ color: "#B9BFB6", fontSize: "clamp(15px,1.7vw,20px)" }}>
-              <strong style={{ color: "var(--lure)", fontWeight: 500 }}>{s.checked}</strong>{" "}
+              <strong style={{ color: "var(--lure)", fontWeight: 500 }} data-count={s.checked}>
+                {s.checked}
+              </strong>{" "}
               dental websites checked &nbsp;·&nbsp;{" "}
-              <strong style={{ color: "var(--lure)", fontWeight: 500 }}>{s.fit}</strong> were a fit
+              <strong style={{ color: "var(--lure)", fontWeight: 500 }} data-count={s.fit}>
+                {s.fit}
+              </strong>{" "}
+              were a fit
             </span>
           </div>
         )}
@@ -644,7 +656,7 @@ export default async function Home() {
         <p className="lab eyebrow">Three steps</p>
         <h2 className="dsp h-sec">Here&rsquo;s how it works.</h2>
 
-        <div className="steps">
+        <div className="steps stagger">
           <div className="step">
             <div className="stepart">
               <div className="miniform">
@@ -718,7 +730,7 @@ export default async function Home() {
             </div>
           </div>
 
-          <div className="legcol">
+          <div className="legcol stagger">
             <div className="legrow">
               <i style={{ background: "var(--lure)" }} />
               <span>
@@ -762,7 +774,7 @@ export default async function Home() {
               <h2 className="dsp h-sec" style={{ color: "#EEF0EC" }}>
                 You only pay for businesses that fit.
               </h2>
-              <div className="prices">
+              <div className="prices stagger">
                 {["$29", "$79", "$199"].map((p2) => (
                   <span className="price" key={p2}>
                     <b>{p2}</b>
@@ -848,6 +860,7 @@ export default async function Home() {
             <div style={{ gridColumn: "9 / span 4" }}>
               <Link
                 className="cta"
+                data-magnet
                 href={CTA_HREF}
                 style={{ background: "var(--ink)", color: "var(--lure)" }}
               >
