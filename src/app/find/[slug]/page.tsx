@@ -56,7 +56,7 @@ export default async function Programmatic({
   return (
     <main className="mkt">
       <div className="mx-auto max-w-[900px] px-6 py-16">
-        <Link href="/" className="mono text-[13px] text-[var(--ink-3)]">
+        <Link href="/" className="sf-tap mono text-[13px] text-[var(--ink-3)]">
           ← Small Fish
         </Link>
 

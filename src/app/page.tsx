@@ -502,6 +502,7 @@ export default async function Home() {
 
               <Link
                 href="/pricing"
+                className="sf-tap"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",

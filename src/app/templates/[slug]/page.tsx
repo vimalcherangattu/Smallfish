@@ -51,7 +51,7 @@ export default async function TemplatePage({
   return (
     <main className="mkt">
       <div className="mx-auto max-w-[900px] px-6 py-16">
-        <Link href="/templates" className="mono text-[13px] text-[var(--ink-3)]">
+        <Link href="/templates" className="sf-tap mono text-[13px] text-[var(--ink-3)]">
           ← All templates
         </Link>
 

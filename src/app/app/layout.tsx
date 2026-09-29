@@ -38,14 +38,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             turned into a drawer: a drawer is a component to maintain and a
             phone is not where anyone works a lead list. The links that matter
             are here. */}
-        <div className="flex items-center gap-4 border-b border-[var(--line)] bg-[var(--raised)] px-4 py-3 lg:hidden">
-          <Link href="/app" className="sf-h3">
+        {/* Every item is a 44px row: `sf-tap` is what the mobile block in
+            globals.css grows into a thumb-sized box. Measured before the
+            change — Search was 40x20, Runs 29x20 — which on a phone is three
+            targets a finger cannot separate. `py-3` went with it, since the
+            rows now set the bar's height themselves. */}
+        <div className="flex items-center gap-1 border-b border-[var(--line)] bg-[var(--raised)] px-4 lg:hidden">
+          <Link href="/app" className="sf-tap sf-h3 pr-2">
             small fish
           </Link>
-          <div className="sf-small ml-auto flex gap-4">
-            <Link href="/app/search" className="text-[var(--ink-2)]">Search</Link>
-            <Link href="/app/runs" className="text-[var(--ink-2)]">Runs</Link>
-            <Link href="/account" className="text-[var(--ink-2)]">
+          <div className="sf-small ml-auto flex items-center gap-1">
+            <Link href="/app" className="sf-tap px-2 text-[var(--ink-2)]">Search</Link>
+            <Link href="/app/runs" className="sf-tap px-2 text-[var(--ink-2)]">Runs</Link>
+            <Link href="/account" className="sf-tap px-2 text-[var(--ink-2)]">
               {CLERK_ENABLED ? "Account" : "Credits"}
             </Link>
           </div>

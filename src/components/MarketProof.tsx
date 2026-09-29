@@ -189,6 +189,11 @@ export default function MarketProof({ markets }: { markets: MarketCard[] }) {
               textDecoration: "none",
               borderBottom: "1px solid var(--lure)",
               paddingBottom: 4,
+              // Measured at 195x16 on a phone. The rule underneath is the
+              // design's, so the box grows downward from it rather than the
+              // link gaining a border it should not have.
+              minHeight: 40,
+              alignItems: "flex-end",
             }}
           >
             How we check ourselves →

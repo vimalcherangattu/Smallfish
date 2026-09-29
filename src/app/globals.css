@@ -935,3 +935,121 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .mkt .getline:hover { padding-left: 54px; }
 }
+
+/* ======================================================= phones, measured ==
+ *
+ * `stage0/tests/check_mobile.mjs` walks every route in a 390 x 844 viewport
+ * with a touch pointer and reports what a thumb cannot hit and an eye cannot
+ * read. These rules answer what it found on 2026-09-30, and it is the check
+ * that keeps them honest — none of this is a guess about phones.
+ *
+ * What it did **not** find is worth recording: no page scrolls sideways. The
+ * `overflow-x: clip` on `.mkt` and the four-column collapse in `.grid` were
+ * already doing their job, so nothing here touches layout width.
+ *
+ * ## Why 44px
+ *
+ * It is the size a fingertip actually covers. Below it people miss, and on a
+ * nav or a footer link they miss repeatedly, which reads as a broken site
+ * rather than a small target. Height is the axis that fails: every offender
+ * the audit named was wide enough and 16–24px tall.
+ *
+ * The target is grown with padding and a min-height, never by changing the
+ * type size, so the page looks the same and only the hit area moves.
+ */
+@media (max-width: 760px) {
+  /* --- labels and small print, up to a readable size --------------------- */
+  /* 11px uppercase mono with 0.12em tracking is legible on a monitor at
+     arm's length and genuinely hard on a phone. 12px is the floor. */
+  .mkt .lab,
+  .sf-label {
+    font-size: 12px;
+  }
+  .sf-small,
+  .mkt .small {
+    font-size: 14px;
+  }
+
+  /* --- anything you press gets a thumb-sized box ------------------------- */
+  .mkt .navlink,
+  .sf-nav,
+  .sf-tap {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  /* The footer's three link columns: the rule above makes each row 44px, so
+     the column's own gap would stack on top of that and space them out like a
+     menu. The gap goes, the touch area stays. */
+  .mkt footer .navlink {
+    min-height: 44px;
+  }
+
+  /* The app's compact buttons are 40px, which is close enough to miss. */
+  .sf-btn,
+  .sf-btn-lure {
+    height: 44px;
+    padding: 0 18px;
+  }
+
+  /* --- fields that must not zoom the page -------------------------------- */
+  /* Under 16px, iOS Safari zooms the whole page on focus and does not zoom
+     back. `.sf-input` was 15px, which is the single most common reason a
+     mobile form feels broken. */
+  .sf-input,
+  .mkt .hs-field input,
+  input[type="text"],
+  input[type="email"],
+  input[type="search"],
+  input[type="url"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  /* --- the composition, at one column ------------------------------------ */
+  /* `.askget` and `.three` already collapse. These are the blocks that had no
+     phone rule at all because they were written straight onto the 12-column
+     grid at desktop width. */
+  .mkt .g12 > * {
+    grid-column: 1 / -1 !important;
+  }
+  .mkt .slab .inner {
+    margin-left: -20px;
+    margin-right: -20px;
+    transform: rotate(-1deg);
+  }
+  .mkt .band {
+    left: -4vw;
+    width: 108vw;
+  }
+}
+
+/* --- the last two the audit found, both too widespread to fix by hand ----- */
+@media (max-width: 760px) {
+  /*
+   * Arbitrary tiny type. 94 occurrences of `text-[10px]` / `text-[11px]` across
+   * 13 files — counts, column headers, footnotes, the robots.txt sample. They
+   * are right at desktop density and below the floor on a phone.
+   *
+   * One rule rather than 94 edits, and it is safe to write this way because
+   * `@import "tailwindcss"` is the first line of this file: these come later at
+   * equal specificity, so they win without `!important`. Escaped brackets are
+   * how a Tailwind arbitrary-value class is named in CSS.
+   */
+  .text-\[10px\],
+  .text-\[11px\] {
+    font-size: 12px;
+  }
+
+  /*
+   * Any typable field, not just the ones carrying a `type`. The opt-out form's
+   * input has no type attribute, so it defaults to text and the attribute
+   * selectors above missed it — it sat at 15px and zoomed the page on focus,
+   * on the one form a business owner uses to get themselves removed.
+   */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]) {
+    font-size: 16px;
+  }
+}

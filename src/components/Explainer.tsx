@@ -295,7 +295,10 @@ function Control({
         background: "transparent",
         color: "#B9BFB6",
         borderRadius: 999,
-        padding: "5px 12px",
+        // 44px tall, measured: these were 24px, which is half a fingertip on
+        // the one control somebody actually reaches for on a phone.
+        minHeight: 44,
+        padding: "0 16px",
         cursor: "pointer",
         lineHeight: 1,
       }}

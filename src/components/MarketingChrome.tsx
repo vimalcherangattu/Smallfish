@@ -26,7 +26,11 @@ export function MarketingNav({ dark = false }: { dark?: boolean }) {
         justifyContent: "space-between",
       }}
     >
-      <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+      <Link
+        href="/"
+        className="sf-tap"
+        style={{ display: "inline-flex", alignItems: "center", gap: 10 }}
+      >
         <Fish width={36} />
         <span className="dsp" style={{ fontSize: 22, fontWeight: 600, color: ink, lineHeight: 1 }}>
           small fish
@@ -80,7 +84,11 @@ export function MarketingFooter({ flush = false }: { flush?: boolean }) {
     >
       <div className="g12" style={{ rowGap: 32 }}>
         <div style={{ gridColumn: "1 / span 4", display: "flex", flexDirection: "column", gap: 14 }}>
-          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+          <Link
+            href="/"
+            className="sf-tap"
+            style={{ display: "inline-flex", alignItems: "center", gap: 10 }}
+          >
             <Fish width={34} />
             <span className="dsp" style={{ fontSize: 21, fontWeight: 600, color: "#EEF0EC", lineHeight: 1 }}>
               small fish
