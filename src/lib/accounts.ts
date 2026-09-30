@@ -632,6 +632,71 @@ export async function claimJobNotification(id: string): Promise<boolean> {
   return Boolean(await rpc("mark_job_notified", { p_job: id }));
 }
 
+// ------------------------------------------- what the customer did with it --
+
+/** Businesses this workspace has already reached out to, of the ones asked
+ *  about. Same chunked shape and same never-fail contract as `unlockedIds`. */
+export async function contactedIds(
+  accountId: string,
+  businessIds: readonly string[],
+): Promise<Set<string>> {
+  const out = new Set<string>();
+  const ids = [...new Set(businessIds)];
+  for (let i = 0; i < ids.length; i += 200) {
+    const list = ids
+      .slice(i, i + 200)
+      .map((id) => `"${id.replace(/"/g, '""')}"`)
+      .join(",");
+    const rows =
+      (await rest<Array<{ business_id: string }> | null>(
+        `contacted?account_id=eq.${accountId}&business_id=in.(${encodeURIComponent(list)})` +
+          `&select=business_id`,
+      )) ?? [];
+    for (const r of rows) out.add(r.business_id);
+  }
+  return out;
+}
+
+export async function setContacted(args: {
+  accountId: string;
+  businessId: string;
+  contacted: boolean;
+  channel?: string | null;
+}): Promise<void> {
+  await rpc(args.contacted ? "mark_contacted" : "unmark_contacted", {
+    p_account: args.accountId,
+    p_business: args.businessId,
+    ...(args.contacted ? { p_channel: args.channel ?? null } : {}),
+  });
+}
+
+/**
+ * Why a match was wrong, in the customer's words.
+ *
+ * Recorded **after** the refund has already happened, never before — a refund
+ * that waits on a form is not a refund on the spot. See migration `0016`: this
+ * is also the hand-labelled precision data S0-16 needs and cannot automate.
+ */
+export async function recordFeedback(args: {
+  accountId: string;
+  businessId: string;
+  marketId?: string | null;
+  criterionId?: string | null;
+  verdictWas?: string | null;
+  kind?: string;
+  reason?: string | null;
+}): Promise<void> {
+  await rpc("record_feedback", {
+    p_account: args.accountId,
+    p_business: args.businessId,
+    p_market: args.marketId ?? null,
+    p_criterion: args.criterionId ?? null,
+    p_verdict: args.verdictWas ?? null,
+    p_kind: args.kind ?? "not_a_fit",
+    p_reason: args.reason ?? null,
+  });
+}
+
 // ------------------------------------------------------------ the worker --
 
 export interface JobSiteRow {

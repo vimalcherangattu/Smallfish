@@ -94,11 +94,108 @@ function LockedRow({ lead }: { lead: Lead }) {
   );
 }
 
-function Row({ lead }: { lead: Lead }) {
+/**
+ * A row somebody works, rather than a row somebody reads.
+ *
+ * Five actions, and the order is the order a person does them in: read the
+ * evidence, edit the opener, send it, mark it done — and, when we got it wrong,
+ * hand the credit back without asking anybody.
+ *
+ * ## Why "not a fit" is first among equals
+ *
+ * This product charges per matched business and argues that every match rests
+ * on a sentence off the company's own site. A customer who finds a wrong one has
+ * exactly one question at that moment: *does the evidence mean anything?* A
+ * product that makes them write in for two credits has answered it. `refund_match`
+ * has existed since migration `0003` and nothing called it until this row did.
+ *
+ * ## Editing is local, and deliberately so
+ *
+ * The draft is derived from evidence (`composeMessage`), and a customer's edit
+ * is their sentence, not a better derivation. It is not stored: storing it would
+ * make the next read of this market produce a draft that silently disagrees with
+ * the one they sent. Edit, copy, send.
+ */
+function Row({
+  lead,
+  market,
+  criterion,
+  contacted,
+  signedIn,
+}: {
+  lead: Lead;
+  market: string;
+  criterion: string;
+  contacted: boolean;
+  signedIn: boolean;
+}) {
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(lead.message ?? "");
+  const [done, setDone] = useState(contacted);
+  const [gone, setGone] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+  const [asking, setAsking] = useState(false);
+  const [why, setWhy] = useState("");
+
+  async function post(url: string, payload: Record<string, unknown>) {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return (await res.json()) as { ok?: boolean; note?: string; reason?: string };
+  }
+
+  // Refunded rows stay on screen, greyed, saying what happened. Removing the row
+  // would leave somebody staring at a list one shorter than a moment ago with no
+  // way to tell whether it worked.
+  if (gone) {
+    return (
+      <li className="sf-card p-5 opacity-60">
+        <h3 className="sf-h3 line-through">{lead.name}</h3>
+        <p className="sf-small mt-1.5 text-[var(--muted)]">{note}</p>
+        {!asking && (
+          <button
+            type="button"
+            onClick={() => setAsking(true)}
+            className="sf-small mt-2 underline underline-offset-2 text-[var(--muted)]"
+          >
+            Tell us what we got wrong
+          </button>
+        )}
+        {asking && (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <input
+              value={why}
+              onChange={(e) => setWhy(e.target.value)}
+              placeholder="They do have booking, it's under Patients"
+              className="sf-input min-w-0 flex-1"
+            />
+            <button
+              type="button"
+              className="sf-btn shrink-0"
+              onClick={async () => {
+                await post("/api/refund", {
+                  business: lead.id,
+                  market,
+                  criterion,
+                  reason: why,
+                }).catch(() => undefined);
+                setAsking(false);
+                setNote(`${note} Thank you — that goes straight into how we measure ourselves.`);
+              }}
+            >
+              Send
+            </button>
+          </div>
+        )}
+      </li>
+    );
+  }
 
   return (
-    <li className="sf-card p-5">
+    <li className={`sf-card p-5 ${done ? "opacity-70" : ""}`}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <h3 className="sf-h3">{lead.name}</h3>
@@ -138,9 +235,28 @@ function Row({ lead }: { lead: Lead }) {
 
       {lead.message ? (
         <div className="mt-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-4">
-          <p className="sf-body leading-relaxed text-[var(--ink)]">{lead.message}</p>
+          {editing ? (
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              rows={Math.max(5, draft.split("\n").length + 1)}
+              className="sf-input w-full resize-y leading-relaxed"
+              autoFocus
+            />
+          ) : (
+            <p className="sf-body whitespace-pre-line leading-relaxed text-[var(--ink)]">
+              {draft}
+            </p>
+          )}
           <div className="mt-3 flex flex-wrap items-center gap-3">
-            <Copy text={lead.message} />
+            <Copy text={draft} />
+            <button
+              type="button"
+              onClick={() => setEditing((e) => !e)}
+              className="sf-small text-[var(--muted)] underline underline-offset-2"
+            >
+              {editing ? "Done editing" : "Edit"}
+            </button>
             {/* The hedge used to be the last sentence of the draft itself —
                 "Happy to be wrong, if there is online booking I missed…". It is
                 our uncertainty, so it sits here, where the person deciding
@@ -168,6 +284,56 @@ function Row({ lead }: { lead: Lead }) {
           Not enough on their site to write an opener worth sending, so there
           isn&rsquo;t one. The number above is good.
         </p>
+      )}
+
+      {/* What you do after you have sent it. Only for somebody with an account:
+          a signed-out visitor is looking at the free preview and has nothing to
+          mark or refund. */}
+      {signedIn && (
+        <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-[var(--line)] pt-3">
+          <label className="sf-small flex cursor-pointer items-center gap-2 text-[var(--muted)]">
+            <input
+              type="checkbox"
+              checked={done}
+              onChange={async (e) => {
+                const next = e.target.checked;
+                setDone(next);
+                const r = await post("/api/contacted", {
+                  business: lead.id,
+                  contacted: next,
+                }).catch(() => ({ ok: false }));
+                // Put it back rather than showing a state the server does not
+                // hold — a tick that lies is worse than one that refuses.
+                if (!r.ok) setDone(!next);
+              }}
+            />
+            {done ? "Contacted" : "Mark as contacted"}
+          </label>
+
+          <button
+            type="button"
+            onClick={async () => {
+              const r = await post("/api/refund", {
+                business: lead.id,
+                market,
+                criterion,
+              }).catch(() => ({
+                ok: false,
+                note: undefined,
+                reason: "Could not reach the server. Nothing changed.",
+              }));
+              if (r.ok) {
+                setNote(r.note ?? "Refunded.");
+                setGone(true);
+              } else setNote(r.reason ?? "That did not go through.");
+            }}
+            className="sf-small text-[var(--muted)] underline underline-offset-2"
+          >
+            Not a fit — refund it
+          </button>
+
+          {note && !gone && <span className="sf-small text-[var(--ink-2)]">{note}</span>}
+        </div>
       )}
     </li>
   );
@@ -288,10 +454,14 @@ function Unlock({ result, wallet }: { result: LeadResult; wallet: Wallet }) {
 export default function LeadList({
   result,
   wallet = { signedIn: false, balance: 0, comped: false },
+  contactedIds = [],
 }: {
   result: LeadResult;
   wallet?: Wallet;
+  /** Businesses this workspace has already reached out to. */
+  contactedIds?: string[];
 }) {
+  const contacted = new Set(contactedIds);
   const n = result.leads.length;
 
   return (
@@ -344,7 +514,18 @@ export default function LeadList({
 
       <ul className="mt-6 space-y-3">
         {result.leads.map((l) =>
-          l.locked ? <LockedRow key={l.id} lead={l} /> : <Row key={l.id} lead={l} />,
+          l.locked ? (
+            <LockedRow key={l.id} lead={l} />
+          ) : (
+            <Row
+              key={l.id}
+              lead={l}
+              market={result.marketId}
+              criterion={result.criterionId}
+              contacted={contacted.has(l.id)}
+              signedIn={wallet.signedIn}
+            />
+          ),
         )}
       </ul>
 

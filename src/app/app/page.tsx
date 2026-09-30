@@ -3,7 +3,13 @@ import Link from "next/link";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { accountForUser, balanceOf, isComped, unlockedIds } from "@/lib/accounts";
+import {
+  accountForUser,
+  balanceOf,
+  contactedIds,
+  isComped,
+  unlockedIds,
+} from "@/lib/accounts";
 import { CLERK_ENABLED } from "@/lib/clerk";
 import LeadList from "@/components/LeadList";
 import RecordRun from "@/components/RecordRun";
@@ -57,18 +63,33 @@ export const metadata = { title: "Find businesses — Small Fish" };
  * runs locally and in every test.
  */
 async function walletFor(businessIds: string[]) {
-  const none = { signedIn: false, unlocked: new Set<string>(), balance: 0, comped: false };
+  const none = {
+    signedIn: false,
+    unlocked: new Set<string>(),
+    contacted: [] as string[],
+    balance: 0,
+    comped: false,
+  };
   if (!CLERK_ENABLED) return none;
   try {
     const { userId } = await auth();
     if (!userId) return none;
     const account = await accountForUser(userId);
     if (!account) return { ...none, signedIn: true };
-    const [unlocked, balance] = await Promise.all([
+    const [unlocked, balance, contacted] = await Promise.all([
       unlockedIds(account.id, businessIds),
       balanceOf(account.id),
+      // Already reached out to. Never fails the page — an empty set shows
+      // unticked boxes, which is wrong in the direction somebody can correct.
+      contactedIds(account.id, businessIds).catch(() => new Set<string>()),
     ]);
-    return { signedIn: true, unlocked, balance, comped: isComped(account) };
+    return {
+      signedIn: true,
+      unlocked,
+      contacted: [...contacted],
+      balance,
+      comped: isComped(account),
+    };
   } catch {
     return none;
   }
@@ -127,6 +148,7 @@ export default async function App({
 
   let result = null;
   let wallet = { signedIn: false, balance: 0, comped: false };
+  let contacted: string[] = [];
   if (hit) {
     const [market, contacts, sup] = await Promise.all([
       json<Market>(`${hit.market.id}.json`),
@@ -146,6 +168,7 @@ export default async function App({
       // 500 on the one screen the product is.
       const w = await walletFor(market.businesses.map((b) => b.id));
       wallet = { signedIn: w.signedIn, balance: w.balance, comped: w.comped };
+      contacted = w.contacted;
       result = buildLeads({
         query,
         index,
@@ -185,7 +208,7 @@ export default async function App({
       {/* ------------------------------------------------------- the answer -- */}
       {result && result.leads.length > 0 && (
         <>
-          <LeadList result={result} wallet={wallet} />
+          <LeadList result={result} wallet={wallet} contactedIds={contacted} />
           {/* Kept beside the results, never in front of them: the history write
               must not be able to delay or break what the person came for. */}
           <RecordRun market={result.marketId} criterion={result.criterionId} />
