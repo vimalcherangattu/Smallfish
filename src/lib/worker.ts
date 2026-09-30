@@ -40,6 +40,7 @@ import "server-only";
 
 import {
   claimJob,
+  claimThisJob,
   jobFor,
   recordSites,
   releaseJob,
@@ -240,6 +241,14 @@ export async function tick(args: {
   holder: string;
   findCriterion: (job: JobRow) => Promise<Criterion | null>;
   budgetMs?: number;
+  /**
+   * Work this job rather than the oldest.
+   *
+   * For a person advancing their own read while no scheduler exists. The caller
+   * has already established that it is theirs; this only decides which row the
+   * lease is taken on, and takes it exactly the same way.
+   */
+  jobId?: string;
 }): Promise<SliceReport> {
   const started = Date.now();
 
@@ -247,7 +256,9 @@ export async function tick(args: {
   // indexed update over rows nobody holds.
   await sweepStrandedSites(STRANDED_SECONDS).catch(() => 0);
 
-  const job = await claimJob(args.holder, LEASE_SECONDS);
+  const job = args.jobId
+    ? await claimThisJob(args.jobId, args.holder, LEASE_SECONDS)
+    : await claimJob(args.holder, LEASE_SECONDS);
   if (!job) {
     return { jobId: null, read: 0, matched: 0, unclear: 0, state: "idle", ms: Date.now() - started };
   }

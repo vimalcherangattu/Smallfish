@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { NotConfigured, type JobRow } from "@/lib/accounts";
+import { accountForUser, jobFor, NotConfigured, type JobRow } from "@/lib/accounts";
+import { CLERK_ENABLED } from "@/lib/clerk";
 import { criterionForCheck } from "@/lib/csvimport";
 import { SLICE_MS, tick } from "@/lib/worker";
 import type { Criterion, Market } from "@/lib/types";
@@ -81,21 +82,106 @@ async function findCriterion(job: JobRow): Promise<Criterion | null> {
   return market?.criteria.find((c) => c.id === job.criterion_id) ?? null;
 }
 
-async function run(req: Request) {
-  if (!authorised(req)) {
+/**
+ * The second door: a person advancing their own read.
+ *
+ * The queue moves on a Vercel Cron entry, which needs `CRON_SECRET` and a plan
+ * that permits a minute-level schedule — neither fixable from inside this
+ * repository. Until both exist a queued read never finishes, which puts the
+ * product's whole promise behind somebody else's billing page.
+ *
+ * So a member of the workspace that owns a job may advance **that job**, one
+ * slice per press. Three things make that safe to offer:
+ *
+ *   - `jobFor` scopes the lookup to the caller's own account, so a job id from a
+ *     stranger's URL finds nothing.
+ *   - It is their own crawl and model budget, spent on work they asked for.
+ *   - The lease is the same lease. Two presses, or a press racing a cron tick,
+ *     cannot read the same sites twice.
+ *
+ * It cannot be used to drain the queue generally: without a job id this path
+ * does nothing, because "whichever is oldest" is the scheduler's question and
+ * the oldest job may belong to somebody else.
+ */
+async function mine(req: Request, jobId: string) {
+  if (!CLERK_ENABLED) {
     return Response.json(
-      {
-        ok: false,
-        reason: process.env.CRON_SECRET
-          ? "Not for you."
-          : "This deployment has no CRON_SECRET, so the worker refuses to run " +
-            "rather than letting anybody spend its crawl and model budget.",
-      },
+      { ok: false, reason: "Accounts are not switched on on this deployment." },
+      { status: 503 },
+    );
+  }
+  const { auth } = await import("@clerk/nextjs/server");
+  const { userId } = await auth();
+  if (!userId) {
+    return Response.json(
+      { ok: false, reason: "Sign in first.", signIn: "/sign-in" },
       { status: 401 },
     );
   }
 
+  const account = await accountForUser(userId);
+  // The same answer for "no such job" and "not yours", so a job id cannot be
+  // probed for existence.
+  const job = account ? await jobFor(account.id, jobId) : null;
+  if (!job) {
+    return Response.json({ ok: false, reason: "No such read." }, { status: 404 });
+  }
+
+  const report = await tick({
+    holder: `by-hand-${account!.id.slice(0, 8)}-${Date.now()}`,
+    findCriterion,
+    budgetMs: SLICE_MS,
+    jobId: job.id,
+  });
+
+  return Response.json({
+    ok: true,
+    ...report,
+    // A press that claimed nothing is the ordinary answer when a cron tick, or
+    // another press, is already working it. Saying "0 read" without saying why
+    // reads as a failure.
+    note:
+      report.jobId === null
+        ? "Something else is already reading this one. It will keep going."
+        : report.note,
+  });
+}
+
+async function run(req: Request) {
+  // A job id means "advance mine", which is a different question with a
+  // different authorisation. Read before the secret check, because a person
+  // pressing a button has no secret and should not be told they are forbidden.
+  let jobId = "";
+  if (req.method === "POST") {
+    try {
+      const body = (await req.clone().json()) as { job?: unknown };
+      jobId = String(body.job ?? "").trim();
+    } catch {
+      jobId = "";
+    }
+  }
+
   try {
+    if (jobId) {
+      if (!/^[0-9a-f-]{36}$/i.test(jobId)) {
+        return Response.json({ ok: false, reason: "No such read." }, { status: 404 });
+      }
+      return await mine(req, jobId);
+    }
+
+    if (!authorised(req)) {
+      return Response.json(
+        {
+          ok: false,
+          reason: process.env.CRON_SECRET
+            ? "Not for you."
+            : "This deployment has no CRON_SECRET, so the worker refuses to run " +
+              "rather than letting anybody spend its crawl and model budget.",
+        },
+        { status: 401 },
+      );
+    }
+
     const report = await tick({
       // Which tick did what, when two overlap. Not a secret and not an id
       // anybody depends on — it exists to make a stuck lease legible.

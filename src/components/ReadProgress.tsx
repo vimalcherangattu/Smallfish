@@ -58,6 +58,8 @@ const toJob = (r: Row): Job => ({
 
 export default function ReadProgress({ id, initial }: { id: string; initial: Row }) {
   const [row, setRow] = useState<Row>(initial);
+  const [running, setRunning] = useState(false);
+  const [ranNote, setRanNote] = useState<string | null>(null);
 
   useEffect(() => {
     if (row.state === "done" || row.state === "failed") return;
@@ -87,6 +89,65 @@ export default function ReadProgress({ id, initial }: { id: string; initial: Row
           style={{ width: `${pct ?? 0}%` }}
         />
       </div>
+
+      {/* Run it by hand.
+          
+          The queue moves on a Vercel Cron entry that needs CRON_SECRET and a
+          plan permitting a minute-level schedule — neither of which is fixable
+          from inside this repository. Without them a queued read never finishes,
+          and the honest thing is not a spinner that spins forever: it is a
+          button that does the work, on your own budget, on your own read.
+          
+          It stays available even once the cron runs, because "do it now" is a
+          reasonable thing to want while somebody is watching a demo. */}
+      {row.state !== "done" && row.state !== "failed" && (
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            disabled={running}
+            onClick={async () => {
+              setRunning(true);
+              setRanNote(null);
+              try {
+                const res = await fetch("/api/worker", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ job: id }),
+                });
+                const b = (await res.json()) as {
+                  ok?: boolean;
+                  read?: number;
+                  matched?: number;
+                  note?: string;
+                  reason?: string;
+                };
+                if (b.ok) {
+                  setRanNote(
+                    b.note ??
+                      `Read ${(b.read ?? 0).toLocaleString()} more, ${(b.matched ?? 0).toLocaleString()} of them a fit.`,
+                  );
+                  // The counters are the database's, so ask it rather than
+                  // adding up what this press happened to do.
+                  const j = await fetch(`/api/jobs?id=${encodeURIComponent(id)}`)
+                    .then((r) => (r.ok ? r.json() : null))
+                    .catch(() => null);
+                  if (j?.job) setRow(j.job);
+                } else {
+                  setRanNote(b.reason ?? "That did not run.");
+                }
+              } catch {
+                setRanNote("Could not reach the server.");
+              } finally {
+                setRunning(false);
+              }
+            }}
+            className="sf-btn"
+          >
+            {running ? "Reading…" : "Read a batch now"}
+          </button>
+          {ranNote && <span className="sf-small text-[var(--ink-2)]">{ranNote}</span>}
+        </div>
+      )}
 
       <div className="mt-6 grid gap-3 sm:grid-cols-4">
         {[

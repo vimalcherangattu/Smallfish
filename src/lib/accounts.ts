@@ -775,6 +775,26 @@ export async function claimJob(holder: string, leaseSeconds = 120): Promise<JobR
   return row && row.id ? row : null;
 }
 
+/**
+ * Claim one named job, rather than whichever is oldest.
+ *
+ * For a person advancing their own read while no scheduler exists — see
+ * migration `0018`. The caller must already have established that the job
+ * belongs to their workspace; this only takes the lease.
+ */
+export async function claimThisJob(
+  jobId: string,
+  holder: string,
+  leaseSeconds = 120,
+): Promise<JobRow | null> {
+  const row = await rpc<JobRow | null>("claim_this_job", {
+    p_job: jobId,
+    p_holder: holder,
+    p_lease_seconds: leaseSeconds,
+  });
+  return row && row.id ? row : null;
+}
+
 /** The next few sites of this job, marked as in flight. */
 export async function takeSites(jobId: string, n: number): Promise<JobSiteRow[]> {
   return (await rpc<JobSiteRow[] | null>("take_sites", { p_job: jobId, p_n: n })) ?? [];
