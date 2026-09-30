@@ -34,3 +34,9 @@ stage0/data/labelling/
 
 # OS
 .DS_Store
+
+# Python bytecode. It bit once: a mutation test restored a file of identical
+# size within the same second, so CPython's (mtime, size) check reused the
+# mutated bytecode and the restored source appeared to still fail.
+__pycache__/
+*.pyc

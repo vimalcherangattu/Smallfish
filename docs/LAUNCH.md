@@ -205,7 +205,7 @@ Everything here is downstream of P0.3, because every door leads to sign-up.
 | Free sample form | missing | P1 |
 | Weekly digest | `alerts.ts` built, no sender | P0.5 |
 | Referral "give 100, get 100" | missing | Credit plumbing exists in the ledger |
-| Attribution (`source` → account) | missing | P0.3; without it no channel can be judged |
+| Attribution (`source` → account) | **built 2026-09-30** | `channel_report()` and `share_report()` (migration `0020`), read by `stage0/src/gtm/channels.py`. Sign-ups by channel is the number that flatters every channel equally, so `searched` and `spent` sit next to `workspaces` and a door producing accounts that never search is named in words. A script rather than a screen: the question is the founder's, and a page would be a third authorisation surface for a report one person reads. |
 | Daily control email | missing | The GTM plan's one-email operating surface |
 
 **Free tools the plan names, none yet wired:** Tally or a plain form for the
