@@ -135,15 +135,45 @@ export default async function TemplatePage({
           </p>
         )}
 
+        {/* Into a search that returns something, not a blank box.
+        
+            This said `/app` — a template page that has just printed real counts
+            for three markets, sending the reader to an empty search field to
+            retype one of them. The link now carries the market with the most
+            matches, as the sentence somebody would have typed.
+        
+            Only a **non-derived** use can be linked. A derived row's counts are
+            the complement of a criterion run the other way, so its
+            `criterionText` describes the opposite search — linking it would
+            send somebody looking for "no online booking" to a list of
+            businesses that have it. `pageSlug` is null for exactly those rows,
+            which is what makes them identifiable here. */}
         <Link
-          href="/app"
+          href={runHref(t)}
           className="mt-10 inline-block rounded-full bg-[var(--lure)] px-6 py-3 text-[14px] font-semibold text-[var(--ink)]"
         >
-          Run this on your own area
+          {runHref(t) === "/app" ? "Run this on your own area" : "See the businesses this found"}
         </Link>
       </div>
     </main>
   );
+}
+
+/**
+ * Where "run this" should land.
+ *
+ * The market this template found the most in, as a typed search. Derived rows
+ * are excluded: their counts are the complement of a criterion run the other
+ * way, so their `criterionText` describes the opposite question.
+ */
+function runHref(t: import("@/lib/templates").Template): string {
+  const best = t.uses
+    .filter((u) => !u.derived && u.matches > 0)
+    .sort((a, b) => b.matches - a.matches)[0];
+  if (!best) return "/app";
+  const niche = best.niche.replace(/_/g, " ");
+  const city = best.metro.split(",")[0].trim();
+  return `/app?q=${encodeURIComponent(`${niche} in ${city} that ${best.criterionText}`)}`;
 }
 
 function Row({ use }: { use: import("@/lib/templates").TemplateUse }) {

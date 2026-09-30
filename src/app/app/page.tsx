@@ -192,11 +192,7 @@ export default async function App({
           <h1 className="sf-h1">Who do you want to find?</h1>
           <p className="sf-body mt-3 max-w-[58ch] text-[var(--ink-2)]">
             A trade, a place, and the one thing that makes a business worth your
-            call. You get their number and a line to open with.{" "}
-            <Link href="/app/upload" className="underline underline-offset-2">
-              Or check a list you already have
-            </Link>
-            .
+            call. You get their number and a line to open with.
           </p>
         </>
       )}
@@ -273,6 +269,34 @@ export default async function App({
             </div>
           )}
         </div>
+      )}
+
+      {/* ---------------------------------------------- the other ways in --
+      
+          The flow document specifies four search modes and one of them was
+          reachable from the screen that does the searching. The templates
+          library — four pages, thirty passing assertions — was linked only from
+          `/benchmark`, a methodology page somebody reads once; the map has been
+          at `/app/explore` since the search-first rebuild demoted it, reachable
+          only from an ICP result or a saved run. Neither was unreachable, which
+          is the more common and more wasteful case: reachable from somewhere
+          nobody looking for it would be. */}
+      {!query && (
+        <p className="sf-small mt-6 text-[var(--muted)]">
+          Not sure what to look for?{" "}
+          <Link href="/templates" className="underline underline-offset-2">
+            Browse what we can prove
+          </Link>
+          , pick an area{" "}
+          <Link href="/app/explore" className="underline underline-offset-2">
+            on a map
+          </Link>
+          , or{" "}
+          <Link href="/app/upload" className="underline underline-offset-2">
+            upload a list you already have
+          </Link>
+          .
+        </p>
       )}
 
       {/* ------------------------------------------------- the empty state -- */}

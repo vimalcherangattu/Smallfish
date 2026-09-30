@@ -114,12 +114,43 @@ body {
   font-size: 10px;
   background: color-mix(in srgb, var(--panel) 85%, transparent) !important;
 }
+/* 10px was mine, chosen to keep the attribution out of the way. On a phone it
+   is below the 12px floor the mobile audit enforces, and "out of the way" is a
+   poor argument for the one thing on this map we are obliged to display —
+   OpenStreetMap's licence requires the credit, and a credit nobody can read is
+   not much of one. */
+@media (max-width: 760px) {
+  .maplibregl-ctrl-attrib,
+  .maplibregl-ctrl-attrib-inner,
+  .maplibregl-ctrl-attrib-inner a {
+    font-size: 12px !important;
+  }
+}
 .maplibregl-ctrl-group {
   background: var(--panel) !important;
   border: 1px solid var(--line) !important;
 }
 .maplibregl-ctrl-group button + button {
   border-top: 1px solid var(--line) !important;
+}
+
+/* MapLibre ships its zoom controls at 29px — its own stylesheet's desktop
+   default, and half a fingertip.
+   
+   This override has to live **here**, with the other MapLibre rules, rather
+   than with the rest of the touch-target sizing at the bottom of this file.
+   `@import "tailwindcss"` on line 1 puts everything below `@layer base` into a
+   cascade layer, and `maplibre-gl.css` is imported by `layout.tsx` and is
+   unlayered — and unlayered styles beat layered ones whatever their
+   specificity. The first attempt sat in the layered block and changed nothing.
+   
+   Found only because the map became reachable: it was not linked from anywhere
+   the mobile crawler starts, so it had never been audited on a phone. */
+@media (max-width: 760px) {
+  .maplibregl-ctrl-group button {
+    width: 44px !important;
+    height: 44px !important;
+  }
 }
 
 /* ---------------------------------------------------------------------------

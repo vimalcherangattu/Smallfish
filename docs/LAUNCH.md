@@ -165,13 +165,22 @@ Only **Copy email** is built. The flow document specifies five:
 | Mark as contacted | missing |
 | Not a fit → refund on the spot | missing — and it is the trust move, not a nicety |
 
-### Search modes
+### Search modes — all four reachable, 2026-09-30
 
-Typing works. The flow document specifies four: **map** (exists at
-`/app/explore`, demoted and not reachable as a tab), **templates** (exist at
-`/templates`, not wired into the search box), and **upload a CSV** (not built —
-and it is the one that needs no candidate extraction at all, because the
-customer brings the list).
+The flow document specifies four: **type**, **map**, **templates**, **upload**.
+All four are now one link from the search screen, which is the screen that does
+the searching.
+
+They were not unreachable before, which is the more common and more wasteful
+case: `/templates` was linked from `/benchmark` alone — a methodology page
+somebody reads once — and `/app/explore` from an ICP result or a saved run. A
+template's call to action landed on an empty search box, having just printed
+real counts for three markets.
+
+`test_reachable.mjs` holds it. Note which half of it catches the old state: the
+per-route "is this linked at all" checks passed the whole time. Only the
+search-screen check fails, which is the lesson — *linked somewhere* is a much
+weaker property than *linked where somebody would look*.
 
 > **Built 2026-09-30.** `/app/upload` — the cheapest path to "any market" in
 > this whole document, and it sidesteps P0.2 entirely. The criterion comes from

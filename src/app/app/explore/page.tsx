@@ -370,7 +370,10 @@ export default function Page() {
                       miles: mi,
                     })
                   }
-                  className={`rounded px-2 py-1 text-[11px] font-medium ${
+                  // 44px is the size a finger actually hits. These were 26px tall and
+                  // nobody had noticed, because this page was not reachable from
+                  // the crawler's starting point until the search screen linked it.
+                  className={`sf-tap rounded px-3 py-2.5 text-[11px] font-medium ${
                     active
                       ? "bg-[var(--accent)] text-white"
                       : "text-[var(--muted)] hover:bg-[var(--accent-soft)]"
@@ -383,7 +386,10 @@ export default function Page() {
             <span className="mx-0.5 h-4 w-px bg-[var(--line)]" />
             <button
               onClick={() => setDrawing((d) => !d)}
-              className={`rounded px-2 py-1 text-[11px] font-medium ${
+              // 44px is the size a finger actually hits. These were 26px tall and
+                  // nobody had noticed, because this page was not reachable from
+                  // the crawler's starting point until the search screen linked it.
+                  className={`sf-tap rounded px-3 py-2.5 text-[11px] font-medium ${
                 drawing
                   ? "bg-[var(--unsure)] text-white"
                   : "text-[var(--muted)] hover:bg-[var(--accent-soft)]"
@@ -453,7 +459,7 @@ export default function Page() {
               above — they are still looking for an ICP, not refining one. */}
           <button
             onClick={() => setIcpOpen(true)}
-            className="mt-1.5 text-[11px] text-[var(--accent)] underline underline-offset-2"
+            className="sf-tap mt-1.5 text-[11px] text-[var(--accent)] underline underline-offset-2"
           >
             Not sure who to target? Start from what you sell →
           </button>
@@ -479,7 +485,7 @@ export default function Page() {
                 >
                   <span className="flex items-center justify-between gap-2">
                     <span className="text-[12px] font-medium">{c.text}</span>
-                    <span className="shrink-0 rounded px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-[var(--muted)] ring-1 ring-[var(--line)]">
+                    <span className="shrink-0 rounded px-1.5 py-0.5 text-[12px] uppercase tracking-wide text-[var(--muted)] ring-1 ring-[var(--line)] sm:text-[9px]">
                       {c.type}
                     </span>
                   </span>
@@ -576,7 +582,10 @@ export default function Page() {
                 <button
                   key={k}
                   onClick={() => toggle(k)}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] ${
+                  // `sf-tap` gives these a 44px box on a phone. They were 28px, which
+                  // nobody had measured: this page was unreachable from the mobile
+                  // crawler's start point until the search screen linked it.
+                  className={`sf-tap inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] ${
                     show.has(k)
                       ? "border-[var(--accent)] bg-[var(--accent-soft)]"
                       : "border-[var(--line)] text-[var(--muted)] opacity-60"
