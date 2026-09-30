@@ -150,8 +150,8 @@ building, plus P0.1's cron for the two scheduled messages.
 |---|---|---|
 | `/sample` | Tell us what you sell → three real businesses, named | **Built 2026-09-30.** Not the three-field form the plan describes: the sample *is* the answer, on screen, with no account. `inferFromOffer` proposes only criteria the engine can settle and names the ones it cannot; the email is asked for only where we genuinely have not read the market, which is a queue entry and is labelled as one. |
 | `/app/contacted` | Businesses marked as reached out to | **Built 2026-09-30.** Migration `0017` carries the name on the row, because an uploaded business exists in `job_sites` and nowhere else — resolving ids would have shown a list of opaque strings to exactly the customers upload was built for. |
-| `/app/watchlist` | Saved searches, weekly or monthly | Missing. `alerts.ts` is built; the screen needs the worker's cron (B-2) to be worth anything, since nothing re-reads a market without it. |
-| Shared list view | Read-only list + "Get your own" | Missing. A referral door. |
+| `/app/watchlist` | Saved searches, weekly or monthly | Missing, and honestly gated: `alerts.ts` is built, but nothing re-reads a market without the worker's cron (B-2), so a saved search would never change. |
+| `/list/{token}` | Read-only list + "Get your own" | **Built 2026-09-30.** The flow doc's shared view and the GTM plan's referral loop turned out to be one page. It shows what every unpaid surface shows — the count, the reasons, three matches in full — because it calls `buildLeads` with no unlocks, so it *is* the product with an empty wallet and cannot drift from it. Sign-up carries `share/{token}`, so the sharer can be credited. |
 
 ### Per-card actions
 

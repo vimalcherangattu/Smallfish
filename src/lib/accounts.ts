@@ -632,6 +632,54 @@ export async function claimJobNotification(id: string): Promise<boolean> {
   return Boolean(await rpc("mark_job_notified", { p_job: id }));
 }
 
+// ------------------------------------------------------- sharing a list --
+
+export interface SharedList {
+  token: string;
+  account_id: string;
+  market_id: string;
+  criterion_id: string;
+  label: string | null;
+  created_at: string;
+  revoked_at: string | null;
+  views: number;
+}
+
+/** Make a link for this list, or hand back the one that already exists.
+ *  Idempotent per (account, market, criterion) — see migration `0019`. */
+export async function shareList(args: {
+  accountId: string;
+  marketId: string;
+  criterionId: string;
+  label?: string | null;
+}): Promise<SharedList> {
+  return rpc<SharedList>("share_list", {
+    p_account: args.accountId,
+    p_market: args.marketId,
+    p_criterion: args.criterionId,
+    p_label: args.label ?? null,
+  });
+}
+
+/**
+ * Resolve a token and count the open, or null for an unknown or revoked one.
+ *
+ * Service role, never a client policy: a policy that let a client select by
+ * token would let a client enumerate every token.
+ */
+export async function openSharedList(token: string): Promise<SharedList | null> {
+  const row = await rpc<SharedList | null>("open_shared_list", { p_token: token });
+  return row && row.token ? row : null;
+}
+
+/** Withdraw a link. The row stays, so the views it earned are not lost. */
+export async function revokeSharedList(accountId: string, token: string): Promise<boolean> {
+  return !!(await rpc<boolean>("revoke_shared_list", {
+    p_account: accountId,
+    p_token: token,
+  }));
+}
+
 // ------------------------------------------- what the customer did with it --
 
 /** Businesses this workspace has already reached out to, of the ones asked

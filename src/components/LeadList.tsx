@@ -6,6 +6,7 @@ import { useState } from "react";
 import ExportButton from "@/components/ExportButton";
 import PushToDestination from "@/components/PushToDestination";
 import ReadTheRest from "@/components/ReadTheRest";
+import ShareList from "@/components/ShareList";
 import type { Lead, LeadResult } from "@/lib/leads";
 import { PLANS } from "@/lib/pricing";
 
@@ -544,6 +545,17 @@ export default function LeadList({
         unread={result.unread}
         read={result.read}
       />
+
+      {/* Only for somebody with a workspace: a link is minted against an
+          account, and a signed-out visitor is already looking at what a share
+          link shows. */}
+      {wallet.signedIn && (
+        <ShareList
+          market={result.marketId}
+          criterion={result.criterionId}
+          label={`${result.what} in ${result.metro.split(",")[0]}`}
+        />
+      )}
 
       {/* The honesty, kept — but as one line under the list rather than a panel
           of filters in front of it. Somebody who wants it will read it; nobody
