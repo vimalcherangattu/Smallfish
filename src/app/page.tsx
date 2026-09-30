@@ -42,7 +42,7 @@ import type { Market, VerdictKind } from "@/lib/types";
  */
 
 export const metadata = {
-  title: "Small Fish — find the local businesses that fit what you sell",
+  title: "Small Fish — find the exact small businesses that need what you sell",
   description:
     "Tell us the type of business and the city. We read their websites one by " +
     "one and send back only the ones that fit, each with an opening email. " +
@@ -255,7 +255,7 @@ export default async function Home() {
             className="dsp"
             style={{ fontSize: "clamp(44px,8.6vw,124px)", maxWidth: "15ch", color: "#EEF0EC" }}
           >
-            Only the local businesses that{" "}
+            Find the exact small businesses that{" "}
             <span
               style={{
                 background: "var(--lure)",
@@ -265,7 +265,7 @@ export default async function Home() {
                 transform: "rotate(-1.2deg)",
               }}
             >
-              fit what you sell.
+              need what you sell.
             </span>
           </h1>
 
