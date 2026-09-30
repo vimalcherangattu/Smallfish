@@ -166,7 +166,11 @@ wins rather than abandoning — that is the response the founding documents alre
   Foursquare OS Places is still Apache-2.0, but distribution moved to Hugging Face and the
   dataset is now `gated: auto` — it needs a free HF account that has accepted the terms,
   and a token. The public S3 bucket `fsq-os-places-us-east-1` now contains only
-  `LICENSE.txt` and `NOTICE.txt`. *Unblock:* a `HF_TOKEN` in the environment. *Worth it
+  `LICENSE.txt` and `NOTICE.txt`. **Re-verified 2026-09-30**, because a blocker taken
+  on trust is a blocker nobody has checked: the bucket still lists exactly those two
+  keys, the dataset API still reports `gated: auto` (Apache-2.0, 2,364 files), and an
+  anonymous fetch of a parquet file answers **HTTP 401**. Unchanged, and now dated.
+  *Unblock:* a `HF_TOKEN` in the environment. *Worth it
   because:* Foursquare claims 106M+ places against Overture's 72M+, so it is the cheapest
   remaining way to raise candidate coverage without paying Google.
 - [x] **S0-04 · Establish the Google baseline.** `coverage/google_baseline.py`. Not the
@@ -956,3 +960,4 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-30 | **The nudge is mostly a list of reasons not to send it** | Six exclusions in `nudge_candidates`: spent a credit, already nudged, closed, comped, younger than two days, older than a week. The rule behind all of them is one sentence — a nudge that arrives after the person already did the thing is the clearest possible signal that nobody is reading their account, and it is the most common way a drip sequence makes a product feel automated in the bad sense. Verified live with seven planted workspaces: exactly one selected, each of the other six excluded for its own reason. The window closing at a week matters as much as it opening at two days: past that it is not a nudge, it is a product emailing a stranger about an account they have forgotten. |
 | 2026-09-30 | It runs **daily, not every minute**, on its own cron entry | The window is five days wide. A nudge that fires within a minute of somebody crossing the 48-hour line is a product watching a clock rather than a person, and `test_nudge.mjs` fails if the schedule becomes `*`. |
 | 2026-09-30 | **SEO at volume is genuinely gated, and I checked rather than assuming** | The plan says 3 programmatic pages against a target of 300, gated on reading more markets. The index confirms it: of seven market×criterion pairs, only three have any settled match at all — `offers_botox`, `does_commercial` and `exotic_pet_care` were never run, and `vet-columbus/independent` is 101 couldn't-tell with nothing settled, which the log of 2026-09-20 already records as uncoverable without a detector. Three is the honest maximum, and `saturationSet` already produces exactly it. Manufacturing more would mean pages with no evidence behind them, which is the one thing this product sells against. |
+| 2026-09-30 | **S0-03's blocker re-verified rather than trusted, and it holds** | A blocker recorded ten days ago and never re-checked is a blocker nobody has checked, and this file's own retraction of the API-keys section is the reason to be suspicious of that. Measured today: `fsq-os-places-us-east-1` still lists exactly `LICENSE.txt` and `NOTICE.txt`; the Hugging Face dataset still reports `gated: auto`, Apache-2.0, 2,364 files; an anonymous fetch of a parquet answers **401**. Nothing changed, which is the useful answer — recorded with a date so the next person knows how stale it is rather than how old the original claim was. |
