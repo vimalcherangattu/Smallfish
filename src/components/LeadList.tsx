@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ExportButton from "@/components/ExportButton";
+import PushToDestination from "@/components/PushToDestination";
 import type { Lead, LeadResult } from "@/lib/leads";
 
 /**
@@ -146,7 +147,15 @@ export default function LeadList({ result }: { result: LeadResult }) {
         {/* The same route the old screen used, kept deliberately. It is the one
             path that charges, and a download button that quietly skipped the
             ledger would be the tidy-looking version of not having a business. */}
-        <div className="flex shrink-0 gap-2">
+        {/* Download, and send. The push path — destinations, signed webhooks,
+            Instantly and Smartlead — has been complete since S2-02 and was
+            mounted only on /app/explore, the map page the search-first rebuild
+            demoted. It was unreachable from the screen where people actually
+            work, which is the same as not existing. `PushToDestination` renders
+            nothing when no destination is connected, so this adds no empty
+            control for anyone who has not set one up. */}
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <PushToDestination market={result.marketId} criterion={result.criterionId} />
           <ExportButton
             market={result.marketId}
             criterion={result.criterionId}
