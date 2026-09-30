@@ -132,10 +132,18 @@ Everything that does not depend on the key is done:
 - `/api/status` now reports mail, so a deployment can be asked rather than
   guessed about.
 
-**Still open, and it is not the key:** the nudge and the digest need something to
-tick. That is the same missing piece as P0.1 — there is no scheduler on this
-deployment at all — so they ride on the worker's Vercel Cron entry and are
-listed under it rather than here.
+- The **48-hour nudge** is wired, at `/api/mail/nudge`, behind the same secret as
+  the worker and on its own daily cron entry. `nudge_candidates` (migration
+  `0021`) excludes six ways the email could be wrong — too new, too old, already
+  spent a credit, already nudged, closed, comped — because *a nudge that arrives
+  after the person already did the thing is the clearest possible signal that
+  nobody is reading their account.* Verified live with seven planted workspaces:
+  exactly one selected, each of the other six excluded for its own reason.
+
+**Still open, and it is not the key:** the **Monday digest**. It needs the
+watchlist, which needs the worker's cron to mean anything — nothing re-reads a
+market without it, so a saved search would never change and a weekly email
+about it would have nothing to say.
 
 Needs: `RESEND_API_KEY` (and optionally `MAIL_FROM`) for anything to leave the
 building, plus P0.1's cron for the two scheduled messages.

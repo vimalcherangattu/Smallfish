@@ -883,6 +883,35 @@ export async function releaseJob(
   );
 }
 
+export interface NudgeCandidate {
+  account_id: string;
+  clerk_user: string | null;
+  first_query: string | null;
+  source: string | null;
+  milli: number;
+}
+
+/**
+ * Workspaces the two-day nudge is for.
+ *
+ * Six exclusions, and every one is a way of *not* sending it — see migration
+ * `0021`. The address is not here: this product stores no customer email of its
+ * own, deliberately, so the caller resolves `clerk_user` through Clerk.
+ */
+export async function nudgeCandidates(args?: {
+  afterHours?: number;
+  beforeHours?: number;
+  limit?: number;
+}): Promise<NudgeCandidate[]> {
+  return (
+    (await rpc<NudgeCandidate[] | null>("nudge_candidates", {
+      p_after_hours: args?.afterHours ?? 48,
+      p_before_hours: args?.beforeHours ?? 168,
+      p_limit: args?.limit ?? 200,
+    })) ?? []
+  );
+}
+
 /**
  * Claim the right to send one message, or find that somebody already has.
  *
