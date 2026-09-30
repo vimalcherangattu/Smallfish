@@ -57,10 +57,16 @@ export function compileLib(sources, prefix = "sf-") {
     const out = join(dir, f.replace(/\.ts$/, ".js"));
     writeFileSync(
       out,
-      readFileSync(out, "utf8").replace(
-        /from ["']@\/lib\/([\w-]+)["']/g,
-        'from "./$1.js"',
-      ),
+      readFileSync(out, "utf8")
+        .replace(/from ["']@\/lib\/([\w-]+)["']/g, 'from "./$1.js"')
+        // `import "server-only"` is a build-time tripwire: the package exists
+        // only so that a bundler throws when a server module is pulled into a
+        // client one. Node resolving it from a temp directory outside the
+        // project fails, and the tripwire has nothing to say here anyway — a
+        // test running the module in Node *is* the server. Dropped so that
+        // modules carrying the guard are testable at all, which is the whole
+        // point of keeping their message-building parts pure.
+        .replace(/^import ["']server-only["'];?\s*$/gm, ""),
     );
   }
 

@@ -71,6 +71,18 @@ export function GET() {
         "measured markets are frozen data.",
     },
     {
+      section: "6 · Mail",
+      what: "writing to customers",
+      missing: env.RESEND_API_KEY ? [] : ["RESEND_API_KEY"],
+      ready: !!env.RESEND_API_KEY,
+      unlocks:
+        "The welcome note, the finished-read note, the two-day nudge and the " +
+        "weekly digest. All four are written and claimed once each in " +
+        "`mail_sends`; without the key every one records why it did not send " +
+        "rather than pretending it did. MAIL_FROM is optional and defaults to " +
+        "hello@getsmallfish.com.",
+    },
+    {
       section: "7 · Site URL",
       what: "where this is served from",
       missing: env.NEXT_PUBLIC_SITE_URL ? [] : ["NEXT_PUBLIC_SITE_URL"],

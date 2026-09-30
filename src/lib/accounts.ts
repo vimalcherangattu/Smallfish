@@ -23,6 +23,7 @@
 import { settleBand } from "@/lib/pricing";
 import { MILLI, type Entry, type EntryKind } from "@/lib/ledger";
 import { canWrite, currentEnv } from "@/lib/db";
+import type { MailKind } from "@/lib/mail";
 
 export type AccountRow = {
   id: string;
@@ -620,6 +621,49 @@ export async function advanceJob(args: {
 /** True only for the caller that won the right to send the note. */
 export async function claimJobNotification(id: string): Promise<boolean> {
   return Boolean(await rpc("mark_job_notified", { p_job: id }));
+}
+
+/**
+ * Claim the right to send one message, or find that somebody already has.
+ *
+ * `claim_mail` is an insert with `on conflict do nothing … returning`, so
+ * exactly one caller wins whatever else is running — see migration `0013`. The
+ * claim is taken **before** the provider is called, which means a provider
+ * failure costs a message rather than duplicating one. That is the right way
+ * round: a missing email is visible in the app, a duplicate is only visible in
+ * somebody's inbox.
+ *
+ * `period` is `''` for a once-ever message and an ISO week for the digest.
+ */
+export async function claimMail(
+  accountId: string,
+  kind: MailKind,
+  period = "",
+): Promise<boolean> {
+  return !!(await rpc<boolean>("claim_mail", {
+    p_account: accountId,
+    p_kind: kind,
+    p_period: period,
+  }));
+}
+
+/** What became of a claimed message. `why` is kept so that "no mail provider is
+ *  configured" is a fact somebody can query rather than a log line that rolled
+ *  off. */
+export async function recordMail(args: {
+  accountId: string;
+  kind: MailKind;
+  period?: string;
+  sent: boolean;
+  why?: string | null;
+}): Promise<void> {
+  await rpc("record_mail", {
+    p_account: args.accountId,
+    p_kind: args.kind,
+    p_period: args.period ?? "",
+    p_sent: args.sent,
+    p_why: args.why ?? null,
+  });
 }
 
 /**

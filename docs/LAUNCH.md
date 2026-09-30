@@ -39,6 +39,11 @@ slice inside one function's time budget, advances the counters and exits; a
 Vercel Cron entry to tick it; and a lease column so two ticks cannot process
 the same job twice.
 
+**It also carries the two scheduled emails.** The 48-hour nudge and the Monday
+digest are written and claimed (`mail.ts`, migration `0013`) and have nothing to
+fire them, because there is no scheduler on this deployment at all. They are one
+more route behind the same cron entry, not a second piece of infrastructure.
+
 ### 2. Candidates for a market nobody has read
 
 *The other half of the same blocker.*
@@ -92,13 +97,33 @@ matches** are free and need no account. Names and contact details are what a
 credit buys. The free plan's 20 credits are the sample. Every charging surface
 prices itself on the button, before it is pressed.
 
-### 5. No mail provider
+### 5. No mail provider — built up to the key, 2026-09-30
 
-`notify.ts` returns `{sent: false, why}` rather than pretending. The welcome
-email, the finished-read note, the 48-hour nudge and the Monday digest are all
-specified and none can send.
+Everything that does not depend on the key is done:
 
-Needs: `RESEND_API_KEY` and `MAIL_FROM`. Roughly an hour once the key exists.
+- `src/lib/mail.ts` holds all four messages as **pure functions** and the one
+  `sendMail` primitive. `test_mail.mjs` measures 84 assertions without sending
+  anything: an unsubscribe link on every message including the one the person
+  asked for, no template holes, no engine vocabulary, the digest silent when
+  nothing changed, correct ISO weeks across a year boundary.
+- Migration `0013` adds `mail_sends`, whose **primary key is the once-only
+  rule**: `(account_id, kind, period)`, with `period` empty for a once-ever
+  message and an ISO week for the digest. `claim_mail` is an insert with
+  `on conflict do nothing … returning`, so exactly one caller wins whatever a
+  retried or overlapping scheduler tick does. Probed: `anon` denied, an
+  `authenticated` non-member sees 0 rows and can neither insert nor claim.
+- The **welcome** is wired, at `/welcome` — the only place that knows which door
+  brought them, so it can link to the list rather than a cold search box.
+- `/api/status` now reports mail, so a deployment can be asked rather than
+  guessed about.
+
+**Still open, and it is not the key:** the nudge and the digest need something to
+tick. That is the same missing piece as P0.1 — there is no scheduler on this
+deployment at all — so they ride on the worker's Vercel Cron entry and are
+listed under it rather than here.
+
+Needs: `RESEND_API_KEY` (and optionally `MAIL_FROM`) for anything to leave the
+building, plus P0.1's cron for the two scheduled messages.
 
 ---
 

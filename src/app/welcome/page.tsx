@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 
-import { ensureWorkspace, recordAttribution } from "@/lib/accounts";
+import { claimMail, ensureWorkspace, recordAttribution, recordMail } from "@/lib/accounts";
 import { CLERK_ENABLED } from "@/lib/clerk";
 import { firstStop, readHandoff } from "@/lib/handoff";
 import { MILLI } from "@/lib/ledger";
+import { sendMail, welcomeEmail } from "@/lib/mail";
 import { PLANS } from "@/lib/pricing";
 
 /**
@@ -33,6 +34,50 @@ import { PLANS } from "@/lib/pricing";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Setting up — Small Fish", robots: { index: false } };
 
+/**
+ * Write to them once, and record what happened either way.
+ *
+ * The address comes from Clerk, which is the only place it exists — this app
+ * stores no customer email of its own, deliberately, so there is one copy of it
+ * and it is the one the person can change.
+ */
+async function welcome(
+  accountId: string,
+  clerkUserId: string,
+  query: string | null,
+  credits: number,
+) {
+  if (!(await claimMail(accountId, "welcome"))) return;
+
+  let email = "";
+  try {
+    const { clerkClient } = await import("@clerk/nextjs/server");
+    const user = await (await clerkClient()).users.getUser(clerkUserId);
+    email = user.primaryEmailAddress?.emailAddress ?? "";
+  } catch {
+    email = "";
+  }
+
+  if (!email) {
+    await recordMail({
+      accountId,
+      kind: "welcome",
+      sent: false,
+      why: "No address on the account.",
+    }).catch(() => undefined);
+    return;
+  }
+
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getsmallfish.com";
+  const result = await sendMail(email, welcomeEmail({ email, siteUrl: site, credits, query }));
+  await recordMail({
+    accountId,
+    kind: "welcome",
+    sent: result.sent,
+    why: result.why ?? null,
+  }).catch(() => undefined);
+}
+
 export default async function Welcome({
   searchParams,
 }: {
@@ -57,6 +102,20 @@ export default async function Welcome({
           sells: handoff.sells,
           query: handoff.q,
         });
+
+        // The welcome note, claimed once per workspace, ever.
+        //
+        // Sent from here rather than from the Clerk webhook because this is the
+        // only place that knows which door brought them — the webhook has a user
+        // id and nothing else, so its welcome could only link to a cold search
+        // box. The claim is in the database, so this page being reloaded, or the
+        // webhook racing it, cannot produce a second one.
+        //
+        // Everything about it is best-effort: an address we cannot read, a
+        // provider that is not configured, a claim somebody else holds. None of
+        // them may delay the redirect below by more than the call itself, and
+        // none of them may throw.
+        await welcome(accountId, userId, handoff.q, free.credits);
       }
     } catch {
       // Their list matters more than our analytics. See the note above.

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { claimJobNotification, type JobRow } from "@/lib/accounts";
+import { mailConfigured, sendMail, type SendResult } from "@/lib/mail";
 
 /**
  * The "your list is ready" note.
@@ -25,12 +26,7 @@ import { claimJobNotification, type JobRow } from "@/lib/accounts";
  * duplicate one is only visible in somebody's inbox.
  */
 
-export interface SendResult {
-  sent: boolean;
-  why?: string;
-}
-
-const from = () => process.env.MAIL_FROM ?? "Small Fish <hello@getsmallfish.com>";
+export type { SendResult };
 
 /** The note itself. Plain, short, and it leads with the number they came for. */
 export function readFinishedEmail(job: JobRow, siteUrl: string) {
@@ -59,8 +55,11 @@ export async function send(job: JobRow, siteUrl: string): Promise<SendResult> {
   if (!job.notify_email) return { sent: false, why: "Nobody asked to be written to." };
   if (job.notified_at) return { sent: false, why: "Already sent." };
 
-  const key = process.env.RESEND_API_KEY;
-  if (!key) {
+  // The provider is checked before the claim is taken, and the order matters.
+  // Claiming first on a deployment with no key would mark the note as sent by
+  // somebody, so the day the key arrives every waiting customer's note is
+  // already spoken for and never goes out.
+  if (!mailConfigured()) {
     return {
       sent: false,
       why:
@@ -75,26 +74,5 @@ export async function send(job: JobRow, siteUrl: string): Promise<SendResult> {
   }
 
   const { subject, body } = readFinishedEmail(job, siteUrl);
-
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${key}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: from(),
-        to: [job.notify_email],
-        subject,
-        text: body,
-      }),
-    });
-    if (!res.ok) {
-      return { sent: false, why: `The mail provider refused it (${res.status}).` };
-    }
-    return { sent: true };
-  } catch {
-    return { sent: false, why: "The mail provider could not be reached." };
-  }
+  return sendMail(job.notify_email, { subject, text: body });
 }
