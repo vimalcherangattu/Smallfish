@@ -245,12 +245,48 @@ def main() -> int:
     )
     # The pricing rules must NOT be restated in SQL: two sources of truth about
     # money is the failure this split exists to prevent.
-    for term in ["band", "wilson", "settle", "0.15", "read_allowance"]:
+    #
+    # One migration is exempt from the word "settle", and the exemption is
+    # narrow on purpose. `0011` shipped a column called `sites_settled`; this
+    # lint rejected the name, it was renamed to `sites_judged` **in a migration
+    # that had already been applied**, and the live database kept the old
+    # column while every line of code moved to the new one. `advance_job` then
+    # referred to a column that did not exist, so the first worker tick would
+    # have failed — which is exactly what happened when one was finally written.
+    #
+    # Undoing that needs a migration that names the old column once, to rename
+    # it away. There is no version of `alter table ... rename column` that does
+    # not. So the file is excluded from this one term, and the two checks below
+    # keep the exemption honest: the word may appear **only** there, and only in
+    # a rename.
+    rename_file = ROOT / "supabase" / "migrations" / "0015_rename_sites_settled.sql"
+    rename_sql = rename_file.read_text().lower() if rename_file.exists() else ""
+    code_without_rename = code_of(
+        "\n".join(p.read_text().lower() for p in MIGRATIONS if p != rename_file),
+        sql=True,
+    )
+    for term in ["band", "wilson", "0.15", "read_allowance"]:
         check(
             f"the schema does not restate pricing ({term})",
             term not in code,
             "bands and settlement live in pricing.ts, tested without a database",
         )
+    check(
+        "the schema does not restate pricing (settle)",
+        "settle" not in code_without_rename,
+        "bands and settlement live in pricing.ts, tested without a database",
+    )
+    rename_code = code_of(rename_sql, sql=True) if rename_sql else ""
+    check(
+        "and the one migration allowed to say it only renames it away",
+        "rename column sites_settled to sites_judged" in rename_code
+        # Every occurrence is the old column's name — the guard that checks
+        # whether it is still there, and the rename that removes it. Nothing in
+        # this file may use the word for anything else, which is what stops the
+        # exemption from becoming a hole.
+        and rename_code.count("settle") == rename_code.count("sites_settled"),
+        "0015 exists to remove the word, not to reintroduce it",
+    )
 
     print(f"\n{len(failures)} failure(s)")
     print("  note: a lint over the migrations, not a live database test. The "

@@ -93,6 +93,15 @@ export interface LeadResult {
   creditsEach: number;
   /** Matched rows shown in full before anything is paid for. */
   preview: number;
+  /**
+   * Businesses here with a website nobody has read yet.
+   *
+   * On screen beside `read`, because "42 to call, out of 200 read" and "42 to
+   * call, out of 2,778 that have a website" are different claims and only the
+   * first one is true. It is also the offer: this is exactly the work the
+   * worker does.
+   */
+  unread: number;
 }
 
 const NICHE_WORDS: Record<string, RegExp> = {
@@ -101,6 +110,19 @@ const NICHE_WORDS: Record<string, RegExp> = {
   hvac: /\b(hvac|heating|air ?conditioning|furnace)\b/i,
   veterinary: /\b(vets?|veterinar\w+|animal hospitals?)\b/i,
 };
+
+/**
+ * Businesses in this market with a website nobody has read yet.
+ *
+ * The honest definition of "unread": a site we hold and an outcome we do not. A
+ * business with no website is not unread, it is unreadable, and counting it
+ * would promise reading that cannot happen.
+ *
+ * This is the worker's first real source of work — 6,814 sites across the three
+ * measured markets, already extracted, needing no Overture pull and no upload.
+ */
+export const unreadIn = (market: Market): Business[] =>
+  market.businesses.filter((b) => !!b.site && !b.read?.outcome);
 
 export const host = (url: string | null) =>
   (url ?? "").replace(/^https?:\/\//, "").replace(/^www\./, "").split(/[/?#]/)[0] || null;
@@ -431,6 +453,7 @@ export function buildLeads({
     owned: page.filter((b) => unlocked.has(b.id)).length,
     creditsEach: bandForMarket(market, [criterion], suppressed).credits,
     preview,
+    unread: unreadIn(market).length,
   };
 }
 

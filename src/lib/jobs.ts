@@ -26,6 +26,34 @@
  * arithmetic.
  */
 
+/**
+ * ## Measured against the worker, 2026-09-30 — and the estimate is optimistic
+ *
+ * 48 unread dental Phoenix sites, distinct hosts, through `read.ts` in batches
+ * of twelve: **795 ms per site**, against the 525 ms this file's arithmetic
+ * predicts. Two things in that number are worth separating:
+ *
+ *   - The first batch took 20.1 s and the next three took 7.1, 4.0 and 7.0.
+ *     Cold DNS and TLS, once. Steady state is ~500 ms per site, which is what
+ *     the model says.
+ *   - Pages per site came out at **1.31, not 3.4**. The 3.4 was measured across
+ *     the three *finished* markets — sites chosen, in part, because they read
+ *     well. The unread remainder is thinner, more often blocked, and more often
+ *     one page.
+ *
+ * So the structure of the estimate is wrong in two directions that partly
+ * cancel: fewer pages than assumed, more network latency than assumed. For
+ * dental Phoenix's 2,578 unread sites it predicts 23 minutes and the measured
+ * rate gives 34.
+ *
+ * **The constants are deliberately left alone.** Lowering `PAGES_PER_SITE` to
+ * the measured 1.31 would make the promise *shorter* — the wrong direction for
+ * a number this file says must "come in early" — and 48 sites with one cold
+ * start is not a sample worth re-planning on. What is recorded here is the
+ * discrepancy and its size, so the next person meets a known gap rather than
+ * rediscovering it.
+ */
+
 /** Twelve sites in flight. `GLOBAL_CONCURRENCY` in the probe. */
 export const CONCURRENCY = 12;
 /** Seconds between two requests to the same host. `PER_DOMAIN_DELAY`. */

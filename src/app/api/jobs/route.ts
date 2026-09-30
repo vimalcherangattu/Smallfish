@@ -1,13 +1,18 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { accountForUser, jobFor, queueJob } from "@/lib/accounts";
+import { accountForUser, addJobSites, jobFor, queueJob } from "@/lib/accounts";
 import { CLERK_ENABLED } from "@/lib/clerk";
 import { estimateSeconds, worthLeaving } from "@/lib/jobs";
-import { marketFor } from "@/lib/leads";
+import { marketFor, unreadIn } from "@/lib/leads";
 import { splitQuery } from "@/lib/query";
 import { readsFor, resolveRegion, type Places } from "@/lib/region";
-import type { MarketIndex } from "@/lib/types";
+import type { Market, MarketIndex } from "@/lib/types";
+
+const email = (body: { email?: unknown }) =>
+  typeof body.email === "string" && body.email.includes("@")
+    ? body.email.trim().slice(0, 200)
+    : null;
 
 /**
  * Queue a read, or ask after one.
@@ -62,7 +67,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  let body: { query?: unknown; email?: unknown };
+  let body: { query?: unknown; email?: unknown; deepen?: unknown };
   try {
     body = (await req.json()) as typeof body;
   } catch {
@@ -89,14 +94,65 @@ export async function POST(req: Request) {
 
   const split = splitQuery(query);
 
-  // Already read? Then there is nothing to wait for, and saying so is the
-  // honest answer even though a progress page would look more impressive.
-  if (marketFor(index, split.what, split.where)) {
+  // ------------------------------------------------- reading the rest of it --
+  //
+  // "Already read" was never the whole truth, and the number on the results
+  // screen says so: we have read **200** dental practices in Phoenix, and 2,778
+  // of them have a website. The list is real and the other 2,578 are sitting
+  // there unread.
+  //
+  // So a search that lands on a read market gets its list now — that part was
+  // right, and putting a finished answer behind a progress bar would be
+  // inventing a wait. But it can also ask for the rest, and that is the work the
+  // worker exists to do. It is the only source of sites that needs no Overture
+  // extraction and no upload: the candidates are already in the market file.
+  const hit = marketFor(index, split.what, split.where);
+  if (hit) {
+    const market = await json<Market>(`${hit.market.id}.json`);
+    const rest = market ? unreadIn(market) : [];
+
+    if (!body.deepen || !rest.length) {
+      return Response.json({
+        ok: true,
+        alreadyRead: true,
+        reason: rest.length
+          ? `We have read ${(market?.counts?.read ?? 0).toLocaleString()} of these — ` +
+            `your list is ready now, and there are ${rest.length.toLocaleString()} more to read.`
+          : "We have already read this one — your list is ready now.",
+        remaining: rest.length,
+        href: `/app?q=${encodeURIComponent(query)}`,
+      });
+    }
+
+    const seconds = estimateSeconds(rest.length);
+    const id = await queueJob({
+      accountId: acct.id,
+      query,
+      marketId: hit.market.id,
+      criterionId: hit.criterion.id,
+      regionLabel: hit.market.metro,
+      sites: rest.length,
+      estimateSeconds: seconds,
+      notifyEmail: email(body),
+    });
+    await addJobSites(
+      id,
+      rest.map((b, i) => ({
+        business_id: b.id,
+        name: b.name,
+        site: b.site!,
+        phone: b.phone ?? null,
+        ordinal: i + 1,
+      })),
+    );
+
     return Response.json({
       ok: true,
-      alreadyRead: true,
-      reason: "We have already read this one — your list is ready now.",
-      href: `/app?q=${encodeURIComponent(query)}`,
+      id,
+      sites: rest.length,
+      seconds,
+      worthLeaving: worthLeaving(rest.length),
+      href: `/app/reads/${id}`,
     });
   }
 
@@ -114,17 +170,13 @@ export async function POST(req: Request) {
   const sites = readsFor(region);
   const seconds = estimateSeconds(sites);
 
-  const email = typeof body.email === "string" && body.email.includes("@")
-    ? body.email.trim().slice(0, 200)
-    : null;
-
   const id = await queueJob({
     accountId: acct.id,
     query,
     regionLabel: region.label,
     sites,
     estimateSeconds: seconds,
-    notifyEmail: email,
+    notifyEmail: email(body),
   });
 
   return Response.json({

@@ -555,6 +555,15 @@ export interface JobRow {
   created_at: string;
   started_at: string | null;
   finished_at: string | null;
+  /** While in the future, a worker holds this job (migration `0014`). */
+  leased_until?: string | null;
+  lease_holder?: string | null;
+  /**
+   * Why a tick declined to work on this job, in the person's terms. Distinct
+   * from `failure`, which ends it: this is "not now", and the progress page
+   * shows it so a paused read reads as paused rather than as stalled.
+   */
+  worker_note?: string | null;
 }
 
 export async function queueJob(args: {
@@ -621,6 +630,91 @@ export async function advanceJob(args: {
 /** True only for the caller that won the right to send the note. */
 export async function claimJobNotification(id: string): Promise<boolean> {
   return Boolean(await rpc("mark_job_notified", { p_job: id }));
+}
+
+// ------------------------------------------------------------ the worker --
+
+export interface JobSiteRow {
+  job_id: string;
+  business_id: string;
+  name: string | null;
+  site: string;
+  phone: string | null;
+  ordinal: number;
+  state: "pending" | "taken" | "done";
+  verdict: string | null;
+  proof: string | null;
+  pages: number;
+  read_outcome: string | null;
+}
+
+/** Put a job's work list in place. Idempotent — see migration `0014`. */
+export async function addJobSites(
+  jobId: string,
+  rows: Array<{
+    business_id: string;
+    name?: string | null;
+    site: string;
+    phone?: string | null;
+    ordinal?: number;
+  }>,
+): Promise<number> {
+  return Number(await rpc<number>("add_job_sites", { p_job: jobId, p_rows: rows }));
+}
+
+/**
+ * Take the oldest job with work left, and hold it for the length of a slice.
+ *
+ * Returns null when there is nothing to do, which is the ordinary answer most
+ * of the time and is not an error. `claim_job` does the locking; this only
+ * carries the result.
+ */
+export async function claimJob(holder: string, leaseSeconds = 120): Promise<JobRow | null> {
+  const row = await rpc<JobRow | null>("claim_job", {
+    p_holder: holder,
+    p_lease_seconds: leaseSeconds,
+  });
+  return row && row.id ? row : null;
+}
+
+/** The next few sites of this job, marked as in flight. */
+export async function takeSites(jobId: string, n: number): Promise<JobSiteRow[]> {
+  return (await rpc<JobSiteRow[] | null>("take_sites", { p_job: jobId, p_n: n })) ?? [];
+}
+
+/** Rows a dead worker left claimed, returned to the queue. */
+export async function sweepStrandedSites(olderSeconds = 600): Promise<number> {
+  return Number(await rpc<number>("sweep_stranded_sites", { p_older_seconds: olderSeconds }));
+}
+
+/** Write a slice of results. Counters are recomputed from them, not incremented,
+ *  so a retried slice is harmless. */
+export async function recordSites(
+  jobId: string,
+  rows: Array<{
+    business_id: string;
+    verdict: string;
+    proof: string | null;
+    pages: number;
+    outcome: string;
+  }>,
+): Promise<void> {
+  await rpc("record_sites", { p_job: jobId, p_rows: rows });
+}
+
+/** Hand the job back: finished, stopped, or simply out of time. */
+export async function releaseJob(
+  jobId: string,
+  note?: string | null,
+  failure?: string | null,
+): Promise<string> {
+  return String(
+    await rpc<string>("release_job", {
+      p_job: jobId,
+      p_note: note ?? null,
+      p_failure: failure ?? null,
+    }),
+  );
 }
 
 /**

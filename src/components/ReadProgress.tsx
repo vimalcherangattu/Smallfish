@@ -33,6 +33,9 @@ interface Row {
   unclear: number;
   query: string;
   failure: string | null;
+  /** Why a tick declined to work on this, in the person's terms. Not a failure:
+   *  the job is still queued and picks up again by itself. */
+  worker_note?: string | null;
 }
 
 const toJob = (r: Row): Job => ({
@@ -110,6 +113,15 @@ export default function ReadProgress({ id, initial }: { id: string; initial: Row
         <p className="sf-body mt-6 text-[var(--ink-2)]">
           {row.failure ?? "This stopped before it finished."} Nothing was charged.
         </p>
+      )}
+
+      {/* Paused is not stopped, and the difference is the whole reason this line
+          exists. A read whose engine is briefly unavailable leaves its sites
+          unread rather than crawling them for no answer, and says so — a
+          progress bar that simply stops moving reads as broken, and the person
+          watching has no way to tell which it is. */}
+      {row.state !== "failed" && row.state !== "done" && row.worker_note && (
+        <p className="sf-small mt-6 text-[var(--muted)]">{row.worker_note}</p>
       )}
 
       {row.state === "done" && (

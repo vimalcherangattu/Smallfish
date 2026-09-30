@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ExportButton from "@/components/ExportButton";
 import PushToDestination from "@/components/PushToDestination";
+import ReadTheRest from "@/components/ReadTheRest";
 import type { Lead, LeadResult } from "@/lib/leads";
 import { PLANS } from "@/lib/pricing";
 
@@ -348,6 +349,16 @@ export default function LeadList({
       </ul>
 
       {result.locked > 0 && <Unlock result={result} wallet={wallet} />}
+
+      {/* The coverage number, said out loud, with the offer attached. See
+          `ReadTheRest` — "42 out of 200 read" and "42 out of 2,778 that have a
+          website" are different claims, and only the second one describes the
+          market this list is supposed to be about. */}
+      <ReadTheRest
+        query={`${result.what} in ${result.metro.split(",")[0]} that ${result.criterionText}`}
+        unread={result.unread}
+        read={result.read}
+      />
 
       {/* The honesty, kept — but as one line under the list rather than a panel
           of filters in front of it. Somebody who wants it will read it; nobody

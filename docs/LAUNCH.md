@@ -25,24 +25,39 @@ everything in P0 is downstream of it.
 
 ## P0 — nothing is self-serve until these are done
 
-### 1. The worker that drives a queued read to completion
+### 1. The worker — built 2026-09-30, needs one environment variable
 
-*Blocking everything. Without it, "any trade, any US city" is a queue nobody
-empties.*
+`/api/worker` claims the oldest job with work left, reads what fits in its
+budget, writes it, and exits; `vercel.json` ticks it every minute. Migration
+`0014` adds `job_sites` (the work list), a lease on `jobs`, and the five
+functions the worker runs on. Every one was exercised against the live database
+before the TypeScript was written: a second worker was refused the lease, a
+second take skipped the rows in flight, recording the same slice twice moved no
+counter, and thirty-minute-old `taken` rows came back to the queue.
 
-`src/lib/read.ts` reads and judges one site and is proven against live sites.
-`jobs` queues work, `/app/reads/[id]` shows progress, `notify.ts` writes when
-it finishes. **Nothing processes the queue.** A job sits at `queued` forever.
+**It has real work today, with no Overture pull and no upload.** The three
+measured markets hold **6,814 businesses with a website nobody has read** —
+2,578 in dental Phoenix alone, against the 200 the results screen is built on.
+The screen now says so and offers the rest, which is the honest version of a
+coverage number that was always a fifth of a market presented as a market.
 
-Needs: a `/api/worker` route that claims the oldest active job, processes a
-slice inside one function's time budget, advances the counters and exits; a
-Vercel Cron entry to tick it; and a lease column so two ticks cannot process
-the same job twice.
+**Two things are needed before it runs:**
 
-**It also carries the two scheduled emails.** The 48-hour nudge and the Monday
-digest are written and claimed (`mail.ts`, migration `0013`) and have nothing to
-fire them, because there is no scheduler on this deployment at all. They are one
-more route behind the same cron entry, not a second piece of infrastructure.
+1. `CRON_SECRET` in the Vercel project. The route refuses when it is unset
+   rather than defaulting to open — it spends crawl and model budget on every
+   tick, so an open endpoint is a bill anybody can run up.
+2. A Vercel plan that allows a **minute-level cron**. Hobby permits one cron a
+   day, which for this route is the same as not having one. `vercel.json` asks
+   for `* * * * *`.
+
+Measured throughput, 48 real unread sites: **795 ms per site**, so dental
+Phoenix's remainder is about 34 minutes of reading — against the 23 the
+estimate promises. See the note at the top of `src/lib/jobs.ts`: the estimate is
+optimistic and the constants were deliberately not changed on a 48-site sample.
+
+**Still to ride on the same cron:** the 48-hour nudge and the Monday digest
+(`mail.ts`, migration `0013`). They are written and claimed and need only a
+route behind the same schedule.
 
 ### 2. Candidates for a market nobody has read
 

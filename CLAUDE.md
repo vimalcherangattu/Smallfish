@@ -33,6 +33,8 @@ that panel if it reports "needs authentication".
 | `stage0/src/engine/` | Technology detection, check plans, geometry. |
 | `stage0/tests/` | `python3 stage0/tests/run_all.py` |
 | `src/` | The Next.js app: map region picker, criteria, results with proof, ICP builder. |
+| `src/lib/worker.ts` | One slice of a queued read. A tick claims the oldest job with work left, reads what fits in ~45s, writes it, hands the job back. `/api/worker` runs it behind `CRON_SECRET`; `vercel.json` ticks it. Its first source of work is the 6,814 already-extracted sites nobody has read. |
+| `src/lib/mail.ts` | The four customer emails as **pure functions**, plus the one `sendMail`. Needs `RESEND_API_KEY`; without it every message records why it did not send. |
 | `src/lib/unlock.ts` | **What a credit buys.** `matchedIn` is the single ordering every surface uses — the screen, the CSV, the CRM push and the unlock — because the rows on the invoice have to be the rows on the screen. `visibleIds` decides what a visitor sees for nothing (the first `FREE_PREVIEW` = 3). Pure, so `stage0/tests/test_unlock.mjs` can hold it. |
 | `src/lib/charging.ts` | The one loop that spends credits, server-side. Every surface that hands over a name calls it; the CRM push did not, and that was invisible until the gate went on. |
 | `src/lib/signals.ts` | **One catalogue of observable signals**, read by outreach and ICP alike. `provable: false` entries are deliberate — they are how the ICP flow refuses a criterion out loud instead of proposing one the engine cannot settle. |
