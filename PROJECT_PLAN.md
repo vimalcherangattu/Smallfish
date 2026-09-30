@@ -34,6 +34,24 @@ plan wins and the Decision log records why.
 | 3 · Compound | Not started | 1,000 paying; ≥ 50% warm reads | — |
 | 4 · Relevance layer | Not started | — | — |
 
+### Blocked on you — 2026-09-30
+
+Four things stand between the code as it is and a stranger paying without talking to
+anyone. **None of them is code**, and none is fixable from inside this repo. They are
+listed here rather than only in `docs/LAUNCH.md` because this file is where tasks with a
+definition of done live.
+
+| # | What | Why it blocks | Done when |
+|---|---|---|---|
+| **B-1** | `CRON_SECRET` in the Vercel project | `/api/worker` refuses every request while it is unset, rather than defaulting to open. It spends crawl and model budget on every tick, so an open endpoint is a bill anybody can run up. | `GET /api/worker` with no header answers 401 *"Not for you."* rather than the "no CRON_SECRET" message. |
+| **B-2** | A Vercel plan allowing a **minute-level cron** | `vercel.json` asks for `* * * * *`. Hobby permits one run **per day**, which for this route is the same as no cron: a tick reads ~24 sites, so dental Phoenix's 2,578-site remainder would take seven years. | A tick fires each minute and `jobs.sites_read` climbs. If the plan cannot change, say so — a small always-on box (Fly, Railway) runs the same route and also answers B-4. |
+| **B-3** | `RESEND_API_KEY` (and optionally `MAIL_FROM`) | The only thing left in P0.5. All four messages, the once-only claim and the welcome are built and tested; without the key each one records *why* it did not send instead of pretending. | `/api/status` reads 6 of 6, and a new sign-up receives the welcome. If `MAIL_FROM` is set, its domain must be verified in Resend. |
+| **B-4** | **A decision:** pre-extract markets, or run an extractor outside Vercel | Candidates come from Overture via DuckDB — Python, and it cannot run on Vercel. Until one option is chosen, a search outside the three read markets can only queue. | Either a list of trades × cities to extract in advance, or a running service that fills `job_sites` when a job is queued. **The second also answers B-2**, which is why it is the recommendation. |
+
+**Not blocked today:** the worker has **6,814 already-extracted businesses with a website
+nobody has read** — 2,578 dental Phoenix, 2,240 med spa Dallas, 1,996 HVAC Tampa. That is
+real work needing neither B-4 nor an upload, and the results screen now offers it.
+
 ### Live numbers (replace targets with measurements as they arrive)
 
 | Metric | Target | Measured | Date |
@@ -526,6 +544,53 @@ Features 1–6 from the product document, plus the corrections above.
   a finished one and the dashboard can only show success. A thrown sink cannot break the
   product. Vendor-agnostic; PostHog and a warehouse table are one sink each.
 
+### Self-serve — what stands between the code and a stranger paying
+
+Audited 2026-09-30 against the three founding documents of that date. The long form,
+with the reasoning, is `docs/LAUNCH.md`; these are the tasks and their definitions of
+done. **B-1 … B-4 in the Status dashboard are the non-code half** and are not repeated
+here.
+
+- [x] **P0.3 · Sign-up carries the door context.** `src/lib/handoff.ts` is the one place
+  that decides what a door may carry; `/sign-up` passes it to `/welcome`, which makes the
+  workspace, records `source` (first door wins, by `coalesce` in `record_attribution`) and
+  lands on `/app?q=…`. *Done when* a visitor arriving from `/for/{slug}` reaches their
+  list without retyping anything and the account carries the door that brought them —
+  both verified. Two leaking doors were found while wiring it: `/find/[slug]` pointed at a
+  bare `/app`, and the home CTA carried no `source`.
+- [x] **P0.4 · The paid plan meters something.** `UNLOCKS_ENFORCED` is `true`. Charging is
+  one function (`charging.ts`) that the download, the push and the unlock all call;
+  ordering is one function (`matchedIn`); a locked row carries no identifying field at
+  all. *Done when* a row cannot leave by any surface without a credit, and the screen
+  withholds what the file withholds — `test_unlock.mjs`, and the locked-row checks in
+  `test_leads.mjs`, fail if either stops holding. The count, the evidence and the first
+  three matches stay free and need no account.
+- [x] **P0.1 · The worker.** `/api/worker` claims the oldest job with work left, reads what
+  fits in a ~45s slice, writes it and exits; `vercel.json` ticks it. Migration `0014` adds
+  `job_sites`, a lease, and the five functions it runs on — every one exercised against
+  the live database before the TypeScript existed. *Done when* a queued read finishes
+  without anybody touching it. **Not yet demonstrated end to end: blocked on B-1 and B-2.**
+- [ ] **P0.5 · Mail.** Four messages as pure functions, the `mail_sends` once-only claim
+  (migration `0013`), the welcome wired at `/welcome`, and `/api/status` reporting
+  readiness. *Done when* a new sign-up receives the welcome and a finished read sends its
+  note. **Blocked on B-3** for sending; the nudge and the digest additionally need a
+  scheduler, which is B-2's cron.
+- [ ] **P0.2 · Candidates for a market nobody has read.** **Blocked on B-4**, which is a
+  decision rather than a task. *Done when* a search for any US city can queue a read that
+  the worker can actually feed on.
+- [ ] **P1 · Upload a list.** The cheapest route to "any market": the customer brings the
+  businesses, so it needs no candidate extraction and skips P0.2 entirely. The criterion
+  comes from `signals.ts`, never from free text, so the catalogue's refusals still apply.
+  *Done when* an agency with a bought list gets it read, with evidence and drafted
+  openers, in a city nobody has extracted.
+- [ ] **P1 · The screens the flow document specifies and the app lacks.** `/sample`,
+  `/app/contacted`, `/app/watchlist`, and a read-only shared list. *Done when* each one
+  exists and is reachable from the product rather than by typing the URL.
+- [ ] **P1 · Per-card actions.** Copy is built; edit, rewrite in another tone, mark as
+  contacted, and **not-a-fit → refund on the spot** are not. The last is the trust move,
+  not a nicety — `refund_match` exists and nothing calls it. *Done when* all five work
+  from the row.
+
 ### Go-to-market
 
 - [ ] **S1-12 · 20 design partners** recruited and active.
@@ -704,7 +769,7 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-20 | **Model-dependent Stage 0 work parked**, not abandoned: S0-04 (Google baseline), S0-11, S0-12, S0-16, S0-17. | The setup consumed more time than the work it was gating. Everything not needing a key is done. Two external unblocks are needed, neither fixable from this repo: `ANTHROPIC_API_KEY` as an environment variable, and Places API (New) enabled on Google project `74590284143`. Resume with `python3 stage0/src/engine/preflight.py`. *(An earlier version of this entry blamed session timing for the 401s; that reason was wrong — see the two entries below.)* |
 | 2026-09-20 | Outreach copy is **derived, not generated**, and refuses by default | An outreach line is the only text in the product a user pastes into an email to a real business, so a plausible sentence with no evidence behind it is the most expensive thing here to get wrong. `src/lib/outreach.ts` writes nothing for an unread site, an unreadable one, a business with no matched criterion, or a gap with no catalogued consequence, and every clause it does write is listed with the evidence it rests on. A model, when one runs, should rewrite these sentences rather than add claims. |
 | 2026-09-20 | ICP discovery **built without S1-22**, on a typed offer instead of a fetched site | Reading the seller's own site needs a model key that is still blocked, but it is only the input step. Splitting the flow at that seam shipped S1-23 – S1-26 now and leaves S1-22 a drop-in upgrade. A named-offer chip list is an optimisation over free-text matching, not a precondition — the same two-layer rule `engine/check_plan.py` follows. |
-| 2026-09-20 | Unprovable ICP criteria are **listed and refused**, not hidden | Three of the seven catalogued signals cannot be settled today (contact form, mobile-ready, stale site). Dropping them silently would make the flow look better and deliver ICPs the engine cannot serve; showing them with what it would take makes the gap a roadmap instead of a surprise. `docs/icp-discovery.md` rule 1. |
+| 2026-09-20 | Unprovable ICP criteria are **listed and refused**, not hidden | Four of the seven catalogued signals cannot be settled today (contact form, mobile-ready, stale site, review collection). *(Corrected 2026-09-30: this entry read "Three … (contact form, mobile-ready, stale site)" — `reviews` was added to the catalogue after the sentence was written and the count was never revisited. See the decision-log entry of that date.)* Dropping them silently would make the flow look better and deliver ICPs the engine cannot serve; showing them with what it would take makes the gap a roadmap instead of a surprise. `docs/icp-discovery.md` rule 1. |
 | 2026-09-20 | `public/data/index.json` now carries each market's criteria and tallies | The ICP flow shows live counts for several candidate ICPs at once. Reading them from the market files would cost four megabytes to display three numbers, in the one place the product promises the count is free. ~1 KB per market in the index instead. |
 | 2026-09-20 | The confirm step **blocks** on a contradiction or a declined term, rather than warning | The product document says "flags the conflict"; a flag next to a live count still invites the user to run a search whose answer is the empty intersection by definition. Blocking costs one click (each chip has a drop button) and removes a result that would look like a data gap. |
 | 2026-09-20 | Two plural bugs in the signal catalogue, **found by rendering the page, not by the tests** | `\breview\b` can never match "reviews" and `\bchristian\b` can never match "christians" — so a criterion silently vanished and a *sensitive-attribute refusal silently failed to fire*. The unit tests passed throughout: they used the singular. Every `inCriterion`, `PEOPLE` and `SENSITIVE` pattern now spells its plurals, and the tests use the plural forms a user would type. A refusal that quietly does not fire is worse than no refusal. |
@@ -865,3 +930,5 @@ Carried forward; each is assigned to the task that answers it.
 | 2026-09-30 | The worker's first source of work is the **6,814 sites already extracted and never read** | 2,578 unread in dental Phoenix, 2,240 in med spa Dallas, 1,996 in HVAC Tampa — all with a website, all in the market files, needing no Overture pull (P0.2) and no upload (P1 CSV). The results screen has always said "we read 200 of these to find them", which is true and, unqualified, misleading: 2,778 have a website. The remainder is now stated on the screen with the offer to read it, which turns a shortfall into the product's main capability instead of something a customer works out later. |
 | 2026-09-30 | **A guard written from the code rather than from a measurement was too weak**, and a probe caught it | The worker stopped a job when a batch settled *nothing*, on the reasoning that an absent model key makes every verdict `needs_model`. Probing six real dental Phoenix sites showed two carry a Zocdoc script, which technology detection settles for free with no key at all — so one such site in a batch of twelve would have read "something settled, carry on" and crawled a whole market to produce eleven-twelfths nothing. `needs_model` is returned by exactly one branch, the missing key, so **one** of them is now proof the engine is absent. A model outage returns `couldnt_tell`, which is a different thing and stays a per-site fact. |
 | 2026-09-30 | **The wait we promise is optimistic by about half**, measured — and the constants were left alone anyway | 48 unread dental Phoenix sites through the real reader: 795 ms per site against the 525 ms `estimateSeconds` predicts, so the 2,578-site remainder is 34 minutes rather than 23. Two errors partly cancelling: pages per site is **1.31, not the 3.4** measured on the three *finished* markets (whose sites were, in part, chosen because they read well), and network latency is larger than the politeness delay the model is built from. Not corrected: lowering `PAGES_PER_SITE` to 1.31 would make the promise *shorter*, which is the wrong direction for a number that must come in early, and 48 sites with one cold-start outlier is not a sample to re-plan on. The gap is recorded at the top of `jobs.ts` so the next person meets it rather than rediscovering it. |
+| 2026-09-30 | **A count written in prose beside a list that generates itself had gone stale**, in two places at once | The upload picker said "Three things people ask for that we cannot settle from a website today" and the decision log of 2026-09-20 said "Three of the seven catalogued signals". Both were written when there were three; `reviews` was added afterwards and neither sentence was revisited, so the product and the plan agreed with each other and disagreed with the code. The screen now counts the list it is describing, the log entry carries its correction rather than being quietly rewritten, and `test_upload.mjs` fails the build if either a spelled-out number returns to the component or the log's claim stops matching `signals.ts`. |
+| 2026-09-30 | **Upload is live: the cheapest route to "any market", and it skips P0.2 entirely** | The customer brings the businesses, so no Overture pull is needed — an agency with a bought list gets reading, evidence and drafted openers in a city nobody has extracted. The criterion comes from `signals.ts` and never from free text, so the catalogue's refusals still apply: `criterionForCheck` returns null for every unprovable signal, and the picker shows them anyway with what settling them would take. Parsed twice, by the same function — in the browser so the screen can say what it found before anything is sent, and on the server, which trusts none of it. **Every row is accounted for**: read, skipped with a line number and a reason, or counted as a duplicate, because a file that quietly loses a third of itself is what makes somebody stop trusting an import. |

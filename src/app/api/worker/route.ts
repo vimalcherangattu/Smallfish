@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { NotConfigured, type JobRow } from "@/lib/accounts";
+import { criterionForCheck } from "@/lib/csvimport";
 import { SLICE_MS, tick } from "@/lib/worker";
 import type { Criterion, Market } from "@/lib/types";
 
@@ -61,9 +62,21 @@ async function marketFile(id: string): Promise<Market | null> {
   }
 }
 
-/** The question this job is asking, as a check the engine can run. */
+/**
+ * The question this job is asking, as a check the engine can run.
+ *
+ * Two shapes, and the worker knows about neither:
+ *
+ *   - A **market** job names a market file and a criterion inside it.
+ *   - An **upload** job has no market — the customer brought the sites — so its
+ *     criterion id is a `signals.ts` check like `booking:absence`, and
+ *     `criterionForCheck` rebuilds it from the catalogue. That is also where an
+ *     unprovable check is refused, so a job can never be created for a question
+ *     the engine cannot settle and then quietly read a thousand sites anyway.
+ */
 async function findCriterion(job: JobRow): Promise<Criterion | null> {
-  if (!job.market_id || !job.criterion_id) return null;
+  if (!job.criterion_id) return null;
+  if (!job.market_id) return criterionForCheck(job.criterion_id);
   const market = await marketFile(job.market_id);
   return market?.criteria.find((c) => c.id === job.criterion_id) ?? null;
 }

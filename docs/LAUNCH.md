@@ -173,9 +173,14 @@ Typing works. The flow document specifies four: **map** (exists at
 and it is the one that needs no candidate extraction at all, because the
 customer brings the list).
 
-> **Worth noting:** CSV upload is the cheapest path to "any market" in this
-> whole document. It sidesteps P0.2 entirely. A customer who already has a list
-> gets it checked, with emails, today.
+> **Built 2026-09-30.** `/app/upload` — the cheapest path to "any market" in
+> this whole document, and it sidesteps P0.2 entirely. The criterion comes from
+> `signals.ts`, never from free text, so the catalogue's refusals still apply:
+> the four unprovable signals are shown with what settling them would take, and
+> `criterionForCheck` returns null for every one of them. Parsed twice by the
+> same function — in the browser so the screen can say what it found before
+> anything is sent, and on the server, which trusts none of it. Every row is
+> read, skipped with a line number and a reason, or counted as a duplicate.
 
 ---
 
@@ -207,7 +212,8 @@ scheduling glue.
    boolean"; it was a day, and the estimate is the finding: the gate had three
    surfaces and only one of them had ever been wired to the ledger.
 3. **P0.5 mail** — a key, then an hour.
-4. **P1 CSV upload** — the cheapest route to "any market", and it skips P0.2.
+4. ~~**P1 CSV upload**~~ — done 2026-09-30. It still needs the worker to run
+   (B-1, B-2), because an upload queues a job like any other read.
 5. **P0.1 worker** — the real engineering.
 6. **P0.2 candidates** — the real decision.
 7. P1 screens, then P2 at volume.

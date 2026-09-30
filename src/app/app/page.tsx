@@ -169,7 +169,11 @@ export default async function App({
           <h1 className="sf-h1">Who do you want to find?</h1>
           <p className="sf-body mt-3 max-w-[58ch] text-[var(--ink-2)]">
             A trade, a place, and the one thing that makes a business worth your
-            call. You get their number and a line to open with.
+            call. You get their number and a line to open with.{" "}
+            <Link href="/app/upload" className="underline underline-offset-2">
+              Or check a list you already have
+            </Link>
+            .
           </p>
         </>
       )}
@@ -214,6 +218,19 @@ export default async function App({
               size the job, so this button does not promise a different wait
               from the one the row records. */}
           {region && <QueueRead query={query} sites={readsFor(region)} />}
+
+          {/* The one route that works for any city today, offered at the exact
+              moment somebody discovers we have not read theirs. Reading a market
+              cold needs candidates we extract; an uploaded list brings its own,
+              so this is not a consolation — it is the faster path for anybody
+              who already has a list. */}
+          <p className="sf-small mt-4 text-[var(--muted)]">
+            Already have a list of them?{" "}
+            <Link href="/app/upload" className="underline underline-offset-2">
+              Upload it and we will read every site on it
+            </Link>{" "}
+            — any city, starting now.
+          </p>
 
           {picks.length > 0 && (
             <div className="mt-6 border-t border-[var(--line)] pt-5">
