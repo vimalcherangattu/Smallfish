@@ -48,7 +48,10 @@ export const SIGNUP_OPEN = true;
 export const CTA_LABEL = SIGNUP_OPEN ? "Sign up free →" : "Join the waitlist →";
 
 /** Where that action goes. */
-export const CTA_HREF = SIGNUP_OPEN ? "/sign-up" : "/waitlist";
+/** Where that action goes. The home page is a door too, so it names itself —
+ *  without a source every direct and word-of-mouth signup is indistinguishable
+ *  from one a channel earned. */
+export const CTA_HREF = SIGNUP_OPEN ? "/sign-up?source=home" : "/waitlist";
 
 /** The line under the hero button. */
 export const CTA_NOTE = SIGNUP_OPEN

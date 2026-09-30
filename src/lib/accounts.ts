@@ -587,3 +587,25 @@ export async function advanceJob(args: {
 export async function claimJobNotification(id: string): Promise<boolean> {
   return Boolean(await rpc("mark_job_notified", { p_job: id }));
 }
+
+/**
+ * Record where a workspace came from — once.
+ *
+ * `record_attribution` uses `coalesce`, so the first door to write wins. A
+ * customer who later arrives through a different link has already been
+ * attributed, and overwriting would credit the last touch to a channel that did
+ * not do the work.
+ */
+export async function recordAttribution(args: {
+  accountId: string;
+  source?: string | null;
+  sells?: string | null;
+  query?: string | null;
+}): Promise<void> {
+  await rpc("record_attribution", {
+    p_account: args.accountId,
+    p_source: args.source ?? null,
+    p_sells: args.sells ?? null,
+    p_query: args.query ?? null,
+  });
+}

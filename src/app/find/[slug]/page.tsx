@@ -100,11 +100,26 @@ export default async function Programmatic({
           which is the only thing that makes a &ldquo;no&rdquo; worth anything.
         </p>
 
+        {/* This is a door, so it carries its market into sign-up like every
+            other one. It used to point at a bare /app, which meant an SEO
+            visitor arrived at an empty search box having just read a page about
+            their exact market — and arrived unattributed, so the channel that
+            brought them could not be counted. */}
         <Link
-          href="/app"
+          href={`/sign-up?${new URLSearchParams({
+            // `headline` is already the whole search phrase — "dental
+            // practices in Phoenix with no online booking". Wrapping it in
+            // "<niche> in <metro> that ..." produced "dental practices in
+            // Phoenix that dental practices in Phoenix with no online booking",
+            // which splitQuery would then have to make sense of.
+            q: p.headline,
+            market: p.marketId,
+            criterion: p.criterionId,
+            source: `find/${p.slug}`,
+          }).toString()}`}
           className="mt-10 inline-block rounded-full bg-[var(--lure)] px-6 py-3 text-[14px] font-semibold text-[var(--ink)]"
         >
-          See them on the map
+          See all {p.matches} — sign up free →
         </Link>
       </div>
     </main>
