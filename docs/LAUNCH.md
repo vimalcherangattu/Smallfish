@@ -58,28 +58,39 @@ Two honest options, and they are a real decision:
 
 Until one is chosen, a search outside the three read markets can only queue.
 
-### 3. Sign-up drops everything the doors carry
+### ~~3. Sign-up drops everything the doors carry~~ — done 2026-09-30
 
-*Cheapest fix on this list, and it undermines the whole door strategy.*
+`handoff.ts` is the one place that decides what a door may carry; sign-up passes
+it to `/welcome`, which creates the workspace, records `source` (first door
+wins, by `coalesce` in `record_attribution`) and lands on `/app?q=…`. Two
+leaking doors were found while wiring it: `/find/[slug]` pointed at a bare
+`/app`, and the home CTA carried no `source`.
 
-`/for/[slug]` writes `q`, `market`, `criterion`, `source` and `sells` into the
-sign-up link. `src/app/sign-up/[[...sign-up]]/page.tsx` reads **none of them**.
-The user-flow document's spine — *"anything the user has told us is never asked
-again"* — is severed at the first screen, and `source` is lost, so no paying
-customer can be traced to the door that brought them.
+### ~~4. A paid plan meters nothing~~ — done 2026-09-30
 
-Needs: sign-up reads the params, stores `source` on the account, and lands the
-user on `/app?q=…` instead of a cold dashboard.
+`UNLOCKS_ENFORCED = true`. **Flipping the constant was the smallest part of it**,
+and the audit is worth keeping because the previous version of this section said
+the flip was "a decision plus a boolean":
 
-### 4. A paid plan meters nothing
+- **The push would have broken silently.** `/api/integrations` never charged and
+  called `entitled()` with no unlock set, so on the day of the flip every row
+  would have been refused `not_unlocked`, `deliver` would have been handed
+  nothing, and the response would have reported a successful push of zero rows.
+  Charging now lives in `charging.ts`, which the download, the push and the
+  unlock all call.
+- **The gate was decorative.** `/app` rendered the name, phone, email and drafted
+  opener of every match. Gating the download while the screen shows everything is
+  not billing. A locked row now carries *no* identifying field — not blurred,
+  absent, because a field that reached the browser has been given away.
+- **The screen and the file disagreed about which rows existed.** `buildLeads`
+  grouped then filtered; `/api/export` filtered then grouped. `matchedIn` is now
+  the only ordering, and `test_unlock.mjs` reports how far the rejected one
+  differed on each measured market.
 
-`UNLOCKS_ENFORCED = false` in `src/lib/entitlement.ts`. Every rule about what
-to charge is built and tested — bands, the ledger, `charge_for_match`, the
-12-month unlock — and the gate is open, so Free and Agency get identical
-results. **Self-serve billing that changes nothing is not billing.**
-
-Needs: a decision, then the flip. Recommended: `true`, with the free 20 as the
-sample.
+The decision, stated: the count, the reasons, the evidence and the **first three
+matches** are free and need no account. Names and contact details are what a
+credit buys. The free plan's 20 credits are the sample. Every charging surface
+prices itself on the button, before it is pressed.
 
 ### 5. No mail provider
 
@@ -151,8 +162,10 @@ scheduling glue.
 
 ## The honest order
 
-1. **P0.3 sign-up context** — an afternoon, and every door is dead until it is done.
-2. **P0.4 flip the gate** — a decision plus a boolean.
+1. ~~**P0.3 sign-up context**~~ — done 2026-09-30.
+2. ~~**P0.4 flip the gate**~~ — done 2026-09-30. Estimated at "a decision plus a
+   boolean"; it was a day, and the estimate is the finding: the gate had three
+   surfaces and only one of them had ever been wired to the ledger.
 3. **P0.5 mail** — a key, then an hour.
 4. **P1 CSV upload** — the cheapest route to "any market", and it skips P0.2.
 5. **P0.1 worker** — the real engineering.

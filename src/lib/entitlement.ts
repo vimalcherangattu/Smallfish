@@ -27,30 +27,36 @@ import { BILLABLE, type Business, type Criterion, type VerdictKind } from "@/lib
 /**
  * Whether a row must be paid for before it can leave.
  *
- * **It is `false`, and that is a statement about the build rather than a
- * decision about the product.**
+ * **`true` since 2026-09-30.** The ledger had been finished for weeks and had
+ * never been called by a customer action: the app runs on measured static data
+ * and the CSV button built its file in the browser, so every matched row left
+ * for nothing. A paid plan that changes nothing about what you can do is not a
+ * pricing model, it is a pricing page.
  *
- * The ledger is finished. `charge_for_match` holds the row lock, refuses a
- * double charge by primary key, and is append-only by trigger;
- * `pricing.ts` settles the band; `stage0/tests/test_ledger.mjs` and
- * `test_pricing.mjs` cover both. None of it has ever been called by a customer
- * action, because the app runs on measured static data and the CSV button
- * builds its file in the browser. So today **both surfaces hand over matched
- * rows without spending a credit**, and pushing rows to a CRM must not quietly
- * become the one surface that charges — a product where the export is free and
- * the integration is not has no pricing story anybody can say out loud.
+ * ## Flipping the constant was the smallest part of the change
  *
- * What flipping this to `true` requires is small and known: the CSV download
- * moves behind a route that calls `chargeMatch` for each matched row not
- * already unlocked, and the push route does the same. What it *changes* is not
- * small, and is not mine to decide — the free plan is 25 matches and the live
- * demo shows hundreds, so the day this flips, the site's front door behaves
- * differently.
+ * The comment this replaces said the flip was "small and known". It was wrong
+ * in both directions, and the audit that flipped it is worth keeping:
  *
- * Until then the gate is one constant in one file, read by every surface, so
- * that it is wired once when the decision is made rather than three times.
+ *   - **The push route would have broken silently.** `toPushRows` calls
+ *     `entitled()` with no `unlocked` set, so on the day of the flip every row
+ *     would have been refused `not_unlocked` and every HubSpot push would have
+ *     sent zero rows with a cheerful summary. Charging was wired into the
+ *     export route only. It is now in `charging.ts`, which both call.
+ *   - **The gate was decorative.** `/app` rendered the name, phone, email and
+ *     drafted opener of every match. Gating the download while the screen shows
+ *     everything is not billing; it is an inconvenience with a price on it. The
+ *     screen withholds the same rows the file does — see `unlock.ts`.
+ *   - **The screen and the file disagreed about which rows there were.** Two
+ *     orderings, both plausible, invisible while nothing was charged. `matchedIn`
+ *     is now the only one.
+ *
+ * What it changes about the product is deliberate: the count, the reasons and
+ * the first three matches stay free and need no account, because a claim nobody
+ * can check is worth nothing. Names and contact details are what a credit buys.
+ * The free plan's 20 credits are the sample.
  */
-export const UNLOCKS_ENFORCED = false;
+export const UNLOCKS_ENFORCED = true;
 
 export type RefusalCode =
   | "not_matched"

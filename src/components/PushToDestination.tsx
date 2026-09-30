@@ -24,9 +24,14 @@ type Destination = { id: string; kind: string; name: string; secret_hint: string
 export default function PushToDestination({
   market,
   criterion,
+  cost = 0,
 }: {
   market: string;
   criterion: string;
+  /** Credits this push will spend on rows the workspace does not already hold.
+   *  On the button, before it is pressed — a push is a charging surface exactly
+   *  as the download is, and it was not one until P0.4. */
+  cost?: number;
 }) {
   const [destinations, setDestinations] = useState<Destination[] | null>(null);
   const [chosen, setChosen] = useState("");
@@ -65,7 +70,14 @@ export default function PushToDestination({
       });
       const body = await res.json();
       setFailed(!body.ok);
-      setResult(body.ok ? body.summary : (body.error ?? body.reason ?? "That did not go."));
+      // What landed, and what it cost, in that order. A push that quietly spent
+      // forty credits is the complaint this line exists to prevent — the route
+      // returns `charged` for exactly this.
+      setResult(
+        body.ok
+          ? [body.summary, body.charged].filter(Boolean).join(" ")
+          : (body.error ?? body.reason ?? "That did not go."),
+      );
     } catch {
       setFailed(true);
       setResult("Could not reach the server. Nothing was sent.");
@@ -92,7 +104,11 @@ export default function PushToDestination({
           disabled={busy || !chosen}
           className="rounded-md border border-[var(--line)] px-2.5 py-1 text-[11px] font-medium hover:bg-[var(--accent-soft)] disabled:opacity-40"
         >
-          {busy ? "Sending…" : "Push matches with proof"}
+          {busy
+            ? "Sending…"
+            : cost > 0
+              ? `Push with proof · ${cost} credit${cost === 1 ? "" : "s"}`
+              : "Push matches with proof"}
         </button>
       </div>
       {result && (

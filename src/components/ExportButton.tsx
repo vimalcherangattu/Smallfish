@@ -28,6 +28,7 @@ export default function ExportButton({
   criterion,
   rows,
   withheld,
+  cost = 0,
   variant = "inline",
 }: {
   market: string;
@@ -36,6 +37,19 @@ export default function ExportButton({
    *  file; this is only what the button promises. */
   rows: number;
   withheld: number;
+  /**
+   * Credits this download will spend, for rows the workspace does not already
+   * hold. **The button says it before it is pressed.**
+   *
+   * Downloading is a charging surface — it always was, and `entitlement.ts` now
+   * enforces it. A button labelled "Download all 42" that quietly spends 39
+   * credits is the charge somebody finds on their statement, which is exactly
+   * what the note-afterwards was meant to prevent and cannot: by the time the
+   * note appears, the money is gone. A price on the button costs one extra word
+   * and removes the surprise, and it keeps the list one click from the file
+   * rather than making people unlock first.
+   */
+  cost?: number;
   /**
    * `inline` is the original: a strip inside the map panel, 11px, with the
    * unlocked/withheld tally beside it. `primary` is the one on the results
@@ -98,14 +112,18 @@ export default function ExportButton({
     return (
       <div className="text-right">
         <button onClick={run} disabled={busy || !rows} className="sf-btn-lure disabled:opacity-40">
-          {busy ? "Preparing…" : `Download all ${rows}`}
+          {busy
+            ? "Preparing…"
+            : cost > 0
+              ? `Download all ${rows} · ${cost} credit${cost === 1 ? "" : "s"}`
+              : `Download all ${rows}`}
         </button>
         {note && (
           <p className="sf-small mt-2 max-w-[38ch] text-[var(--muted)]">
             {note}{" "}
             {signIn && (
               <a href={signIn} className="underline underline-offset-2">
-                Sign in
+                Sign up free
               </a>
             )}
           </p>
@@ -143,7 +161,7 @@ export default function ExportButton({
           {note}{" "}
           {signIn && (
             <a href={signIn} className="underline underline-offset-2">
-              Sign in
+              Sign up free
             </a>
           )}
         </p>

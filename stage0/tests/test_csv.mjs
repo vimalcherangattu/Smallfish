@@ -19,8 +19,27 @@ const { dir, load } = compileLib(
    "src/lib/signals.ts", "src/lib/types.ts"],
   "sfcsv-",
 );
-const { toCsv, whyItMatched, overallVerdict, nonMatchSummary, summaryToCsv } =
+const { toCsv: rawCsv, whyItMatched, overallVerdict, nonMatchSummary, summaryToCsv } =
   await load("csv");
+
+/**
+ * Every business handed to `toCsv` here is treated as paid for.
+ *
+ * `UNLOCKS_ENFORCED` went true on 2026-09-30 (P0.4), and nine assertions in this
+ * file went red at once — every one of them because the gate refused a row the
+ * test had not paid for, not because the rule it was measuring had changed.
+ *
+ * The gate is a real rule and it has its own file, `test_unlock.mjs`, which
+ * measures nothing else. This file measures the other three things the export
+ * promises — correct escaping, only matched rows, and no invented outreach —
+ * and each of them has to be measurable on a row that *is* unlocked, or the
+ * only thing being tested is the paywall.
+ */
+const toCsv = (businesses, criteria, before = {}, ent = {}) =>
+  rawCsv(businesses, criteria, before, {
+    unlocked: new Set(businesses.map((b) => b.id)),
+    ...ent,
+  });
 
 const criteria = [
   { id: "no_book", type: "absence", text: "has no online booking",

@@ -1,7 +1,10 @@
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
+import { accountForUser, balanceOf, isComped, unlockedIds } from "@/lib/accounts";
+import { CLERK_ENABLED } from "@/lib/clerk";
 import LeadList from "@/components/LeadList";
 import RecordRun from "@/components/RecordRun";
 import QueueRead from "@/components/QueueRead";
@@ -44,6 +47,32 @@ import type { Market, MarketIndex } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Find businesses — Small Fish" };
+
+/**
+ * The workspace's credits and unlocks, or the signed-out equivalent.
+ *
+ * Every failure mode lands on the same answer: not signed in, nothing unlocked,
+ * no balance. That is the safe direction — the page withholds — and it is the
+ * only way this screen survives a deployment without accounts, which is how it
+ * runs locally and in every test.
+ */
+async function walletFor(businessIds: string[]) {
+  const none = { signedIn: false, unlocked: new Set<string>(), balance: 0, comped: false };
+  if (!CLERK_ENABLED) return none;
+  try {
+    const { userId } = await auth();
+    if (!userId) return none;
+    const account = await accountForUser(userId);
+    if (!account) return { ...none, signedIn: true };
+    const [unlocked, balance] = await Promise.all([
+      unlockedIds(account.id, businessIds),
+      balanceOf(account.id),
+    ]);
+    return { signedIn: true, unlocked, balance, comped: isComped(account) };
+  } catch {
+    return none;
+  }
+}
 
 async function json<T>(name: string): Promise<T | null> {
   try {
@@ -97,6 +126,7 @@ export default async function App({
   const hit = query ? marketFor(index, split.what, split.where) : null;
 
   let result = null;
+  let wallet = { signedIn: false, balance: 0, comped: false };
   if (hit) {
     const [market, contacts, sup] = await Promise.all([
       json<Market>(`${hit.market.id}.json`),
@@ -107,12 +137,22 @@ export default async function App({
       ).catch(() => ({ ids: new Set<string>(), whyDegraded: null })),
     ]);
     if (market) {
+      // What this workspace has already paid for.
+      //
+      // **Nothing here may fail the page.** A signed-out visitor, a deployment
+      // with no Clerk, a database that is briefly unreachable — all three end up
+      // at "nothing unlocked", which withholds rather than reveals and still
+      // shows the count, the evidence and the free preview. The alternative is a
+      // 500 on the one screen the product is.
+      const w = await walletFor(market.businesses.map((b) => b.id));
+      wallet = { signedIn: w.signedIn, balance: w.balance, comped: w.comped };
       result = buildLeads({
         query,
         index,
         market,
         contacts: (contacts?.contacts ?? {}) as Contacts,
         suppressed: sup.ids,
+        unlocked: w.unlocked,
       });
     }
   }
@@ -141,7 +181,7 @@ export default async function App({
       {/* ------------------------------------------------------- the answer -- */}
       {result && result.leads.length > 0 && (
         <>
-          <LeadList result={result} />
+          <LeadList result={result} wallet={wallet} />
           {/* Kept beside the results, never in front of them: the history write
               must not be able to delay or break what the person came for. */}
           <RecordRun market={result.marketId} criterion={result.criterionId} />

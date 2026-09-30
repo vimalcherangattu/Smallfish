@@ -44,10 +44,14 @@ const { dir, load } = compileLib(
     "src/lib/suppression.ts",
     "src/lib/signals.ts",
     "src/lib/types.ts",
+    "src/lib/unlock.ts",
+    "src/lib/entitlement.ts",
+    "src/lib/pricing.ts",
   ],
   "sfl-",
 );
 const L = await load("leads");
+const U = await load("unlock");
 
 let failures = 0;
 const check = (name, cond, detail = "") => {
@@ -78,12 +82,22 @@ for (const c of CASES) {
     contacts = {};
   }
 
+  // The list a paying customer sees: everything unlocked.
+  //
+  // The paywall went on in P0.4, so the default list withholds all but the free
+  // preview and the assertions below — every lead has a contact, most carry a
+  // draft — would be measuring the paywall instead of the product. Those are the
+  // same properties a customer's list has to have *after* they pay, which is the
+  // list this builds. What the paywall does is measured in `test_unlock.mjs` and
+  // in the locked-row checks at the bottom of this file.
+  const everything = new Set(market.businesses.map((b) => b.id));
   const r = L.buildLeads({
     query: c.q,
     index,
     market,
     contacts,
     suppressed: new Set(),
+    unlocked: everything,
   });
 
   check(`"${c.q}" returns a list`, !!r && r.leads.length > 0, `${r?.leads.length ?? 0} leads`);
@@ -132,6 +146,31 @@ for (const c of CASES) {
       !drafts.some((d) => d.includes(phrase)),
     );
   }
+
+  // Four of the signal catalogue's labels carry an indefinite article, and the
+  // draft supplies its own negative. Every HVAC Tampa opener went out reading
+  // "There's no a way to request a quote online" — on the personal door, which
+  // is the one page whose entire argument is that we do not make things up.
+  const doubled = drafts.filter((d) => /\bno an? \b/i.test(d));
+  check(
+    `  ${c.file}: no draft doubles the article after "no"`,
+    doubled.length === 0,
+    doubled[0]?.match(/.{0,30}\bno an? \b.{0,30}/i)?.[0],
+  );
+
+  // The same shape, one word over: a draft is a sentence a person sends, so a
+  // double space or a repeated word is a tell. Tested line by line — the drafts
+  // are deliberately separated by blank lines, and the first version of this
+  // check read `\s{2}` across the whole string and so failed on every paragraph
+  // break in the product.
+  const ungrammatical = drafts.filter((d) =>
+    d.split("\n").some((line) => / {2}| an? an? |\b(\w+) \1\b/i.test(line)),
+  );
+  check(
+    `  ${c.file}: and no draft repeats a word or doubles a space`,
+    ungrammatical.length === 0,
+    ungrammatical[0]?.slice(0, 80),
+  );
 
   // Variation has to come from evidence. Comparing the tail after the domain,
   // because the domain differing is not a different message.
@@ -215,6 +254,7 @@ for (const c of CASES) {
     market,
     contacts: {},
     suppressed: new Set(),
+    unlocked: new Set(market.businesses.map((b) => b.id)),
   });
   const csv = L.leadsToCsv(r);
   const lines = csv.split("\r\n");
@@ -223,6 +263,107 @@ for (const c of CASES) {
   check(
     "and carries the message the screen showed",
     r.leads[0].message ? csv.includes(r.leads[0].message.slice(0, 40)) : true,
+  );
+}
+
+/* ---------------------------------------------------------------------------
+ * The paywall, on the real market (P0.4).
+ *
+ * `UNLOCKS_ENFORCED` is true, and the thing it has to be true *of* is the
+ * screen, not just the download. Gating the CSV while `/app` renders every name,
+ * phone, email and drafted opener is not billing; it is an inconvenience with a
+ * price on it, and it is what this product shipped with for weeks.
+ *
+ * So these assert the one property that makes the gate real: **a locked row
+ * contains nothing that identifies the business.** Not hidden with CSS, not
+ * blurred — absent, because a field that reached the browser has been given
+ * away whatever it looks like.
+ * ------------------------------------------------------------------------- */
+{
+  const market = data("dental-phoenix.json");
+  const contacts = data("contacts-dental-phoenix.json").contacts ?? {};
+  const build = (unlocked) =>
+    L.buildLeads({
+      query: CASES[0].q,
+      index,
+      market,
+      contacts,
+      suppressed: new Set(),
+      unlocked,
+    });
+
+  const cold = build(new Set());
+  const open = cold.leads.filter((l) => !l.locked);
+  check(
+    "a visitor who has paid nothing sees exactly the free preview in full",
+    open.length === cold.preview && cold.preview === U.FREE_PREVIEW,
+    `${open.length} open, preview ${cold.preview}`,
+  );
+  check(
+    "and the rest are on the page as locked rows, not silently dropped",
+    cold.leads.length > open.length && cold.locked === cold.leads.length - open.length,
+    `${cold.leads.length} rows, ${cold.locked} locked`,
+  );
+
+  // The identity leak, field by field. Every one of these shipped to the browser
+  // before P0.4.
+  const locked = cold.leads.filter((l) => l.locked);
+  const leaks = { name: [], site: [], domain: [], phone: [], email: [], message: [], proof: [], id: [] };
+  const realIds = new Set(market.businesses.map((b) => b.id));
+  for (const l of locked) {
+    if (l.name) leaks.name.push(l.name);
+    if (l.site) leaks.site.push(l.site);
+    if (l.domain) leaks.domain.push(l.domain);
+    if (l.phone) leaks.phone.push(l.phone);
+    if (l.email) leaks.email.push(l.email);
+    if (l.message) leaks.message.push(l.message);
+    if (l.proof) leaks.proof.push(l.proof);
+    if (realIds.has(l.id)) leaks.id.push(l.id);
+  }
+  for (const [field, found] of Object.entries(leaks)) {
+    check(
+      `  a locked row carries no ${field}`,
+      found.length === 0,
+      `${found.length} of ${locked.length}, e.g. ${String(found[0]).slice(0, 48)}`,
+    );
+  }
+
+  // The masked reason has to stay useful, or the locked row is a blank line with
+  // a price on it and nobody can judge whether the rest is worth buying.
+  check(
+    "a locked row still says why it matched, and how much was read",
+    locked.every((l) => /page/.test(l.why) && l.why.length > 20),
+    locked[0]?.why,
+  );
+  check(
+    "and says what unlocking would hand over",
+    locked.some((l) => l.has.phone) && locked.some((l) => l.has.message),
+  );
+
+  // Paying for three particular rows reveals those three and no others.
+  const ids = U.matchedIn(market, [market.criteria.find((c) => c.id === cold.criterionId)], new Set())
+    .slice(U.FREE_PREVIEW, U.FREE_PREVIEW + 3)
+    .map((b) => b.id);
+  const paid = build(new Set(ids));
+  const revealed = paid.leads.filter((l) => !l.locked).map((l) => l.id);
+  check(
+    "unlocking three rows reveals exactly those three, on top of the preview",
+    revealed.length === U.FREE_PREVIEW + 3 && ids.every((id) => revealed.includes(id)),
+    `${revealed.length} open`,
+  );
+  check(
+    "and the price per match is the band this market delivered, not a quote",
+    paid.creditsEach >= 1 && paid.creditsEach <= 3,
+    `${paid.creditsEach} credits`,
+  );
+
+  // The CSV is built from the same rows, so a locked row must not become a line
+  // of empty commas in a file somebody is about to send to a client.
+  const coldCsv = L.leadsToCsv(cold).split("\r\n");
+  check(
+    "locked rows are absent from the CSV rather than blank in it",
+    coldCsv.length === open.length + 1,
+    `${coldCsv.length - 1} rows for ${open.length} unlocked`,
   );
 }
 

@@ -11,8 +11,10 @@ import {
   pushedThenSuppressed,
   recordPush,
 } from "@/lib/accounts";
+import { chargeLeads } from "@/lib/charging";
 import { CLERK_ENABLED } from "@/lib/clerk";
 import { suppressedIds } from "@/lib/db";
+import { matchedIn } from "@/lib/unlock";
 import {
   deliver,
   encryptionConfigured,
@@ -87,7 +89,10 @@ async function workspace() {
       ),
     };
   }
-  return { accountId: account.id };
+  // The row, not just its id: `chargeLeads` needs `comped_until` to say whether
+  // a push cost anything, and a second fetch to learn that would be a second
+  // chance to get it wrong.
+  return { accountId: account.id, account };
 }
 
 /**
@@ -344,8 +349,44 @@ export async function PUT(request: Request) {
     if (contact?.email) published[b.id] = contact.email;
   }
 
-  const { rows, refused: gateRefused } = toPushRows(market.businesses, criteria, {
-    ent: { suppressed },
+  /**
+   * A push spends credits, exactly as a download does.
+   *
+   * **It did not, and that was the bug that would have shipped with P0.4.** This
+   * route called `toPushRows` with no `unlocked` set, which was harmless while
+   * `UNLOCKS_ENFORCED` was false and catastrophic the moment it was true:
+   * `entitled()` would have refused every row `not_unlocked`, `deliver` would
+   * have been handed nothing, and the response would have reported a successful
+   * push of zero rows. The charge and the gate now come from the same place —
+   * a product where the export is paid and the integration is free has no
+   * pricing story anybody can say out loud, and one where the integration
+   * silently sends nothing has no product.
+   *
+   * The charge happens before the delivery, and that is deliberate: an unlock is
+   * permanent, so a push that then fails at HubSpot's end can be retried for
+   * nothing. Delivering first and charging after would mean a row that landed in
+   * a CRM and was never billed, which is the direction that cannot be undone.
+   */
+  const matched = matchedIn(market, criteria, suppressed);
+  let charge;
+  try {
+    charge = await chargeLeads({
+      account: w.account!,
+      market,
+      criteria,
+      rows: matched,
+      suppressed,
+    });
+  } catch (err) {
+    if (err instanceof NotConfigured) {
+      return Response.json({ ok: false, reason: err.message }, { status: 503 });
+    }
+    throw err;
+  }
+  const unlocked = new Set(charge.paid.map((b) => b.id));
+
+  const { rows, refused: gateRefused } = toPushRows(matched, criteria, {
+    ent: { suppressed, unlocked },
     emails: published,
   });
   const { ready, refused: destRefused } = prepare(kind, rows);
@@ -355,6 +396,8 @@ export async function PUT(request: Request) {
     return Response.json({
       ok: true,
       sent: 0,
+      charged: charge.note,
+      balance: charge.balance,
       summary: pushSummary({ destination: spec, sent: 0, refused }),
       refused: refused.length,
     });
@@ -413,6 +456,10 @@ export async function PUT(request: Request) {
     sent: result.sent,
     error: result.error,
     refused: refused.length,
+    // What it cost, in the same sentence the download uses. A push that quietly
+    // spent forty credits is the complaint this line exists to prevent.
+    charged: charge.note,
+    balance: charge.balance,
     summary: pushSummary({ destination: spec, sent: result.sent, refused }),
   });
 }

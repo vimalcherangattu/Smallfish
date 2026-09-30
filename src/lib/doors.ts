@@ -146,6 +146,19 @@ export async function doorFor(args: {
     contacts: contactsFile?.contacts ?? {},
     suppressed: new Set(),
     limit: 500,
+    // Nothing on this page is behind the paywall, and that is the page.
+    //
+    // `buildLeads` withholds the identity of every match past the free preview,
+    // because on the results screen the name and the number are what a credit
+    // buys. This is not the results screen. It is the page a cold email opens,
+    // and its entire argument is *here are three of your prospects, by name,
+    // with the sentence off their own site* — a stranger checking whether we
+    // make things up cannot check three blanks.
+    //
+    // It costs nothing to give away: the four guards below drop it to three
+    // rows, chosen from the whole market rather than from whichever three came
+    // first, and a visitor who wants the other 39 still has to sign up.
+    preview: Number.MAX_SAFE_INTEGER,
   });
   const leads = result?.leads ?? [];
 

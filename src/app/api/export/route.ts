@@ -2,22 +2,14 @@ import { auth } from "@clerk/nextjs/server";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import {
-  accountForUser,
-  balanceOf,
-  chargeMatch,
-  isComped,
-  NotConfigured,
-  recordRun,
-} from "@/lib/accounts";
+import { accountForUser, NotConfigured, recordRun } from "@/lib/accounts";
+import { chargeLeads } from "@/lib/charging";
 import { CLERK_ENABLED } from "@/lib/clerk";
 import { suppressedIds } from "@/lib/db";
-import { groupForBilling } from "@/lib/billing";
 import { toCsv } from "@/lib/csv";
-import { overallVerdict, UNLOCKS_ENFORCED } from "@/lib/entitlement";
-import { credits, MILLI } from "@/lib/ledger";
-import { bandFor } from "@/lib/pricing";
-import { BILLABLE, type Market, type VerdictKind } from "@/lib/types";
+import { UNLOCKS_ENFORCED } from "@/lib/entitlement";
+import { bandForMarket, matchedIn } from "@/lib/unlock";
+import type { Market } from "@/lib/types";
 
 /**
  * The export, with the charge attached (S1-06 × S1-08).
@@ -96,11 +88,16 @@ export async function POST(request: Request) {
     path.join(process.cwd(), "public", "data"),
   );
 
-  // Matched, not suppressed, one row per business.
-  const matched = market.businesses.filter(
-    (b) => BILLABLE[overallVerdict(b, criteria)] && !suppressed.has(b.id),
-  );
-  const leads = groupForBilling(matched).map((g) => g.lead);
+  // Matched, not suppressed, one row per business — by `matchedIn`, which is the
+  // same function the screen uses.
+  //
+  // This route used to filter to matches and *then* group. The screen grouped
+  // and then filtered. Those are different sets, because `groupForBilling`
+  // chooses a group's representative by evidence and filtering first removes
+  // most of what it would have chosen from. It never mattered while the file was
+  // free. It matters the moment a credit is spent, because the rows on the
+  // invoice have to be the rows the customer was looking at.
+  const leads = matchedIn(market, criteria, suppressed);
 
   // ---------------------------------------------------------- the free path --
   //
@@ -137,9 +134,13 @@ export async function POST(request: Request) {
       {
         ok: false,
         reason:
-          "Sign in to take the rows. The count and the three example matches are " +
-          "free and need no account; names and contact details are what a credit buys.",
-        signIn: "/sign-in",
+          "Sign up to take the rows. The count, the evidence and the first three " +
+          "matches are free and need no account; names and contact details are " +
+          "what a credit buys, and the free plan covers twenty of them.",
+        // Sign **up**, not sign in. A visitor who has reached the download
+        // button on their first list does not have an account to sign in to,
+        // and sign-up is the CTA everywhere else in the product.
+        signIn: "/sign-up",
       },
       { status: 401 },
     );
@@ -159,72 +160,35 @@ export async function POST(request: Request) {
       );
     }
 
-    // The band this market earns, from what was actually delivered. There is no
-    // separate quote to honour here: the confirm screen quotes a band before a
-    // scan, and this is an export of a market already read, so the delivered
-    // rate is the whole story. `settleBand` inside `chargeMatch` takes the
-    // cheaper of the two, so passing the delivered band cannot overcharge.
-    const judged = market.businesses.filter((b) => {
-      const v = overallVerdict(b, criteria) as VerdictKind;
-      return v !== "unread" && v !== "needs_model";
-    }).length;
-    const deliveredRate = judged > 0 ? matched.length / judged : 0;
-    const band = bandFor(deliveredRate).credits;
+    // One charging loop for every surface — see `charging.ts`. The band it
+    // settles is the delivered one, and `settleBand` inside `chargeMatch` takes
+    // the cheaper of that and any quote, so this cannot overcharge.
+    const charge = await chargeLeads({
+      account,
+      market,
+      criteria,
+      rows: leads,
+      suppressed,
+    });
 
-    const paid: typeof leads = [];
-    let unpaid = 0;
-    let milliSpent = 0;
-
-    // Sequential on purpose. Each charge takes a row lock on the account, so
-    // firing forty of them at once would serialise in the database anyway while
-    // holding forty connections to do it.
-    for (const b of leads) {
-      const result = await chargeMatch({
-        accountId: account.id,
-        businessId: b.id,
-        quotedBandCredits: band,
-        deliveredRate,
-      });
-      if (result.charged) {
-        paid.push(b);
-        milliSpent += result.milli;
-      } else if (result.reason === "Already unlocked by this workspace.") {
-        // Paid for before, inside the twelve-month window. Free, and included.
-        paid.push(b);
-      } else {
-        unpaid += 1;
-      }
-    }
-
-    if (paid.length > 0) {
+    if (charge.paid.length > 0) {
       await recordRun({
         accountId: account.id,
         marketId,
         criterionId: criteria[0].id,
-        matched: matched.length,
-        judged,
+        matched: leads.length,
+        judged: bandForMarket(market, criteria, suppressed).judged,
       }).catch(() => undefined);
     }
-
-    const left = await balanceOf(account.id).catch(() => 0);
-    const comped = isComped(account);
 
     return csvResponse({
       market,
       criteria,
-      rows: paid,
-      charged: paid.length,
-      unpaid,
-      milliSpent,
-      note:
-        unpaid > 0
-          ? `${paid.length} of ${leads.length} rows are in the file. The other ` +
-            `${unpaid} need ${((unpaid * band * MILLI) / MILLI).toFixed(0)} more ` +
-            `credits — you have ${credits(left)} left. Nothing was charged for them.`
-          : comped
-            ? `${paid.length} rows. This workspace is comped, so they cost nothing — ` +
-              `the ledger records what they would have cost.`
-            : `${paid.length} rows, ${credits(milliSpent)} credits. ${credits(left)} left.`,
+      rows: charge.paid,
+      charged: charge.paid.length,
+      unpaid: charge.unpaid,
+      milliSpent: charge.milliSpent,
+      note: charge.note,
     });
   } catch (err) {
     if (err instanceof NotConfigured) {

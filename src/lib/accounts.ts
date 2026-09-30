@@ -138,6 +138,40 @@ export async function ledgerOf(accountId: string, limit = 100): Promise<Entry[]>
   }));
 }
 
+/**
+ * Which of these businesses this workspace has already paid for.
+ *
+ * Asked per screen, so it is asked about the forty rows on the page rather than
+ * the whole table — a workspace that has been running for a year holds thousands
+ * of unlocks and the page needs to know about the ones in front of it.
+ *
+ * Chunked because the filter travels in the URL. 200 ids is comfortably inside
+ * every proxy's line limit and turns a forty-row screen into one request.
+ *
+ * **Never fails the page.** A screen that cannot reach the database should show
+ * the free preview and say nothing is unlocked, not a 500 — the caller treats an
+ * empty set as "nothing paid for yet", which is the safe direction: it withholds
+ * rather than reveals.
+ */
+export async function unlockedIds(
+  accountId: string,
+  businessIds: readonly string[],
+): Promise<Set<string>> {
+  const out = new Set<string>();
+  const ids = [...new Set(businessIds)];
+  for (let i = 0; i < ids.length; i += 200) {
+    const slice = ids.slice(i, i + 200);
+    const list = slice.map((id) => `"${id.replace(/"/g, '""')}"`).join(",");
+    const rows =
+      (await rest<Array<{ business_id: string }> | null>(
+        `unlocks?account_id=eq.${accountId}&business_id=in.(${encodeURIComponent(list)})` +
+          `&select=business_id`,
+      )) ?? [];
+    for (const r of rows) out.add(r.business_id);
+  }
+  return out;
+}
+
 // ---------------------------------------------------------------- writing --
 
 /**

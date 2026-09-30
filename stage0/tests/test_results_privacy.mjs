@@ -20,7 +20,16 @@ const { dir, load } = compileLib(
    "src/lib/signals.ts", "src/lib/types.ts"],
   "sfpriv-",
 );
-const { overallVerdict, nonMatchSummary, toCsv } = await load("csv");
+const { overallVerdict, nonMatchSummary, toCsv: rawCsv } = await load("csv");
+
+/** Paid for, so that what is measured here is whether a *non-match* can leak —
+ *  which is this file's whole subject — rather than whether the paywall is on.
+ *  The paywall is `test_unlock.mjs`. See the same note in `test_csv.mjs`. */
+const toCsv = (businesses, criteria, before = {}, ent = {}) =>
+  rawCsv(businesses, criteria, before, {
+    unlocked: new Set(businesses.map((b) => b.id)),
+    ...ent,
+  });
 const { BILLABLE } = await load("types");
 
 let failures = 0;

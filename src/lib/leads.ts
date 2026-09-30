@@ -3,6 +3,7 @@ import { outreachFor } from "@/lib/outreach";
 import { splitQuery } from "@/lib/query";
 import { signalForCriterion } from "@/lib/signals";
 import { applySuppression } from "@/lib/suppression";
+import { bandForMarket, FREE_PREVIEW, matchedIn, visibleIds } from "@/lib/unlock";
 import type { Business, Criterion, Market, MarketIndex } from "@/lib/types";
 
 /**
@@ -47,6 +48,14 @@ export interface Lead {
   /** The sentence off their own site, for the row that wants to be checked. */
   proof: string | null;
   pagesRead: number;
+  /**
+   * True when this row has not been paid for, in which case **every field above
+   * that could identify the business is null or masked** — see `unlock.ts`.
+   * `has` says what unlocking would reveal, which is the honest way to price a
+   * row without giving it away.
+   */
+  locked: boolean;
+  has: { phone: boolean; email: boolean; message: boolean };
 }
 
 export interface LeadResult {
@@ -76,6 +85,14 @@ export interface LeadResult {
   read: number;
   /** Businesses with a website in this market, read or not. */
   found: number;
+  /** Rows on this page whose identity is withheld until they are paid for. */
+  locked: number;
+  /** Rows this workspace already holds, free to show again for twelve months. */
+  owned: number;
+  /** Credits per match on this market — the delivered band, never a quote. */
+  creditsEach: number;
+  /** Matched rows shown in full before anything is paid for. */
+  preview: number;
 }
 
 const NICHE_WORDS: Record<string, RegExp> = {
@@ -170,6 +187,27 @@ function plainWhy(c: Criterion, b: Business): string {
   return `${where} shows ${c.text.replace(/^has /i, "")}.`;
 }
 
+/**
+ * The same sentence with the business taken out of it.
+ *
+ * `plainWhy` names the domain — "No online booking anywhere on the 3 pages of
+ * brightsmiledental.com we read" — which is the whole identity of the row. A
+ * locked row says the true thing without it. The page count stays: it is what
+ * makes the claim checkable in shape, and it names nobody.
+ */
+function maskedWhy(c: Criterion, b: Business): string {
+  const pages = b.read?.pages ?? 0;
+  const read = `${pages} page${pages === 1 ? "" : "s"} read`;
+  if (c.type === "absence") {
+    const thing = c.text
+      .replace(/^has no /i, "")
+      .replace(/^is not /i, "")
+      .replace(/^does not /i, "");
+    return `No ${thing} anywhere on their site. ${read}.`;
+  }
+  return `Their site shows ${c.text.replace(/^has /i, "")}. ${read}.`;
+}
+
 /** US numbers, as a person writes them. Overture stores `+16027773777` and
  *  scraped ones arrive already formatted, so both shapes have to survive. */
 export function prettyPhone(raw: string | null): string | null {
@@ -222,9 +260,16 @@ export function composeMessage(b: Business, criterion: Criterion): string | null
 
   const where = host(b.site) ?? "your site";
   const signal = signalForCriterion(criterion.text);
-  const thing =
+  // The article has to come off. Four of the catalogue's labels carry one — "a
+  // way to request a quote online", "a contact form" — and the sentence below
+  // supplies its own negative, so the draft that went out on every HVAC Tampa
+  // door read *"There's no a way to request a quote online"*. The label is
+  // written to stand alone ("we look for a contact form"); here it is the object
+  // of "no", and "no" already does the work of the article.
+  const thing = (
     signal?.label ??
-    criterion.text.replace(/^has no /i, "").replace(/^is not /i, "").replace(/^does not /i, "");
+    criterion.text.replace(/^has no /i, "").replace(/^is not /i, "").replace(/^does not /i, "")
+  ).replace(/^an? /i, "");
 
   // 1. What is true of their site, said the way the recipient would say it.
   //
@@ -273,6 +318,8 @@ export function buildLeads({
   market,
   contacts,
   suppressed,
+  unlocked = new Set<string>(),
+  preview = FREE_PREVIEW,
   limit = 200,
 }: {
   query: string;
@@ -280,6 +327,9 @@ export function buildLeads({
   market: Market;
   contacts: Contacts;
   suppressed: Set<string>;
+  /** Businesses this workspace has paid for. Empty for a signed-out visitor. */
+  unlocked?: ReadonlySet<string>;
+  preview?: number;
   limit?: number;
 }): LeadResult | null {
   const split = splitQuery(query);
@@ -299,33 +349,68 @@ export function buildLeads({
 
   const verdictOf = (b: Business) => b.verdicts[criterion.id]?.verdict ?? "unread";
 
-  const matched = all.filter((b) => verdictOf(b) === "match");
+  // `matchedIn`, not a filter written here. The screen, the CSV, the push and
+  // the unlock all have to agree on which rows exist and in what order, because
+  // the rows on the invoice are the rows on the screen. See `unlock.ts`.
+  const matched = matchedIn(market, [criterion], suppressed);
   const unclear = all.filter((b) => {
     const v = verdictOf(b);
     return v === "couldnt_tell" || v === "blocked";
   }).length;
   const didNotFit = all.filter((b) => verdictOf(b) === "no_match").length;
 
-  const leads: Lead[] = matched.slice(0, limit).map((b) => {
+  const page = matched.slice(0, limit);
+  const visible = visibleIds(matched, unlocked, preview);
+
+  const leads: Lead[] = page.map((b, i) => {
     const c = contacts[b.id] ?? {};
     const usable = !c.withheld;
     const o = outreachFor(b, market.criteria);
+    // The business's own listed number is the one that is always there; a
+    // number scraped off the site is better when we have it.
+    const phone = prettyPhone((usable ? firstValue(c.phones) : null) ?? b.phone ?? null);
+    const email = (usable ? firstValue(c.emails) : null) ?? null;
+    // `outreachFor` holds the veto; this writes the sentence. A draft is only
+    // produced when it would have produced one.
+    const message = o.withheld ? null : composeMessage(b, criterion);
+    const has = { phone: !!phone, email: !!email, message: !!message };
+
+    // A row nobody has paid for. Everything that could name the business is
+    // dropped here rather than hidden by the component — a field that reaches
+    // the browser has been given away, whatever the CSS says about it. The id
+    // goes too: it is an Overture GERS id, which resolves to the business.
+    if (!visible.has(b.id)) {
+      return {
+        id: `locked-${i}`,
+        name: "",
+        why: maskedWhy(criterion, b),
+        site: null,
+        domain: null,
+        phone: null,
+        email: null,
+        contactPage: null,
+        message: null,
+        proof: null,
+        pagesRead: b.read?.pages ?? 0,
+        locked: true,
+        has,
+      };
+    }
+
     return {
       id: b.id,
       name: b.name,
       why: plainWhy(criterion, b),
       site: b.site,
       domain: host(b.site),
-      // The business's own listed number is the one that is always there; a
-      // number scraped off the site is better when we have it.
-      phone: prettyPhone((usable ? firstValue(c.phones) : null) ?? b.phone ?? null),
-      email: (usable ? firstValue(c.emails) : null) ?? null,
+      phone,
+      email,
       contactPage: (usable ? c.contactPage : null) ?? null,
-      // `outreachFor` holds the veto; this writes the sentence. A draft is only
-      // produced when it would have produced one.
-      message: o.withheld ? null : composeMessage(b, criterion),
+      message,
       proof: b.verdicts[criterion.id]?.proof ?? b.verdicts[criterion.id]?.reason ?? null,
       pagesRead: b.read?.pages ?? 0,
+      locked: false,
+      has,
     };
   });
 
@@ -342,6 +427,10 @@ export function buildLeads({
     didNotFit,
     read: market.counts?.read ?? 0,
     found: all.length,
+    locked: leads.filter((l) => l.locked).length,
+    owned: page.filter((b) => unlocked.has(b.id)).length,
+    creditsEach: bandForMarket(market, [criterion], suppressed).credits,
+    preview,
   };
 }
 
@@ -350,8 +439,11 @@ export function buildLeads({
 export function leadsToCsv(r: LeadResult): string {
   const esc = (s: string | null) => `"${(s ?? "").replace(/"/g, '""')}"`;
   const head = ["Business", "Why it fits", "Phone", "Email", "Website", "Message"];
-  const rows = r.leads.map((l) =>
-    [l.name, l.why, l.phone, l.email, l.site, l.message].map(esc).join(","),
-  );
+  // Locked rows carry no identity at all, so writing them out would be a file of
+  // blank lines with a page count on them. They are not in the file for the same
+  // reason they are not on the screen.
+  const rows = r.leads
+    .filter((l) => !l.locked)
+    .map((l) => [l.name, l.why, l.phone, l.email, l.site, l.message].map(esc).join(","));
   return [head.join(","), ...rows].join("\r\n");
 }

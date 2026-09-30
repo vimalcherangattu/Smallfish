@@ -44,7 +44,29 @@ const { dir, load } = compileLib(
   "sfint-",
 );
 
-const I = await load("integrations");
+const loaded = await load("integrations");
+
+/**
+ * Every business handed to `toPushRows` here is treated as paid for.
+ *
+ * `UNLOCKS_ENFORCED` went true on 2026-09-30 (P0.4) and twelve assertions in
+ * this file went red at once, all for the same reason: the push gate refused
+ * rows the test had not paid for. That refusal is correct and is measured in
+ * `test_unlock.mjs`. What this file measures is the *other* half — that a
+ * non-match never becomes a push row, that branches on one domain collapse, and
+ * that Instantly and Smartlead refuse a row with no address or no opener rather
+ * than guessing — and none of it is measurable on a row the paywall already ate.
+ *
+ * An explicit `ent` still wins, so the suppression case below is unchanged.
+ */
+const I = {
+  ...loaded,
+  toPushRows: (businesses, criteria, opts = {}) =>
+    loaded.toPushRows(businesses, criteria, {
+      ...opts,
+      ent: { unlocked: new Set(businesses.map((b) => b.id)), ...(opts.ent ?? {}) },
+    }),
+};
 const D = await load("deliver");
 
 let failures = 0;

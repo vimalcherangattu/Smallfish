@@ -22,7 +22,15 @@ const { dir, load } = compileLib(
   "sfbill-",
 );
 const { billingKey, groupForBilling, duplicatesIn, hostOf } = await load("billing");
-const { toCsv, overallVerdict } = await load("csv");
+const { toCsv: rawCsv, overallVerdict } = await load("csv");
+
+/** Paid for, so that what is measured here is the grouping and not the paywall.
+ *  The gate itself is `test_unlock.mjs`. See the same note in `test_csv.mjs`. */
+const toCsv = (businesses, criteria, before = {}, ent = {}) =>
+  rawCsv(businesses, criteria, before, {
+    unlocked: new Set(businesses.map((b) => b.id)),
+    ...ent,
+  });
 const { BILLABLE } = await load("types");
 
 let failures = 0;
