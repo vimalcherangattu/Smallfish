@@ -146,12 +146,12 @@ building, plus P0.1's cron for the two scheduled messages.
 
 ### Screens the user-flow document specifies and the app does not have
 
-| Screen | What it is | Note |
+| Screen | What it is | State |
 |---|---|---|
-| `/sample` | The free-sample form: what you sell, city, email | The GTM plan's main lead magnet |
-| `/app/contacted` | Businesses marked as reached out to | Stops double-emailing; the flow doc's Contacted tab |
-| `/app/watchlist` | Saved searches, weekly or monthly | The habit loop; `alerts.ts` exists, the screen does not |
-| Shared list view | Read-only list + "Get your own" | A referral door with nothing to build behind it |
+| `/sample` | Tell us what you sell → three real businesses, named | **Built 2026-09-30.** Not the three-field form the plan describes: the sample *is* the answer, on screen, with no account. `inferFromOffer` proposes only criteria the engine can settle and names the ones it cannot; the email is asked for only where we genuinely have not read the market, which is a queue entry and is labelled as one. |
+| `/app/contacted` | Businesses marked as reached out to | **Built 2026-09-30.** Migration `0017` carries the name on the row, because an uploaded business exists in `job_sites` and nowhere else — resolving ids would have shown a list of opaque strings to exactly the customers upload was built for. |
+| `/app/watchlist` | Saved searches, weekly or monthly | Missing. `alerts.ts` is built; the screen needs the worker's cron (B-2) to be worth anything, since nothing re-reads a market without it. |
+| Shared list view | Read-only list + "Get your own" | Missing. A referral door. |
 
 ### Per-card actions
 

@@ -37,7 +37,13 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: { business?: unknown; contacted?: unknown; channel?: unknown };
+  let body: {
+    business?: unknown;
+    contacted?: unknown;
+    channel?: unknown;
+    name?: unknown;
+    site?: unknown;
+  };
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -64,6 +70,11 @@ export async function POST(request: Request) {
       businessId,
       contacted,
       channel: typeof body.channel === "string" ? body.channel.slice(0, 20) : null,
+      // Carried, not looked up. An uploaded business exists in `job_sites` and
+      // nowhere else, so a Contacted screen that resolved ids would be blank for
+      // exactly the customers who brought their own list. See migration `0017`.
+      name: typeof body.name === "string" ? body.name.slice(0, 200) : null,
+      site: typeof body.site === "string" ? body.site.slice(0, 300) : null,
     });
 
     return Response.json({ ok: true, contacted });

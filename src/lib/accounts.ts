@@ -657,16 +657,49 @@ export async function contactedIds(
   return out;
 }
 
+export interface ContactedRow {
+  business_id: string;
+  name: string | null;
+  site: string | null;
+  channel: string | null;
+  at: string;
+}
+
+/**
+ * Everything this workspace has reached out to, most recent first.
+ *
+ * The name travels with the row rather than being looked up — see migration
+ * `0017`. A business from an upload exists in `job_sites` and nowhere else, so
+ * resolving by id would have produced a screen of opaque ids for exactly the
+ * customers upload was built for.
+ */
+export async function contactedRows(accountId: string, limit = 500): Promise<ContactedRow[]> {
+  return (
+    (await rest<ContactedRow[] | null>(
+      `contacted?account_id=eq.${accountId}&select=business_id,name,site,channel,at` +
+        `&order=at.desc&limit=${limit}`,
+    )) ?? []
+  );
+}
+
 export async function setContacted(args: {
   accountId: string;
   businessId: string;
   contacted: boolean;
   channel?: string | null;
+  name?: string | null;
+  site?: string | null;
 }): Promise<void> {
   await rpc(args.contacted ? "mark_contacted" : "unmark_contacted", {
     p_account: args.accountId,
     p_business: args.businessId,
-    ...(args.contacted ? { p_channel: args.channel ?? null } : {}),
+    ...(args.contacted
+      ? {
+          p_channel: args.channel ?? null,
+          p_name: args.name ?? null,
+          p_site: args.site ?? null,
+        }
+      : {}),
   });
 }
 

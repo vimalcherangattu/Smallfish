@@ -16,9 +16,18 @@ import { useState } from "react";
  * the only thing that shortens the wait.
  */
 
-export default function WaitlistForm({ source = "waitlist" }: { source?: string }) {
+export default function WaitlistForm({
+  source = "waitlist",
+  market: initialMarket = "",
+}: {
+  source?: string;
+  /** Pre-filled when the page already knows what they described — the
+   *  sample form has just asked, and asking twice is how a queue entry
+   *  starts feeling like a form. */
+  market?: string;
+}) {
   const [email, setEmail] = useState("");
-  const [market, setMarket] = useState("");
+  const [market, setMarket] = useState(initialMarket);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);

@@ -50,6 +50,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="sf-small ml-auto flex items-center gap-1">
             <Link href="/app" className="sf-tap px-2 text-[var(--ink-2)]">Search</Link>
             <Link href="/app/upload" className="sf-tap px-2 text-[var(--ink-2)]">Upload</Link>
+            <Link href="/app/contacted" className="sf-tap px-2 text-[var(--ink-2)]">Contacted</Link>
             <Link href="/app/runs" className="sf-tap px-2 text-[var(--ink-2)]">Runs</Link>
             <Link href="/account" className="sf-tap px-2 text-[var(--ink-2)]">
               {CLERK_ENABLED ? "Account" : "Credits"}

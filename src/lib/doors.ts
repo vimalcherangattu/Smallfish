@@ -44,6 +44,10 @@ export interface Door {
   read: number;
   /** The plain-language thing that makes one a fit. */
   criterionText: string;
+  /** The same thing as a predicate about several of them — "have no way to book
+   *  online". Built once, because every caller that assembled it from
+   *  `criterionText` got it wrong for some criterion. */
+  criterionPredicate: string;
   /** Three, shown in full. The rest are behind the sign-up. */
   shown: Lead[];
   /** How many stay behind the wall. */
@@ -63,6 +67,54 @@ const CRITERION_PLAIN: Record<string, string> = {
   no_online_booking: "no way to book online",
   no_quote_form: "no way to ask for a quote online",
 };
+
+/**
+ * The criterion as a predicate about *several* businesses.
+ *
+ * `criterionText` is a noun phrase — "no way to book online" — and every page
+ * that used it supplied the verb itself, as "N have {criterionText}". That reads
+ * correctly for the two criteria in the table above and silently breaks for
+ * every other one: `offers Botox` renders "42 med spas have offers Botox", and
+ * a page that transformed it as a verb phrase instead dropped the verb
+ * altogether ("42 dental clinics in Phoenix no way to book online").
+ *
+ * So the predicate is built once, here, rather than assembled by each caller
+ * out of a fragment whose grammatical shape is not written down anywhere.
+ *
+ * The rule is third-person singular to plural: the irregulars by name, and
+ * everything else by dropping the verb's trailing `s`. It is small because the
+ * criteria are small — a handful of verbs, all of them ours.
+ */
+export function predicateFor(criterionId: string, criterionText: string): string {
+  const plain = CRITERION_PLAIN[criterionId];
+  if (plain) return `have ${plain}`;
+
+  const [verb, ...rest] = criterionText.trim().split(/\s+/);
+  const tail = rest.join(" ");
+  const irregular: Record<string, string> = {
+    has: "have",
+    is: "are",
+    does: "do",
+    was: "were",
+  };
+
+  const known = irregular[verb.toLowerCase()];
+  if (known) return tail ? `${known} ${tail}` : known;
+
+  // A third-person singular verb: drop the `s`. "offers Botox" → "offer Botox".
+  if (/^[a-z]+s$/i.test(verb)) {
+    const plural = verb.replace(/s$/i, "");
+    return tail ? `${plural} ${tail}` : plural;
+  }
+
+  // No verb at all. `vet-columbus` carries "not part of a group", which is a
+  // description rather than an action, and every criterion of that shape is
+  // something a business *is*. Without this the sentence loses its verb —
+  // "42 vet clinics in Columbus not part of a group." — which is the same class
+  // of defect as the two this function was written to fix, and it was live in
+  // the data while the first version of the test waved it through.
+  return `are ${criterionText.trim()}`;
+}
 
 async function json<T>(name: string): Promise<T | null> {
   try {
@@ -245,6 +297,7 @@ export async function doorFor(args: {
     withSite: market.counts?.withSite ?? 0,
     read: market.counts?.read ?? 0,
     criterionText: CRITERION_PLAIN[pick.criterionId] ?? criterion.text,
+    criterionPredicate: predicateFor(pick.criterionId, criterion.text),
     shown: complete.slice(0, show),
     hidden: Math.max(0, pick.fit - show),
     query,

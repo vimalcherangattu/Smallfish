@@ -50,7 +50,7 @@ export async function generateMetadata({
     title: `${door.fit} ${door.niche} in ${door.metro.split(",")[0]} with ${door.criterionText} — Small Fish`,
     description:
       `We read ${door.read} ${door.niche} websites in ${door.metro}. ` +
-      `${door.fit} have ${door.criterionText}. Three of them, in full, with the email we would open with.`,
+      `${door.fit} ${door.criterionPredicate}. Three of them, in full, with the email we would open with.`,
     // A page built for one prospect is not a page for Google.
     robots: { index: false, follow: false },
   };
@@ -86,7 +86,7 @@ export default async function DoorPage({
         </p>
 
         <h1 className="dsp h-sec" style={{ marginTop: 18, maxWidth: "17ch" }}>
-          {door.fit} {door.niche} in {city} have {door.criterionText}.
+          {door.fit} {door.niche} in {city} {door.criterionPredicate}.
         </h1>
 
         <p className="lede" style={{ marginTop: 20, maxWidth: "56ch", color: "var(--ink-2)" }}>
@@ -96,7 +96,7 @@ export default async function DoorPage({
               against, on the page where a stranger decides whether to believe
               us. */}
           We read {door.read.toLocaleString()} {door.niche} websites in {city},
-          one at a time. {door.fit} of them have {door.criterionText}. Three are
+          one at a time. {door.fit} of them {door.criterionPredicate}. Three are
           below, with the email we would open with.
         </p>
 

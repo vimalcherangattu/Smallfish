@@ -301,6 +301,10 @@ function Row({
                 const r = await post("/api/contacted", {
                   business: lead.id,
                   contacted: next,
+                  // So the Contacted screen can name it. An uploaded business
+                  // exists nowhere else to look it up from.
+                  name: lead.name,
+                  site: lead.site,
                 }).catch(() => ({ ok: false }));
                 // Put it back rather than showing a state the server does not
                 // hold — a tick that lies is worse than one that refuses.
