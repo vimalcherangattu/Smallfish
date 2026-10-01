@@ -1248,6 +1248,142 @@ body {
 .mkt .find p { margin: 6px 0 0; font-size: 14px; color: var(--ink-2); line-height: 1.5; }
 .mkt .find .src { display: block; margin-top: 6px; font: 400 11px var(--font-mono), monospace; color: var(--ink-3); }
 
+/* ---------- the hero, two columns ---------------------------------------- */
+/* Source order is headline → sub → card → button, which is the phone order the
+   2026-10-01 brief asks for, so the small screen is the default and needs no
+   rules at all. Above 980px the grid lifts the button back under the sub and
+   puts the card in the second column. Doing it the other way round — desktop
+   order in the DOM, `order:` to fix the phone — makes the tab sequence differ
+   from the reading sequence, which is a real bug and an invisible one. */
+.mkt .herogrid { display: grid; gap: 0; }
+.mkt .hero-h1 {
+  font-size: clamp(40px, 7.4vw, 92px);
+  max-width: 15ch;
+  color: #EEF0EC;
+  margin: 0;
+}
+.mkt .hero-sub { margin-top: 26px; max-width: 46ch; color: #B9BFB6; }
+.mkt .hero-cta { margin-top: 28px; }
+.mkt .herocard { margin-top: 34px; }
+
+@media (min-width: 980px) {
+  .mkt .herogrid {
+    grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+    column-gap: var(--s6);
+    align-items: start;
+  }
+  .mkt .herogrid > .hero-h1 { grid-column: 1; grid-row: 1; }
+  .mkt .herogrid > .hero-sub { grid-column: 1; grid-row: 2; }
+  .mkt .herogrid > .hero-cta { grid-column: 1; grid-row: 3; }
+  /* Spans all three rows so the card can be taller than the copy beside it
+     without stretching the button's row. */
+  .mkt .herogrid > .herocard { grid-column: 2; grid-row: 1 / span 3; margin-top: 6px; }
+  /* Half the width means it cannot carry the full-bleed size. The brief's
+     done-when is the whole hero inside 1440x900, and the headline is what
+     decides that. */
+  .mkt .hero-h1 { font-size: clamp(38px, 3.9vw, 60px); max-width: 13ch; }
+  .mkt .hero-sub { font-size: 18px; max-width: 38ch; }
+}
+
+.mkt .herocard-ask p {
+  margin: 0 0 6px;
+  font: 400 14px var(--font-mono), monospace;
+  color: #B9BFB6;
+}
+.mkt .herocard-ask .lab { color: #8A929B; }
+.mkt .herocard-result {
+  margin: 16px 0 18px;
+  font-size: clamp(30px, 3.4vw, 44px);
+  line-height: 1.05;
+  color: #EEF0EC;
+}
+/* `.lure` already paints the brand highlight behind a phrase; here it is one
+   number, which is the only thing on this card worth shouting. */
+.mkt .herocard-result .lure { padding: 0 0.1em; }
+/* Compounded with `.rowcard` rather than written as a descendant: the generic
+   `.mkt .rowcard .head` rules are defined further down this file at the same
+   specificity, so a plain `.mkt .herocard-row .head` lost to them on source
+   order alone and the card silently kept the full-size padding and type.
+   Compounding makes it win on specificity, which no later reshuffle undoes.
+
+   The `color` reset is the other half: the hero section sets
+   `color: var(--paper)` for its dark ground, and this is a white card sitting
+   inside it, so without it every word inherits near-white on white and the
+   card renders blank. The other `.rowcard` never needed it: it sits on paper. */
+.mkt .rowcard.herocard-row { color: var(--ink); }
+.mkt .rowcard.herocard-row .head { padding: 20px 22px; gap: var(--s3); }
+.mkt .rowcard.herocard-row .name { font-size: clamp(19px, 2vw, 23px); }
+.mkt .rowcard.herocard-row .place { font-size: 12px; margin-top: 6px; }
+.mkt .herocard-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: right;
+  font-size: 13px;
+}
+.mkt .herocard-contacts .dim { color: var(--ink-3); }
+.mkt .heromail { padding: 18px 22px 20px; background: var(--paper-2); }
+.mkt .heromail .lab { color: var(--lure-text); }
+/* Two line-boxes and a fade, rather than a hand-cut excerpt: the height is
+   `2 x line-height` and the gradient is the panel's own background, so
+   whatever `composeMessage` writes is cut at the same place every time. */
+.mkt .heromail-body {
+  position: relative;
+  max-height: calc(2 * 1.55 * 15px);
+  overflow: hidden;
+  margin-top: 10px;
+}
+.mkt .heromail-body .cite { margin: 0; font-size: 15px; line-height: 1.55; }
+.mkt .heromail-body::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.5em;
+  /* The exact rgb of `--paper-2` (#f6f7f4) at zero alpha. `transparent` is
+     rgba(0,0,0,0) and fringes grey on engines that do not premultiply, and
+     `.mkt` pins the light palette unconditionally so this cannot drift with a
+     theme. */
+  background: linear-gradient(to bottom, rgba(246, 247, 244, 0), var(--paper-2));
+  pointer-events: none;
+}
+
+@media (max-width: 560px) {
+  /* The contacts column and the name cannot share a row at this width without
+     one of them wrapping to three lines, so they stack.
+
+     Stacked, though, the three contacts are three more lines, and the brief's
+     reason for a compact card is that the button should stay near the first
+     screen — measured, the column cost about 100px and put the button at 784
+     of 844. They run as a wrapping row instead, which is also how the brief
+     writes them: "Phone · email · website". */
+  .mkt .rowcard.herocard-row .head { grid-template-columns: 1fr; gap: 12px; }
+  .mkt .herocard-contacts {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 10px;
+    row-gap: 2px;
+    text-align: left;
+  }
+  .mkt .herocard-contacts > span + span::before {
+    content: "·";
+    margin-right: 10px;
+    color: var(--ink-3);
+  }
+
+  /* The wrapping row saved less than it looked like it would: at 390px the
+     email alone is most of the width, so the contacts still take three lines
+     and only the gaps came back. The rest of the compacting the brief asks for
+     is this — the card's own spacing, trimmed so the button *and* the line
+     under it clear the fold rather than the button alone. */
+  .mkt .herocard { margin-top: 22px; }
+  .mkt .herocard-result { margin: 12px 0 14px; }
+  .mkt .heromail { padding: 14px 22px 16px; }
+  .mkt .hero-cta { margin-top: 22px; }
+}
+
 /* ---------- the row card ------------------------------------------------- */
 .mkt .rowcard { background: var(--surface); border: 1px solid var(--line); box-shadow: 0 24px 60px rgba(14, 21, 32, 0.07); }
 .mkt .rowcard .head { display: grid; grid-template-columns: 1fr auto; gap: var(--s5); align-items: start; padding: var(--s5); border-bottom: 1px solid var(--line); }

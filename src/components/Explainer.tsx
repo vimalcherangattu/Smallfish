@@ -137,7 +137,12 @@ export default function Explainer({
           }}
         >
           <span className="lab" style={{ color: "#8A929B" }}>{label}</span>
-          <span className="lab" style={{ color: "#5B6470" }}>{DURATION_LABEL}</span>
+          {/* The duration used to be printed here as well as on the play
+              button, so the block said "44 seconds" twice within one frame.
+              It belongs on the button, where it is the thing that decides
+              whether somebody presses it; here it was decoration. The
+              `aria-label` on the button still carries it for a screen reader,
+              and the controls below show elapsed time once it is playing. */}
         </div>
 
         <div style={{ position: "relative", aspectRatio: "16 / 9", background: "#0E1520" }}>

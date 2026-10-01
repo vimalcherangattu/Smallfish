@@ -284,5 +284,91 @@ check(
   }
 }
 
+// --- the 2026-10-01 restructure: order, and what is no longer above the price
+//
+// The home page used to argue its method before it showed its product: the
+// junk-list row counts, an annotated drawing of a crawler reading a dental
+// site, and a strip reading "42 that fit · 51 that don't · 73 we couldn't
+// tell". All true, all the wrong first conversation. They moved to
+// `/how-we-check`, and the rule that replaced them is a position rule, which
+// is exactly the kind that creeps back one paragraph at a time.
+if (home && accuracy) {
+  const ORDER = [
+    ["three steps", "Here’s how it works."],
+    ["the row and its opening email", "Your opening email"],
+    ["the stakes", "Junk lists cost you more than money."],
+    ["the guide", "We know what it’s like to open forty websites"],
+    ["the film", "What it does"],
+    ["coverage", "Any local business. Any city in the US."],
+    ["pricing", "You only pay for businesses that fit."],
+    ["the closing panel", "From guessing to knowing."],
+  ];
+
+  const at = ORDER.map(([name, marker]) => [name, marker, home.indexOf(marker)]);
+  for (const [name, marker, i] of at) {
+    check(`the home page still has ${name}`, i >= 0, `no "${marker}"`);
+  }
+  if (at.every(([, , i]) => i >= 0)) {
+    for (let i = 1; i < at.length; i += 1) {
+      check(
+        `${at[i][0]} comes after ${at[i - 1][0]}`,
+        at[i][2] > at[i - 1][2],
+        `${at[i][2]} vs ${at[i - 1][2]}`,
+      );
+    }
+  }
+
+  // Nothing about crawling, row counts or couldn't-tell above the price.
+  const priceAt = home.indexOf("You only pay for businesses that fit.");
+  const above = priceAt > 0 ? home.slice(0, priceAt) : home;
+  for (const [what, re] of [
+    ["couldn’t tell", /couldn[’']t tell/i],
+    ["row counts", /\d[\d,]*\s+rows\b/i],
+    ["the crawler", /crawler|pages read|robots\.txt/i],
+  ]) {
+    const m = above.match(re);
+    check(
+      `no ${what} above the pricing section`,
+      !m,
+      m ? `"${above.slice(Math.max(0, m.index - 40), m.index + 50)}"` : "",
+    );
+  }
+
+  // And the three blocks are genuinely on the page they moved to, rather than
+  // deleted — which a position rule on its own would happily call a pass.
+  for (const [what, needle] of [
+    ["the annotated page we read", "We read their website the way you would"],
+    ["the couldn’t-tell strip", "we couldn’t tell, never billed"],
+    ["the junk-list row counts", "share a domain with another listing"],
+  ]) {
+    check(`/how-we-check carries ${what}`, accuracy.includes(needle), `missing "${needle}"`);
+  }
+
+  // One quiet link, in the body. The nav and footer carry their own "How we
+  // check" and are not what "link to them once" meant, so this counts the
+  // body link's own wording.
+  //
+  // Counted in the visible text, not the raw file: Next inlines the RSC
+  // payload in a <script>, so the raw HTML carries every string twice and the
+  // first version of this check read 2 for a page with one link.
+  const bodyLinks = (home.match(/How we check each business/g) ?? []).length;
+  check("the home page links to the method exactly once, in the body", bodyLinks === 1,
+        `found ${bodyLinks}`);
+}
+
+// --- copy fixes asked for on 2026-10-01 --------------------------------------
+if (home) {
+  check(
+    "the coverage paragraph is two sentences, with no dash",
+    home.includes("read off the page. It is not looked up") &&
+      !home.includes("Nothing has to be built for a new trade"),
+  );
+  // The video block printed its duration twice inside one frame — once in the
+  // chrome bar and once on the play button. It belongs on the button, where it
+  // decides whether somebody presses.
+  const durations = (home.match(/44 seconds/g) ?? []).length;
+  check("the video block states its length once", durations === 1, `found ${durations}`);
+}
+
 console.log(`\n${failures} failure(s)`);
 process.exit(failures ? 1 : 0);
