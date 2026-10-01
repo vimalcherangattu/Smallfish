@@ -20,6 +20,12 @@ export function MarketingNav({ dark = false }: { dark?: boolean }) {
       aria-label="Main"
       style={{
         position: "relative",
+        // Above the decoration, belt and braces. The hero's drifting school is
+        // `position: absolute` and comes later in the document, so with no
+        // z-index here it painted over this whole bar and ate every click.
+        // `pointer-events: none` on the decoration is the real fix; this makes
+        // the next decorative layer somebody adds unable to repeat it.
+        zIndex: 2,
         height: 88,
         display: "flex",
         alignItems: "center",
@@ -44,6 +50,49 @@ export function MarketingNav({ dark = false }: { dark?: boolean }) {
         <Link className="cta sm" href={CTA_HREF}>{NAV_CTA}</Link>
       </div>
     </nav>
+  );
+}
+
+/**
+ * The "← somewhere" link that starts every marketing page without the full
+ * nav. It existed as the same four class names copied into twelve files, which
+ * is how the bug below survived in all twelve at once.
+ *
+ * ## Why it is positioned
+ *
+ * The display face is set `line-height: 0.92` (`.mkt .dsp`), tighter than the
+ * font's own ascent and descent. That is the design language and it is correct,
+ * but it means a heading's **inline box is taller than its border box** and
+ * overflows upward out of it — on `/pricing` at 1280px, a 72px heading whose
+ * box starts at y=88 hit-tests from y≈78. The back link above it occupies
+ * y=69–86. So the heading's empty ascent space lay over the bottom half of the
+ * link, and `elementFromPoint` at the link's centre — where a person aims —
+ * returned the heading. Clicking the exact middle of "← Small Fish" did
+ * nothing; only the top few pixels worked.
+ *
+ * Nothing is visibly wrong, no margin is too small, and `mt-10` on the heading
+ * looks like plenty of room. `position: relative` + `z-index` is the fix
+ * because the link only needs to paint above a sibling that is not positioned
+ * at all. `check_clickable.mjs` is what found it and is what keeps it fixed.
+ */
+export function BackLink({
+  href = "/",
+  label = "Small Fish",
+  className = "",
+}: {
+  href?: string;
+  label?: string;
+  className?: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`sf-tap mono text-[13px] text-[var(--ink-3)] ${className}`.trim()}
+      // See above: the heading below this link overflows its own box upward.
+      style={{ position: "relative", zIndex: 1 }}
+    >
+      ← {label}
+    </Link>
   );
 }
 

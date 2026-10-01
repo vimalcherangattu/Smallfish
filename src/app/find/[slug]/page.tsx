@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BackLink } from "@/components/MarketingChrome";
 import { notFound } from "next/navigation";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -56,9 +57,7 @@ export default async function Programmatic({
   return (
     <main className="mkt">
       <div className="mx-auto max-w-[900px] px-6 py-16">
-        <Link href="/" className="sf-tap mono text-[13px] text-[var(--ink-3)]">
-          ← Small Fish
-        </Link>
+        <BackLink />
 
         <h1 className="dsp mt-10 max-w-[18ch] text-[clamp(34px,5.4vw,64px)]">
           {p.headline}

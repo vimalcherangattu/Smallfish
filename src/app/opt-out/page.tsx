@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BackLink } from "@/components/MarketingChrome";
 import { REMOVAL_DAYS } from "@/lib/suppression";
 import OptOutForm from "@/components/OptOutForm";
 
@@ -22,9 +22,7 @@ export default function OptOut() {
   return (
     <main className="mkt">
       <div className="mx-auto max-w-[760px] px-6 py-16">
-        <Link href="/" className="sf-tap mono text-[13px] text-[var(--ink-3)]">
-          ← Small Fish
-        </Link>
+        <BackLink />
 
         <h1 className="dsp mt-10 text-[clamp(34px,5.5vw,60px)]">
           Remove my business.

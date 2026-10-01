@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BackLink } from "@/components/MarketingChrome";
 import { PLANS } from "@/lib/pricing";
 import { UNLOCK_MONTHS, ROLLOVER_MONTHS } from "@/lib/ledger";
 
@@ -35,9 +36,7 @@ export default function Terms() {
   return (
     <main className="mkt">
       <div className="mx-auto max-w-[720px] px-6 py-16">
-        <Link href="/" className="sf-tap mono text-[13px] text-[var(--ink-3)]">
-          ← Small Fish
-        </Link>
+        <BackLink />
 
         <h1 className="dsp mt-10 text-[clamp(32px,5vw,54px)]">Terms.</h1>
         <p className="mono mt-6 text-[12px] text-[var(--ink-3)]">

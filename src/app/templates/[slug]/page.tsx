@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BackLink } from "@/components/MarketingChrome";
 import { notFound } from "next/navigation";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -51,9 +52,7 @@ export default async function TemplatePage({
   return (
     <main className="mkt">
       <div className="mx-auto max-w-[900px] px-6 py-16">
-        <Link href="/templates" className="sf-tap mono text-[13px] text-[var(--ink-3)]">
-          ← All templates
-        </Link>
+        <BackLink href="/templates" label="All templates" />
 
         <h1 className="dsp mt-10 max-w-[18ch] text-[clamp(32px,5vw,58px)]">{t.title}</h1>
 

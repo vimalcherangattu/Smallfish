@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BackLink } from "@/components/MarketingChrome";
 
 /** What a sign-in page says when login is not configured (S1-08).
  *
@@ -10,9 +11,7 @@ export default function NoAuth() {
   return (
     <main className="mkt">
       <div className="mx-auto max-w-[620px] px-6 py-24">
-        <Link href="/" className="sf-tap mono text-[13px] text-[var(--ink-3)]">
-          ← Small Fish
-        </Link>
+        <BackLink />
         <h1 className="dsp mt-10 text-[clamp(30px,4.6vw,48px)]">
           Accounts are not switched on yet.
         </h1>

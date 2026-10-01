@@ -10,8 +10,13 @@ how a suite ends up green on checks that have not executed for a month. A skip
 is printed, counted, and named in the summary, so "not run" is never mistaken
 for "passed".
 
-Tests that need a network or live credentials are named `check_*` instead and
-are not discovered here at all; `docs/LAUNCH-CHECKLIST.md` lists them.
+Tests that need something this process cannot provide — a live server, a
+network, real credentials — are named `check_*` instead and are not run here.
+They are **listed** here, though, by reading the directory rather than from a
+list somebody maintains: this docstring used to say `docs/LAUNCH-CHECKLIST.md`
+listed them and it never did, which is the ordinary fate of a cross-reference
+nothing enforces. A `check_*` file that is added now appears in the summary the
+day it lands, and one that is deleted stops being advertised.
 """
 
 from __future__ import annotations
@@ -22,6 +27,13 @@ from pathlib import Path
 
 TESTS = sorted(Path(__file__).parent.glob("test_*.py"))
 JS_TESTS = sorted(Path(__file__).parent.glob("test_*.mjs"))
+
+# Named, not run. See the note at the top.
+CHECKS = sorted(
+    p.name
+    for p in Path(__file__).parent.iterdir()
+    if p.name.startswith("check_") and p.suffix in {".py", ".mjs"}
+)
 
 SKIPPED = 2
 
@@ -48,6 +60,11 @@ def main() -> int:
 
     total = len(TESTS) + len(JS_TESTS)
     print("\n" + "=" * 50)
+    if CHECKS:
+        print(
+            f"NOT RUN HERE ({len(CHECKS)}, they need a live server or credentials): "
+            + ", ".join(CHECKS)
+        )
     if skipped:
         print(f"SKIPPED ({len(skipped)}, and these checked nothing): {', '.join(skipped)}")
     if failed:

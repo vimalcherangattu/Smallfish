@@ -337,7 +337,26 @@ export default function Page() {
   );
 
   return (
-    <main className="flex h-dvh flex-col lg:flex-row">
+    /* Two panes that fill the window on a desktop; one scrolling document on a
+       phone. The fixed-height version was applied at every width and the phone
+       could not survive it, for two reasons that compounded:
+
+       1. `h-dvh` here, but the small-screen bar in `app/layout.tsx` is
+          `lg:hidden` — so below `lg` this element starts 45px down a window it
+          has been told to fill, and overflows the viewport by exactly the
+          bar's height. Above `lg` there is no bar and `h-dvh` is right.
+       2. With the height then fixed, the panel's own chrome (search header,
+          criteria chips, record/push/export controls) measured ~770px against
+          the 490px left after a 42dvh map. The results list is the flex item
+          that gives, so it collapsed to **zero height** and the footer was
+          pushed 300px below the window. Every result row still existed, was
+          still the right size, and could not be clicked — `check_clickable.mjs`
+          is what found it, by asking what would receive the click rather than
+          whether the control was there.
+
+       So the `h-dvh`/`min-h-0`/`overflow-y-auto` trio is now `lg:` only. Below
+       that the document scrolls, which is what a phone does anyway. */
+    <main className="flex min-h-dvh flex-col lg:h-dvh lg:flex-row">
       {/* ---------------- Map ---------------- */}
       <section className="relative h-[42dvh] w-full shrink-0 lg:h-full lg:flex-1">
         {/* Explicit height, not h-auto: the only child is absolutely
@@ -407,7 +426,10 @@ export default function Page() {
       </section>
 
       {/* ---------------- Panel ---------------- */}
-      <section className="relative flex min-h-0 flex-1 flex-col border-t border-[var(--line)] bg-[var(--panel)] lg:w-[460px] lg:flex-none lg:border-l lg:border-t-0">
+      {/* `min-h-0` is `lg:` only: below that it let this panel shrink under its
+          own content, which is the first half of the collapse described on
+          `main` above. */}
+      <section className="relative flex flex-1 flex-col border-t border-[var(--line)] bg-[var(--panel)] lg:min-h-0 lg:w-[460px] lg:flex-none lg:border-l lg:border-t-0">
         {icpOpen && (
           <IcpBuilder
             index={index}
@@ -637,7 +659,12 @@ export default function Page() {
               </div>
             )}
 
-            <div className="min-h-0 flex-1 overflow-y-auto">
+            {/* A scrollport of its own on a desktop, a plain block on a phone.
+                `overflow-y: auto` is the part that mattered: it switches the
+                flex item's automatic minimum size from "your content" to zero,
+                so the list was allowed to become 0px tall and did. Dropping
+                `min-h-0` alone would not have been enough. */}
+            <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
               {/* The whole set, not a slice: the locked summary has to count
                   every non-match, and slicing here would have silently made it
                   a count of the first 300. Results caps the rows it renders. */}

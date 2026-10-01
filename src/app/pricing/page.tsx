@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BackLink } from "@/components/MarketingChrome";
 import BuyPlan from "@/components/BuyPlan";
 import { BANDS, COST_PER_READ, MAX_LOSS_PER_SCAN_USD, PLANS, READS_PER_CREDIT } from "@/lib/pricing";
 import { NO_WEBSITE_UNLOCK, UNLOCK_MONTHS, credits } from "@/lib/ledger";
@@ -23,9 +24,7 @@ export default function Pricing() {
   return (
     <main className="mkt">
       <div className="mx-auto max-w-[1180px] px-6 py-16">
-        <Link href="/" className="sf-tap mono text-[13px] text-[var(--ink-3)]">
-          ← Small Fish
-        </Link>
+        <BackLink />
 
         <h1 className="dsp mt-10 max-w-[18ch] text-[clamp(38px,6vw,72px)]">
           You pay for matches. Nothing else is billable.

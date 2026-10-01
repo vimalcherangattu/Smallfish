@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BackLink } from "@/components/MarketingChrome";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { templateLibrary } from "@/lib/templates";
@@ -33,9 +34,7 @@ export default async function Templates() {
   return (
     <main className="mkt">
       <div className="mx-auto max-w-[900px] px-6 py-16">
-        <Link href="/" className="sf-tap mono text-[13px] text-[var(--ink-3)]">
-          ← Small Fish
-        </Link>
+        <BackLink />
 
         <h1 className="dsp mt-10 max-w-[19ch] text-[clamp(34px,5.4vw,60px)]">
           Searches you can start from.

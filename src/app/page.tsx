@@ -280,11 +280,29 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* The school drifting behind the headline. Sits first and lowest so
-            the nav and the type stay above it — everything after this in the
-            hero carries `zIndex: 1`. */}
+        {/* The school drifting behind the headline.
+
+            `zIndex: 0` and "sits first" were meant to keep the nav above it,
+            and that reasoning holds *inside* the hero, where every later
+            sibling carries `zIndex: 1`. **The nav is not inside the hero.** It
+            is earlier in the document with no z-index of its own, so this
+            positioned layer painted over it — and swallowed every click on
+            every header link, including Sign up.
+
+            `pointerEvents: "none"` is the fix that does not depend on getting
+            a stacking order right. This element is `aria-hidden`: it is
+            decoration, it is not there for a screen reader, and it has no
+            business being there for a mouse either. */}
         <div
-          style={{ position: "absolute", left: -80, top: 0, width: 1600, opacity: 0.55, zIndex: 0 }}
+          style={{
+            position: "absolute",
+            left: -80,
+            top: 0,
+            width: 1600,
+            opacity: 0.55,
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
           className="schoolmove"
           aria-hidden
         >
@@ -298,7 +316,7 @@ export default async function Home() {
             variant: the design draws it as a line, and a solid lure fish that
             size becomes the loudest thing on the screen, louder than the
             headline it sits behind. */}
-        <div className="hero-fish swim" aria-hidden>
+        <div className="hero-fish swim" style={{ pointerEvents: "none" }} aria-hidden>
           <Fish variant="outline" width={720} strokeWidth={0.35} />
           <Bubbles where="hero" />
         </div>
@@ -838,7 +856,14 @@ export default async function Home() {
           // BUSINESSES FREE · NO CARD · NOTHING TO INSTALL", which wraps to two
           // lines at desktop width — the text sits above it in z-order and
           // still read as struck through.
-          style={{ position: "absolute", right: -210, bottom: -200, opacity: 0.4, zIndex: 0 }}
+          style={{
+            position: "absolute",
+            right: -210,
+            bottom: -200,
+            opacity: 0.4,
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
           className="swim"
           aria-hidden
         >

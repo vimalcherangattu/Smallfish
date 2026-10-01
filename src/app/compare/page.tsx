@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BackLink } from "@/components/MarketingChrome";
 
 /** Comparison pages (S1-15).
  *
@@ -54,9 +54,7 @@ export default function Compare() {
   return (
     <main className="mkt">
       <div className="mx-auto max-w-[1000px] px-6 py-16">
-        <Link href="/" className="sf-tap mono text-[13px] text-[var(--ink-3)]">
-          ← Small Fish
-        </Link>
+        <BackLink />
 
         <h1 className="dsp mt-10 max-w-[20ch] text-[clamp(34px,5.4vw,60px)]">
           Small Fish, and when a scraper is the better buy.
