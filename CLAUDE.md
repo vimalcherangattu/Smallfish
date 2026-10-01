@@ -27,7 +27,7 @@ that panel if it reports "needs authentication".
 | `docs/design/home-page.html` | The composed home page in the design language (2026-09-22). **Its visual language is adoptable; its scores, tiers and weights are not — they are the unresolved divergence, made concrete.** See `docs/design-system.md` §6. |
 | `docs/design-system.md` | **Read before building any customer-facing screen.** Principles, type, colour and component rules, distilled from `docs/design/small-fish-design-system-v1.pdf` (the visual authority — a 13 MB PDF cannot be grepped). Its §5 records an **unresolved** divergence: the design system describes scores, tiers and weighted rubrics, the repo implements binary verdicts, and it cites an "Account Finder PRD v3" that is not among the founding documents. Do not resolve that by picking one silently. |
 | `docs/critique.md` | Review of the founding documents and the reasoning behind the plan's departures from them. |
-| `docs/stage0-coverage-report.md` | Measured results: candidate supply, website readability, technology signals, location shapes. |
+| `docs/stage0-coverage-report.md` | Measured results: candidate supply, website readability, technology signals, location shapes. **§7 answers gate item 1 (S0-06), and the answer is no** — read it before planning Stage 0 work. |
 | `docs/icp-discovery.md` | Design for the ICP flow. S1-23 – S1-26 are built (`src/lib/icp.ts`); S1-22, reading the seller's own site, is blocked on a model key and the flow runs on a typed offer instead. |
 | `stage0/src/coverage/` | Candidate extraction and the site probe. |
 | `stage0/src/engine/` | Technology detection, check plans, geometry. |
@@ -180,28 +180,49 @@ Work goes to `main`. `claude/eager-archimedes-qdetjj` is kept pointing at the sa
 
 ## Next up
 
-`python3 stage0/src/engine/preflight.py` reports **8 blockers** as of 2026-09-19. Two are
-credentials and neither is fixable from inside this repo:
+**Retraction.** This section previously reported **8 blockers as of 2026-09-19** — two
+credentials and six unbuilt components — and listed enabling Places API (New) on Google
+project `74590284143` as a thing to go and do. Measured 2026-10-01 with
+`python3 stage0/src/engine/preflight.py`: **1 blocker.** Google Places passes; the API was
+enabled at some point after that note was written, so it was sending the next person to a
+console page that was already correct. All six "unbuilt" components exist and preflight
+reports them present. Re-run preflight rather than trusting this paragraph.
+
+```
+[FAIL] Anthropic: no credential by any path
+[PASS] Google Places: reachable via GOOGLE_PLACES_API_KEY
+[PASS] S0-08 fetcher · S0-11+12+14 judge · S0-13 absence rule · S0-15 cost meter
+[PASS] S0-17 harness · S0-29 geometry · S0-32 check plans
+[PASS] S0-16 hand-labelled set: 142 labels across 2 markets — THIN
+```
+
+### The one credential blocker
 
 - **Anthropic:** no key by any path. Needs `ANTHROPIC_API_KEY` set as an environment
   variable (the egress-credential route does not reach `api.anthropic.com` — see above).
-- **Google Places:** the key is valid, but **Places API (New) is not enabled on project
-  `74590284143`**. A Cloud Console change: enable the API and confirm billing is active.
 
-The other six are unbuilt code, and they are the real distance to a benchmark number —
-"run the benchmark" is not one command away, it is five tasks away:
+### Where the gate actually stands
 
-1. **S0-04 — the Google coverage baseline.** Unblocks the moment Places is enabled. The
-   cheapest remaining gate item and the one that can still invalidate the plan on cost
-   grounds. Text Search per niche × metro, storing place IDs only, well under $10.
-2. **S0-08** (polite fetcher as a pipeline component — `site_probe.py` is a measurement
-   tool, not the fetcher), then **S0-11** (profile extraction) and **S0-12** (criteria
-   judgment). These need the Anthropic key.
-3. **S0-14** (proof validator) and **S0-16** — hand-labelling 3 × 100 businesses is human
-   work and cannot be automated away; recall is unmeasurable without the full true-match
-   set.
-4. **S0-17** — the harness itself, which then reports precision, recall, couldn't-tell,
-   proof validity and cost.
+**Gate item 1 is answered and it does not pass as written** — `docs/stage0-coverage-report.md`
+§7, written 2026-10-01. Open-data overlap clears 70% for veterinary alone; HVAC is
+31–48%. The escape clause (a costed gap-fill under $0.04 per match) clears dental and
+HVAC on a cold read and fails med spa at $0.059. All three clear it warm, so it is a
+cold-market failure with a price on it. **Whether to proceed anyway is a decision for the
+owner, not something to resolve in code.**
 
-Everything before that point is done and measured; see the Live numbers table in
+The sharpest finding there points the work somewhere the gate's own wording does not: med
+spa's gap-fill is $0.0200 per match and its *reading* is $0.0394, so coverage is not what
+breaks it. **Match rate and read cost are the levers.**
+
+### What is genuinely next
+
+1. **S0-16 — hand-labelling.** 142 labels across 2 markets, which preflight calls THIN.
+   Gate item 2 (precision) cannot be measured until this is 3 × 100. Human work; it
+   cannot be automated away, and recall is unmeasurable without the full true-match set.
+2. **S0-03 — Foursquare merge.** Blocked on a free `HF_TOKEN`. The cheapest remaining
+   lever on the overlap half of gate item 1, and it can only raise coverage.
+3. **Re-run the benchmark** once `ANTHROPIC_API_KEY` exists, to widen S0-17 past the
+   three markets it has metered.
+
+Everything else before that point is done and measured; see the Live numbers table in
 `PROJECT_PLAN.md` and `docs/stage0-coverage-report.md`.

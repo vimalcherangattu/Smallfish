@@ -5,9 +5,14 @@ Measurements, not estimates. Everything here is reproducible with the scripts in
 
 **Run dates:** 2026-09-19 (first crawl), 2026-09-20 (re-crawl with per-niche catalogues) · **Overture release:** 2026-08-19.0 · **Radius:** 25 miles
 
-**Status:** partial. Candidate coverage (S0-02) and website readability (S0-05) are
-measured. The Google baseline (S0-04) and the Foursquare merge (S0-03) are outstanding,
-so gate item 1 — open-data coverage ≥ 70% of Google's count — is **not yet answered**.
+**Status:** gate item 1 is **answered, and the answer is no** — see §7. Candidate supply
+(S0-02), website readability (S0-05) and the Google baseline (S0-04) are all measured.
+The Foursquare merge (S0-03) is still outstanding and can only raise the coverage numbers,
+never lower them.
+
+*Supersedes the previous status line, which read "the Google baseline (S0-04) and the
+Foursquare merge (S0-03) are outstanding, so gate item 1 is not yet answered." S0-04 has
+since run, at $8.22 of API spend.*
 
 ---
 
@@ -354,14 +359,94 @@ together, and it must be re-measured whenever either changes.
 | Booking signals sit on the homepage ~99% of the time | Critique 3 downgraded; shallow crawl is cheaper than feared, which helps cost per business |
 | Match rates of 37–63% on the flagship searches | Unit economics likely better than the 15% typical case — verify against precision before relying on it |
 | Vendor concentration is high within a niche | Per-niche detector catalogues are worth building; they are the cheapest precision available |
-| Open data serves a metro in 6–10s for free | Candidate supply is not the bottleneck; completeness (S0-04) still might be |
+| Open data serves a metro in 6–10s for free | Candidate supply is not the bottleneck; completeness is — see §7 |
+| Overlap ≥ 70% holds for 1 niche of 4; HVAC is 31–48% | Gate item 1's first half fails. Foursquare (S0-03) is the cheapest lever on it |
+| Gap-fill clears $0.04/match in 2 of 3 priced markets cold, 3 of 3 warm | Gate item 1's escape clause fails cold. The binding constraint is **match rate**, not coverage |
 | A state-wide search is 14,789 candidates (~$148 cold) | The area guardrail must live in the region picker, not behind it |
 
-## 7. Outstanding before gate item 1 can be answered
+## 7. Gate item 1, answered (S0-06)
 
-- **S0-04** — Google Places baseline count per niche × metro. Needs an API key. Until then
-  we know how many businesses open data *has*, not what share of reality that is.
-- **S0-03** — Foursquare merge and dedupe, which can only raise the counts above.
+Gate item 1 reads:
+
+> Open-data overlap ≥ 70% of Google's places per niche **(or a costed gap-fill plan that
+> keeps blended cost per match ≤ $0.04)**.
+
+Both halves are now measured. **Neither is satisfied across the benchmark niches, so gate
+item 1 does not pass as written.**
+
+### 7a. The overlap test — one niche of four
+
+`python3 stage0/src/coverage/google_baseline.py` · 240 cells across four metros, 257
+requests, $8.22. Reported as a band because 28.5% of Google's places sit where Overture
+has *a* business under a name string matching cannot reconcile (§ the 2026-09-21 decision
+log entry): **strict** counts only confident matches, **generous** counts every ambiguous
+one as a match. Reality is in between.
+
+| Niche · metro | Strict | 95% CI (strict) | Generous | ≥ 70%? |
+|---|---|---|---|---|
+| Veterinary · Columbus | 73.2% | 64.2 – 83.4% | 86.0% | **yes**, on both readings |
+| Dental · Phoenix | 63.8% | 60.1 – 68.1% | 94.3% | only on the generous reading |
+| Med spa · Dallas | 45.4% | 38.2 – 52.8% | 79.3% | only on the generous reading |
+| HVAC · Tampa | 31.1% | 22.1 – 41.5% | 47.8% | **no**, on every reading |
+
+Only veterinary clears 70% without having to assume the ambiguous cases away. Dental's
+strict confidence interval tops out at 68.1%, so dental does not clear it on the strict
+reading even at the optimistic end of sampling error. HVAC fails by a wide margin however
+the ambiguity is resolved, which is the one unambiguous result in the table.
+
+### 7b. The escape clause — fails cold in one of three priced markets
+
+`python3 stage0/src/engine/gapfill_cost.py`. Discovery is priced from the S0-04 run
+itself (257 requests → 1,046 places → **$0.0079 per business discovered**), gap-fill buys
+only the share Overture is missing, and read cost is the **measured** S0-17 cost per
+business, not the planning estimate.
+
+| Market | Coverage | Match rate | Discovery / match | Read / match | Total | vs $0.04 |
+|---|---|---|---|---|---|---|
+| Med spa · Dallas | 45% | 21.5% | $0.0200 | $0.0394 | **$0.059** | **over** |
+| Dental · Phoenix | 64% | 31.8% | $0.0090 | $0.0240 | $0.033 | ok |
+| HVAC · Tampa | 31% | 37.2% | $0.0146 | $0.0239 | $0.038 | ok |
+| Veterinary · Columbus | 73% | — | — | — | — | no judged criteria yet |
+
+**The framing "the gap-fill is too expensive" is wrong, and worth correcting before it
+becomes the received version.** For med spa, buying the entire coverage gap costs $0.0200
+per match. Reading costs $0.0394. At *perfect* coverage — no gap-fill at all, not one
+Google request — med spa would still cost $0.0394 per match against a $0.04 budget, which
+clears it by six hundredths of a cent. Med spa is marginal on reading alone; the gap-fill
+is what tips an already-marginal market over, not what breaks it.
+
+What makes med spa marginal is its **match rate of 21.5%**, the lowest of the three. Every
+business read is paid for and only a fifth become matches, so the non-matches are carried
+by a smaller number of matches. HVAC has the worst coverage in the benchmark (31%) and
+still clears the budget, because 37.2% of what it reads matches.
+
+### 7c. It is a cold-market failure, which is Change 11 with a price on it
+
+| Market | Cold read | Warm read | Break-even read cost |
+|---|---|---|---|
+| Med spa · Dallas | $0.059 | $0.029 | $0.0043 per business |
+| Dental · Phoenix | $0.033 | $0.015 | $0.0099 per business |
+| HVAC · Tampa | $0.038 | $0.020 | $0.0095 per business |
+
+Every market clears the budget on a warm read. The first pass over a market loses money
+and later passes do not — which is exactly the cold-market problem `PROJECT_PLAN.md`
+names as Change 11, now with a number against it. The break-even column is the useful
+one: med spa needs the read cost to come down to **$0.0043 per business**, roughly half
+what is measured today, before its first pass pays for itself.
+
+### 7d. What this does and does not settle
+
+- **Does not settle:** precision. A cheap wrong answer is not a win, and gate item 2 still
+  needs the hand-labelled set. S0-16 currently holds 142 labels across 2 markets, which
+  preflight reports as **THIN — too few to measure precision**.
+- **Does not settle:** veterinary's economics, which has no judged criteria yet, so its
+  73% coverage buys a row with three dashes in it.
+- **Can only improve:** S0-03, the Foursquare merge, raises coverage and lowers the
+  gap-fill share. It is blocked on a free `HF_TOKEN` and is the cheapest remaining lever
+  on the overlap half of the gate.
+- **Is a decision, not a measurement:** whether "one niche of four passes the overlap test,
+  and two of three priced markets clear the cost budget cold" is a go. The measurements
+  say what they say; the gate says ≥ 70% *per niche*, and three niches are below it.
 
 Reproduce everything here with:
 
@@ -369,4 +454,6 @@ Reproduce everything here with:
 pip install duckdb httpx
 python3 stage0/src/coverage/overture_extract.py
 python3 stage0/src/coverage/site_probe.py --sample 200 --extra-pages 3
+python3 stage0/src/coverage/google_baseline.py     # §7a — spends money, ~$8
+python3 stage0/src/engine/gapfill_cost.py          # §7b, §7c — free, reads what is on disk
 ```

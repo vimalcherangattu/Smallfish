@@ -48,6 +48,20 @@ WARM_READ_PER_BUSINESS = 0.002
 BUDGET_PER_MATCH = 0.04
 
 
+def dearest_per_market(
+    runs: dict[str, list[tuple[float, str]]],
+) -> dict[str, float]:
+    """The read cost this model will use for each market: **the dearest run**.
+
+    Separated out so it can be tested, because it decides the gate verdict and
+    used to decide it by accident — see the note in `main`. The conservative
+    choice is deliberate and matches the worst-case assumption already made on
+    ambiguous places: a cost model that picks its cheapest input is a cost
+    model arguing for its own conclusion.
+    """
+    return {market: max(rs)[0] for market, rs in runs.items() if rs}
+
+
 def main() -> int:
     base_path = DATA / "google-baseline.json"
     if not base_path.exists():
@@ -57,14 +71,31 @@ def main() -> int:
     index = json.loads((APP / "index.json").read_text())
     tallies = {m["id"]: m for m in index["markets"]}
 
-    # Measured read cost per market, where S0-17 has run. This is the whole
+    # Measured read cost per business, where S0-17 has run. This is the whole
     # point of metering: the first version of this model reported a failing
     # verdict off the planning estimate, and the estimate was 5x high.
-    measured: dict[str, float] = {}
-    for f in DATA.glob("benchmark-*.json"):
+    #
+    # A market can have **more than one** run — `dental-phoenix` has a baseline
+    # at $0.00345 and an `-escalate` variant at $0.00763, which is 2.2x dearer
+    # and changes dental's cost per match from $0.020 to $0.033. This loop used
+    # to be `measured[market] = ...` over an unordered `glob`, so **which run
+    # reached the gate verdict was decided by filesystem order**. That is the
+    # same defect this module's docstring already warns about in another form:
+    # a cost model whose inputs are chosen by accident launders an accident
+    # into a decision.
+    #
+    # The policy is now explicit and conservative — **the dearest run per
+    # market wins** — for the reason stated below on `missing_share`: the
+    # flattering assumption would quietly shrink the bill. Every run is named
+    # in the output, so a market whose verdict rests on one expensive
+    # configuration is visible rather than inferred.
+    runs: dict[str, list[tuple[float, str]]] = {}
+    for f in sorted(DATA.glob("benchmark-*.json")):
         b = json.loads(f.read_text())
-        if b.get("cost", {}).get("cost_per_business"):
-            measured[b["market"]] = b["cost"]["cost_per_business"]
+        cpb = b.get("cost", {}).get("cost_per_business")
+        if cpb:
+            runs.setdefault(b["market"], []).append((cpb, f.stem))
+    measured = dearest_per_market(runs)
     blended = sum(measured.values()) / len(measured) if measured else None
 
     # --- discovery: what one Google-discovered business actually costs.
@@ -79,7 +110,13 @@ def main() -> int:
     if measured:
         print("Read cost per business — MEASURED (S0-17):")
         for k, v in sorted(measured.items()):
-            print(f"  {k:18} ${v:.5f}")
+            others = sorted(runs[k], reverse=True)
+            note = ""
+            if len(others) > 1:
+                cheaper = ", ".join(f"${c:.5f} {n.replace('benchmark-', '')}"
+                                    for c, n in others[1:])
+                note = f"   [{len(others)} runs, dearest taken; also {cheaper}]"
+            print(f"  {k:18} ${v:.5f}{note}")
         if blended:
             print(f"  {'blended (others)':18} ${blended:.5f}   "
                   f"vs ${COLD_READ_PER_BUSINESS:.3f} planning estimate\n")
