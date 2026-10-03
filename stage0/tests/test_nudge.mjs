@@ -130,10 +130,42 @@ test("the nudge runs daily, not every minute", () => {
   // crossing the 48-hour line is a product watching a clock, not a person.
 });
 
-test("and the worker still runs every minute", () => {
+test("the worker has a cron entry at all", () => {
   const entry = vercel.crons.find((c) => c.path === "/api/worker");
   assert.ok(entry, "no cron entry for the worker");
-  assert.equal(entry.schedule, "* * * * *");
+});
+
+/* ---------------------------------------------- deployable on the plan --
+ *
+ * This replaces an assertion that the worker's schedule is exactly
+ * `* * * * *`, which was true, tested, and **broke every deployment for three
+ * days**.
+ *
+ * Vercel's Hobby plan caps cron jobs at once per day, and a more frequent
+ * expression does not degrade — it fails the build outright. So from
+ * 2026-09-30 14:47 (the commit that introduced `* * * * *`) to 2026-10-03,
+ * thirteen commits were pushed to `main`, every one of them failed to deploy,
+ * and the live site stayed on the last good commit. Nothing in the repository
+ * noticed, because the test encoded the *wish* (tick every minute) rather than
+ * the *constraint* (what this plan will actually accept). A green suite and a
+ * frozen production site at the same time is the worst failure mode available.
+ *
+ * The rule: minute and hour must each be a single literal number. Anything
+ * else — `*`, a step, a list, a range — runs more than once a day.
+ *
+ * If the plan is upgraded to Pro, this test is what to change, deliberately,
+ * in the same commit that upgrades it.
+ */
+test("every cron runs at most once a day, which is what Hobby deploys", () => {
+  const ONCE = /^\d{1,2}$/;
+  for (const c of vercel.crons) {
+    const [minute, hour] = c.schedule.split(" ");
+    assert.ok(
+      ONCE.test(minute) && ONCE.test(hour),
+      `${c.path} is "${c.schedule}" — more than once a day, so Vercel refuses ` +
+        `the deployment and nothing else in the push ships either`,
+    );
+  }
 });
 
 console.log(`\n${failures} failure(s)`);

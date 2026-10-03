@@ -85,10 +85,21 @@ async function findCriterion(job: JobRow): Promise<Criterion | null> {
 /**
  * The second door: a person advancing their own read.
  *
- * The queue moves on a Vercel Cron entry, which needs `CRON_SECRET` and a plan
- * that permits a minute-level schedule — neither fixable from inside this
- * repository. Until both exist a queued read never finishes, which puts the
- * product's whole promise behind somebody else's billing page.
+ * The queue moves on a Vercel Cron entry, which needs `CRON_SECRET` — not
+ * fixable from inside this repository — and which **now ticks once a day**,
+ * not once a minute.
+ *
+ * That is a forced retreat, not a design. `vercel.json` asked for
+ * `* * * * *` from 2026-09-30, and Hobby caps crons at once per day: the
+ * expression did not throttle, it failed the build. Thirteen commits were
+ * pushed to `main` over three days, every one failed to deploy, and the live
+ * site stayed on the last good commit while the repository looked healthy.
+ * Dropped to daily on 2026-10-03 so everything else could ship.
+ *
+ * At one tick a day a queued read of any size never finishes in a useful time,
+ * so this door — a person advancing their own job — is now the only one that
+ * works, rather than a convenience beside a working scheduler. Restoring
+ * minute-level ticking needs a Pro plan or a runner outside Vercel.
  *
  * So a member of the workspace that owns a job may advance **that job**, one
  * slice per press. Three things make that safe to offer:

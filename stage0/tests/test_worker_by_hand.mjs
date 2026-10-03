@@ -3,11 +3,15 @@
  *
  *     node stage0/tests/test_worker_by_hand.mjs
  *
- * The queue moves on a Vercel Cron entry that needs `CRON_SECRET` and a plan
- * permitting a minute-level schedule. Neither is fixable from inside this
- * repository, and until both exist a queued read never finishes — the product's
- * "any trade, any US city" promise sitting behind somebody else's billing page.
- * So a member of the workspace that owns a job may advance that job by hand.
+ * The queue moves on a Vercel Cron entry that needs `CRON_SECRET`, and which
+ * since 2026-10-03 ticks **once a day** rather than once a minute: Hobby caps
+ * crons at daily, and the faster expression did not throttle but failed the
+ * build, freezing production for three days. So a queued read of any real size
+ * does not finish on the scheduler at all now — the product's "any trade, any
+ * US city" promise sits behind somebody else's billing page.
+ *
+ * That makes this door the load-bearing one rather than a convenience: a
+ * member of the workspace that owns a job may advance that job by hand.
  *
  * **Adding a second way past an authorisation check is the kind of change that
  * is cheap to get wrong and expensive to get wrong.** This route spends crawl
