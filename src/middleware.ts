@@ -14,7 +14,21 @@ import { CLERK_ENABLED, PROTECTED } from "@/lib/clerk";
 const needsAccount = createRouteMatcher(PROTECTED.map((p) => [`${p}`, `${p}/(.*)`]).flat());
 
 const withClerk = clerkMiddleware(async (auth, request) => {
-  if (needsAccount(request)) await auth.protect();
+  if (!needsAccount(request)) return;
+  // `auth.protect()` with no argument answers a signed-out visitor with a
+  // **404**, which is what production served on `/account` — a dead end on the
+  // one page in the sidebar that talks about money, and the reason the page's
+  // own signed-out state could never render there.
+  //
+  // `unauthenticatedUrl` turns it into the sign-in door, carrying where they
+  // were trying to go so they land back on it.
+  const back = new URL(request.url);
+  await auth.protect({
+    unauthenticatedUrl: new URL(
+      `/sign-in?redirect_url=${encodeURIComponent(back.pathname + back.search)}`,
+      request.url,
+    ).toString(),
+  });
 });
 
 export default function middleware(request: NextRequest, event: never) {

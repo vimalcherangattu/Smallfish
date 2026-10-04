@@ -70,9 +70,27 @@ def main() -> int:
         ("app", "sign-up", "[[...sign-up]]", "page.tsx"),
         ("app", "account", "page.tsx"),
     ]:
+        # Read through `code_of`, which strips comments.
+        #
+        # This matched the raw file for the string "NoAuth", and when the
+        # account page stopped using that component the assertion kept passing
+        # — on the sentence in the comment that explained why it had been
+        # replaced. A check that a prose mention satisfies is not checking
+        # anything.
+        #
+        # The property is not which component renders: it is that the flag is
+        # consulted **in code** and the page returns something before it
+        # touches Clerk. Either a shared `NoAuth` or a page's own signed-out
+        # view satisfies that; a page that forgets the guard does not.
+        src = code_of(read(*page))
         check(
-            f"{page[1]} degrades instead of crashing",
-            "CLERK_ENABLED" in read(*page) and "NoAuth" in read(*page),
+            f"{page[1]} consults CLERK_ENABLED in code, not in a comment",
+            "CLERK_ENABLED" in src,
+        )
+        check(
+            f"and {page[1]} returns on that guard instead of crashing",
+            re.search(r"!CLERK_ENABLED[\s\S]{0,600}?return", src) is not None,
+            "no early return is guarded by the flag",
         )
 
     # --- the free count stays anonymous ----------------------------------
