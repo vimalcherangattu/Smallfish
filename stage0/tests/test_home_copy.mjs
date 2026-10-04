@@ -168,27 +168,56 @@ check(
   );
 }
 
-// --- honesty, moved but not lost ---------------------------------------------
+// --- honesty, restated for the 2026-10-04 handoff -----------------------------
 //
-// The rule was "the unreadable-sites rate appears once, always with its billing
-// consequence". The rate moved to /how-we-check with the rest of the method.
-// It still has to carry the consequence, wherever it lives.
-check(
-  "the accuracy page states the unreadable-sites rate",
-  /four in ten/i.test(accuracy ?? ""),
-);
-check(
-  "and prices it at nothing in the same breath",
-  /never billed/i.test(accuracy ?? "") || /cost you nothing/i.test(accuracy ?? ""),
-);
+// These four checks used to pin exact sentences: that /how-we-check stated the
+// measured unreadable-sites rate ("four in ten"), and that it said precision
+// was "one niche of three".
+//
+// The designer's handoff removed both, deliberately. HANDOFF §3.1: *"No
+// benchmark numbers. Any sentence of the form 'we read N websites' or 'N
+// checked, N were a fit' is forbidden on marketing pages. Those figures came
+// from internal pricing work and are not public claims."* The measured figures
+// now live only on `/benchmark`, which is still generated from the plan's own
+// Live numbers table and is still the one authoritative place for them.
+//
+// **Deleting these checks would have been the easy read and the wrong one.**
+// What they were protecting is not a form of words — it is two properties:
+//
+//   1. If a page says some sites cannot be read, it says in the same breath
+//      that those cost nothing. Unreadable sites being free is the promise;
+//      mentioning the difficulty without the promise is just a disclaimer.
+//   2. A precision figure never appears without saying what it was measured
+//      on. The old page needed that caveat because it quoted precision. The
+//      handoff quotes none, so the check is now conditional: it fires only if
+//      a figure comes back.
+//
+// Both are now tested as properties, so they keep holding whatever the copy
+// does next.
+const unreadable = /cannot be read|can't be read|couldn[’']t tell|does not say either way|doesn[’']t say either way/i;
+if (unreadable.test(accuracy ?? "")) {
+  check(
+    "where the accuracy page says a site cannot be read, it says that costs nothing",
+    /never billed|cost(s)? (you )?nothing|cost nothing|free|not charged|only ever charged for the first/i.test(
+      accuracy ?? "",
+    ),
+  );
+}
+
 check(
   "precision is not claimed across three markets when it was measured on one",
   !/across three markets/i.test(everywhere),
 );
-check(
-  "and the accuracy page says it is one niche of three",
-  /one niche of three/i.test(accuracy ?? ""),
-);
+
+// Conditional on purpose: the handoff quotes no precision figure at all, and a
+// check that demanded the caveat would fail on a page that makes no claim.
+const precision = /\b\d{2,3}(\.\d+)?%\s*(precision|accurate|correct)|precision[^.]{0,40}\b\d{2,3}(\.\d+)?%/i;
+if (precision.test(accuracy ?? "")) {
+  check(
+    "and a precision figure always says what it was measured on",
+    /one niche|dental|Phoenix|one market/i.test(accuracy ?? ""),
+  );
+}
 
 // --- vocabulary, on the pages a stranger reads first -------------------------
 //
@@ -284,90 +313,48 @@ check(
   }
 }
 
-// --- the 2026-10-01 restructure: order, and what is no longer above the price
+// --- the 2026-10-04 handoff: structure, and the claims that must not return
 //
-// The home page used to argue its method before it showed its product: the
-// junk-list row counts, an annotated drawing of a crawler reading a dental
-// site, and a strip reading "42 that fit · 51 that don't · 73 we couldn't
-// tell". All true, all the wrong first conversation. They moved to
-// `/how-we-check`, and the rule that replaced them is a position rule, which
-// is exactly the kind that creeps back one paragraph at a time.
+// This block replaces the 2026-10-01 one, which pinned the hand-built page's
+// eight sections by their headlines. That page is gone: the home page and
+// /how-we-check are now the designer's handoff markup, served as authored.
+//
+// It is asserted on **section ids, not sentences**. The previous version
+// matched copy, and two of its checks failed on a page that was correct —
+// smart versus straight apostrophes in "what it's like". An id is what the
+// designer actually named the thing, and it survives a copy edit.
 if (home && accuracy) {
-  const ORDER = [
-    ["three steps", "Here’s how it works."],
-    ["the row and its opening email", "Your opening email"],
-    ["the stakes", "Junk lists cost you more than money."],
-    ["the guide", "We know what it’s like to open forty websites"],
-    ["the film", "What it does"],
-    ["coverage", "Any local business. Any city in the US."],
-    ["pricing", "You only pay for businesses that fit."],
-    ["the closing panel", "From guessing to knowing."],
-  ];
+  const raw = readFileSync(path.join(OUT, "index.html"), "utf8");
+  const ORDER = ["how", "row", "problem", "checking", "film", "markets", "price", "signup"];
+  const at = ORDER.map((id) => [id, raw.indexOf(`id="${id}"`)]);
 
-  const at = ORDER.map(([name, marker]) => [name, marker, home.indexOf(marker)]);
-  for (const [name, marker, i] of at) {
-    check(`the home page still has ${name}`, i >= 0, `no "${marker}"`);
-  }
-  if (at.every(([, , i]) => i >= 0)) {
+  for (const [id, i] of at) check(`the home page has the #${id} section`, i >= 0);
+  if (at.every(([, i]) => i >= 0)) {
     for (let i = 1; i < at.length; i += 1) {
-      check(
-        `${at[i][0]} comes after ${at[i - 1][0]}`,
-        at[i][2] > at[i - 1][2],
-        `${at[i][2]} vs ${at[i - 1][2]}`,
-      );
+      check(`#${at[i][0]} comes after #${at[i - 1][0]}`, at[i][1] > at[i - 1][1]);
     }
   }
 
-  // Nothing about crawling, row counts or couldn't-tell above the price.
-  const priceAt = home.indexOf("You only pay for businesses that fit.");
-  const above = priceAt > 0 ? home.slice(0, priceAt) : home;
-  for (const [what, re] of [
-    ["couldn’t tell", /couldn[’']t tell/i],
-    ["row counts", /\d[\d,]*\s+rows\b/i],
-    ["the crawler", /crawler|pages read|robots\.txt/i],
-  ]) {
-    const m = above.match(re);
-    check(
-      `no ${what} above the pricing section`,
-      !m,
-      m ? `"${above.slice(Math.max(0, m.index - 40), m.index + 50)}"` : "",
-    );
-  }
-
-  // And the three blocks are genuinely on the page they moved to, rather than
-  // deleted — which a position rule on its own would happily call a pass.
-  for (const [what, needle] of [
-    ["the annotated page we read", "We read their website the way you would"],
-    ["the couldn’t-tell strip", "we couldn’t tell, never billed"],
-    ["the junk-list row counts", "share a domain with another listing"],
-  ]) {
-    check(`/how-we-check carries ${what}`, accuracy.includes(needle), `missing "${needle}"`);
-  }
-
-  // One quiet link, in the body. The nav and footer carry their own "How we
-  // check" and are not what "link to them once" meant, so this counts the
-  // body link's own wording.
-  //
-  // Counted in the visible text, not the raw file: Next inlines the RSC
-  // payload in a <script>, so the raw HTML carries every string twice and the
-  // first version of this check read 2 for a page with one link.
-  const bodyLinks = (home.match(/How we check each business/g) ?? []).length;
-  check("the home page links to the method exactly once, in the body", bodyLinks === 1,
-        `found ${bodyLinks}`);
-}
-
-// --- copy fixes asked for on 2026-10-01 --------------------------------------
-if (home) {
+  // HANDOFF §3.2 and §13: "There is no Send button anywhere on the site and
+  // there never will be." The repo made the same promise independently, and
+  // the pricing ticks, the row card and the footer all repeat it.
   check(
-    "the coverage paragraph is two sentences, with no dash",
-    home.includes("read off the page. It is not looked up") &&
-      !home.includes("Nothing has to be built for a new trade"),
+    "no page offers to send anything on the visitor's behalf",
+    !/\bsend (it |them |the email)?for you\b|\bwe(’|')ll send\b|\bwe will send\b/i.test(everywhere),
   );
-  // The video block printed its duration twice inside one frame — once in the
-  // chrome bar and once on the play button. It belongs on the button, where it
-  // decides whether somebody presses.
-  const durations = (home.match(/44 seconds/g) ?? []).length;
-  check("the video block states its length once", durations === 1, `found ${durations}`);
+  check("and the home page still says who sends", /you send it|we never send/i.test(home));
+
+  // The claim this repo has twice decided it cannot make. We read 200 of the
+  // 2,778 Phoenix dental sites with a website, so "every website" is false.
+  // The handoff arrived carrying it in two sentences; both were rewritten.
+  check(
+    "no page claims we read every website",
+    !/every (one of their |single )?websites?\b|we (open|read|check) every\b/i.test(everywhere),
+    everywhere.match(/[^.]*every[^.]*websites?[^.]*/i)?.[0]?.slice(0, 90) ?? "",
+  );
+
+  // One quiet link to the method, from the home page body.
+  check("the home page links to /how-we-check", /how we check each business/i.test(home));
 }
 
 console.log(`\n${failures} failure(s)`);

@@ -137,11 +137,25 @@ while (queue.length) {
         }
 
         // Unreadably small text, only on elements that directly hold words.
+        //
+        // Text inside a labelled image is exempt, and the reason is a real bug
+        // this check had: `getComputedStyle().fontSize` on an SVG `<text>` is
+        // in the SVG's **user coordinate space**, not rendered pixels. The US
+        // map on the home page has `viewBox="-6 -4 112 70"` drawn at 353px
+        // wide, so its city labels report 2.7px and render at 11.5. Eight
+        // findings, none of them real.
+        //
+        // The exemption is `[role="img"]` rather than "any SVG": an element
+        // that declares itself an image and carries an `aria-label` is a
+        // picture whose meaning reaches a screen reader by its name, and the
+        // words inside it are part of the drawing. An SVG used as layout —
+        // no role, no label — is still checked, and so is every HTML element.
+        const inImage = !!el.closest('[role="img"]');
         const ownText = [...el.childNodes]
           .filter((n) => n.nodeType === 3)
           .map((n) => n.textContent.trim())
           .join("");
-        if (ownText.length > 3 && fs > 0 && fs < 12 && out.smallText.length < 8) {
+        if (!inImage && ownText.length > 3 && fs > 0 && fs < 12 && out.smallText.length < 8) {
           out.smallText.push({ el: name(el), px: fs, text: ownText.slice(0, 30) });
         }
 
