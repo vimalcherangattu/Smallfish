@@ -66,30 +66,38 @@ console.log(`\nClaim audit — ${BASE}\n`);
   await page.waitForTimeout(600);
   const text = (await page.textContent("body")) ?? "";
 
-  // "We read 200 of the N … that have a website." N is the websites, and it is
-  // smaller than the listing count — if the two are ever equal the sentence has
-  // gone back to counting listings.
-  const m = /We read\s+([\d,]+)\s+of the\s+([\d,]+)/.exec(text.replace(/\s+/g, " "));
-  check("the result screen states what it read against what it could read", !!m, text.slice(0, 120));
+  // "We opened N <trade> websites to build this list."
+  //
+  // The sentence used to be "We read 200 of the 2,419 … that have a website.
+  // 2,240 have not been opened yet", and the second half was our queue depth —
+  // not something a customer asked for, and it reframed a finished list as a
+  // partial one. The denominator went with it.
+  //
+  // What stays guarded is the part that has to be true: the list is standing on
+  // a stated number of websites we opened, and that number cannot exceed what
+  // was actually read. Without it "26 fit" stands on nothing, which is the
+  // overclaim this project retracted once already.
+  const m = /We opened\s+([\d,]+)\s+/.exec(text.replace(/\s+/g, " "));
+  check("the result screen says how many websites it opened", !!m, text.slice(0, 160));
   if (m) {
     const read = Number(m[1].replace(/,/g, ""));
-    const against = Number(m[2].replace(/,/g, ""));
     check(
-      "and the thing it read against is websites, not listings",
-      against <= withSite && against < market.businesses.length,
-      `claims ${against}, websites ${withSite}, listings ${market.businesses.length}`,
-    );
-    check(
-      "and it never claims to have read more than it did",
-      read <= market.counts.read,
+      "and never claims to have opened more than it did",
+      read > 0 && read <= market.counts.read,
       `claims ${read}, measured ${market.counts.read}`,
     );
     check(
-      "and the two are different numbers — a market read end to end would be suspicious here",
-      read < against,
-      `${read} vs ${against}`,
+      "and does not quote the market size beside it any more",
+      !/of the\s+[\d,]+/.test(text.replace(/\s+/g, " ")),
+      "a denominator is back on the results screen",
+    );
+    // The backlog sentence, held out by name.
+    check(
+      "and says nothing about what has not been opened",
+      !/have not been opened|haven.t been opened|not been read/i.test(text),
     );
   }
+  void withSite;
   await page.close();
 }
 
@@ -102,22 +110,31 @@ console.log(`\nClaim audit — ${BASE}\n`);
   await page.waitForTimeout(600);
   const text = ((await page.textContent("body")) ?? "").replace(/\s+/g, " ");
 
+  // A city we cannot serve from a name says what we can do, not what we have
+  // and have not got through.
   check(
-    "a city nobody has read says so",
-    /haven.t been through/i.test(text),
-    text.slice(0, 120),
+    "a city we cannot serve says so plainly",
+    /can.?t start/i.test(text),
+    text.slice(0, 160),
   );
-  // The fix, held: the number is introduced as a bound on our work.
   check(
-    "and the number beside it is framed as a bound on our reading",
-    /would open up to\s+[\d,]+/i.test(text),
-    text.slice(0, 400),
+    "and does not narrate our reading history at it",
+    !/haven.t been through|have not been through|nobody has read|not read (this|that) (city|one)/i.test(text),
+    text.slice(0, 300),
   );
-  // The regression, held: a cap must never be stated as a fact about them.
+  // The screen quotes no figure at all now. The only one available was
+  // `readsFor(region)` — `CITY_CAP`, a bound on **our** work — and it sized a
+  // read that could never start, because nothing attaches candidates to a cold
+  // city (P0.2). A number here would be a cap dressed as a market size.
   check(
-    "never as a count of businesses that have a website",
-    !/[\d,]+ businesses there have a website/i.test(text),
-    text.slice(0, 400),
+    "and quotes no market figure, because it has none to quote",
+    !/\b\d{1,2},\d{3}\b/.test(text),
+    (text.match(/\b\d{1,2},\d{3}\b/g) ?? []).join(", "),
+  );
+  check(
+    "and offers the route that works instead",
+    /upload|your own list/i.test(text),
+    text.slice(0, 300),
   );
   check(
     "and nothing was charged for finding out",

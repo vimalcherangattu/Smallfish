@@ -112,3 +112,38 @@ and `src/lib/launch.ts` the attribution.
   directly — the other session is also pushing it.
 - Do not edit the founding documents. They are live Claude Docs read through
   the connector, linked from `CLAUDE.md`. Leave a comment on the doc instead.
+
+---
+
+## Copy notes from the owner, 2026-10-04
+
+Taken verbatim from a review of the live home page. These are the GTM session's
+to act on; the Product session recorded them here and did not touch the copy.
+
+1. **"Every email to the wrong business makes the next one less likely to
+   land."** — *"Ye usp hai in a way, should be on top."* The owner reads this as
+   the actual USP and wants it high on the page, not buried.
+
+2. **"At 400 a month that is $79, and the ones that don't fit still cost
+   nothing."** — *"iska matlab nahi samjha."* The price slider's sentence does
+   not land. Note that the slab's numbers changed on 2026-10-04: the tiers now
+   read 120 / 400 / 1,000 against `PLANS`, because the old 300 / 1,000 / 3,000
+   promised 2.5× what the plans can deliver. The sentence may need rewriting
+   around the corrected figures rather than the old ones.
+
+3. **"Stop working from junk lists. Start with the businesses that need you."**
+   — *"this can also be on top."*
+
+4. **"Find the businesses that need what you sell."** — *"ye nikaal de. Useless
+   hai. Doesn't ring a bell, mainstream lagg raha hai."* Cut it. The owner finds
+   it generic — it is the line any lead-gen tool would write, which is the
+   opposite of what the rest of the page is doing.
+
+The shape implied by 1 and 3: lead with the **cost of getting it wrong**
+(a wasted email damages the next one) and the **break from the status quo**
+(junk lists), rather than with a category description of the product.
+
+Both of those lines already exist on the page further down. This is a
+reordering and a cut, not new copy — which also means `COPY_EDITS` in
+`stage0/src/site/port_handoff.py` is where the change belongs, so the next
+designer handoff keeps it.

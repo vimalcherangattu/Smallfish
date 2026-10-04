@@ -1,121 +1,75 @@
 import Link from "next/link";
 
-import QueueRead from "@/components/QueueRead";
-import { Arrow, Clock, Up } from "@/components/app/icons";
+import { Arrow, Up } from "@/components/app/icons";
 
 /**
- * A search we understood, in a place nobody has opened yet — `AppProgress` and
- * `AppEmpty` share this shape (§5.5, §5.6).
+ * A search we understood, for a trade and city we cannot serve from a name
+ * alone.
  *
- * ## Why this is not an error and is not styled as one
+ * ## What this screen used to be, and why it changed
  *
- * §7: *"a site that times out, blocks us, or has no content is a per-business
- * outcome… It is not a toast and not a retry dialog."* The same holds a level
- * up: a city we have not read is work not done, not a failure. The screen says
- * what we have, what it would take, and the one route that works today.
+ * It led with **"We haven't been through plumbers in Denver yet"** and offered
+ * a button to start the read.
  *
- * ## The one number on it is measured
+ * Both were wrong. How much of the country we have got through is our queue
+ * depth, and a customer has no use for it — every request is new to them, and
+ * opening with what we have and have not already done reframes their question
+ * as our backlog. And the button could not work: `/api/jobs` created the job
+ * and never attached any sites to it, because nothing extracts candidates for a
+ * cold city yet (P0.2). The progress screen then read 0 of 1,000 for ever.
+ * Somebody sat and watched it.
  *
- * `sites` comes from `readsFor(region)` — the same region maths `/api/queue`
- * uses to size the job — so the wait quoted here is the wait the queued row
- * records. A different number in the two places is how a product starts lying
- * about its own backlog.
+ * So the screen leads with the route that works today — a list they already
+ * have, which brings its own candidates — and says plainly that the city route
+ * is not ready, once, without an account of our reading history.
  *
- * §5.5: *"Do not show a fake percentage."* There is no bar here, because
- * nothing has started. The bar belongs on a job that is running, and this one
- * has not been asked for yet.
+ * It does **not** offer to queue anything. An offer that cannot be honoured is
+ * worse than no offer, and `/api/jobs` now refuses this case rather than
+ * accepting work it will drop.
  */
 
 export default function NotRead({
   what,
   where,
   label,
-  sites,
-  query,
   examples,
-  note,
 }: {
   what: string;
   where: string;
   /** The place as we resolved it, which can differ from what was typed. */
   label: string | null;
-  /**
-   * The **cap** on this read — how many sites we would open, not how many
-   * exist. `readsFor` sums `perCity`, which is `CITY_CAP` for a city search.
-   *
-   * This said *"1,000 businesses there have a website"*, which is the project's
-   * named failure mode wearing a different coat: the results screen once said
-   * "we checked 2,800" about a number that was how many listings had a site at
-   * all. A cap is a promise about our work, never a measurement of theirs.
-   */
-  sites: number | null;
-  /** `resolveRegion`'s own sentence about the region, when it has one — an
-   *  ambiguous city name, or a region bigger than one read can cover. */
-  note: string | null;
-  query: string;
   examples: Array<{ q: string; n: number }>;
 }) {
   const placed = !!label;
+  const trade = what || "those";
 
   return (
     <div className="appbody">
       <div className="appmid">
         <div>
           <h1 className="t-h1">
-            We haven&rsquo;t been through {what || "those"}
-            {label ? ` in ${label}` : where ? ` in ${where}` : ""} yet.
+            {placed ? (
+              <>
+                We can&rsquo;t start {trade} in {label} from a city name yet.
+              </>
+            ) : (
+              <>
+                We couldn&rsquo;t place {where ? `“${where}”` : "that"}.
+              </>
+            )}
           </h1>
           <p className="t-b" style={{ marginTop: 12, color: "#36404C", maxWidth: "58ch" }}>
             {placed ? (
               <>
-                Nothing about your search is unusual — these are just the places we have
-                finished reading. We can start on it now.
+                Give us the businesses and we will read every one of their websites and tell
+                you which fit — that works for any city, starting now.
               </>
             ) : (
-              <>
-                We couldn&rsquo;t place <b style={{ color: "#0E1520" }}>{where || "that"}</b>. A
-                US city or state works; try the city on its own.
-              </>
+              <>A US city or state works. Try the city on its own.</>
             )}
           </p>
         </div>
 
-        {placed && sites !== null && (
-          <div className="card" style={{ padding: "20px 22px", display: "flex", flexDirection: "column", gap: 14 }}>
-            <div className="between" style={{ gap: 16, flexWrap: "wrap" }}>
-              <div>
-                <p className="t-h2">What reading it involves</p>
-                <p className="t-s" style={{ marginTop: 7, maxWidth: "60ch" }}>
-                  We would open up to{" "}
-                  <b className="mono" style={{ color: "#0E1520" }}>
-                    {sites.toLocaleString()}
-                  </b>{" "}
-                  of their websites, politely and one at a time, and read what each one says.
-                  You pay for the ones that fit and nothing else.
-                </p>
-                {note && (
-                  <p className="t-s" style={{ marginTop: 7, maxWidth: "60ch" }}>
-                    {note}
-                  </p>
-                )}
-              </div>
-            </div>
-            <QueueRead query={query} sites={sites} />
-            <div className="row" style={{ gap: 12, alignItems: "flex-start" }}>
-              <Clock s={19} />
-              <p className="t-s" style={{ flex: 1 }}>
-                <b style={{ color: "#0E1520" }}>You can close this tab.</b> We will email you
-                the moment it is done, and the list fills in as businesses come back — it is
-                usable before it is finished.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* The route that works for any city today, offered at the exact moment
-            somebody discovers theirs is not read. Not a consolation: an
-            uploaded list brings its own candidates, so it is the faster path
-            for anyone who already has one. */}
         <div className="ptiles">
           <Link className="ptile sug" href="/app/upload">
             <span className="ptile__tag">works today</span>
@@ -125,9 +79,10 @@ export default function NotRead({
                 <Up s={17} />
               </span>
               <span className="ptile__txt">
-                <b>Already have a list of them?</b>
+                <b>Bring your own list</b>
                 <em>
-                  Upload it and we will read every site on it — any city, starting now.
+                  A CSV with a website column is all it needs. We open each one and tell you
+                  which fit, with the sentence off their page that says so.
                 </em>
               </span>
             </span>
@@ -149,7 +104,7 @@ export default function NotRead({
         {examples.length > 0 && (
           <div style={{ borderTop: "1px solid #D5D9D2", paddingTop: 18 }}>
             <p className="t-h3" style={{ color: "#5B6470" }}>
-              Finished, and ready right now
+              Or start from one of these
             </p>
             <div className="col" style={{ gap: 2, marginTop: 10 }}>
               {examples.slice(0, 4).map((e) => (
@@ -157,13 +112,10 @@ export default function NotRead({
                   className="arrive"
                   href={`/app?q=${encodeURIComponent(e.q)}`}
                   key={e.q}
-                  // `prefetch={false}`: each of these is a force-dynamic route
-                  // that reads a multi-megabyte market file and runs
-                  // `buildLeads` over it. Next prefetches links as they enter
-                  // the viewport, so landing here fired three full searches
-                  // nobody had asked for — three serverless invocations and
-                  // seconds of CPU per visit, and `networkidle` never fired
-                  // because two were always still running.
+                  // Each of these is a force-dynamic route that reads a
+                  // multi-megabyte market file. Next prefetches links entering
+                  // the viewport, so this would fire four full searches nobody
+                  // asked for.
                   prefetch={false}
                 >
                   <span className="dotv" style={{ background: "#C8F03C" }} />
@@ -179,7 +131,7 @@ export default function NotRead({
           </div>
         )}
 
-        <p className="t-s">Nothing was charged for this search. You still have your free 20.</p>
+        <p className="t-s">Nothing was charged for this.</p>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-import { Card, Fish, Flag, List, Plus, Tick } from "@/components/app/icons";
+import { Card, Fish, List, Plus, Tick } from "@/components/app/icons";
 
 /**
  * The App v2 shell: a 252px sidebar, a 64px appbar, and the content column.
@@ -33,7 +33,7 @@ import { Card, Fish, Flag, List, Plus, Tick } from "@/components/app/icons";
 export interface ShellProps {
   children: React.ReactNode;
   /** The route the sidebar should mark active. */
-  here?: "lists" | "saved" | "contacted" | "credits";
+  here?: "lists" | "contacted" | "credits";
   /** Appbar only. Left undefined, the shell decides from the path and whether
    *  the visitor has an account. */
   bare?: boolean;
@@ -46,15 +46,26 @@ export interface ShellProps {
   credits?: { left: number; of: number } | null;
 }
 
-/** §4's five, and no more. "New search" is the button above, so these are the
- *  four destinations plus Get more. `Menu.dc.html` draws six — it also draws a
- *  Help item and a referral link — but that board is the earlier exploration
- *  `SCREENS.md` marks as superseded, and §4's list is the one that is current. */
+/**
+ * §4's five, minus the one that is not built. "New search" is the button above.
+ *
+ * **Saved searches is gone.** It pointed at `/app/destinations`, which is the
+ * CRM connector screen — so someone clicking "Saved searches" in the sidebar
+ * landed on a HubSpot API-key form headed "Where your matches go." That is a
+ * worse failure than a missing item, and the item has nothing to point at: the
+ * watch/alerts work behind saved searches is not built, and `alerts.ts` carries
+ * `CHANGE_RATE_MEASURED = false` on every budget it returns.
+ *
+ * `/app/destinations` is still reachable from the results screen, next to the
+ * export, which is where somebody who wants a CRM push actually is.
+ *
+ * §4's rule is that the product does one thing and the sidebar is short. A
+ * fifth item that leads somewhere unrelated does not satisfy it by counting.
+ */
 const ITEMS = [
   { key: "lists", href: "/app/runs", label: "My lists", icon: List },
-  { key: "saved", href: "/app/destinations", label: "Saved searches", icon: Flag },
   { key: "contacted", href: "/app/contacted", label: "Contacted", icon: Tick },
-  { key: "credits", href: "/account", label: "Get more", icon: Card },
+  { key: "credits", href: "/account", label: "Credits and plan", icon: Card },
 ] as const;
 
 export default function Shell({ children, here, bare, credits = null, signedIn = false, freeGrant = 0 }: ShellProps) {
@@ -186,7 +197,6 @@ function pct(left: number, of: number): number {
 function derive(path: string | null): ShellProps["here"] {
   if (!path) return undefined;
   if (path.startsWith("/app/runs") || path.startsWith("/app/reads")) return "lists";
-  if (path.startsWith("/app/destinations")) return "saved";
   if (path.startsWith("/app/contacted")) return "contacted";
   if (path.startsWith("/account")) return "credits";
   return undefined;

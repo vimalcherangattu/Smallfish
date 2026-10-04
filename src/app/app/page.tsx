@@ -21,7 +21,7 @@ import { PLANS } from "@/lib/pricing";
 import { suppressedIds } from "@/lib/db";
 import { buildLeads, composeEmail, marketFor, type Contacts } from "@/lib/leads";
 import { splitQuery } from "@/lib/query";
-import { readsFor, resolveRegion, type Places } from "@/lib/region";
+import { resolveRegion, type Places } from "@/lib/region";
 import type { Business, Criterion, Market, MarketIndex } from "@/lib/types";
 
 /**
@@ -207,18 +207,15 @@ export default async function App({
   // Nothing typed yet: the one question (§5.1).
   if (!query) return <FirstRun examples={picks} />;
 
-  // A place we understood but have not opened (§5.5). `readsFor` is the same
-  // region maths `/api/queue` uses to size the job, so the number quoted here
-  // is the number the queued row records.
+  // A place we understood but cannot serve from a name alone. No figure is
+  // quoted here any more: the only one available was `readsFor(region)`, which
+  // is a cap on our own work, and the read it sized could never start.
   if (!result) {
     return (
       <NotRead
         what={split.what}
         where={split.where}
         label={region?.label ?? null}
-        sites={region ? readsFor(region) : null}
-        note={region?.note ?? null}
-        query={query}
         examples={picks}
       />
     );
@@ -265,8 +262,6 @@ export default async function App({
         unsure={result.unsure}
         didNotFit={result.didNotFit}
         read={result.read}
-        withSite={result.withSite}
-        unread={result.unread}
         marketId={result.marketId}
         criterionId={result.criterionId}
         // No price for somebody with no balance to spend it from: a signed-out

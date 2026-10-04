@@ -58,8 +58,6 @@ export interface ResultsProps {
   } | null;
   /** How much of the market has been read, for the honest footnote. */
   read: number;
-  withSite: number;
-  unread: number;
   /** What the download would spend, so the button can say it before it is
    *  pressed. */
   marketId: string;
@@ -179,17 +177,25 @@ export default function Results(p: ResultsProps) {
             </div>
           )}
 
+          {/* What this search did, not what our backlog looks like.
+              
+              This read: "We read 200 of the 2,419 med spas in Dallas that have
+              a website. 2,240 have not been opened yet." The second sentence is
+              our queue depth, and a customer has no use for it — they did not
+              ask how much of Dallas we have got through, and telling them
+              reframes a finished list as a partial one. The denominator did the
+              same job more quietly.
+              
+              What survives is the claim that has to be here: how many websites
+              we opened to build this list. Dropping that would leave "26 fit"
+              standing on nothing, which is the overclaim this project retracted
+              once already. */}
           <p className="t-s">
-            We read{" "}
+            We opened{" "}
             <b className="mono" style={{ color: "#0E1520" }}>
               {p.read.toLocaleString()}
             </b>{" "}
-            of the{" "}
-            <b className="mono" style={{ color: "#0E1520" }}>
-              {p.withSite.toLocaleString()}
-            </b>{" "}
-            {p.what} in {p.where} that have a website.
-            {p.unread > 0 && ` ${p.unread.toLocaleString()} have not been opened yet.`}
+            {p.what} websites to build this list.
           </p>
 
           {p.cost && p.cost.locked > 0 && <CostBar cost={p.cost} unsure={unsureTotal} />}

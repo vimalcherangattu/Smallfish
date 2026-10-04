@@ -6,7 +6,7 @@ import { CLERK_ENABLED } from "@/lib/clerk";
 import { estimateSeconds, worthLeaving } from "@/lib/jobs";
 import { marketFor, unreadIn } from "@/lib/leads";
 import { splitQuery } from "@/lib/query";
-import { readsFor, resolveRegion, type Places } from "@/lib/region";
+import { resolveRegion, type Places } from "@/lib/region";
 import type { Market, MarketIndex } from "@/lib/types";
 
 const email = (body: { email?: unknown }) =>
@@ -115,10 +115,14 @@ export async function POST(req: Request) {
       return Response.json({
         ok: true,
         alreadyRead: true,
-        reason: rest.length
-          ? `We have read ${(market?.counts?.read ?? 0).toLocaleString()} of these — ` +
-            `your list is ready now, and there are ${rest.length.toLocaleString()} more to read.`
-          : "We have already read this one — your list is ready now.",
+        // Not "we have already read this one".
+        //
+        // How much of a market we have been through is our queue depth, not the
+        // customer's business. Every request is new to them, and telling them
+        // their answer came out of a drawer reframes a finished list as a
+        // leftover. The sentence says what they get, which is the only part
+        // they asked about.
+        reason: "Your list is ready.",
         remaining: rest.length,
         href: `/app?q=${encodeURIComponent(query)}`,
       });
@@ -164,27 +168,34 @@ export async function POST(req: Request) {
     );
   }
 
-  // How many sites this actually reads, from the same region maths the search
-  // screen quotes. The estimate is derived from it, never rounded upward for
-  // effect.
-  const sites = readsFor(region);
-  const seconds = estimateSeconds(sites);
-
-  const id = await queueJob({
-    accountId: acct.id,
-    query,
-    regionLabel: region.label,
-    sites,
-    estimateSeconds: seconds,
-    notifyEmail: email(body),
-  });
-
-  return Response.json({
-    ok: true,
-    id,
-    sites,
-    seconds,
-    worthLeaving: worthLeaving(sites),
-    href: `/app/reads/${id}`,
-  });
+  // A city we have no candidates for cannot be queued, and used to be anyway.
+  //
+  // This branch called `queueJob` with `sites: readsFor(region)` and **never
+  // called `addJobSites`**. Only two places put sites on a job — the branch
+  // above, which takes them from the market file, and the upload route, which
+  // takes them from the customer's CSV. So a search for a trade and city we
+  // have not extracted produced a job with a thousand promised websites and
+  // zero rows behind it: `takeSites` returns empty, the worker breaks out of
+  // its loop on the first tick, and the progress screen reads **0 of 1,000**
+  // for ever with no reason on it.
+  //
+  // Somebody ran exactly that — psychiatrists in Dallas — and sat watching a
+  // bar that could never move.
+  //
+  // Candidate supply for a cold city is P0.2 and it is not built. Until it is,
+  // the honest answer is to decline and point at the path that works today,
+  // rather than take the request and silently drop it.
+  return Response.json(
+    {
+      ok: false,
+      // No backlog talk: not "we haven't read this city". What this says is
+      // what we can and cannot do with the request in front of us.
+      reason:
+        `We can't start ${split.what || "that"} in ${region.label} from a city name yet. ` +
+        `If you already have a list of them, upload it and we will read every site on it — ` +
+        `that works for any city, starting now.`,
+      upload: "/app/upload",
+    },
+    { status: 409 },
+  );
 }

@@ -1,9 +1,5 @@
-import { auth } from "@clerk/nextjs/server";
-
 import Shell from "@/components/app/Shell";
-import { accountForUser, balanceOf } from "@/lib/accounts";
-import { CLERK_ENABLED } from "@/lib/clerk";
-import { PLANS } from "@/lib/pricing";
+import { appWallet, FREE_GRANT } from "@/lib/wallet";
 
 /**
  * The app shell — `PRODUCT-HANDOFF.md` §4.
@@ -21,46 +17,19 @@ import { PLANS } from "@/lib/pricing";
  * empty destinations is worse than none"* — and a layout cannot opt out of
  * itself. `Shell` resolves it instead: it reads the path on the client and
  * takes `signedIn` from here, so `/app` with no account gets the appbar alone
- * and every other route keeps the rail. The alternative was eight pages each
- * re-declaring the chrome, which is eight places for it to drift.
+ * and every other route keeps the rail.
  *
- * ## The credit pill is the real balance or it is absent
+ * ## The wallet is not computed here
  *
- * Never a guess and never a placeholder: a counter that is wrong about money is
- * worse than no counter. Every failure here — no Clerk, no account, a database
- * that is briefly away — ends at the free allowance, which is what a signed-out
- * visitor actually has.
+ * `lib/wallet.ts` owns it, because `/account` renders the same shell and the
+ * two reading the balance separately is how one of them came to show
+ * milli-credits as credits.
  */
 
 export const metadata = { title: "Small Fish" };
 
-/** The free plan's grant, from the pricing table rather than a literal — the
- *  footnote on the first-run screen promises this number and `/pricing` sells
- *  it, so three copies of "20" is three places for it to drift. */
-const FREE_GRANT = PLANS.find((p) => p.id === "free")?.credits ?? 0;
-
-async function wallet() {
-  // Signed out: the pill is an offer, not a balance. It used to read
-  // "3 of 3 free left", which was `FREE_PREVIEW` — the rows a stranger can see
-  // without an account — wearing the free plan's clothes, on a screen whose own
-  // footnote promises twenty. Two different numbers for two different things,
-  // and the smaller one was being shown as the allowance.
-  const out = { left: 0, of: FREE_GRANT, signedIn: false };
-  if (!CLERK_ENABLED) return out;
-  try {
-    const { userId } = await auth();
-    if (!userId) return out;
-    const account = await accountForUser(userId);
-    if (!account) return { ...out, signedIn: true };
-    const balance = await balanceOf(account.id);
-    return { left: balance, of: Math.max(balance, FREE_GRANT), signedIn: true };
-  } catch {
-    return out;
-  }
-}
-
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const w = await wallet();
+  const w = await appWallet();
   return (
     <>
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
