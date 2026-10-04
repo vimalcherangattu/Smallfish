@@ -191,26 +191,35 @@ Two traps worth not rediscovering, both cost real time:
 
 ## Git
 
-**`main` is production.** Every push to it deploys to getsmallfish.com within about
-two minutes — there is no staging step and no approval. A branch push builds its own
-preview deployment, which is behind Vercel Authentication: the owner can open it, a
-session cannot.
+**Everything goes to `main`, and `main` is production.** Every push deploys to
+getsmallfish.com in about two minutes. That is the decision while the product is being
+built: speed over staging, because the loop that catches mistakes is fast and the
+alternative is work sitting in a branch nobody can see. A branch push builds a preview,
+but it is behind Vercel Authentication — the owner can open it, a session cannot — so
+holding work there means nobody checks it rather than someone does.
 
-That asymmetry decides the rule:
+The condition is **no conflicts**, and with two sessions on one branch that takes care:
 
-- **Anything a visitor sees** — a screen, copy, pricing, the home page — goes to a
-  branch first. Hand the owner the preview and merge once they have looked. A session
-  cannot check a preview, so merging without that look means nobody checked it.
-- **Anything invisible and covered by tests** — a bug fix, a refactor, engine work, a
-  test — goes straight to `main`, and whoever pushed **then checks production**. A
-  green build has hidden a live defect twice: `/account` answered 404, and the credit
-  pill showed milli-credits as credits.
-- **Never two sessions pushing `main` at once.** Rebase on `main` first, then run
-  `python3 stage0/tests/run_all.py` — after the rebase, because that run is the only
-  thing that knows whether the other stream broke you.
+- **Before every push**: `git pull --rebase origin main`, then run
+  `python3 stage0/tests/run_all.py` — **after** the rebase, because that run is the only
+  thing that knows whether the other stream broke you. Then push.
+- **A rebase conflict is a stop, not a puzzle.** You cannot see the other session's
+  intent. Say what conflicted and leave it rather than guessing at their work.
+- **Push small and often.** A long-lived pile of commits is what turns a rebase into a
+  conflict. Two sessions can share `main` indefinitely if neither sits on work.
+- **Whoever pushes checks production afterwards.** Fetch the URL. A green build has
+  hidden a live defect twice in one day: `/account` answered a signed-out visitor with
+  404, and the credit pill rendered milli-credits as credits. Both suites were green.
 
-Branches: `claude/gtm-<something>` for GTM, `claude/product-<something>` for Product.
-See `docs/STREAMS.md`.
+Git conflicts are not the only kind. `stage0/tests/test_contract.mjs` catches the
+semantic ones — GTM copy disagreeing with Product's numbers — which git cannot see.
+
+**Say so in chat before pushing a change that moves the commercial offer** (a price, the
+free allowance, a plan size) or replaces a screen wholesale. Not a gate, just a heads-up
+before it is live to everyone.
+
+Branches: `claude/gtm-<something>` and `claude/product-<something>` exist if a stream
+wants one for a spike. They are not the default. See `docs/STREAMS.md`.
 
 ## Next up
 

@@ -124,39 +124,46 @@ The ones worth avoiding:
   layout also links Google Fonts for the kit's literal family names. Do not
   "tidy" one into the other without checking both render.
 
-### Branches, and when a change goes to `main`
+### Both streams push to `main`
 
 **`main` is production.** Every push deploys to getsmallfish.com in about two
-minutes. There is no staging step, no approval gate, and at least one real
-person is using the site. A branch push builds its own preview deployment,
-which sits behind Vercel Authentication — the owner can open it, a session
-cannot.
+minutes, with no staging step. That is the decision while the product is being
+built — the owner's call on 2026-10-04 — and the condition attached to it is
+**no conflicts**.
 
-```
-claude/gtm-<something>       GTM
-claude/product-<something>   Product
-```
+A branch push does build a preview, but it sits behind Vercel Authentication:
+the owner can open it, a session cannot. So a branch is not a review step for a
+session, it is a place where nobody looks. Branches exist for a spike
+(`claude/gtm-<something>`, `claude/product-<something>`); they are not the
+default.
 
-That a session cannot see a preview is what sets the rule:
+Two sessions sharing one branch works if neither sits on work:
 
-| Change | Where it goes |
-|---|---|
-| Anything a visitor sees — a screen, copy, pricing, the home page | Branch first. Hand the owner the preview URL and merge once they have looked. Merging it unseen means nobody looked at it, because you cannot. |
-| Anything invisible and covered by tests — a bug fix, a refactor, engine work, a test | Straight to `main`, then **check production**. |
+1. **Before every push**: `git pull --rebase origin main`, then
+   `python3 stage0/tests/run_all.py` — **after** the rebase, because that run is
+   the only thing that knows whether the other stream broke you. Then push.
+2. **A rebase conflict is a stop, not a puzzle.** You cannot see the other
+   session's intent. Say what conflicted and leave it.
+3. **Push small and often.** A long-lived pile of commits is what turns a rebase
+   into a conflict.
+4. **Whoever pushes checks production afterwards.** Fetch the URL. A green build
+   has hidden a live defect twice in one day — `/account` answering a signed-out
+   visitor with 404, and the credit pill rendering milli-credits as credits.
+   Both suites were green and both builds were clean.
 
-**Whoever pushes `main` verifies production afterwards.** A green build has
-hidden a live defect twice in one day: `/account` answered a signed-out visitor
-with 404, and the credit pill rendered milli-credits as credits. Both builds
-were clean and both test suites were green. Fetch the URL.
+Git conflicts are not the only kind. `test_contract.mjs` catches the semantic
+ones — marketing copy disagreeing with the code's numbers — which git cannot
+see. That is §2.
 
-**Never two sessions pushing `main` at once.** Rebase on `main` first, then run
-`python3 stage0/tests/run_all.py` — after the rebase, because that run is the
-only thing that knows whether the other stream broke you.
+**Say so in chat before pushing a change that moves the commercial offer** — a
+price, the free allowance, a plan size — or that replaces a screen wholesale.
+Not a gate, a heads-up before it is live to everyone. The price slab went from
+"up to 300 for $29" to "up to 120" inside an hour on 2026-10-04 without one.
 
-An earlier version of this file said simply "do not push `main` directly", and
-`CLAUDE.md` said "work goes to `main`". They contradicted each other, and the
-Product session followed the second one all through 2026-10-04. Both now say
-the above.
+**History.** This file first said "never push `main` directly" while `CLAUDE.md`
+said "work goes to `main`"; the two contradicted each other for a day. Then both
+said branch-first for anything visitor-facing. Both now say the above. The
+reversals are deliberate and recorded rather than quietly overwritten.
 
 ---
 
