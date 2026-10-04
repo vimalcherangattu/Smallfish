@@ -77,6 +77,12 @@ function linkedFrom(route) {
       return (
         c.includes(`href="${route}"`) ||
         c.includes(`href={\`${route}`) ||
+        // A route named in a navigation table rather than inline in JSX. The
+        // sidebar's five destinations live in one `ITEMS` array so the "five
+        // items, never six" rule has one place to be broken; that made every
+        // one of them invisible to a matcher that only knew `href="…"`, and
+        // `/app/contacted` failed this test while sitting in the nav.
+        c.includes(`href: "${route}"`) ||
         c.includes(`push("${route}`) ||
         c.includes(`push(\`${route}`) ||
         c.includes(`"${route}?`) ||
@@ -114,7 +120,17 @@ test("all four search modes are reachable from the search screen itself", () => 
   // The flow document specifies four: type, map, templates, upload. Typing is
   // the screen. The other three have to be one link away from it, or somebody
   // who does not already know they exist never finds them.
-  const app = code(readFileSync(path.join(SRC, "app/app/page.tsx"), "utf8"));
+  // "The search screen" is the page plus the components it renders — the four
+  // ways in are tiles in `FirstRun`, and the unread-city screen offers upload
+  // and templates from `NotRead`. Reading only `page.tsx` would have reported
+  // all three missing on the day they became more prominent, not less.
+  const app = [
+    "app/app/page.tsx",
+    "components/app/FirstRun.tsx",
+    "components/app/NotRead.tsx",
+  ]
+    .map((f) => code(readFileSync(path.join(SRC, f), "utf8")))
+    .join("\n");
   for (const route of ["/templates", "/app/explore", "/app/upload"]) {
     assert.ok(app.includes(route), `the search screen does not offer ${route}`);
   }

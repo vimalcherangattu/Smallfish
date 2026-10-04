@@ -30,6 +30,7 @@ export default function ExportButton({
   withheld,
   cost = 0,
   variant = "inline",
+  className,
 }: {
   market: string;
   criterion: string;
@@ -58,6 +59,16 @@ export default function ExportButton({
    * pieces of our vocabulary in a six-word button.
    */
   variant?: "inline" | "primary";
+  /**
+   * Overrides the button's own class. Used by the App v2 result header, where
+   * `sf-btn-lure` would be the screen's **second** lure-filled element — the
+   * first is Copy email inside the open row, and `PRODUCT-HANDOFF.md` §12 is
+   * "exactly one lure-filled element per screen. Grep for the token and count
+   * per route." The artboard makes the same choice: its header action is
+   * `.btn.ink`, ink-filled with lure text, precisely so the one lure stays on
+   * the row.
+   */
+  className?: string;
 }) {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
@@ -111,7 +122,7 @@ export default function ExportButton({
   if (variant === "primary") {
     return (
       <div className="text-right">
-        <button onClick={run} disabled={busy || !rows} className="sf-btn-lure disabled:opacity-40">
+        <button onClick={run} disabled={busy || !rows} className={className ?? "sf-btn-lure disabled:opacity-40"}>
           {busy
             ? "Preparing…"
             : cost > 0
@@ -150,7 +161,10 @@ export default function ExportButton({
                 `yours to export. Their reasons are in the summary above.`
               : undefined
           }
-          className="rounded-md border border-[var(--line)] px-2.5 py-1 text-[11px] font-medium hover:bg-[var(--accent-soft)] disabled:opacity-40"
+          // `sf-tap` grows this to 44px on a phone. Measured at 208x29 by
+          // `check_mobile.mjs`, which on a touch screen is a control a thumb
+          // cannot reliably hit — and it is the one that spends credits.
+          className="sf-tap rounded-md border border-[var(--line)] px-2.5 py-1 text-[11px] font-medium hover:bg-[var(--accent-soft)] disabled:opacity-40"
         >
           {busy ? "Preparing…" : `Export ${rows} matched row${rows === 1 ? "" : "s"} with proof`}
         </button>

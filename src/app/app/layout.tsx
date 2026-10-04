@@ -1,65 +1,83 @@
-import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 
-import AppNav from "@/components/AppNav";
+import Shell from "@/components/app/Shell";
+import { accountForUser, balanceOf } from "@/lib/accounts";
 import { CLERK_ENABLED } from "@/lib/clerk";
+import { PLANS } from "@/lib/pricing";
 
 /**
- * The app shell.
+ * The app shell — `PRODUCT-HANDOFF.md` §4.
  *
- * Until 2026-09-25 the product was one screen: a full-bleed map with a table
- * hanging off it and no way to get anywhere else. That is not a missing
- * dashboard, it is a missing product — there was nowhere to see what you had
- * run, nothing to come back to, and no sense that the thing had state.
+ * ## What this replaced
  *
- * The shell is a sidebar and a content column, which is unremarkable on
- * purpose. `docs/design-system.md` §P6 — *twelve read well beats six hundred
- * listed* — is about the content, and content is easier to read when the
- * chrome around it is not competing.
+ * A Tailwind sidebar of eight items, two of which were views of the same list
+ * and one of which ("Reads") was the measurement rig showing through. §4 is
+ * blunt about the count: *"Five items. Every time someone proposes a sixth, the
+ * answer is that the product does one thing."*
  *
- * Signed out is not gated here. The free count is anonymous by design (see
- * `lib/clerk.ts`'s `PROTECTED`, which deliberately omits `/app`), so a stranger
- * gets the whole shell, runs a search, and is asked for an account only at the
- * point where something is unlocked.
+ * ## Why the chrome is here and the bare case is not a second layout
+ *
+ * §4 also has first run carry **no sidebar** — *"a navigation rail to five
+ * empty destinations is worse than none"* — and a layout cannot opt out of
+ * itself. `Shell` resolves it instead: it reads the path on the client and
+ * takes `signedIn` from here, so `/app` with no account gets the appbar alone
+ * and every other route keeps the rail. The alternative was eight pages each
+ * re-declaring the chrome, which is eight places for it to drift.
+ *
+ * ## The credit pill is the real balance or it is absent
+ *
+ * Never a guess and never a placeholder: a counter that is wrong about money is
+ * worse than no counter. Every failure here — no Clerk, no account, a database
+ * that is briefly away — ends at the free allowance, which is what a signed-out
+ * visitor actually has.
  */
 
 export const metadata = { title: "Small Fish" };
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+/** The free plan's grant, from the pricing table rather than a literal — the
+ *  footnote on the first-run screen promises this number and `/pricing` sells
+ *  it, so three copies of "20" is three places for it to drift. */
+const FREE_GRANT = PLANS.find((p) => p.id === "free")?.credits ?? 0;
+
+async function wallet() {
+  // Signed out: the pill is an offer, not a balance. It used to read
+  // "3 of 3 free left", which was `FREE_PREVIEW` — the rows a stranger can see
+  // without an account — wearing the free plan's clothes, on a screen whose own
+  // footnote promises twenty. Two different numbers for two different things,
+  // and the smaller one was being shown as the allowance.
+  const out = { left: 0, of: FREE_GRANT, signedIn: false };
+  if (!CLERK_ENABLED) return out;
+  try {
+    const { userId } = await auth();
+    if (!userId) return out;
+    const account = await accountForUser(userId);
+    if (!account) return { ...out, signedIn: true };
+    const balance = await balanceOf(account.id);
+    return { left: balance, of: Math.max(balance, FREE_GRANT), signedIn: true };
+  } catch {
+    return out;
+  }
+}
+
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const w = await wallet();
   return (
-    <div className="flex min-h-screen bg-[var(--bg)] text-[var(--ink)]">
-      <aside className="hidden w-[232px] shrink-0 border-r border-[var(--line)] bg-[var(--raised)] lg:block">
-        <div className="sticky top-0 h-screen">
-          <AppNav />
-        </div>
-      </aside>
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* The small-screen bar. The sidebar is hidden below `lg` rather than
-            turned into a drawer: a drawer is a component to maintain and a
-            phone is not where anyone works a lead list. The links that matter
-            are here. */}
-        {/* Every item is a 44px row: `sf-tap` is what the mobile block in
-            globals.css grows into a thumb-sized box. Measured before the
-            change — Search was 40x20, Runs 29x20 — which on a phone is three
-            targets a finger cannot separate. `py-3` went with it, since the
-            rows now set the bar's height themselves. */}
-        <div className="flex items-center gap-1 border-b border-[var(--line)] bg-[var(--raised)] px-4 lg:hidden">
-          <Link href="/app" className="sf-tap sf-h3 pr-2">
-            small fish
-          </Link>
-          <div className="sf-small ml-auto flex items-center gap-1">
-            <Link href="/app" className="sf-tap px-2 text-[var(--ink-2)]">Search</Link>
-            <Link href="/app/upload" className="sf-tap px-2 text-[var(--ink-2)]">Upload</Link>
-            <Link href="/app/contacted" className="sf-tap px-2 text-[var(--ink-2)]">Contacted</Link>
-            <Link href="/app/runs" className="sf-tap px-2 text-[var(--ink-2)]">Runs</Link>
-            <Link href="/account" className="sf-tap px-2 text-[var(--ink-2)]">
-              {CLERK_ENABLED ? "Account" : "Credits"}
-            </Link>
-          </div>
-        </div>
-
-        <main className="min-w-0 flex-1">{children}</main>
-      </div>
-    </div>
+    <>
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+      <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,0..100;1,9..144,300..700,0..100&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet"
+      />
+      {/* The designer's App v2 stylesheet. Its resets are scoped to `.sf`, so
+          the screens still written in the Tailwind vocabulary are untouched. */}
+      <link href="/app/kit.css" rel="stylesheet" />
+      <Shell
+        signedIn={w.signedIn}
+        credits={w.signedIn ? { left: w.left, of: w.of } : null}
+        freeGrant={FREE_GRANT}
+      >
+        {children}
+      </Shell>
+    </>
   );
 }

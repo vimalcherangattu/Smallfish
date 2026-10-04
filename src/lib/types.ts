@@ -22,6 +22,11 @@ export interface Verdict {
 
 export interface ReadResult {
   outcome: string;
+  /** The day we opened their site, `YYYY-MM-DD`. Absent for everything read
+   *  before the probe started recording it — the row then shows the page count
+   *  and no date rather than borrowing the Overture release date, which is when
+   *  the listings were published and not when we read anything. */
+  at?: string;
   pages: number;
   chars: number;
   booking: boolean;

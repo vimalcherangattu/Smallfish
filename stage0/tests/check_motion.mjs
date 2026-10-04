@@ -77,18 +77,34 @@ for (const reduced of [false, true]) {
     r.hiddenCount === 0,
     `${r.hiddenCount} still transparent — ${r.hidden.join(", ")}`,
   );
-  check(
-    `${label}: the struck-through rows finished drawing`,
-    r.strike === "100% 1px",
-    `background-size is ${r.strike}`,
-  );
+  // These two were written against the v3 home page's junk-list diagram and
+  // its count-up figures. The designer's home page replaced both, so the
+  // elements are gone and the assertions were failing on `null` and `[]` —
+  // reporting a broken animation where there is no animation.
+  //
+  // They are **skipped, loudly**, not deleted and not quietly passed. The
+  // properties still matter the moment either device returns, and a run that
+  // printed green while testing nothing is how a check stops being one.
+  if (r.strike === null) {
+    console.log(`  skip  ${label}: no struck-through rows on this page`);
+  } else {
+    check(
+      `${label}: the struck-through rows finished drawing`,
+      r.strike === "100% 1px",
+      `background-size is ${r.strike}`,
+    );
+  }
   // The count-up replays a number the server already rendered; it must never
   // leave a zero on screen, and never a figure the page did not come with.
-  check(
-    `${label}: every counted number settled on a real value`,
-    r.counters.length > 0 && r.counters.every((t) => t !== "0" && /[1-9]/.test(t)),
-    r.counters.join(" · "),
-  );
+  if (r.counters.length === 0) {
+    console.log(`  skip  ${label}: no counted numbers on this page`);
+  } else {
+    check(
+      `${label}: every counted number settled on a real value`,
+      r.counters.every((t) => t !== "0" && /[1-9]/.test(t)),
+      r.counters.join(" · "),
+    );
+  }
 
   await ctx.close();
 }

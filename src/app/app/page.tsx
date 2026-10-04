@@ -11,15 +11,18 @@ import {
   unlockedIds,
 } from "@/lib/accounts";
 import { CLERK_ENABLED } from "@/lib/clerk";
-import LeadList from "@/components/LeadList";
 import RecordRun from "@/components/RecordRun";
-import QueueRead from "@/components/QueueRead";
-import SearchBox from "@/components/SearchBox";
+import FirstRun from "@/components/app/FirstRun";
+import NotRead from "@/components/app/NotRead";
+import Nothing from "@/components/app/Nothing";
+import Results from "@/components/app/Results";
+import { agree, evidenceFor, prettyDay } from "@/lib/appview";
+import { PLANS } from "@/lib/pricing";
 import { suppressedIds } from "@/lib/db";
-import { buildLeads, marketFor, type Contacts } from "@/lib/leads";
+import { buildLeads, composeEmail, marketFor, type Contacts } from "@/lib/leads";
 import { splitQuery } from "@/lib/query";
 import { readsFor, resolveRegion, type Places } from "@/lib/region";
-import type { Market, MarketIndex } from "@/lib/types";
+import type { Business, Criterion, Market, MarketIndex } from "@/lib/types";
 
 /**
  * The product, on one screen.
@@ -52,6 +55,10 @@ import type { Market, MarketIndex } from "@/lib/types";
  */
 
 export const dynamic = "force-dynamic";
+
+/** What signing up grants, from the pricing table — the same source the appbar
+ *  pill and `/pricing` read, so the three cannot disagree. */
+const FREE_GRANT = PLANS.find((p) => p.id === "free")?.credits ?? 0;
 export const metadata = { title: "Find businesses — Small Fish" };
 
 /**
@@ -123,7 +130,7 @@ function suggestions(index: MarketIndex | null) {
       if (n > 0) {
         const niche = (LABEL[m.niche] ?? m.niche.replace(/_/g, " ")).toLowerCase();
         const city = m.metro.split(",")[0].trim();
-        out.push({ q: `${niche} in ${city} that ${c.text}`, n });
+        out.push({ q: `${niche} in ${city} that ${agree(c.text)}`, n });
       }
     }
   }
@@ -147,8 +154,10 @@ export default async function App({
   const hit = query ? marketFor(index, split.what, split.where) : null;
 
   let result = null;
-  let wallet = { signedIn: false, balance: 0, comped: false };
-  let contacted: string[] = [];
+  let signedIn = false;
+  let byId = new Map<string, Business>();
+  let criterionRow: Criterion | null = null;
+  let readOn: string | null = null;
   if (hit) {
     const [market, contacts, sup] = await Promise.all([
       json<Market>(`${hit.market.id}.json`),
@@ -167,8 +176,17 @@ export default async function App({
       // shows the count, the evidence and the free preview. The alternative is a
       // 500 on the one screen the product is.
       const w = await walletFor(market.businesses.map((b) => b.id));
-      wallet = { signedIn: w.signedIn, balance: w.balance, comped: w.comped };
-      contacted = w.contacted;
+      signedIn = w.signedIn;
+      byId = new Map(market.businesses.map((b) => [b.id, b]));
+      criterionRow = market.criteria.find((c) => c.id === hit.criterion.id) ?? null;
+      // The market's read date, if any read in it carries one. Absent for
+      // everything probed before the stamp existed — the head then says what
+      // was found and no date, rather than borrowing the Overture release date.
+      // See `appview.ts`'s `sourceLine`.
+      readOn = (() => {
+        const at = market.businesses.find((b) => b.read?.at)?.read?.at;
+        return at ? prettyDay(at) : null;
+      })();
       result = buildLeads({
         query,
         index,
@@ -185,138 +203,94 @@ export default async function App({
   const region = !hit && places && split.where ? resolveRegion(places, split.where) : null;
   const picks = suggestions(index);
 
+
+  // Nothing typed yet: the one question (§5.1).
+  if (!query) return <FirstRun examples={picks} />;
+
+  // A place we understood but have not opened (§5.5). `readsFor` is the same
+  // region maths `/api/queue` uses to size the job, so the number quoted here
+  // is the number the queued row records.
+  if (!result) {
+    return (
+      <NotRead
+        what={split.what}
+        where={split.where}
+        label={region?.label ?? null}
+        sites={region ? readsFor(region) : null}
+        note={region?.note ?? null}
+        query={query}
+        examples={picks}
+      />
+    );
+  }
+
+  // Read, and nothing answered the way they asked (§5.6).
+  if (result.leads.length === 0) {
+    return (
+      <Nothing
+        what={result.what}
+        where={result.where}
+        criterion={result.criterionText}
+        read={result.read}
+        didNotFit={result.didNotFit}
+        unsure={result.unsure}
+        examples={picks}
+      />
+    );
+  }
+
+  // The answer (§5.2). Everything the row needs is assembled here, on the
+  // server, from the market file — which is megabytes, against the forty rows a
+  // browser actually needs.
+  const rows = result.leads.map((lead) => {
+    const b = byId.get(lead.id);
+    return {
+      lead,
+      evidence:
+        b && criterionRow
+          ? evidenceFor(b, criterionRow)
+          : ({ kind: "missing", why: "We have no record of reading this one." } as const),
+      email: b && !lead.locked ? composeEmail(b, criterionRow!, { sells: null }) : null,
+    };
+  });
+
   return (
-    <div className="mx-auto max-w-[1000px] px-6 py-10 sm:px-10">
-      {!query && (
-        <>
-          <h1 className="sf-h1">Who do you want to find?</h1>
-          <p className="sf-body mt-3 max-w-[58ch] text-[var(--ink-2)]">
-            A trade, a place, and the one thing that makes a business worth your
-            call. You get their number and a line to open with.
-          </p>
-        </>
-      )}
-
-      <div className={query ? "" : "mt-8"}>
-        <SearchBox initial={query} />
-      </div>
-
-      {/* ------------------------------------------------------- the answer -- */}
-      {result && result.leads.length > 0 && (
-        <>
-          <LeadList result={result} wallet={wallet} contactedIds={contacted} />
-          {/* Kept beside the results, never in front of them: the history write
-              must not be able to delay or break what the person came for. */}
-          <RecordRun market={result.marketId} criterion={result.criterionId} />
-        </>
-      )}
-
-      {/* A search we understood, in a place we know, that nobody has read yet. */}
-      {query && !result && (
-        <div className="sf-card mt-8 p-6">
-          <p className="sf-h2">
-            We haven&rsquo;t been through {split.what || "those"}
-            {region ? ` in ${region.label}` : split.where ? ` in ${split.where}` : ""} yet.
-          </p>
-          <p className="sf-body mt-3 max-w-[64ch] text-[var(--ink-2)]">
-            {split.where && !region ? (
-              <>
-                We couldn&rsquo;t place <strong>{split.where}</strong>. A US city
-                or state works — try the city on its own.
-              </>
-            ) : (
-              <>
-                Nothing about your search is unusual; these are just the places
-                we have finished. Tell us and we will put it next in the queue.
-              </>
-            )}
-          </p>
-
-          {/* A place we can put a number on: offer to read it, with the real
-              cost in time. `readsFor` is the same region maths the API uses to
-              size the job, so this button does not promise a different wait
-              from the one the row records. */}
-          {region && <QueueRead query={query} sites={readsFor(region)} />}
-
-          {/* The one route that works for any city today, offered at the exact
-              moment somebody discovers we have not read theirs. Reading a market
-              cold needs candidates we extract; an uploaded list brings its own,
-              so this is not a consolation — it is the faster path for anybody
-              who already has a list. */}
-          <p className="sf-small mt-4 text-[var(--muted)]">
-            Already have a list of them?{" "}
-            <Link href="/app/upload" className="underline underline-offset-2">
-              Upload it and we will read every site on it
-            </Link>{" "}
-            — any city, starting now.
-          </p>
-
-          {picks.length > 0 && (
-            <div className="mt-6 border-t border-[var(--line)] pt-5">
-              <p className="sf-label">Ready right now</p>
-              <div className="mt-3 flex flex-col gap-2">
-                {picks.slice(0, 4).map((p) => (
-                  <Link
-                    key={p.q}
-                    href={`/app?q=${encodeURIComponent(p.q)}`}
-                    className="sf-small flex items-baseline justify-between gap-4 rounded-md border border-[var(--line)] px-3 py-2.5 hover:border-[var(--line-strong)]"
-                  >
-                    <span className="text-[var(--ink)]">{p.q}</span>
-                    <span className="sf-data shrink-0 text-[var(--accent)]">{p.n}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ---------------------------------------------- the other ways in --
-      
-          The flow document specifies four search modes and one of them was
-          reachable from the screen that does the searching. The templates
-          library — four pages, thirty passing assertions — was linked only from
-          `/benchmark`, a methodology page somebody reads once; the map has been
-          at `/app/explore` since the search-first rebuild demoted it, reachable
-          only from an ICP result or a saved run. Neither was unreachable, which
-          is the more common and more wasteful case: reachable from somewhere
-          nobody looking for it would be. */}
-      {!query && (
-        <p className="sf-small mt-6 text-[var(--muted)]">
-          Not sure what to look for?{" "}
-          <Link href="/templates" className="underline underline-offset-2">
-            Browse what we can prove
-          </Link>
-          , pick an area{" "}
-          <Link href="/app/explore" className="underline underline-offset-2">
-            on a map
-          </Link>
-          , or{" "}
-          <Link href="/app/upload" className="underline underline-offset-2">
-            upload a list you already have
-          </Link>
-          .
-        </p>
-      )}
-
-      {/* ------------------------------------------------- the empty state -- */}
-      {!query && picks.length > 0 && (
-        <div className="mt-12">
-          <p className="sf-label">Ready right now</p>
-          <div className="mt-3 flex flex-col gap-2">
-            {picks.map((p) => (
-              <Link
-                key={p.q}
-                href={`/app?q=${encodeURIComponent(p.q)}`}
-                className="sf-card flex items-baseline justify-between gap-4 p-4 hover:border-[var(--line-strong)]"
-              >
-                <span className="sf-body text-[var(--ink)]">{p.q}</span>
-                <span className="sf-data shrink-0 text-[var(--accent)]">{p.n} to call</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+    <>
+      <Results
+        what={result.what}
+        where={result.where}
+        criterion={result.criterionText}
+        readOn={readOn}
+        rows={rows}
+        unsure={result.unsure}
+        didNotFit={result.didNotFit}
+        read={result.read}
+        withSite={result.withSite}
+        unread={result.unread}
+        marketId={result.marketId}
+        criterionId={result.criterionId}
+        // No price for somebody with no balance to spend it from: a signed-out
+        // visitor pressing Download gets the sign-up door with the free-plan
+        // number in it, which is a better sentence than a credit count they
+        // cannot act on.
+        exportCost={signedIn ? result.locked * result.creditsEach : 0}
+        cost={
+          result.locked > 0
+            ? {
+                preview: result.leads.length - result.locked,
+                locked: result.locked,
+                creditsEach: result.creditsEach,
+                // Signed out, the next rows are granted, not sold. Signed in,
+                // they are sold. Two different sentences and two different
+                // buttons — see `CostBar`.
+                freeGrant: signedIn ? null : FREE_GRANT,
+              }
+            : null
+        }
+      />
+      {/* Beside the results, never in front of them: the history write must not
+          be able to delay or break what the person came for. */}
+      <RecordRun market={result.marketId} criterion={result.criterionId} />
+    </>
   );
 }

@@ -4,6 +4,7 @@ import { splitQuery } from "@/lib/query";
 import { signalForCriterion } from "@/lib/signals";
 import { applySuppression } from "@/lib/suppression";
 import { bandForMarket, FREE_PREVIEW, matchedIn, visibleIds } from "@/lib/unlock";
+import { isUnsure, unsureGroups, type UnsureGroup } from "@/lib/unsure";
 import type { Business, Criterion, Market, MarketIndex } from "@/lib/types";
 
 /**
@@ -36,6 +37,8 @@ import type { Business, Criterion, Market, MarketIndex } from "@/lib/types";
 export interface Lead {
   id: string;
   name: string;
+  /** The town, for the row's second line. Masked with the name when locked. */
+  town: string | null;
   /** Plain-language reason this one is on the list. Never our vocabulary. */
   why: string;
   site: string | null;
@@ -71,6 +74,16 @@ export interface LeadResult {
   leads: Lead[];
   /** Businesses whose sites we could not read. A count, never a list of rows. */
   unclear: number;
+  /**
+   * The same businesses, grouped by what stopped us — see `unsure.ts`.
+   *
+   * `unclear` stayed a number for as long as the couldn't-tell state was a
+   * footnote. `PRODUCT-HANDOFF.md` §5.4 makes it a tab that has to say what we
+   * opened and what we were looking for, and a number cannot. The groups are
+   * the read outcomes the data actually has, with our own failures marked as
+   * ours.
+   */
+  unsure: UnsureGroup[];
   /** Checked and did not fit. */
   didNotFit: number;
   /**
@@ -83,8 +96,20 @@ export interface LeadResult {
    * alternative to, and it was on screen within an hour of the screen existing.
    */
   read: number;
-  /** Businesses with a website in this market, read or not. */
+  /** Every business in this market after grouping, website or not. */
   found: number;
+  /**
+   * Of those, the ones with a website at all.
+   *
+   * `found` used to be described as "businesses with a website" and is not —
+   * it is every grouped listing. The results screen said *"we read 200 of the
+   * 2,988 med spas in Dallas that have a website"*, overstating by 548, because
+   * it took `found` at its comment's word. 2,440 of med spa Dallas's 3,009
+   * listings carry a site; the rest are businesses with a phone number and
+   * nothing to read. Counted here rather than from `counts.withSite` so it
+   * shares `found`'s basis — the same grouping, the same suppression.
+   */
+  withSite: number;
   /** Rows on this page whose identity is withheld until they are paid for. */
   locked: number;
   /** Rows this workspace already holds, free to show again for twelve months. */
@@ -284,6 +309,17 @@ export interface Sender {
 export interface Email {
   subject: string;
   body: string;
+  /** The clauses the body was assembled from, in order. Tone variants are
+   *  re-assemblies of these — never new sentences, because every clause here
+   *  traces to something the probe recorded and a new one would not. */
+  parts: {
+    greeting: string;
+    intro: string | null;
+    observation: string;
+    consequence: string | null;
+    easier: string | null;
+    ask: string;
+  };
 }
 
 /** A stable number from a string, so the same business always gets the same
@@ -465,8 +501,9 @@ export function composeEmail(
       )
     : "Happy to show you what it would look like on your own site — worth a short reply?";
 
+  const greeting = "Hi there,";
   const body = [
-    "Hi there,",
+    greeting,
     intro,
     [observation, consequence].filter(Boolean).join(" "),
     easier,
@@ -483,7 +520,46 @@ export function composeEmail(
       ? `${thing.charAt(0).toUpperCase()}${thing.slice(1)} on ${where}`
       : `${thing.charAt(0).toUpperCase()}${thing.slice(1)} at ${b.name}`;
 
-  return { subject, body };
+  return {
+    subject,
+    body,
+    parts: { greeting, intro, observation, consequence, easier, ask },
+  };
+}
+
+/**
+ * The four tones the row offers, assembled from the clauses above.
+ *
+ * Every tone is a **selection and ordering of the same sentences**, never a
+ * rewrite: each clause traces to something the probe recorded, and a tone that
+ * wrote its own would be inventing claims about a real business to sound
+ * friendlier. "Warmer" adds one sentence that says nothing about them.
+ */
+export const TONES = ["As written", "Shorter", "Warmer", "More direct"] as const;
+export type Tone = (typeof TONES)[number];
+
+export function toned(email: Email, tone: Tone): string {
+  const p = email.parts;
+  const join = (xs: (string | null)[]) => xs.filter(Boolean).join("\n\n");
+  switch (tone) {
+    case "Shorter":
+      // The observation and the ask. Everything else is context they can infer.
+      return join([p.greeting, p.observation, p.ask]);
+    case "Warmer":
+      return join([
+        p.greeting,
+        p.intro,
+        [p.observation, p.consequence].filter(Boolean).join(" "),
+        p.easier,
+        "No rush at all — happy to leave it with you either way.",
+        p.ask,
+      ]);
+    case "More direct":
+      // No hedge, no softener: what is missing, and the ask.
+      return join([p.observation, p.ask]);
+    default:
+      return email.body;
+  }
 }
 
 /** The body alone, for the surfaces that only ever showed one.
@@ -539,10 +615,15 @@ export function buildLeads({
   // the unlock all have to agree on which rows exist and in what order, because
   // the rows on the invoice are the rows on the screen. See `unlock.ts`.
   const matched = matchedIn(market, [criterion], suppressed);
-  const unclear = all.filter((b) => {
-    const v = verdictOf(b);
-    return v === "couldnt_tell" || v === "blocked";
-  }).length;
+  // One definition, shared with the tab. `unclear` used to be its own filter
+  // for `couldnt_tell` and `blocked` only, which quietly dropped `needs_model`
+  // — and `needs_model` is the entire non-unread population of hvac Tampa's
+  // "does commercial work". That screen therefore read "0 fit · 0 we couldn't
+  // tell" while 200 businesses sat unjudged. Summing the groups means the
+  // headline count and the tab can no longer disagree, and our own gap is
+  // counted instead of silently discarded.
+  const unsure = unsureGroups(all, criterion, { town: townOf, host });
+  const unclear = all.filter((b) => isUnsure(verdictOf(b))).length;
   const didNotFit = all.filter((b) => verdictOf(b) === "no_match").length;
 
   const page = matched.slice(0, limit);
@@ -569,6 +650,10 @@ export function buildLeads({
       return {
         id: `locked-${i}`,
         name: "",
+        // The town goes with the name: "Scottsdale, AZ" plus a verdict is a
+        // short list to search, and the point of a locked row is that it
+        // names nobody.
+        town: null,
         why: maskedWhy(criterion, b),
         site: null,
         domain: null,
@@ -586,6 +671,7 @@ export function buildLeads({
     return {
       id: b.id,
       name: b.name,
+      town: townOf(b.addr),
       why: plainWhy(criterion, b),
       site: b.site,
       domain: host(b.site),
@@ -610,9 +696,11 @@ export function buildLeads({
     criterionText: criterion.text,
     leads,
     unclear,
+    unsure,
     didNotFit,
     read: market.counts?.read ?? 0,
     found: all.length,
+    withSite: all.filter((b) => !!b.site).length,
     locked: leads.filter((l) => l.locked).length,
     owned: page.filter((b) => unlocked.has(b.id)).length,
     creditsEach: bandForMarket(market, [criterion], suppressed).credits,

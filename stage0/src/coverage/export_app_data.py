@@ -180,6 +180,12 @@ def export_market(con: duckdb.DuckDBPyConnection, market: dict) -> dict:
                 "chat": probe.get("chat_signal", False),
                 "cms": probe.get("cms") or [],
             }
+            # Only when the probe recorded one. Rows read before `read_on`
+            # existed stay dateless, and the row component omits the date rather
+            # than substituting the Overture release date — that is when the
+            # listings were published, not when we read a website.
+            if probe.get("read_on"):
+                record["read"]["at"] = probe["read_on"]
 
         record["verdicts"] = {
             c["id"]: verdict_for(c, probe) for c in market["criteria"]

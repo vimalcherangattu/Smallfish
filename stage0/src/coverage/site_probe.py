@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import datetime as _dt
 import json
 import os
 import random
@@ -207,6 +208,19 @@ class SiteResult:
     chat_signal: bool = False
     cms: list[str] = field(default_factory=list)
     elapsed_s: float = 0.0
+    # The day we opened this site, as YYYY-MM-DD UTC.
+    #
+    # `PRODUCT-HANDOFF.md` §11 requires "the source page and **the date it was
+    # read**" for every row the app shows, and the probe had never recorded it.
+    # Nothing in the existing market files carries one, so the source line on
+    # screen says the page count and no date rather than borrowing the Overture
+    # release date — which is when the *listings* were published, not when we
+    # read anything. A date we did not measure is exactly the kind of claim this
+    # product exists to be the alternative to.
+    #
+    # Recorded from here on. Rows probed before this change stay dateless and
+    # the component omits the date when it is absent.
+    read_on: str = ""
     pages: list[PageResult] = field(default_factory=list)
 
 
@@ -493,6 +507,10 @@ async def probe_site(
 
     site.pages_fetched = sum(1 for p in site.pages if p.status == 200)
     site.elapsed_s = round(time.monotonic() - started, 2)
+    # Stamped whatever the outcome: "we tried to read this on the 4th and their
+    # site was gone" is as much a dated observation as a successful read, and
+    # the couldn't-tell groups say when they tried.
+    site.read_on = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d")
     return site
 
 
