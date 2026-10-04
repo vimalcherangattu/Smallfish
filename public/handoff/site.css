@@ -912,36 +912,139 @@ body{overflow-x:hidden}
 .demowrap > .hdots{padding:0;margin-top:-6px}
 .demowrap > .hdots .kick{color:var(--muted)}
 
+/* ============ v7 ============ */
+
+/* ---- hero: the card is gone; three short proofs carry the left ---- */
+.heropts{list-style:none;margin:26px 0 0;padding:0;display:flex;flex-direction:column;gap:11px}
+.heropts li{display:flex;align-items:flex-start;gap:11px;font:400 16px/1.45 'IBM Plex Sans',sans-serif;
+  color:#D4DACF;letter-spacing:-.005em}
+.hp-g{flex:0 0 20px;width:20px;height:20px;margin-top:1px;border-radius:50%;
+  background:rgba(200,240,60,.14);border:1px solid rgba(200,240,60,.42);
+  color:var(--lure);font:400 11px/18px 'IBM Plex Mono',monospace;text-align:center}
+.herohead{font-size:clamp(38px,4.3vw,60px)}
+.herosub{max-width:46ch}
+.herogrid{align-items:center}
+.demowrap{gap:0}
+@media (max-width:900px){
+  .heropts{margin-top:20px;gap:9px}
+  .heropts li{font-size:15px}
+  .herohead{font-size:clamp(32px,8.6vw,44px)}
+}
+
+/* ---- the itemised bill (replaces the three stakes) ---- */
+.bill{margin-top:var(--s6);background:var(--surface);border:1px solid var(--line)}
+.billhead{display:grid;grid-template-columns:118px 1fr;align-items:center;gap:0;
+  padding:12px var(--s5);border-bottom:1px solid var(--line);background:var(--paper-2)}
+.billhead span{font:400 11px 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted-d)}
+.billrow{display:grid;grid-template-columns:118px 1fr;align-items:baseline;gap:0 var(--s5);
+  padding:20px var(--s5);border-bottom:1px solid var(--fill);position:relative}
+.billrow .bq{font:400 24px 'IBM Plex Mono',monospace;letter-spacing:-.03em;color:var(--ink);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.billrow .bt b{display:block;font:600 19px/1.28 'Fraunces',serif;font-variation-settings:'SOFT' 40,'opsz' 20;
+  letter-spacing:-.018em;color:var(--ink)}
+.billrow .bt p{margin:6px 0 0;font:400 15.5px/1.55 'IBM Plex Sans',sans-serif;color:var(--muted);
+  max-width:62ch}
+.billrow.out .bq{color:var(--muted-d)}
+.billrow.out .bt b{color:var(--ink-3)}
+.billrow.out .bt b{text-decoration:line-through;text-decoration-color:var(--line-2);
+  text-decoration-thickness:1px}
+.billrow.keep{background:var(--lure-tint);border-bottom:0}
+.billrow.keep .bq{color:var(--lure-ink);font-size:30px}
+.billrow.keep .bt b{color:var(--ink)}
+.billrow.keep .bt p{color:var(--lure-ink);opacity:.92}
+.billtotal{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s5);
+  padding:22px var(--s5) 24px;border-top:2px solid var(--ink);background:var(--paper-2)}
+.billtotal .bcol .kick{margin:0 0 7px}
+.billtotal .bval{margin:0;font:600 27px/1.1 'Fraunces',serif;font-variation-settings:'SOFT' 30,'opsz' 28;
+  letter-spacing:-.028em;color:var(--ink)}
+@media (max-width:900px){
+  .billhead{display:none}
+  .billrow{grid-template-columns:1fr;gap:10px;padding:18px var(--s4)}
+  .billrow .bq{font-size:20px}
+  .billrow.keep .bq{font-size:24px}
+  .billrow .bt b{font-size:17.5px}
+  .billtotal{grid-template-columns:1fr;gap:18px;padding:20px var(--s4)}
+  .billtotal .bval{font-size:23px}
+}
+
+/* ---- the running demo, in a frame, where the fake video used to be ---- */
+.reel2{margin-top:var(--s6)}
+.r2rail{display:flex;align-items:stretch;gap:0;border:1px solid var(--line);border-bottom:0;
+  background:var(--surface)}
+.r2ch{flex:1;display:flex;align-items:center;gap:10px;padding:14px var(--s4);
+  font:400 13.5px 'IBM Plex Sans',sans-serif;color:var(--muted);
+  border-right:1px solid var(--fill)}
+.r2ch:last-child{border-right:0}
+.r2ch b{font:400 11px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:var(--muted-d)}
+.r2ch.on{color:var(--ink);box-shadow:inset 0 -2px 0 var(--lure)}
+.r2ch.on b{color:var(--lure-ink)}
+.r2stage{position:relative;background:var(--ink);border:1px solid var(--ink-2);
+  padding:var(--s6) var(--s6) var(--s5);overflow:hidden}
+.r2glow{position:absolute;left:50%;top:-180px;width:720px;height:420px;transform:translateX(-50%);
+  background:radial-gradient(ellipse at center,rgba(200,240,60,.16),transparent 68%);
+  pointer-events:none}
+.r2stage .demo{position:relative;z-index:1;max-width:700px;margin:0 auto}
+.r2foot{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);flex-wrap:wrap;
+  padding:14px var(--s4);border:1px solid var(--line);border-top:0;background:var(--paper-2)}
+.r2foot .hdots{margin:0;padding:0}
+.r2foot .hdots .kick{color:var(--muted)}
+.r2link{display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);
+  font:400 14px 'IBM Plex Sans',sans-serif;border-bottom:1px solid var(--line-2);padding-bottom:2px}
+.r2link:hover{border-bottom-color:var(--ink)}
+.r2link svg{transition:transform .2s}
+.r2link:hover svg{transform:translateX(3px)}
+@media (max-width:900px){
+  .r2rail{flex-direction:column}
+  .r2ch{border-right:0;border-bottom:1px solid var(--fill);padding:11px var(--s4)}
+  .r2ch.on{box-shadow:inset 2px 0 0 var(--lure)}
+  .r2stage{padding:var(--s5) var(--s4)}
+  .r2glow{width:420px}
+  .r2foot{flex-direction:column;align-items:flex-start;gap:12px}
+}
+
+/* ---- hero proportions now that the card has moved out ---- */
+.hero{min-height:min(96vh,880px);display:flex;flex-direction:column}
+.hero > .wrap:has(.topnav){flex:0 0 auto}
+.herogrid{flex:1 1 auto;padding-top:var(--s5);padding-bottom:var(--s7);align-items:center}
+.heroacts{margin-top:34px}
+.heroacts .undercta{color:var(--muted-d)}
+.hero .ticker{margin-top:auto}
+.herofish{right:70px;top:50%;transform:translateY(-54%);bottom:auto;opacity:.92}
+@media (max-width:1180px){ .herofish{right:-30px} }
+@media (max-width:900px){
+  .hero{min-height:0;display:block}
+  .herogrid{padding-top:24px}
+  .heroacts{margin-top:26px}
+}
+
+/* ---- v7 trims ---- */
+.billrow .bq,.billhead span:first-child{text-align:right;padding-right:var(--s3)}
+.billhead{grid-template-columns:118px 1fr}
+.hero{min-height:min(90vh,824px)}
+.heroacts .undercta{color:#9AA3A9}
+.r2stage{padding:var(--s6) var(--s5);display:flex;align-items:center;justify-content:center}
+.r2stage .demo{max-width:880px;width:100%;margin:0}
+@media (max-width:900px){
+  .billrow .bq{text-align:left;padding-right:0}
+  .r2stage{padding:var(--s5) var(--s4)}
+}
 @keyframes mapfade{0%,100%{opacity:1}50%{opacity:.35}}
-/* Added by the port: the wrapper stands in for <body>, which this app's
-   globals.css already owns. */
 .sf-site{min-height:100vh}
 
 /* ---------------------------------------------------------------------------
-   Mobile addendum — added by the port, 2026-10-04. Everything above this line
-   is the designer's, untouched, so the diff against the next handoff stays
-   readable.
+   Mobile addendum — generated by stage0/src/site/port_handoff.py. Everything
+   above this line is the designer's, untouched.
 
    HANDOFF §11 claims "Touch targets >= 44px" and §13 asks for 390px to be
-   clean. Measured at 390px with `check_mobile.mjs`: 9x9 market dots, 25x25
-   annotation pins and a 26px wordmark. The page this replaced passed that
-   audit, so shipping as-authored would regress a standard both the repo and
-   the handoff claim to meet.
+   clean. Measured with `check_mobile.mjs`, the handoff ships 9x9 market dots,
+   25x25 annotation pins and a 26px wordmark.
 
-   Two earlier attempts at this block were wrong, and both failed silently:
-
-     1. Growing the hit area with `::after`. `.pin::after` is already the
-        designer's ping ring, so it clobbered an animation — and a pseudo
-        element grows what a finger can hit without growing the element's own
-        box, which reads as passing an audit rather than fixing a control.
-     2. Splicing the type floor into this block by trimming braces, which ate
-        a closing brace and swallowed the whole rule into an unterminated
-        declaration. The stylesheet still loaded; the floor just did nothing.
-
-   What is here grows the real box: transparent borders with the background
-   clipped to the content, so the drawn dot and circle keep their exact size.
-   `.pin::after` is untouched — its `inset` resolves against the padding box,
-   which has not moved.
+   The box is grown with transparent borders and `background-clip:
+   content-box`, so the drawn dot and circle keep their exact size. Not with
+   `::after`: `.pin::after` is already the designer's ping ring, and a pseudo
+   element grows what a finger can hit without growing the element's own box,
+   which reads as passing an audit rather than fixing a control.
    --------------------------------------------------------------------------- */
 @media (max-width: 760px) {
   .sf-site .hdot,
@@ -959,6 +1062,7 @@ body{overflow-x:hidden}
   .sf-site a:has(> svg[aria-label="Small Fish"]),
   .sf-site .quiet,
   .sf-site .arrowlink,
+  .sf-site .r2link,
   .sf-site .crumb a,
   .sf-site .demo a,
   .sf-site .rowcard a,
@@ -969,20 +1073,21 @@ body{overflow-x:hidden}
     min-height: 44px;
   }
 
-  /* The 12px floor. Derived from the designer's own rules rather than chased
-     one audit finding at a time: every selector above that sets a size under
-     12px, raised to 12 on phones only. Desktop keeps the 10.5-11.5px label
-     scale exactly as drawn. The handoff does not claim a text floor (§11 is
-     touch targets and input size), so this is the repo's standard meeting the
-     designer's type, not a defect on their side. */
+  /* The 12px floor, on phones only. Desktop keeps the designer's 10.5-11.5px
+     label scale exactly as drawn. The handoff does not claim a text floor
+     (§11 is touch targets and input size), so this is the repo's standard
+     meeting the designer's type, not a defect on their side. */
+  .sf-site .billhead span,
   .sf-site .dlive,
   .sf-site .find .k,
   .sf-site .find .n,
+  .sf-site .hp-g,
   .sf-site .kick,
   .sf-site .kicker,
   .sf-site .miniform .fld span.lab,
   .sf-site .minirow .mail,
   .sf-site .qk,
+  .sf-site .r2ch b,
   .sf-site .sfrow,
   .sf-site .sitefoot,
   .sf-site footer h4,

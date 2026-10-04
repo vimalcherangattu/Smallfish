@@ -177,10 +177,13 @@
         ticks = demo.querySelectorAll('[data-d="ticks"] i'),
         feedEl = demo.querySelector('[data-d="feed"]'),
         hitsEl = demo.querySelector('[data-d="hits"]'),
-        dots = demo.querySelectorAll('.hdot'),
+        scope = demo.closest('.reel2') || demo.parentNode,
+        dots = scope.querySelectorAll('.hdot'),
+        chaps = scope.querySelectorAll('.r2ch'),
         caret = demo.querySelector('.tcaret');
 
     function clear() { clock.forEach(clearTimeout); clock = []; clearInterval(typer); }
+    function chap(k) { for (var c4 = 0; c4 < chaps.length; c4++) chaps[c4].classList.toggle('on', c4 === k); }
     function at(ms, fn) { clock.push(setTimeout(fn, ms)); }
 
     function type(text, done) {
@@ -272,12 +275,14 @@
       if (S.mail) S.mail.classList.remove('ready');
 
       if (reduce) {
+        chap(2);
         demo.className = 'demo'; if (S.mail) S.mail.classList.add('ready'); type(m.to);
         readEl.textContent = fmt(m.read); hitsEl.textContent = fmt(m.n);
         for (var t3 = 0; t3 < ticks.length; t3++) ticks[t3].className = (t3 % 7 === 3) ? 'hit' : 'on';
         return;
       }
 
+      chap(0);
       demo.className = 'demo step0';
       bar.style.transition = 'none'; bar.style.transform = 'scaleX(0)';
       readEl.textContent = '0'; hitsEl.textContent = '0';
@@ -285,6 +290,7 @@
 
       var SWEEP = 1850;
       type(m.to, function () {
+        at(120, function () { chap(1); });
         at(140, function () {
           bar.style.transition = 'transform ' + (SWEEP / 1000) + 's cubic-bezier(.25,.75,.35,1)';
           bar.style.transform = 'scaleX(1)';
@@ -293,26 +299,35 @@
           sweepTicks(SWEEP);
           rollFeed(SWEEP);
         });
-        at(SWEEP + 180, function () { demo.className = 'demo step1'; });
+        at(SWEEP + 180, function () { demo.className = 'demo step1'; chap(2); });
         at(SWEEP + 540, function () { demo.className = 'demo'; });
         at(SWEEP + 900, function () { if (S.mail) S.mail.classList.add('ready'); });
       });
     }
 
     function next() { run((i + 1) % MARKETS.length); }
-    var loop = null;
-    function arm() { clearInterval(loop); if (!reduce) loop = setInterval(next, 6800); }
+    var loop = null, dseen = 0, dheld = 0, started = 0;
+    function arm() {
+      clearInterval(loop); loop = null;
+      if (!reduce && dseen && !dheld && !d.hidden) loop = setInterval(next, 6400);
+    }
     for (var x2 = 0; x2 < dots.length; x2++) (function (btn) {
       btn.addEventListener('click', function () { run(+btn.getAttribute('data-i')); arm(); });
+      btn.addEventListener('pointerenter', function () { dheld++; arm(); });
+      btn.addEventListener('pointerleave', function () { dheld = Math.max(0, dheld - 1); arm(); });
     })(dots[x2]);
-    demo.addEventListener('pointerenter', function () { clearInterval(loop); });
-    demo.addEventListener('pointerleave', arm);
+    d.addEventListener('visibilitychange', arm);
 
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (es, o) {
-        es.forEach(function (e) { if (e.isIntersecting) { run(0); arm(); o.disconnect(); } });
-      }, { threshold: 0.25 }).observe(demo);
-    } else { run(0); arm(); }
+      new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          dseen = e.isIntersecting ? 1 : 0;
+          if (dseen && !started) { started = 1; run(0); }
+          arm();
+        });
+      }, { threshold: 0.2 }).observe(demo);
+    } else { dseen = 1; started = 1; run(0); arm(); }
+    chap(0);
   }
 
   /* ---- 3. the row card rewrites its own email ---- */
@@ -408,10 +423,10 @@
     }
 
     ['trade', 'city'].forEach(function (g) {
-      reels[g].btn.addEventListener('click', function () { spin(g, 1); arm2(); });
+      reels[g].btn.addEventListener('click', function () { spin(g, 1); sync(); });
     });
 
-    var turn = 0, spinner = null;
+    var turn = 0, spinner = null, held = 0, seen = 0;
     function tick() {
       turn++;
       var r = reels.trade; r.i = (r.i + 1) % r.items.length;
@@ -420,9 +435,21 @@
       c3.track.style.transform = 'translateY(' + (-c3.i * 1.2) + 'em)'; sizeMask('city');
       update();
     }
-    function arm2() { clearInterval(spinner); if (!reduce) spinner = setInterval(tick, 2100); }
-    grid.addEventListener('pointerenter', function () { clearInterval(spinner); });
-    grid.addEventListener('pointerleave', arm2);
+    /* one timer, armed while the section is on screen and nobody is holding a word.
+       the pause is scoped to the two buttons, so a cursor resting anywhere else in
+       the section -- which is what happens when you scroll past it -- never stops it. */
+    function sync() {
+      clearInterval(spinner); spinner = null;
+      if (!reduce && seen && !held && !d.hidden) spinner = setInterval(tick, 1700);
+    }
+    ['trade', 'city'].forEach(function (g) {
+      var btn = reels[g].btn;
+      btn.addEventListener('pointerenter', function () { held++; sync(); });
+      btn.addEventListener('pointerleave', function () { held = Math.max(0, held - 1); sync(); });
+      btn.addEventListener('focus', function () { held++; sync(); });
+      btn.addEventListener('blur', function () { held = Math.max(0, held - 1); sync(); });
+    });
+    d.addEventListener('visibilitychange', sync);
 
     function sizeAll() { sizeMask('trade'); sizeMask('city'); }
     sizeAll();
@@ -432,10 +459,10 @@
     lightCity();
 
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (es, o) {
-        es.forEach(function (e) { if (e.isIntersecting) { arm2(); o.disconnect(); } });
-      }, { threshold: 0.3 }).observe(grid);
-    } else { arm2(); }
+      new IntersectionObserver(function (es) {
+        es.forEach(function (e) { seen = e.isIntersecting ? 1 : 0; sync(); });
+      }, { threshold: 0.12 }).observe(grid);
+    } else { seen = 1; sync(); }
   }
 
   /* ---- 5. the pricing slider picks the plan ---- */
