@@ -1052,6 +1052,7 @@ body{overflow-x:hidden}
    size comes down rather than the hard <br> moving. Measured at 1440, 1280 and
    390: two lines at every width. */
 .sf-site .herohead { font-size: clamp(32px, 3.3vw, 49px); }
+.sf-site .herousp { display: block; margin-bottom: 10px; color: #fff; font-weight: 600; font-size: 1.12em; line-height: 1.4; }
 
 /* The film section added by the port. Sized like the other dark stages on the
    page so it sits in the same rhythm. */

@@ -471,16 +471,16 @@
     var pn = d.querySelector('[data-p="n"]'), pline = d.querySelector('[data-p="line"]');
     var tiles = d.querySelectorAll('.price[data-plan]');
     var PRICE = ['$29', '$79', '$199'];
+    var CAP = ['120', '400', '1,000'];
     function plan() {
       var v = +range.value;
       var idx = v <= 120 ? 0 : (v <= 400 ? 1 : 2);
       pn.textContent = fmt(v);
       for (var q = 0; q < tiles.length; q++) tiles[q].classList.toggle('on', q === idx);
       while (pline.firstChild) pline.removeChild(pline.firstChild);
-      pline.appendChild(d.createTextNode('At ' + fmt(v) + ' a month that is '));
       var b = d.createElement('b'); b.style.color = '#fff'; b.textContent = PRICE[idx];
       pline.appendChild(b);
-      pline.appendChild(d.createTextNode(", and the ones that don't fit still cost nothing."));
+      pline.appendChild(d.createTextNode(' a month gets you up to ' + CAP[idx] + " businesses that fit. The ones that don't fit cost you nothing."));
     }
     range.addEventListener('input', plan);
     plan();

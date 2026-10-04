@@ -92,11 +92,30 @@ REWRITES = {
 # Each is an exact string swap and the port fails if one stops matching, so a
 # revision that rewords the sentence underneath cannot silently drop the edit.
 COPY_EDITS = {
-    # 3. "The first line needs to say find the business."
-    #    HANDOFF §6: the lime highlight must sit on its own line, so the hard
-    #    <br> stays and only the first line grows.
-    '<h1 class="dsp herohead">The businesses that<br>':
-        '<h1 class="dsp herohead">Find the businesses that<br>',
+    # The hero, second pass (owner review of the live page, 2026-10-04).
+    #
+    # "Find the businesses that need what you sell" — "ye nikaal de. Useless
+    # hai ... mainstream lagg raha hai." It is the line any lead-gen tool
+    # would write. It replaced the designer's "The businesses that need what
+    # you sell" a day earlier, so both are gone now.
+    #
+    # The owner picked the two lines that already sat further down the page
+    # to lead instead: the break from the status quo ("Stop working from junk
+    # lists", from the close) and the cost of getting it wrong ("Every email to
+    # the wrong business...", the bill section's closer — "ye usp hai").
+    # HANDOFF §6: the lime highlight sits on its own line and does not reflow,
+    # so the headline is the short one and the USP leads the sub-line. Both
+    # originals stay where they were; at the top they now set up what the
+    # bill and the close pay off.
+    '<h1 class="dsp herohead">The businesses that<br>'
+    '<span class="hilite">need what you sell.</span></h1>':
+        '<h1 class="dsp herohead">Stop working from<br>'
+        '<span class="hilite">junk lists.</span></h1>',
+    # Matched after REWRITES, so this is the "one by one" wording.
+    '<p class="herosub">Pick a type of business and a city. We read their websites one by one':
+        '<p class="herosub"><b class="herousp">Every email to the wrong business '
+        'makes the next one less likely to land.</b> So pick a type of business '
+        'and a city. We read their websites one by one',
 
     # 4. Slide 2 — the three steps. The heading said what the product is not,
     #    which is a weaker opening than what it does.
@@ -163,6 +182,33 @@ COPY_EDITS = {
     '<i>up to 3,000</i>': '<i>up to 1,000</i>',
     'type="range" min="50" max="3000" step="50" value="400"':
         'type="range" min="20" max="1000" step="20" value="400"',
+
+    # "At 400 a month that is $79, and the ones that don't fit still cost
+    # nothing." — "iska matlab nahi samjha." 400 of what, and "that is" $79
+    # what? The sentence now names the noun and the plan's ceiling, the same
+    # "up to" the tiles above it print. This is the no-JS / first-frame copy;
+    # `JS_EDITS` writes the same sentence as the slider moves.
+    "At 400 a month that is <b style=\"color:#fff\">$79</b>, and the ones that "
+    "don't fit still cost nothing.":
+        "<b style=\"color:#fff\">$79</b> a month gets you up to 400 businesses "
+        "that fit. The ones that don't fit cost you nothing.",
+}
+
+# The same edits, in the designer's script. Before this existed the slider's
+# plan boundaries were corrected by hand in the generated `site.js` — which
+# the next port would have overwritten with the handoff's 300/1,000, putting
+# the 2.5x overclaim back on the page with nothing to flag it.
+JS_EDITS = {
+    "var idx = v <= 300 ? 0 : (v <= 1000 ? 1 : 2);":
+        "var idx = v <= 120 ? 0 : (v <= 400 ? 1 : 2);",
+    "    var PRICE = ['$29', '$79', '$199'];\n":
+        "    var PRICE = ['$29', '$79', '$199'];\n"
+        "    var CAP = ['120', '400', '1,000'];\n",
+    "      pline.appendChild(d.createTextNode('At ' + fmt(v) + ' a month that is '));\n":
+        "",
+    "pline.appendChild(d.createTextNode(\", and the ones that don't fit still cost nothing.\"));":
+        "pline.appendChild(d.createTextNode(' a month gets you up to ' + CAP[idx] + "
+        "\" businesses that fit. The ones that don't fit cost you nothing.\"));",
 }
 
 # 2. "Those tickmarked pointers are pointless and hideous. Take them off."
@@ -284,12 +330,16 @@ MOBILE = """
    element grows what a finger can hit without growing the element's own box,
    which reads as passing an audit rather than fixing a control.
    --------------------------------------------------------------------------- */
-/* "Find the" lengthened the headline's first line past the 600px hero column
-   at the designer's 60px, orphaning "that" onto a line of its own. HANDOFF §6:
-   "the lime highlight must sit on its own line. Do not let it reflow." So the
-   size comes down rather than the hard <br> moving. Measured at 1440, 1280 and
-   390: two lines at every width. */
+/* Set when the headline was "Find the businesses that", which overflowed the
+   600px hero column at the designer's 60px. Kept for "Stop working from /
+   junk lists.": HANDOFF §6 wants the highlight on its own line, and measured
+   at 1440 and 390 it is two lines at both. */
 .sf-site .herohead { font-size: clamp(32px, 3.3vw, 49px); }
+
+/* The USP that leads the hero's sub-line (owner, 2026-10-04: "should be on
+   top"). Brighter and heavier than the rest of the paragraph, on its own line,
+   so it reads as the claim and the sentence after it as the how. */
+.sf-site .herousp { display: block; margin-bottom: 10px; color: #fff; font-weight: 600; font-size: 1.12em; line-height: 1.4; }
 
 /* The film section added by the port. Sized like the other dark stages on the
    page so it sits in the same rhythm. */
@@ -364,6 +414,14 @@ def main() -> int:
         if n != 1:
             raise SystemExit(f"port: could not set figures for {to!r} ({n} matches)")
         print(f"  {to}: {fit} fit of {read:,} read")
+
+    for old, new in JS_EDITS.items():
+        if old not in js:
+            raise SystemExit(
+                f"port: a script edit no longer matches, so it would be "
+                f"silently dropped:\n    {old[:90]!r}\n"
+                "  The revision rewrote the script. Update JS_EDITS.")
+        js = js.replace(old, new)
 
     style = scope_css(css)
     (ROOT / "public" / "handoff").mkdir(parents=True, exist_ok=True)
