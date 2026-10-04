@@ -124,19 +124,39 @@ The ones worth avoiding:
   layout also links Google Fonts for the kit's literal family names. Do not
   "tidy" one into the other without checking both render.
 
-### Branches
+### Branches, and when a change goes to `main`
 
-Each stream pushes its own branch and merges to `main` itself. Two sessions
-pushing `main` directly will race and one will have to pull-rebase mid-write,
-which is how uncommitted work gets lost.
+**`main` is production.** Every push deploys to getsmallfish.com in about two
+minutes. There is no staging step, no approval gate, and at least one real
+person is using the site. A branch push builds its own preview deployment,
+which sits behind Vercel Authentication — the owner can open it, a session
+cannot.
 
 ```
 claude/gtm-<something>       GTM
 claude/product-<something>   Product
 ```
 
-Rebase on `main` before pushing. Run `python3 stage0/tests/run_all.py` first —
-it is the only thing that knows whether the other stream broke you.
+That a session cannot see a preview is what sets the rule:
+
+| Change | Where it goes |
+|---|---|
+| Anything a visitor sees — a screen, copy, pricing, the home page | Branch first. Hand the owner the preview URL and merge once they have looked. Merging it unseen means nobody looked at it, because you cannot. |
+| Anything invisible and covered by tests — a bug fix, a refactor, engine work, a test | Straight to `main`, then **check production**. |
+
+**Whoever pushes `main` verifies production afterwards.** A green build has
+hidden a live defect twice in one day: `/account` answered a signed-out visitor
+with 404, and the credit pill rendered milli-credits as credits. Both builds
+were clean and both test suites were green. Fetch the URL.
+
+**Never two sessions pushing `main` at once.** Rebase on `main` first, then run
+`python3 stage0/tests/run_all.py` — after the rebase, because that run is the
+only thing that knows whether the other stream broke you.
+
+An earlier version of this file said simply "do not push `main` directly", and
+`CLAUDE.md` said "work goes to `main`". They contradicted each other, and the
+Product session followed the second one all through 2026-10-04. Both now say
+the above.
 
 ---
 

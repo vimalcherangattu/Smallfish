@@ -191,7 +191,26 @@ Two traps worth not rediscovering, both cost real time:
 
 ## Git
 
-Work goes to `main`. `claude/eager-archimedes-qdetjj` is kept pointing at the same commit.
+**`main` is production.** Every push to it deploys to getsmallfish.com within about
+two minutes — there is no staging step and no approval. A branch push builds its own
+preview deployment, which is behind Vercel Authentication: the owner can open it, a
+session cannot.
+
+That asymmetry decides the rule:
+
+- **Anything a visitor sees** — a screen, copy, pricing, the home page — goes to a
+  branch first. Hand the owner the preview and merge once they have looked. A session
+  cannot check a preview, so merging without that look means nobody checked it.
+- **Anything invisible and covered by tests** — a bug fix, a refactor, engine work, a
+  test — goes straight to `main`, and whoever pushed **then checks production**. A
+  green build has hidden a live defect twice: `/account` answered 404, and the credit
+  pill showed milli-credits as credits.
+- **Never two sessions pushing `main` at once.** Rebase on `main` first, then run
+  `python3 stage0/tests/run_all.py` — after the rebase, because that run is the only
+  thing that knows whether the other stream broke you.
+
+Branches: `claude/gtm-<something>` for GTM, `claude/product-<something>` for Product.
+See `docs/STREAMS.md`.
 
 ## Next up
 
