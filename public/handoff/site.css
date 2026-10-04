@@ -1046,6 +1046,29 @@ body{overflow-x:hidden}
    element grows what a finger can hit without growing the element's own box,
    which reads as passing an audit rather than fixing a control.
    --------------------------------------------------------------------------- */
+/* "Find the" lengthened the headline's first line past the 600px hero column
+   at the designer's 60px, orphaning "that" onto a line of its own. HANDOFF §6:
+   "the lime highlight must sit on its own line. Do not let it reflow." So the
+   size comes down rather than the hard <br> moving. Measured at 1440, 1280 and
+   390: two lines at every width. */
+.sf-site .herohead { font-size: clamp(32px, 3.3vw, 49px); }
+
+/* The film section added by the port. Sized like the other dark stages on the
+   page so it sits in the same rhythm. */
+.sf-site .filmframe {
+  margin-top: var(--s5);
+  border: 1px solid var(--line);
+  background: var(--ink);
+  overflow: hidden;
+}
+.sf-site .filmframe video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  background: var(--ink);
+}
+
 @media (max-width: 760px) {
   .sf-site .hdot,
   .sf-site .pin {
