@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { Arrow } from "@/components/app/icons";
-import { agree } from "@/lib/appview";
 import type { UnsureGroup } from "@/lib/unsure";
 
 /**
@@ -56,8 +55,15 @@ export default function Nothing({
             we read fit.
           </h1>
           <p className="t-b" style={{ marginTop: 12, color: "#36404C", maxWidth: "58ch" }}>
-            You asked for {what} in {where} that {agree(criterion)}. We opened their websites and
-            none of them answered that way.
+            {/* The criterion is quoted, not inlined. `agree` pluralises a verb
+                it recognises, and vet Columbus's `independent` is the bare
+                predicate "not part of a group" — no verb to agree, so inlining
+                it gave "vet clinics in Columbus that not part of a group".
+                Quoting the ask back is grammatical for any criterion text,
+                including ones nobody has written yet. Same fix as the evidence
+                box in `BizRow`. */}
+            You asked for {what} in {where}, checked against &ldquo;{criterion}&rdquo;. We opened
+            their websites and none of them answered that way.
           </p>
         </div>
 

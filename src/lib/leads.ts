@@ -171,10 +171,33 @@ export function marketFor(index: MarketIndex | null, what: string, where: string
   const market =
     candidates.find((m) => city && m.metro.toLowerCase().includes(city)) ?? candidates[0];
 
+  // Pick the criterion with the most **settled** verdicts, not the most
+  // matches.
+  //
+  // This required `matches > 0`, so a market we have read where nothing matched
+  // was indistinguishable from a market we have never touched. Vet Columbus is
+  // exactly that: 120 sites read, and zero matches on either criterion — the
+  // `independent` absence comes back couldn't-tell because no detector covers
+  // it, and `exotic_pet_care` is all `needs_model`. Searching for it landed on
+  // "we can't start vet clinics in Columbus yet", which tells a customer we
+  // have not done work we have done, and left `Nothing.tsx` — the screen built
+  // to report exactly this — unreachable.
+  //
+  // Settled means a verdict was reached, whichever way: a no and a couldn't-
+  // tell are both answers. If nothing anywhere is settled the market really has
+  // not been started, and returning null is right.
+  const settledOf = (id: string) => {
+    const t = market.tallies?.[id];
+    if (!t) return 0;
+    return (t.match ?? 0) + (t.no_match ?? 0) + (t.couldnt_tell ?? 0) + (t.blocked ?? 0);
+  };
   const settled = market.criteria
-    .map((c) => ({ c, matches: market.tallies?.[c.id]?.match ?? 0 }))
-    .filter((x) => x.matches > 0)
-    .sort((a, b) => b.matches - a.matches)[0];
+    .map((c) => ({ c, matches: market.tallies?.[c.id]?.match ?? 0, settled: settledOf(c.id) }))
+    .filter((x) => x.settled > 0)
+    // Most matches first — a criterion that returns something is the better
+    // answer to show — then most settled, so a market with no matches at all
+    // still picks the criterion it actually read for.
+    .sort((a, b) => b.matches - a.matches || b.settled - a.settled)[0];
   if (!settled) return null;
 
   return {

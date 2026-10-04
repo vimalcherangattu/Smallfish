@@ -190,12 +190,16 @@ export default function Results(p: ResultsProps) {
               we opened to build this list. Dropping that would leave "26 fit"
               standing on nothing, which is the overclaim this project retracted
               once already. */}
+          {/* No trade noun: `p.what` is already plural, so it read "200 med
+              spas websites" / "200 dental practices websites". Singularising it
+              is a second grammar rule to get wrong in every new vertical; the
+              sentence does not need the noun at all. */}
           <p className="t-s">
             We opened{" "}
             <b className="mono" style={{ color: "#0E1520" }}>
               {p.read.toLocaleString()}
             </b>{" "}
-            {p.what} websites to build this list.
+            websites to build this list.
           </p>
 
           {p.cost && p.cost.locked > 0 && <CostBar cost={p.cost} unsure={unsureTotal} />}
