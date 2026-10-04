@@ -275,7 +275,108 @@ const CMS_LABEL: Record<string, string> = {
  * be writing copy and calling it evidence, which is the thing this product
  * exists not to do.
  */
-export function composeMessage(b: Business, criterion: Criterion): string | null {
+/** What the sender offers, in their own words, captured at sign-up as `sells`
+ *  and carried on every door (`doors.ts`). */
+export interface Sender {
+  sells?: string | null;
+}
+
+export interface Email {
+  subject: string;
+  body: string;
+}
+
+/** A stable number from a string, so the same business always gets the same
+ *  wording. Not for security — for reproducibility: a draft that changes
+ *  between two loads of the same screen is a draft nobody can trust, and the
+ *  home page renders this at build time and again in the browser. */
+function seed(s: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i += 1) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return Math.abs(h);
+}
+
+const pick = <T,>(options: T[], from: string): T => options[seed(from) % options.length];
+
+/** Whether two phrases are the same thing in different words — "online
+ *  booking" against "online booking", or "booking" inside "online booking".
+ *  Used only to stop the draft repeating itself, never to decide a claim. */
+function near(a: string, b: string): boolean {
+  const n = (s: string) => s.toLowerCase().replace(/[^a-z ]/g, "").trim();
+  const [x, y] = [n(a), n(b)];
+  return x === y || x.includes(y) || y.includes(x);
+}
+
+/** The town, from the postal address. "7502 E Camelback Rd, Scottsdale, AZ"
+ *  → "Scottsdale". Null rather than a guess when the shape is unfamiliar. */
+export function townOf(addr: string): string | null {
+  const parts = addr.split(",").map((p) => p.trim()).filter(Boolean);
+  if (parts.length < 2) return null;
+  const town = parts[parts.length - 2];
+  return /^[A-Za-z][A-Za-z .'-]*$/.test(town) ? town : null;
+}
+
+/** The seller's offer, reduced to a noun phrase that survives being dropped
+ *  into a sentence. People type both "online booking" and "I set up online
+ *  booking", and the second spliced into "I help small businesses with …"
+ *  produced "with I set up online booking". */
+export function offerOf(sells: string | null | undefined): string | null {
+  const raw = (sells ?? "").trim().replace(/[.!]+$/, "");
+  if (!raw) return null;
+  const stripped = raw
+    .replace(/^(i|we)\s+(can\s+)?(do|sell|offer|provide|build|set\s*up|install|help\s+with)\s+/i, "")
+    .trim();
+  return stripped.length >= 2 ? stripped : null;
+}
+
+/**
+ * The opening email: a subject and a body.
+ *
+ * ## What changed on 2026-10-04, and why the old one could not be answered
+ *
+ * The previous draft never said **who was writing or what they sold**. It
+ * ended "Happy to show you what it would look like on your own site" without
+ * naming the thing, because `composeMessage(business, criterion)` was never
+ * given the sender. The recipient could not reply to it even if they wanted
+ * to. `sells` has been captured at sign-up and carried on every door since
+ * P0.3; it simply never reached here.
+ *
+ * It also had no subject, and it opened by telling a stranger what was wrong
+ * with their website — the first sentence a recipient read was a criticism
+ * from somebody who had not introduced themselves.
+ *
+ * ## Why these are not, and cannot yet be, deeply personal
+ *
+ * Measured 2026-10-04 on dental Phoenix: `proof` is populated on all 51
+ * `no_match` rows and on **none of the 42 matches**. That is the absence-proof
+ * rule showing through, not a gap in the data — you can quote the booking
+ * widget you found; **you cannot quote the absence of one.** So for the
+ * flagship absence criteria there is no sentence of theirs to cite, and an
+ * email that sounds like it read their About page would be inventing.
+ *
+ * What is actually on hand is used, all of it: their domain, their town, the
+ * platform the site is built on, whether they already run chat or an enquiry
+ * route, and what the sender sells. Richer openers need something *positive*
+ * read from their site — services, specialisms — which is not stored at all
+ * today and needs both a schema change and `ANTHROPIC_API_KEY`.
+ *
+ * ## Why the wording varies
+ *
+ * Forty-two matches used to produce forty-two near-identical emails, varying
+ * only by domain. Anyone who compared two of them saw a form letter. The ask
+ * and one connective are now chosen by a hash of the business id: stable for a
+ * given business, different across a list. **Only our own phrasing varies —
+ * never a claim**, so every sentence about the recipient still traces to
+ * something recorded.
+ */
+export function composeEmail(
+  b: Business,
+  criterion: Criterion,
+  sender: Sender = {},
+): Email | null {
   const r = b.read;
   if (!r || r.outcome !== "ok" || r.pages === 0) return null;
   if (b.verdicts[criterion.id]?.verdict !== "match") return null;
@@ -325,13 +426,76 @@ export function composeMessage(b: Business, criterion: Criterion): string | null
     easier = `You're on ${label}, so this is usually an add-on rather than a rebuild.`;
   }
 
-  // 4. A small ask. Not "worth a quick look?" at nothing in particular — a
-  //    named, cheap next step the recipient can say yes or no to in a second.
-  const ask = "Happy to show you what it would look like on your own site — worth a short reply?";
+  // 4. Who is writing. The whole reason the old draft was unanswerable: a
+  //    stranger described a gap in your website and never said what they did
+  //    about it. Only written when we actually know — we never guess a trade.
+  const offer = offerOf(sender.sells);
+  const town = townOf(b.addr);
+  const intro = offer
+    ? pick(
+        [
+          `I help small businesses with ${offer}.`,
+          `I set up ${offer} for small businesses${town ? ` around ${town}` : ""}.`,
+          `I work with small businesses on ${offer}.`,
+        ],
+        b.id,
+      )
+    : null;
 
-  return ["Hi there,", [observation, consequence].filter(Boolean).join(" "), easier, ask]
+  // 5. A small ask, naming the thing once. Not "worth a quick look?" at nothing
+  //    in particular — a named, cheap next step the recipient can answer in a
+  //    second. Without an offer to name it stays general, because the
+  //    alternative is inventing what the sender does.
+  //
+  //    When the seller's offer is the same thing as the gap — which is the
+  //    common case, somebody selling booking to clinics with no booking — the
+  //    phrase has already appeared in the intro and the observation. Saying it
+  //    a fourth time is what made the draft read like a machine wrote it, so
+  //    the ask says "it".
+  const echoes = !!offer && near(offer, thing);
+  const named = echoes ? "it" : offer;
+  const ask = offer
+    ? pick(
+        [
+          `Happy to show you what ${named} would look like on your site — worth a short reply?`,
+          `If it's useful I can show you what ${named} would look like for you. Worth a short reply?`,
+          `I can show you what ${named} would look like on ${where} — worth a short reply?`,
+        ],
+        `${b.id}:ask`,
+      )
+    : "Happy to show you what it would look like on your own site — worth a short reply?";
+
+  const body = [
+    "Hi there,",
+    intro,
+    [observation, consequence].filter(Boolean).join(" "),
+    easier,
+    ask,
+  ]
     .filter(Boolean)
     .join("\n\n");
+
+  // The subject names the thing and the site, and nothing else. Neutral on
+  // purpose: a subject that opens with the problem reads as a cold pitch
+  // before the recipient has read a word of the email.
+  const subject =
+    criterion.type === "absence"
+      ? `${thing.charAt(0).toUpperCase()}${thing.slice(1)} on ${where}`
+      : `${thing.charAt(0).toUpperCase()}${thing.slice(1)} at ${b.name}`;
+
+  return { subject, body };
+}
+
+/** The body alone, for the surfaces that only ever showed one.
+ *
+ *  A wrapper rather than a second generator: the claims live in exactly one
+ *  place, which is the rule this module is built around. */
+export function composeMessage(
+  b: Business,
+  criterion: Criterion,
+  sender: Sender = {},
+): string | null {
+  return composeEmail(b, criterion, sender)?.body ?? null;
 }
 
 export function buildLeads({
