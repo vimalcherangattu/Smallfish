@@ -124,6 +124,45 @@ COPY_EDITS = {
     # 2,778 is the measured number of Phoenix dental listings with a website.
     '<span data-d="read">3,041</span> / <span data-d="total">3,041</span>':
         '<span data-d="read">2,778</span> / <span data-d="total">2,778</span>',
+
+    # The same invented figure, a second time, in the reel's sub-line — and
+    # missed when the pair above was fixed, because that edit matched on the
+    # `data-d` markup and this one is `data-r`. It shipped to production and
+    # was live for days: "42 fit of 3,041 dentists in Phoenix".
+    #
+    # 3,041 is in no data file. The measured counts for dental Phoenix are
+    # 3,126 listings and 2,778 with a website; `3041` occurs in `public/data`
+    # only inside latitude digits. The reel's script already sets this span
+    # from `measured()` — this is the static value it starts from, which is
+    # what a crawler, a no-JS reader and the first frame all see.
+    #
+    # NOT FIXED HERE, and GTM's to settle: "42 fit of 2,778 dentists in
+    # Phoenix" still reads as though 2,778 were read. 200 were. That is the
+    # same shape as the "we checked 2,800" overclaim this project already
+    # retracted once, and the honest version is a different sentence rather
+    # than a different number.
+    '<span data-r="total">3,041</span>': '<span data-r="total">2,778</span>',
+
+    # The price slab promised 2.5x what the plans can deliver.
+    #
+    # `/pricing` reads `PLANS` and says "$29 · 120 credits · 120 common
+    # matches". The home page's slab is markup and said "$29 a month · up to
+    # 300". A match costs 1, 2 or 3 credits (`BANDS`), so credits are the
+    # ceiling on matches and 300 is not reachable on 120 credits at any band.
+    # Every tier was wrong the same way: 300/1,000/3,000 against 120/400/1,000.
+    #
+    # Two pages one click apart, disagreeing by 2.5x about what money buys, on
+    # a product whose argument is that its numbers are measured.
+    #
+    # The slider's own plan boundaries in `site.js` carried the same figures
+    # (`v <= 300 ? 0 : (v <= 1000 ? 1 : 2)`) and are corrected to 120/400 in
+    # the generated script; its range max drops from 3,000 to 1,000, which is
+    # the largest plan.
+    '<i>up to 300</i>': '<i>up to 120</i>',
+    '<i>up to 1,000</i>': '<i>up to 400</i>',
+    '<i>up to 3,000</i>': '<i>up to 1,000</i>',
+    'type="range" min="50" max="3000" step="50" value="400"':
+        'type="range" min="20" max="1000" step="20" value="400"',
 }
 
 # 2. "Those tickmarked pointers are pointless and hideous. Take them off."

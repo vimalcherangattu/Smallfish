@@ -473,7 +473,7 @@
     var PRICE = ['$29', '$79', '$199'];
     function plan() {
       var v = +range.value;
-      var idx = v <= 300 ? 0 : (v <= 1000 ? 1 : 2);
+      var idx = v <= 120 ? 0 : (v <= 400 ? 1 : 2);
       pn.textContent = fmt(v);
       for (var q = 0; q < tiles.length; q++) tiles[q].classList.toggle('on', q === idx);
       while (pline.firstChild) pline.removeChild(pline.firstChild);
