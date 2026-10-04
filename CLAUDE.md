@@ -200,9 +200,25 @@ holding work there means nobody checks it rather than someone does.
 
 The condition is **no conflicts**, and with two sessions on one branch that takes care:
 
-- **Before every push**: `git pull --rebase origin main`, then run
-  `python3 stage0/tests/run_all.py` — **after** the rebase, because that run is the only
-  thing that knows whether the other stream broke you. Then push.
+- **The sequence, in this order:**
+
+```bash
+git add -A && git commit -m "..."      # commit FIRST — you cannot rebase with a dirty tree
+git fetch origin main
+git rebase origin/main                 # a conflict here is a stop, not a puzzle
+python3 stage0/tests/run_all.py        # AFTER the rebase, not before
+git push origin main
+curl -sI https://www.getsmallfish.com/...   # then check what you just shipped
+```
+
+Do not pipe a git command into `tail` or `head` inside an `&&` chain. A
+pipeline's exit code is the **last** command's, so `git pull --rebase … | tail
+&& git push` pushes even when the rebase failed. That is not hypothetical: it
+happened on the first use of this sequence, the rebase never ran, and only an
+empty upstream kept it from mattering.
+
+  The suite runs **after** the rebase because that run is the only thing that knows
+  whether the other stream broke you.
 - **A rebase conflict is a stop, not a puzzle.** You cannot see the other session's
   intent. Say what conflicted and leave it rather than guessing at their work.
 - **Push small and often.** A long-lived pile of commits is what turns a rebase into a

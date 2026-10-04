@@ -108,11 +108,12 @@ and `src/lib/launch.ts` the attribution.
   `node stage0/tests/check_<name>.mjs http://localhost:3300`. Chromium is at
   `/opt/pw-browsers/chromium`. `check_mobile` holds a 12px type floor and 44px
   targets at 390px; `check_motion` holds the scroll reveal.
-- Push to `main` — both streams do, and `main` is production. Before every push:
-  `git pull --rebase origin main`, then run the suite **after** the rebase, then
-  push, then **fetch the production URL and check it**. A rebase conflict is a
-  stop, not a puzzle: say what conflicted rather than guess at the other
-  session's intent. Push small and often. See `docs/STREAMS.md` §3.
+- Push to `main` — both streams do, and `main` is production. The sequence is
+  commit, fetch, rebase, run the suite, push, then **fetch the production URL
+  and check what you shipped** — `docs/STREAMS.md` §3 spells it out, including
+  why you must not pipe a git command into `tail` inside an `&&` chain. A rebase
+  conflict is a stop, not a puzzle: say what conflicted rather than guess at the
+  other session's intent. Push small and often.
 - Do not edit the founding documents. They are live Claude Docs read through
   the connector, linked from `CLAUDE.md`. Leave a comment on the doc instead.
 

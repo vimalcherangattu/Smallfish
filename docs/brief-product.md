@@ -87,11 +87,12 @@ Read `CLAUDE.md` for the engineering rules. The ones that bite hardest:
 - `check_lure.mjs` and `check_claims.mjs` are new and guard two things that are
   invisible in source: one lure-filled pressable element per screen, and every
   number on screen being true of the thing it names.
-- Push to `main` — both streams do, and `main` is production. Before every push:
-  `git pull --rebase origin main`, then run the suite **after** the rebase, then
-  push, then **fetch the production URL and check it**. A rebase conflict is a
-  stop, not a puzzle: say what conflicted rather than guess at the other
-  session's intent. Push small and often. See `docs/STREAMS.md` §3.
+- Push to `main` — both streams do, and `main` is production. The sequence is
+  commit, fetch, rebase, run the suite, push, then **fetch the production URL
+  and check what you shipped** — `docs/STREAMS.md` §3 spells it out, including
+  why you must not pipe a git command into `tail` inside an `&&` chain. A rebase
+  conflict is a stop, not a puzzle: say what conflicted rather than guess at the
+  other session's intent. Push small and often.
 - When a measurement contradicts a document or an earlier measurement, **say so
   and record the retraction.** `docs/critique.md` and the decision log both
   carry reversals already. A plan that only accumulates confirmations is not
