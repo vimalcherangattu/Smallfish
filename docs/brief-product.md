@@ -48,7 +48,7 @@ Read `CLAUDE.md` for the engineering rules. The ones that bite hardest:
 | | |
 |---|---|
 | `ANTHROPIC_API_KEY` | Not set by any path. `python3 stage0/src/engine/preflight.py` is the only honest check — do not hand-roll a curl, it was wrong for a session. Until it exists, no model judgment runs, which is why `needs_model` is the entire non-unread population of two of the four markets. |
-| `CRON_SECRET` | Not set on Vercel, confirmed by probing the live endpoint. The worker has therefore never run on a schedule. |
+| `CRON_SECRET` | Not set on Vercel, confirmed by probing the live endpoint. The worker has therefore never run on a schedule. **This now bites harder**: a cold-city read has real sites behind it, so the only thing moving them is a person pressing the advance button on their own job. |
 | `RESEND_API_KEY` | Not set. Every mail records why it did not send. |
 | Vercel Hobby | Crons are capped at once a day, and a faster expression **fails the build** — that froze production for three days. `vercel.json` is at `9 3 * * *`. |
 
@@ -67,6 +67,25 @@ Read `CLAUDE.md` for the engineering rules. The ones that bite hardest:
 4. **The scores-versus-verdicts fork.** `docs/design-system.md` §5 describes
    scores, tiers and weighted rubrics; the repo implements binary verdicts. Do
    not pick one silently.
+
+## Any trade, anywhere in the US — 2026-10-05
+
+`/app` no longer has three use cases. A search for any trade in any US city counts the
+real listings (`src/lib/supply.ts`, Overture over HTTPS with DuckDB, ~9s), says how many
+have a website, asks how many the person wants against their balance, and queues a job
+whose sites come from that query. `src/lib/trades.ts` maps "plumbers" onto the
+1,644-category taxonomy; `src/lib/sizing.ts` derives the reads and the wait from the
+measured markets, including the one of four that matched nothing.
+
+Two things to know before touching it:
+
+- **`next.config.mjs`'s `outputFileTracingIncludes` is load-bearing.** Without it the
+  build is green, the local run is clean, and the deployed route throws, because
+  `duckdb.node` dlopens a 70.5 MB `libduckdb.so` the tracer cannot see.
+  `test_duckdb_trace.mjs` holds it.
+- **Already-delivered businesses are excluded in the query, not after it**
+  (`everGivenIds`), so a second search for the same city returns the next names rather
+  than a pool that is mostly already theirs.
 
 ## What is genuinely next
 

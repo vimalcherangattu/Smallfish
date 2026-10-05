@@ -168,8 +168,22 @@ export function marketFor(index: MarketIndex | null, what: string, where: string
   if (!candidates.length) return null;
 
   const city = where.split(",")[0].trim().toLowerCase();
-  const market =
-    candidates.find((m) => city && m.metro.toLowerCase().includes(city)) ?? candidates[0];
+  const market = candidates.find((m) => city && m.metro.toLowerCase().includes(city));
+
+  // **No market for the wrong city.**
+  //
+  // This line used to be `?? candidates[0]`, and it was a live wrong-answer
+  // bug: searching "dentists in Dallas" returned dental **Phoenix** — 42 real
+  // matches, with real evidence quoted off real websites — under a heading
+  // reading "Dentists in Dallas". The screen was confident and the city was
+  // wrong. `sameCity` was computed right here and no caller ever read it.
+  //
+  // The fallback existed because a city we had not extracted was a dead end,
+  // so showing *something* measured felt better than showing nothing. It is
+  // not better. And it is no longer the choice: `src/lib/supply.ts` counts any
+  // US city from the listings themselves, so the honest branch now leads
+  // somewhere. Returning null sends the search there.
+  if (!market) return null;
 
   // Pick the criterion with the most **settled** verdicts, not the most
   // matches.

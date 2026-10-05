@@ -12,6 +12,7 @@ import {
 } from "@/lib/accounts";
 import { CLERK_ENABLED } from "@/lib/clerk";
 import RecordRun from "@/components/RecordRun";
+import Discover from "@/components/app/Discover";
 import FirstRun from "@/components/app/FirstRun";
 import NotRead from "@/components/app/NotRead";
 import Nothing from "@/components/app/Nothing";
@@ -99,6 +100,19 @@ async function walletFor(businessIds: string[]) {
     };
   } catch {
     return none;
+  }
+}
+
+/** Whether there is a workspace to queue a read against. Same never-fail
+ *  contract as `walletFor`: every failure mode lands on "not signed in", which
+ *  shows the sign-up door rather than a button that cannot work. */
+async function isSignedIn(): Promise<boolean> {
+  if (!CLERK_ENABLED) return false;
+  try {
+    const { userId } = await auth();
+    return !!userId;
+  } catch {
+    return false;
   }
 }
 
@@ -207,15 +221,28 @@ export default async function App({
   // Nothing typed yet: the one question (§5.1).
   if (!query) return <FirstRun examples={picks} />;
 
-  // A place we understood but cannot serve from a name alone. No figure is
-  // quoted here any more: the only one available was `readsFor(region)`, which
-  // is a cap on our own work, and the read it sized could never start.
+  // --------------------------------------------- a trade and city we can read
+  //
+  // Nothing measured here, so this goes to the listings themselves. `Discover`
+  // counts what is there, says how many of those have a website, and asks how
+  // many the person wants — see `src/lib/supply.ts`.
+  //
+  // This used to be `NotRead`: "we can't start that from a city name yet",
+  // because nothing could supply candidates for a city we had not extracted by
+  // hand. `NotRead` now covers only the case below it, a place we could not
+  // place at all.
+  if (!result && region) {
+    return <Discover query={query} signedIn={await isSignedIn()} />;
+  }
+
+  // We could not place what they typed. Nothing to count and nothing to offer
+  // but a better spelling.
   if (!result) {
     return (
       <NotRead
         what={split.what}
         where={split.where}
-        label={region?.label ?? null}
+        label={null}
         examples={picks}
       />
     );

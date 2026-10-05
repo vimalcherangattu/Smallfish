@@ -101,39 +101,102 @@ console.log(`\nClaim audit — ${BASE}\n`);
   await page.close();
 }
 
-/* --------------------------------------------- an unread city states a cap */
+/* ------------------------------- a city with nothing measured gets counted */
 {
+  // **This block used to assert a dead end**, and that is why it changed.
+  //
+  // It checked that the screen said we could not start a city from its name,
+  // that it quoted no figure, and that it pointed at CSV upload instead. All
+  // three were true and all three were describing a missing feature: nothing
+  // could supply candidates for a city we had not extracted by hand (P0.2).
+  //
+  // `src/lib/supply.ts` supplies them now, so the screen states a real count
+  // off the real listings. The assertions below are the stronger promises that
+  // replaced the old ones — the counts are consistent with each other, the
+  // categories being scanned are named, and finding out is still free. A test
+  // asserting the old copy would have been a test defending a limitation.
+  //
+  // It is slow on purpose: this waits on a live ~9s scan of a 10.5 GB release,
+  // because the number on screen is the thing being checked.
   const page = await ctx.newPage();
   await page.goto(BASE + "/app?q=plumbers+in+Denver+that+have+no+online+booking", {
+    waitUntil: "domcontentloaded",
+  });
+  await page.waitForFunction(
+    () => !/Looking through the listings/.test(document.body.textContent ?? ""),
+    { timeout: 45_000 },
+  );
+  const text = ((await page.textContent("body")) ?? "").replace(/\s+/g, " ");
+
+  const counted = text.match(
+    /([\d,]+)\s+plumbers in Denver, Colorado\.\s*([\d,]+) of them have a website/i,
+  );
+  const num = (s) => Number(String(s).replace(/,/g, ""));
+
+  check(
+    "a city with nothing measured still gets a real count",
+    !!counted && num(counted[1]) > 0,
+    text.slice(0, 220),
+  );
+  check(
+    "and the readable count cannot exceed the listing count",
+    !!counted && num(counted[2]) <= num(counted[1]),
+    counted ? `${counted[1]} listings, ${counted[2]} with a website` : "no counts on screen",
+  );
+  check(
+    "and the screen names the categories it will scan rather than choosing silently",
+    /Looking in/i.test(text) && /plumbing/i.test(text),
+    text.slice(0, 300),
+  );
+  check(
+    "and the measured match rate is quoted with the search that matched nothing",
+    // 18 to 31 in every hundred, and one criterion of four that found none.
+    // Quoting only the range would be quoting only the successes.
+    //
+    // Matched on the two ideas rather than the sentence, so a rewrite of the
+    // copy does not fail this and a quiet removal of the zero still does.
+    /\d+ to \d+ in every hundred/i.test(text) && /fitted nothing/i.test(text),
+    text.slice(0, 400),
+  );
+  check(
+    "and nothing was charged for finding out",
+    /Nothing has been charged/i.test(text),
+    text.slice(-300),
+  );
+  await page.close();
+}
+
+/* --------------------------------------- a place we cannot place says so */
+{
+  const page = await ctx.newPage();
+  await page.goto(BASE + "/app?q=plumbers+in+Zzzqqville", {
     waitUntil: "domcontentloaded",
   });
   await page.waitForTimeout(600);
   const text = ((await page.textContent("body")) ?? "").replace(/\s+/g, " ");
 
-  // A city we cannot serve from a name says what we can do, not what we have
-  // and have not got through.
   check(
-    "a city we cannot serve says so plainly",
-    /can.?t start/i.test(text),
-    text.slice(0, 160),
+    "a place we cannot place says so plainly",
+    /couldn.?t place/i.test(text),
+    text.slice(0, 200),
   );
   check(
     "and does not narrate our reading history at it",
     !/haven.t been through|have not been through|nobody has read|not read (this|that) (city|one)/i.test(text),
     text.slice(0, 300),
   );
-  // The screen quotes no figure at all now. The only one available was
-  // `readsFor(region)` — `CITY_CAP`, a bound on **our** work — and it sized a
-  // read that could never start, because nothing attaches candidates to a cold
-  // city (P0.2). A number here would be a cap dressed as a market size.
   check(
+    // There is no market here to have a size, so any thousands-figure on this
+    // screen would be a number borrowed from somewhere it does not belong. The
+    // counted screen above is where figures are allowed, and there they are
+    // checked against each other.
     "and quotes no market figure, because it has none to quote",
     !/\b\d{1,2},\d{3}\b/.test(text),
     (text.match(/\b\d{1,2},\d{3}\b/g) ?? []).join(", "),
   );
   check(
-    "and offers the route that works instead",
-    /upload|your own list/i.test(text),
+    "and still offers somewhere to go",
+    /upload|your own list|something else/i.test(text),
     text.slice(0, 300),
   );
   check(

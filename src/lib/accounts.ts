@@ -794,6 +794,80 @@ export interface JobSiteRow {
   read_outcome: string | null;
 }
 
+/**
+ * Every business this workspace has already been given, so a new read does not
+ * hand back the same names.
+ *
+ * ## Two sources, and they mean different things
+ *
+ *   - **`unlocks`** — businesses they have paid for. Excluded from every search
+ *     whatever its criterion. They already hold the name and the contact
+ *     details; selling it a second time because it also answers a different
+ *     question is charging twice for one thing.
+ *   - **`job_sites` for jobs asking the same question** — businesses we have
+ *     already read *for this criterion*. Reading them again costs a crawl and a
+ *     model call to re-learn an answer we have. Scoped to the criterion on
+ *     purpose: a practice with no online booking may well have no quote form,
+ *     and dropping it from every future search would lose a real match.
+ *
+ * ## Why it is capped
+ *
+ * The result goes into a `NOT IN (…)` list in the Overture query, so it travels
+ * as SQL text. `LIMIT` keeps that bounded; a workspace past it gets a few
+ * repeats rather than a failed search, which is the right way round. 20,000 ids
+ * is about 700 KB of SQL and far beyond any real workspace today.
+ *
+ * **Never fails the caller.** An unreachable database returns an empty set,
+ * which means "nothing to exclude" — the search still runs and may repeat a
+ * name. The alternative is refusing to search at all, which is worse.
+ */
+export async function everGivenIds(
+  accountId: string,
+  opts: { criterionId?: string | null; limit?: number } = {},
+): Promise<Set<string>> {
+  const limit = Math.max(1, Math.min(opts.limit ?? 20_000, 50_000));
+  const out = new Set<string>();
+
+  try {
+    const unlocked =
+      (await rest<Array<{ business_id: string }> | null>(
+        `unlocks?account_id=eq.${accountId}&select=business_id&limit=${limit}`,
+      )) ?? [];
+    for (const r of unlocked) out.add(r.business_id);
+  } catch {
+    // Nothing to exclude. See the note above.
+  }
+
+  if (!opts.criterionId) return out;
+
+  try {
+    // Two round trips rather than a PostgREST embed: `job_sites` carries no
+    // `account_id`, and relying on an implicit relationship name is a thing
+    // that breaks on a schema rename with no test to catch it.
+    const jobs =
+      (await rest<Array<{ id: string }> | null>(
+        `jobs?account_id=eq.${accountId}&criterion_id=eq.${encodeURIComponent(opts.criterionId)}` +
+          `&select=id&limit=500`,
+      )) ?? [];
+    for (let i = 0; i < jobs.length; i += 50) {
+      const list = jobs
+        .slice(i, i + 50)
+        .map((j) => `"${j.id}"`)
+        .join(",");
+      const rows =
+        (await rest<Array<{ business_id: string }> | null>(
+          `job_sites?job_id=in.(${encodeURIComponent(list)})&select=business_id&limit=${limit}`,
+        )) ?? [];
+      for (const r of rows) out.add(r.business_id);
+      if (out.size >= limit) break;
+    }
+  } catch {
+    // As above.
+  }
+
+  return out;
+}
+
 /** Put a job's work list in place. Idempotent — see migration `0014`. */
 export async function addJobSites(
   jobId: string,

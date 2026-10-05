@@ -367,6 +367,75 @@ for (const c of CASES) {
   );
 }
 
+/* ------------------------------------------- never a market for another city */
+//
+// `marketFor` ended with `?? candidates[0]`, so a niche we have measured
+// *anywhere* answered for that niche **everywhere**. Searching "dentists in
+// Dallas" returned dental Phoenix: 42 real matches, real evidence quoted off
+// real websites, under a heading that read "Dentists in Dallas". Confident, and
+// the wrong city. `sameCity` was computed on the very next line and no caller
+// ever read it.
+//
+// Nothing in the suite caught it, including this file, because every case here
+// passed the city that belongs to the market. These assert the property instead
+// of the examples: a city that is not the market's city is not a hit.
+{
+  const measured = index.markets.map((m) => ({
+    niche: m.niche,
+    city: m.metro.split(",")[0].trim(),
+  }));
+
+  for (const { niche, city } of measured) {
+    const word = { med_spa: "med spas", dental: "dentists", hvac: "HVAC", veterinary: "vets" }[
+      niche
+    ];
+    if (!word) continue;
+
+    const right = L.marketFor(index, word, city);
+    if (right) {
+      check(
+        `${word} in ${city} still finds its own market`,
+        right.market.metro.toLowerCase().includes(city.toLowerCase()) && right.sameCity === true,
+        `${right.market.id}, sameCity ${right.sameCity}`,
+      );
+    }
+
+    // Every *other* measured city, plus cities we have measured nothing in.
+    const elsewhere = [
+      ...measured.filter((m) => m.city !== city).map((m) => m.city),
+      "Dallas",
+      "Denver",
+      "Boise",
+      "Cleveland",
+    ].filter((other) => other.toLowerCase() !== city.toLowerCase());
+
+    for (const other of new Set(elsewhere)) {
+      const hit = L.marketFor(index, word, other);
+      check(
+        `${word} in ${other} does not answer with a market in another city`,
+        hit === null,
+        hit ? `returned ${hit.market.id} (${hit.market.metro}), sameCity ${hit.sameCity}` : "",
+      );
+    }
+  }
+
+  check(
+    "a hit, when there is one, is always for the city that was asked for",
+    // The invariant behind all of the above, stated once: there is no input for
+    // which `marketFor` returns a market whose metro is not the asked city.
+    measured.every(({ niche, city }) => {
+      const word = { med_spa: "med spas", dental: "dentists", hvac: "HVAC", veterinary: "vets" }[
+        niche
+      ];
+      if (!word) return true;
+      return [city, "Dallas", "Phoenix", "Tampa", "Columbus", "Nowhereville"].every((where) => {
+        const hit = L.marketFor(index, word, where);
+        return !hit || hit.market.metro.toLowerCase().includes(where.toLowerCase());
+      });
+    }),
+  );
+}
+
 rmSync(dir, { recursive: true, force: true });
 console.log(`\n${failures} failure(s)`);
 process.exit(failures ? 1 : 0);
