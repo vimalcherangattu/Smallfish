@@ -3,76 +3,93 @@ import Link from "next/link";
 import { Arrow, Up } from "@/components/app/icons";
 
 /**
- * A search we understood, for a trade and city we cannot serve from a name
- * alone.
+ * A place we could not place.
  *
- * ## What this screen used to be, and why it changed
+ * ## This screen used to be two screens, and the other one was a dead end
  *
- * It led with **"We haven't been through plumbers in Denver yet"** and offered
- * a button to start the read.
+ * It also covered "a city we understood but cannot serve from a name alone" —
+ * *"We can't start plumbers in Denver from a city name yet"* — because nothing
+ * supplied candidates for a city we had not extracted by hand. That branch is
+ * gone: `src/lib/supply.ts` counts any US city from the listings, so a place we
+ * recognise goes to `Discover` and gets an answer. What is left here is the one
+ * honest case — we do not know where they mean.
  *
- * Both were wrong. How much of the country we have got through is our queue
- * depth, and a customer has no use for it — every request is new to them, and
- * opening with what we have and have not already done reframes their question
- * as our backlog. And the button could not work: `/api/jobs` created the job
- * and never attached any sites to it, because nothing extracts candidates for a
- * cold city yet (P0.2). The progress screen then read 0 of 1,000 for ever.
- * Somebody sat and watched it.
+ * ## And usually we do know
  *
- * So the screen leads with the route that works today — a list they already
- * have, which brings its own candidates — and says plainly that the city route
- * is not ready, once, without an account of our reading history.
+ * The owner typed **"pheonix"**. Two keystrokes from the fourth-largest city in
+ * the country, and the screen said "We couldn't place that" and stopped.
+ * `nearestCity` finds it; this offers it as a question and never substitutes
+ * it, because reading Phoenix for somebody who typed Pheonix is the same class
+ * of mistake as answering Dallas with Phoenix data.
  *
- * It does **not** offer to queue anything. An offer that cannot be honoured is
- * worse than no offer, and `/api/jobs` now refuses this case rather than
- * accepting work it will drop.
+ * ## No list of our previous runs
+ *
+ * This screen used to end with four searches we had already run. The owner,
+ * twice: *"the runs we already made has nothing to do with customers"*. They
+ * are our queue depth, and a person who has just mistyped a city name has no
+ * use for them.
  */
 
 export default function NotRead({
   what,
   where,
-  label,
-  examples,
+  didYouMean,
 }: {
   what: string;
   where: string;
-  /** The place as we resolved it, which can differ from what was typed. */
-  label: string | null;
-  examples: Array<{ q: string; n: number }>;
+  /** Kept so the prop shape is stable for callers; this screen no longer has a
+   *  branch for a place we did resolve. */
+  label?: string | null;
+  didYouMean: { label: string; query: string } | null;
 }) {
-  const placed = !!label;
-  const trade = what || "those";
+  const trade = what || "businesses";
 
   return (
     <div className="appbody">
       <div className="appmid">
         <div>
           <h1 className="t-h1">
-            {placed ? (
-              <>
-                We can&rsquo;t start {trade} in {label} from a city name yet.
-              </>
-            ) : (
-              <>
-                We couldn&rsquo;t place {where ? `“${where}”` : "that"}.
-              </>
-            )}
+            We couldn&rsquo;t place {where ? `“${where}”` : "that"}.
           </h1>
           <p className="t-b" style={{ marginTop: 12, color: "#36404C", maxWidth: "58ch" }}>
-            {placed ? (
+            {didYouMean ? (
               <>
-                Give us the businesses and we will read every one of their websites and tell
-                you which fit — that works for any city, starting now.
+                Any US city or state works — we think you meant a real one and typed it
+                slightly differently.
               </>
             ) : (
-              <>A US city or state works. Try the city on its own.</>
+              <>Any US city or state works. Try the city on its own, without the state.</>
             )}
           </p>
         </div>
 
+        {didYouMean && (
+          <div className="col" style={{ gap: 12, alignItems: "flex-start" }}>
+            <Link className="btn big" href={`/app?q=${encodeURIComponent(didYouMean.query)}`}>
+              {trade} in {didYouMean.label}
+              <Arrow s={17} />
+            </Link>
+            <p className="t-s">
+              We will not assume it. Press it and we will count that city.
+            </p>
+          </div>
+        )}
+
         <div className="ptiles">
-          <Link className="ptile sug" href="/app/upload">
-            <span className="ptile__tag">works today</span>
+          <Link className={`ptile${didYouMean ? "" : " sug"}`} href="/app">
+            {!didYouMean && <span className="ptile__tag">start here</span>}
+            <span className="ptile__back" aria-hidden="true" />
+            <span className="ptile__front">
+              <span className="ptile__ico">
+                <Arrow s={17} />
+              </span>
+              <span className="ptile__txt">
+                <b>Type it again</b>
+                <em>A city, a state, or the whole US. Spelling is the only thing we need.</em>
+              </span>
+            </span>
+          </Link>
+          <Link className="ptile" href="/app/upload">
             <span className="ptile__back" aria-hidden="true" />
             <span className="ptile__front">
               <span className="ptile__ico">
@@ -87,49 +104,7 @@ export default function NotRead({
               </span>
             </span>
           </Link>
-          <Link className="ptile" href="/templates">
-            <span className="ptile__back" aria-hidden="true" />
-            <span className="ptile__front">
-              <span className="ptile__ico">
-                <Arrow s={17} />
-              </span>
-              <span className="ptile__txt">
-                <b>See what we can prove</b>
-                <em>The asks the engine can settle today, and the ones it cannot.</em>
-              </span>
-            </span>
-          </Link>
         </div>
-
-        {examples.length > 0 && (
-          <div style={{ borderTop: "1px solid #D5D9D2", paddingTop: 18 }}>
-            <p className="t-h3" style={{ color: "#5B6470" }}>
-              Or start from one of these
-            </p>
-            <div className="col" style={{ gap: 2, marginTop: 10 }}>
-              {examples.slice(0, 4).map((e) => (
-                <Link
-                  className="arrive"
-                  href={`/app?q=${encodeURIComponent(e.q)}`}
-                  key={e.q}
-                  // Each of these is a force-dynamic route that reads a
-                  // multi-megabyte market file. Next prefetches links entering
-                  // the viewport, so this would fire four full searches nobody
-                  // asked for.
-                  prefetch={false}
-                >
-                  <span className="dotv" style={{ background: "#C8F03C" }} />
-                  <span className="t-b" style={{ gridColumn: "2/4" }}>
-                    {e.q}
-                  </span>
-                  <span className="t-d m" style={{ color: "#4A6508", textAlign: "right" }}>
-                    {e.n} fit
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
 
         <p className="t-s">Nothing was charged for this.</p>
       </div>

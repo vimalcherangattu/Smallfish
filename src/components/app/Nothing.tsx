@@ -31,7 +31,6 @@ export default function Nothing({
   read,
   didNotFit,
   unsure,
-  examples,
 }: {
   what: string;
   where: string;
@@ -39,7 +38,6 @@ export default function Nothing({
   read: number;
   didNotFit: number;
   unsure: UnsureGroup[];
-  examples: Array<{ q: string; n: number }>;
 }) {
   const unsureTotal = unsure.reduce((a, g) => a + g.count, 0);
 
@@ -116,38 +114,6 @@ export default function Nothing({
           </p>
         </div>
 
-        {examples.length > 0 && (
-          <div style={{ borderTop: "1px solid #D5D9D2", paddingTop: 18 }}>
-            <p className="t-h3" style={{ color: "#5B6470" }}>
-              Searches that return something today
-            </p>
-            <div className="col" style={{ gap: 2, marginTop: 10 }}>
-              {examples.slice(0, 4).map((e) => (
-                <Link
-                  className="arrive"
-                  href={`/app?q=${encodeURIComponent(e.q)}`}
-                  key={e.q}
-                  // `prefetch={false}`: each of these is a force-dynamic route
-                  // that reads a multi-megabyte market file and runs
-                  // `buildLeads` over it. Next prefetches links as they enter
-                  // the viewport, so landing here fired three full searches
-                  // nobody had asked for — three serverless invocations and
-                  // seconds of CPU per visit, and `networkidle` never fired
-                  // because two were always still running.
-                  prefetch={false}
-                >
-                  <span className="dotv" style={{ background: "#C8F03C" }} />
-                  <span className="t-b" style={{ gridColumn: "2/4" }}>
-                    {e.q}
-                  </span>
-                  <span className="t-d m" style={{ color: "#4A6508", textAlign: "right" }}>
-                    {e.n} fit
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

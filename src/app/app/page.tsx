@@ -17,12 +17,12 @@ import FirstRun from "@/components/app/FirstRun";
 import NotRead from "@/components/app/NotRead";
 import Nothing from "@/components/app/Nothing";
 import Results from "@/components/app/Results";
-import { agree, evidenceFor, prettyDay } from "@/lib/appview";
+import { evidenceFor, prettyDay } from "@/lib/appview";
 import { PLANS } from "@/lib/pricing";
 import { suppressedIds } from "@/lib/db";
 import { buildLeads, composeEmail, marketFor, type Contacts } from "@/lib/leads";
 import { splitQuery } from "@/lib/query";
-import { resolveRegion, type Places } from "@/lib/region";
+import { nearestCity, resolveRegion, type Places } from "@/lib/region";
 import type { Business, Criterion, Market, MarketIndex } from "@/lib/types";
 
 /**
@@ -126,30 +126,6 @@ async function json<T>(name: string): Promise<T | null> {
   }
 }
 
-const LABEL: Record<string, string> = {
-  med_spa: "Med spas",
-  dental: "Dental practices",
-  hvac: "HVAC companies",
-  veterinary: "Vet clinics",
-};
-
-/** The searches that return something today, as sentences somebody would type
- *  rather than a list of market ids. */
-function suggestions(index: MarketIndex | null) {
-  if (!index) return [];
-  const out: { q: string; n: number }[] = [];
-  for (const m of index.markets) {
-    for (const c of m.criteria) {
-      const n = m.tallies?.[c.id]?.match ?? 0;
-      if (n > 0) {
-        const niche = (LABEL[m.niche] ?? m.niche.replace(/_/g, " ")).toLowerCase();
-        const city = m.metro.split(",")[0].trim();
-        out.push({ q: `${niche} in ${city} that ${agree(c.text)}`, n });
-      }
-    }
-  }
-  return out.sort((a, b) => b.n - a.n);
-}
 
 export default async function App({
   searchParams,
@@ -215,11 +191,12 @@ export default async function App({
   // Somewhere real, but not read yet. Different sentence from "we don't know
   // where that is", and the difference is the whole product.
   const region = !hit && places && split.where ? resolveRegion(places, split.where) : null;
-  const picks = suggestions(index);
+  // Two keystrokes from a real city is not the same as nowhere. "pheonix".
+  const meant = !hit && !region && places && split.where ? nearestCity(places, split.where) : null;
 
 
   // Nothing typed yet: the one question (§5.1).
-  if (!query) return <FirstRun examples={picks} />;
+  if (!query) return <FirstRun />;
 
   // --------------------------------------------- a trade and city we can read
   //
@@ -243,7 +220,16 @@ export default async function App({
         what={split.what}
         where={split.where}
         label={null}
-        examples={picks}
+        didYouMean={
+          meant
+            ? {
+                label: meant.label,
+                query: `${split.what} in ${meant.city.name}${
+                  split.criterion ? ` that ${split.criterion}` : ""
+                }`,
+              }
+            : null
+        }
       />
     );
   }
@@ -258,7 +244,6 @@ export default async function App({
         read={result.read}
         didNotFit={result.didNotFit}
         unsure={result.unsure}
-        examples={picks}
       />
     );
   }

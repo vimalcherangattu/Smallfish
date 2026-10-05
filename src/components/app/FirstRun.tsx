@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-import { Arrow, Grid, Map, Spark, Up } from "@/components/app/icons";
+import { Arrow, Grid, Map, Up } from "@/components/app/icons";
 import { inferFromOffer } from "@/lib/icp";
 
 /**
@@ -36,6 +36,18 @@ import { inferFromOffer } from "@/lib/icp";
  * That refusal is the reason to trust the rest of it.
  */
 
+/**
+ * ## No "start from an example", and no "ready right now"
+ *
+ * Both listed **searches we had already run** — four measured markets — as the
+ * way in. The owner, twice: *"the runs we already made has nothing to do with
+ * customers"*. They are our queue depth wearing a customer's clothes. A person
+ * arriving to find gyms in Phoenix has no use for the fact that we once read
+ * dental practices in Phoenix, and leading with it reframes their question as
+ * our backlog.
+ *
+ * What is left is the three routes that are about **their** work, not ours.
+ */
 const WAYS: ReadonlyArray<{
   href: string;
   icon: (p: { s?: number }) => React.ReactElement;
@@ -43,13 +55,6 @@ const WAYS: ReadonlyArray<{
   detail: string;
   suggested?: boolean;
 }> = [
-  {
-    href: "/templates",
-    icon: Spark,
-    title: "Start from an example",
-    detail: "Searches that return something today. Open one and change the words.",
-    suggested: true,
-  },
   {
     href: "/app/explore",
     icon: Map,
@@ -70,12 +75,7 @@ const WAYS: ReadonlyArray<{
   },
 ] as const;
 
-export default function FirstRun({
-  examples,
-}: {
-  /** Searches that return something today, measured — never invented. */
-  examples: Array<{ q: string; n: number }>;
-}) {
+export default function FirstRun() {
   const router = useRouter();
   const [sell, setSell] = useState("");
   const [to, setTo] = useState("");
@@ -85,10 +85,24 @@ export default function FirstRun({
   const criterion = read?.propose[0]?.criterionText ?? null;
   const refused = read && read.propose.length === 0 ? read : null;
 
-  const ready = !!(criterion && to.trim() && where.trim());
+  /**
+   * **A business type and a place is enough.** It used to also require that we
+   * had understood the offer — `criterion` — and that gate was a dead end you
+   * could not get out of: "I sell helpline to gyms in pheonix" filled both
+   * fields, said "Nothing in that is visible on a website", and left **Find
+   * them** permanently unpressable with nothing to do about it.
+   *
+   * The refusal was right and its placement was wrong. We can always find gyms
+   * in Phoenix; what we could not do was guess, from the word "helpline", what
+   * to look for on their sites. That is a question to ask on the next screen —
+   * which already asks it, naming the checks the engine can actually settle —
+   * rather than a wall here.
+   */
+  const ready = !!(to.trim() && where.trim());
   const go = () => {
     if (!ready) return;
-    router.push(`/app?q=${encodeURIComponent(`${to.trim()} in ${where.trim()} that ${criterion}`)}`);
+    const ask = `${to.trim()} in ${where.trim()}${criterion ? ` that ${criterion}` : ""}`;
+    router.push(`/app?q=${encodeURIComponent(ask)}`);
   };
 
   return (
@@ -140,14 +154,20 @@ export default function FirstRun({
                 <p className="t-b">
                   <b>We can&rsquo;t settle that from a website.</b> To know whether a business
                   needs {refused.refused[0].signal.label}, we would need{" "}
-                  {refused.refused[0].wouldTake}. We would rather say so than hand you a list
-                  we cannot stand behind.
+                  {refused.refused[0].wouldTake}. Carry on — we will find the{" "}
+                  {to.trim() || "businesses"} and ask you what to look for.
                 </p>
               ) : (
                 <p className="t-b">
-                  <b>Nothing in that is visible on a website.</b> Tell us what a customer would
-                  see, or not see, on their site — &ldquo;online booking&rdquo;, &ldquo;a quote
-                  form&rdquo;, &ldquo;live chat&rdquo; — and we can read for it.
+                  {/* Not "nothing in that is visible on a website", which read as a
+                      stop — and was one, while the button was gated on this. We can
+                      always find the businesses; what we cannot do is guess what to
+                      look for on their sites. That is the next screen's question,
+                      and it asks it with the checks the engine can actually settle. */}
+                  <b>We can&rsquo;t tell what to look for from that.</b> Carry on and we will
+                  find the {to.trim() || "businesses"} first, then ask you — or say what a
+                  customer would see, or not see, on their site: &ldquo;online
+                  booking&rdquo;, &ldquo;a quote form&rdquo;, &ldquo;live chat&rdquo;.
                 </p>
               )}
             </div>
@@ -194,38 +214,6 @@ export default function FirstRun({
           </p>
         </div>
 
-        {examples.length > 0 && (
-          <div style={{ borderTop: "1px solid #D5D9D2", paddingTop: 18 }}>
-            <p className="t-h3" style={{ color: "#5B6470" }}>
-              Ready right now
-            </p>
-            <div className="col" style={{ gap: 2, marginTop: 10 }}>
-              {examples.slice(0, 5).map((e) => (
-                <Link
-                  className="arrive"
-                  href={`/app?q=${encodeURIComponent(e.q)}`}
-                  key={e.q}
-                  // `prefetch={false}`: each of these is a force-dynamic route
-                  // that reads a multi-megabyte market file and runs
-                  // `buildLeads` over it. Next prefetches links as they enter
-                  // the viewport, so landing here fired three full searches
-                  // nobody had asked for — three serverless invocations and
-                  // seconds of CPU per visit, and `networkidle` never fired
-                  // because two were always still running.
-                  prefetch={false}
-                >
-                  <span className="dotv" style={{ background: "#C8F03C" }} />
-                  <span className="t-b" style={{ gridColumn: "2/4" }}>
-                    {e.q}
-                  </span>
-                  <span className="t-d m" style={{ color: "#4A6508", textAlign: "right" }}>
-                    {e.n} fit
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -168,9 +168,20 @@ for (const route of ROUTES) {
       pressable: e.matches("a[href], button, [role=button]"),
     })),
   );
-  check("the `start here` badge exists to be excluded", tags.length > 0, `${tags.length} found`);
+  // **Whether a badge exists is a design choice, not a promise.** This used to
+  // assert `tags.length > 0`, which was true only because one tile on first run
+  // said "start here" and pointed at *searches we had already run*. The owner,
+  // twice: "the runs we already made has nothing to do with customers". The
+  // tile went, and with it the last badge on this screen — which failed a test
+  // that was never about the badge being there, only about it not counting as
+  // the screen's one lure if it is.
+  //
+  // So: nothing to check when there are none, and the real rule when there are.
+  if (!tags.length) {
+    console.log("  note  no `start here` badge on /app; nothing to exclude");
+  }
   check(
-    "and none of them has become a button, which would make it count",
+    "no `start here` badge has become a button, which would make it count",
     tags.every((t) => !t.pressable),
     tags.filter((t) => t.pressable).map((t) => t.text).join(" | "),
   );

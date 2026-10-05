@@ -260,6 +260,42 @@ export function resolveRegion(
   }
 
   // --- a city ---------------------------------------------------------------
+  //
+  // A few names people type that no listing spells that way. Deliberately
+  // short and unambiguous: "la" is not here, because `STATE_ABBR` reads it as
+  // Louisiana and a nickname must never outrank a real state code.
+  const ALIAS: Record<string, string> = {
+    nyc: "New York",
+    "new york city": "New York",
+    philly: "Philadelphia",
+    vegas: "Las Vegas",
+    "las vegas nv": "Las Vegas",
+    sf: "San Francisco",
+    "the bay": "San Francisco",
+    nola: "New Orleans",
+  };
+  const aliased = ALIAS[q];
+  if (aliased) {
+    const hit = places.cities
+      .filter((c) => norm(c.name) === norm(aliased))
+      .sort((a, b) => b.pop - a.pop)[0];
+    if (hit) {
+      const st = places.states.find((s) => s.code === hit.state);
+      return {
+        scope: "city",
+        label: st ? `${hit.name}, ${st.name}` : hit.name,
+        state: st,
+        city: hit,
+        sample: [hit],
+        perCity: [CITY_CAP],
+        cap: CITY_CAP,
+        sampled: false,
+        narrowTo: [],
+        note: null,
+      };
+    }
+  }
+
   // "Austin, TX" and "Austin Texas" both name a state; use it, because there
   // are two Austins and picking the bigger one silently would hand somebody a
   // list from the wrong one.
@@ -315,6 +351,94 @@ export function resolveRegion(
       ? `There is more than one ${city.name}. This is the one in ${inState?.name ?? city.state}, ` +
         `the largest. Add a state to pick a different one.`
       : null,
+  };
+}
+
+/**
+ * The city somebody probably meant, when what they typed is not one.
+ *
+ * ## Why this is here at all
+ *
+ * The owner typed **"pheonix"**. It is two keystrokes from the fourth-largest
+ * city in the country and `resolveRegion` returns null for it, so the screen
+ * said "We couldn't place that" and the search stopped. That is the right
+ * answer to the wrong question: we are not uncertain about where they meant,
+ * we are uncertain about one transposed vowel.
+ *
+ * ## It offers, it never substitutes
+ *
+ * Silently reading Phoenix because somebody typed Pheonix is the same class of
+ * mistake as `marketFor`'s old `?? candidates[0]` — answering confidently for a
+ * place nobody asked about. So this returns a suggestion the screen shows as a
+ * question, and the person presses it or does not.
+ *
+ * ## The distance is bounded by the word, not by a constant
+ *
+ * One edit for a short name, two for a long one. A flat threshold of two turns
+ * "Troy" into "Tracy" and "Cary" into "Gary"; a flat one never reaches
+ * "Albequerque". Transposition counts as a single edit because it is the most
+ * common typo there is — and it is exactly the one in "pheonix".
+ */
+export function distance(a: string, b: string, cap: number): number {
+  // Damerau-Levenshtein. Three rows are kept rather than two, because the
+  // transposition term reads the row before last; a two-row version silently
+  // degrades to plain Levenshtein and scores "pheonix" at 2 instead of 1.
+  //
+  // It gives up as soon as every cell in a row is past the cap — this runs
+  // against 2,398 cities, on input that has already failed to resolve.
+  if (Math.abs(a.length - b.length) > cap) return cap + 1;
+
+  const width = b.length + 1;
+  let before: number[] = new Array(width).fill(0);
+  let prev: number[] = Array.from({ length: width }, (_, j) => j);
+  let cur: number[] = new Array(width).fill(0);
+
+  for (let i = 1; i <= a.length; i += 1) {
+    cur[0] = i;
+    let best = i;
+    for (let j = 1; j <= b.length; j += 1) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      let v = Math.min(cur[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        v = Math.min(v, before[j - 2] + 1);
+      }
+      cur[j] = v;
+      if (v < best) best = v;
+    }
+    if (best > cap) return cap + 1;
+    [before, prev, cur] = [prev, cur, before];
+  }
+  return prev[b.length];
+}
+
+export interface NearMiss {
+  city: City;
+  label: string;
+}
+
+export function nearestCity(places: Places | null, typed: string): NearMiss | null {
+  const q = norm(typed);
+  if (!places || q.length < 4) return null;
+  // Only for input that resolves to nothing: a real city is never "near" another.
+  if (resolveRegion(places, typed)) return null;
+
+  const cap = q.length >= 7 ? 2 : 1;
+  let best: { city: City; d: number } | null = null;
+  for (const c of places.cities) {
+    const name = norm(c.name);
+    const d = distance(q, name, cap);
+    if (d > cap) continue;
+    // Ties broken by population: two cities one edit away, and the bigger one
+    // is the likelier intent.
+    if (!best || d < best.d || (d === best.d && c.pop > best.city.pop)) {
+      best = { city: c, d };
+    }
+  }
+  if (!best) return null;
+  const state = places.states.find((s) => s.code === best!.city.state);
+  return {
+    city: best.city,
+    label: state ? `${best.city.name}, ${state.name}` : best.city.name,
   };
 }
 
