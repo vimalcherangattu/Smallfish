@@ -94,7 +94,14 @@ def main() -> int:
           levels(two, sig) == levels(list(reversed(two)), sig))
 
     # --- the measured floor is on disk and labelled as a floor, not a rate
-    p = DATA / "change-rate-dental-phoenix.json"
+    #
+    # **This used to read `change-rate-dental-phoenix.json`, and that was the
+    # bug it then caught.** That filename holds the *latest* run, so the moment
+    # a real multi-day comparison was made it stopped holding the same-day
+    # floor, and the floor — the control that justifies gating alerts on the
+    # signals hash at all — was gone with no warning. The run is now stamped by
+    # interval and both survive, so the floor is asserted at its own name.
+    p = DATA / "change-rate-dental-phoenix-sameday.json"
     if p.exists():
         m = json.loads(p.read_text())
         check("the same-day run is recorded as a noise floor, not a change rate",
@@ -107,7 +114,30 @@ def main() -> int:
               ch.get("raw", 0) > 0,
               "if raw were stable too, the levels would be measuring nothing")
     else:
-        print("  skip  no measured run on disk yet")
+        print("  skip  no same-day floor on disk yet")
+
+    # --- and a real interval is labelled as one, with the levels it may report
+    for q in sorted(DATA.glob("change-rate-dental-phoenix-*d.json")):
+        m = json.loads(q.read_text())
+        check(f"{q.name}: a multi-day run is not labelled a noise floor",
+              m.get("is_noise_floor") is False)
+        check(f"{q.name}: it says which levels it may be compared on",
+              isinstance(m.get("levels_reported"), list) and m["levels_reported"],
+              "a run that does not say what it compared cannot be read later")
+        # `normalised` is a pure function of `text`, so the sites whose
+        # normalised hash moved must be a subset of those whose text moved.
+        # Reported at 93.2% against text's 47.5% once, because the rules had
+        # changed underneath the baseline. If it is reported at all, it holds.
+        ch = m.get("changed", {})
+        if "normalised" in m.get("levels_reported", []):
+            check(f"{q.name}: normalised cannot move more often than text",
+                  ch.get("normalised", 0) <= ch.get("text", 0),
+                  "normalised is a function of text; this is impossible unless "
+                  "the normalisation rules moved between the two reads")
+        else:
+            check(f"{q.name}: an uncomparable level is dropped, not reported",
+                  m.get("normalised_comparable") is False
+                  and "normalised" not in ch)
 
     check("digest is stable and short", digest("x") == digest("x") and len(digest("x")) == 16)
 

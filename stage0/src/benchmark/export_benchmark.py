@@ -55,6 +55,14 @@ REQUIRED: list[tuple[str, str, str]] = [
      "Run-to-run noise: the same code, the same corpus, twice"),
     ("settled_no_model", "Criteria settled with no model call",
      "Criteria settled with no model call at all"),
+    # Added 2026-10-05, when measuring it made it **disappear**. The row was
+    # visible on /benchmark as a target with no number, because `notYetMeasured`
+    # is built from the whole table; `rows` is built from this list alone. So a
+    # measurement arriving moved it out of one and not into the other, and the
+    # page quietly stopped mentioning a number it had been promising to get.
+    # Anything the plan tracks and then measures belongs here.
+    ("change_rate", "Weekly profile change rate",
+     "How often a watched business changes in a way we could re-judge"),
 ]
 
 CELL_RE = re.compile(r"^\|(.+)\|\s*$")

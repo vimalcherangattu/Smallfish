@@ -40,18 +40,57 @@
 import { COST_PER_READ, PLANS, READS_PER_CREDIT, type Plan } from "@/lib/pricing";
 
 /**
- * Seven-day signals-change rate. **Not measured.**
+ * Signals-change rate over **thirteen days**, measured 2026-10-05.
  *
- * The same-day floor is 0.0%, which bounds this below and says nothing about a
- * week. 5% is a deliberately pessimistic stand-in: it is the *normalised text*
- * same-day rate, and signals move less than text does, so a real weekly figure
- * that comes in above this would be genuinely surprising. Budgets derived from
- * it are therefore conservative — they under-promise watched capacity rather
- * than over-promise it, which is the safe direction to be wrong in.
+ * 56 dental Phoenix sites, re-read against a 2026-09-23 baseline
+ * (`stage0/data/change-rate-dental-phoenix-13d.json`):
+ *
+ *     raw          85.7%
+ *     text         46.4%
+ *     signals       8.9%   ← 5 sites of 56
+ *
+ * The same five sites moved on both passes of that run, which is the only
+ * cross-check available without a third date.
+ *
+ * It is not the seven-day figure S0-23 asks for, and it is not labelled as one.
+ * A thirteen-day window bounds a seven-day one from above, so using it as the
+ * weekly planning input over-states the cost — the direction this file has
+ * always said it wants to be wrong in.
+ *
+ * **`normalised` is deliberately absent.** That run first reported it at 93.2%,
+ * against text's 47.5% — impossible, since normalised is a pure function of
+ * text. `grayhawkdentalscottsdale.com` came back byte-identical after thirteen
+ * days with a normalised hash that did not match the baseline, which proved the
+ * rules had changed underneath the comparison. `change_rate.py` now stamps the
+ * rules into the baseline and refuses to report a level whose function moved.
  */
-export const WEEKLY_CHANGE_RATE = 0.05;
+export const SIGNALS_CHANGE_RATE_13D = 0.089;
 
-/** True once S0-23 has replaced the figure above with a measurement. */
+/**
+ * The planning input for the budgets below.
+ *
+ * ## The number S0-23 was blocked on barely matters
+ *
+ * This was the figure the whole alert feature was waiting for, and measuring it
+ * showed the wait was mostly unnecessary. Across the entire plausible range —
+ * 0%, the 5% placeholder, the measured 8.9% — the **weekly bill does not move**:
+ * Starter is $5.54 a week at all three. It cannot move, because `watchBudget`
+ * derives the list size from the plan's read allowance, so the allowance sets
+ * the spend and the change rate only decides how many businesses that spend
+ * stretches to. Starter watches 330 at 0% and 303 at 8.9%.
+ *
+ * So the rate is an 8% question about **capacity**, not a question about cost,
+ * and the per-plan budgets S0-23 exists to set were never really blocked on it.
+ * Recorded here because the opposite was assumed for two weeks.
+ */
+export const WEEKLY_CHANGE_RATE = SIGNALS_CHANGE_RATE_13D;
+
+/**
+ * Still false, and the distinction is the point: a thirteen-day rate is
+ * measured, a **weekly** one is not. `change_rate.py --compare --roll` took a
+ * fresh baseline on 2026-10-05, so the seven-day run is one command on or after
+ * 2026-10-12. Flip this then, and only then.
+ */
 export const CHANGE_RATE_MEASURED = false;
 
 /** What one watched business costs for a week: a crawl always, a re-judge
