@@ -292,7 +292,12 @@ def type_floor(css: str) -> str:
 # header ever." A runtime is not a reason to press play; the heading now says
 # what the film shows happening, in the reader's terms.
 #
-# The real film. `public/video/explainer.mp4` is 44 seconds, H.264/AAC, with a
+# The film was replaced on 2026-10-05 by the designer's "Small Fish showcase"
+# (a HyperFrames composition, rendered frame by frame to 1080p30 with its own
+# mix): 56 seconds now. The owner shipped it as an illustrative explainer —
+# see the decision log before "correcting" what it shows.
+#
+# The original film. `public/video/explainer.mp4` was 44 seconds, H.264/AAC, with a
 # poster beside it — both have been in the repo since 2026-09-26 and were
 # orphaned when the handoff replaced the old page.
 #
@@ -311,7 +316,7 @@ FILM = """
     <div class="filmframe rise">
       <video controls preload="metadata" playsinline
              poster="/video/explainer-poster.jpg"
-             aria-label="How Small Fish works, 44 seconds">
+             aria-label="How Small Fish works, 56 seconds">
         <source src="/video/explainer.mp4" type="video/mp4">
       </video>
     </div>
