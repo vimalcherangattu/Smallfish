@@ -45,6 +45,11 @@ const HEADLINE = ["precision", "recall", "couldnt_tell", "cost_per_credit"];
 const CAVEAT = ["noise_floor", "wrong_website", "recall_ceiling", "genuine_couldnt_tell"];
 const REST = ["precision_absence", "proof_validity", "cost_cold", "coverage", "settled_no_model"];
 
+/** Every id the three groups above name. Anything measured that is **not** in
+ *  here falls through to the end of `REST` rather than off the page — see
+ *  `rest()` below. */
+const PLACED = new Set([...HEADLINE, ...CAVEAT, ...REST]);
+
 export default async function Benchmark() {
   const data = await benchmark();
 
@@ -70,6 +75,26 @@ export default async function Benchmark() {
 
   const by = new Map(data.rows.map((r) => [r.id, r]));
   const group = (ids: string[]) => ids.map((id) => by.get(id)).filter(Boolean) as Row[];
+
+  /**
+   * The listed rows, then anything measured that nobody listed.
+   *
+   * **Added because measuring something made it disappear from this page.**
+   * The weekly change rate was published here for weeks as a target with no
+   * number — `notYetMeasured` is built from the whole table — and the day it
+   * was measured it vanished, because `rows` is assembled from an id list in
+   * the exporter and rendered from three more id lists here. Two hardcoded
+   * lists, and a new measurement had to be added to both or it showed nowhere.
+   *
+   * That is the wrong default for a page whose whole argument is that it
+   * carries no number of its own. A measurement appearing is now the automatic
+   * case and curation is the override: an unplaced row still renders, at the
+   * end, in whatever order the exporter produced it.
+   */
+  const rest = () => [
+    ...group(REST),
+    ...data.rows.filter((r) => !PLACED.has(r.id)),
+  ];
 
   return (
     <main className="mkt">
@@ -132,7 +157,7 @@ export default async function Benchmark() {
         </div>
 
         <h2 className="lab mt-16 text-[var(--ink-3)]">The rest of the measurements</h2>
-        <Table rows={group(REST)} />
+        <Table rows={rest()} />
 
         <h2 className="lab mt-16 text-[var(--ink-3)]">Targets with no number yet</h2>
         <p className="mt-3 max-w-[62ch] text-[15px] leading-relaxed text-[var(--ink-2)]">

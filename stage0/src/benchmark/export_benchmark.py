@@ -63,6 +63,13 @@ REQUIRED: list[tuple[str, str, str]] = [
     # Anything the plan tracks and then measures belongs here.
     ("change_rate", "Weekly profile change rate",
      "How often a watched business changes in a way we could re-judge"),
+    # Reserved. Both are advertised on the page as still to be measured, and
+    # without an entry here each would have vanished the day it was measured —
+    # the same defect the change rate hit. A listed metric with no number yet is
+    # skipped below, so reserving a home costs nothing until it is filled.
+    ("cost_warm", "Warm cost per business", "Cost to read and judge one business, warm"),
+    ("p95_first_match", "p95 time to first match",
+     "How long until the first match, in a market we have not touched"),
 ]
 
 CELL_RE = re.compile(r"^\|(.+)\|\s*$")
@@ -117,6 +124,11 @@ def build() -> dict:
         hit = next((r for m, r in by_metric.items() if plain.lower() in m.lower()), None)
         if hit is None:
             missing.append(needle)
+            continue
+        # A reserved row with no number yet stays in `notYetMeasured` rather
+        # than being published as an em-dash. `REQUIRED` means "publish this
+        # when it exists", so the two lists never both carry the same metric.
+        if hit["measured"] in {"\u2014", "-", ""}:
             continue
         out.append({"id": key, "label": label, **hit})
 

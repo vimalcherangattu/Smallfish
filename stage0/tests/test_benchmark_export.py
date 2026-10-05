@@ -19,6 +19,7 @@ so removing any of them takes a deliberate edit to this file.
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -27,6 +28,7 @@ ROOT = Path(__file__).resolve().parents[2]
 EXPORT = ROOT / "stage0" / "src" / "benchmark" / "export_benchmark.py"
 DATA = ROOT / "public" / "data" / "benchmark.json"
 PAGE = ROOT / "src" / "app" / "benchmark" / "page.tsx"
+PLAN = ROOT / "PROJECT_PLAN.md"
 
 failures: list[str] = []
 
@@ -91,6 +93,42 @@ def main() -> int:
         check(f"the page still publishes {key}", key in rows, why)
         check(f"and {key} is rendered, not just exported", key in page)
 
+    # --- a measurement must not vanish by being measured -------------------
+    #
+    # The weekly change rate sat on /benchmark for weeks as a target with no
+    # number — `notYetMeasured` is derived from the whole Live numbers table —
+    # and the day it was measured it **disappeared**, because `rows` is built
+    # from `REQUIRED` in the exporter and `change_rate` was not in it. Measuring
+    # something removed it from the page.
+    #
+    # So: everything the page currently advertises as still to be measured must
+    # already have a home to arrive in. Checked against the exporter's own
+    # `REQUIRED`, because a second copy of that list here would be the same
+    # defect one layer further out.
+    sys.path.insert(0, str(ROOT / "stage0" / "src" / "benchmark"))
+    import importlib.util as _ilu
+    _spec = _ilu.spec_from_file_location("_exp", EXPORT)
+    _exp = _ilu.module_from_spec(_spec)
+    _spec.loader.exec_module(_exp)
+    needles = [_exp.strip_md(n).lower() for _, n, _ in _exp.REQUIRED]
+    homeless = [
+        m for m in data["notYetMeasured"]
+        if not any(n in _exp.strip_md(m).lower() for n in needles)
+    ]
+    check(
+        "every target still to be measured has somewhere to appear when it is",
+        not homeless,
+        "these are advertised as pending and would vanish on being measured — "
+        "add them to REQUIRED in export_benchmark.py: " + "; ".join(homeless),
+    )
+
+    # And the page can place a row nobody listed, rather than dropping it.
+    check(
+        "the page falls back for an id its own groups do not name",
+        "PLACED" in page and "!PLACED.has" in page,
+        "without a fallback, a new measurement renders nowhere",
+    )
+
     check(
         "precision is published with its interval, not as a bare number",
         "CI" in rows["precision"]["measured"] or "–" in rows["precision"]["measured"],
@@ -125,3 +163,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
