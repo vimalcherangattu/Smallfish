@@ -44,8 +44,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const DURATION_LABEL = "44 seconds";
 
 export default function Explainer({
-  src = "/video/explainer.mp4",
-  poster = "/video/explainer-poster.jpg",
+  src = "/video/showcase.mp4",
+  poster = "/video/showcase-poster.jpg",
   label = "What it does",
 }: {
   src?: string;

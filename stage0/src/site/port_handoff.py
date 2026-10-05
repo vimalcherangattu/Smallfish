@@ -297,6 +297,10 @@ def type_floor(css: str) -> str:
 # mix): 56 seconds now. The owner shipped it as an illustrative explainer —
 # see the decision log before "correcting" what it shows.
 #
+# A new film gets a new file name. `/video/*` is served with
+# `max-age=14400`, so reusing `explainer.mp4` left visitors on the old film
+# for up to four hours after the deploy that replaced it.
+#
 # The original film. `public/video/explainer.mp4` was 44 seconds, H.264/AAC, with a
 # poster beside it — both have been in the repo since 2026-09-26 and were
 # orphaned when the handoff replaced the old page.
@@ -315,9 +319,9 @@ FILM = """
     </div>
     <div class="filmframe rise">
       <video controls preload="metadata" playsinline
-             poster="/video/explainer-poster.jpg"
+             poster="/video/showcase-poster.jpg"
              aria-label="How Small Fish works, 56 seconds">
-        <source src="/video/explainer.mp4" type="video/mp4">
+        <source src="/video/showcase.mp4" type="video/mp4">
       </video>
     </div>
   </div>
