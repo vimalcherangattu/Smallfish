@@ -288,6 +288,10 @@ def type_floor(css: str) -> str:
     return "\n".join(f"  .sf-site {s}," for s in sorted(small))
 
 
+# Heading, 2026-10-05: "Forty-four seconds, start to finish" — "most stupid
+# header ever." A runtime is not a reason to press play; the heading now says
+# what the film shows happening, in the reader's terms.
+#
 # The real film. `public/video/explainer.mp4` is 44 seconds, H.264/AAC, with a
 # poster beside it — both have been in the repo since 2026-09-26 and were
 # orphaned when the handoff replaced the old page.
@@ -301,8 +305,8 @@ FILM = """
 <section id="watch" class="tight">
   <div class="wrap">
     <div class="sechead">
-      <div class="head"><p class="kick">The film</p><h2 class="dsp h-sec">Forty-four seconds, start to finish.</h2></div>
-      <div class="note"><p class="lede">One search, from the question you type to the list you can send.</p></div>
+      <div class="head"><p class="kick">See it work</p><h2 class="dsp h-sec">Type one sentence. Get a list you can email.</h2></div>
+      <div class="note"><p class="lede">Who you sell to and where, in your own words. What comes back is the businesses that fit, each with the first email already written.</p></div>
     </div>
     <div class="filmframe rise">
       <video controls preload="metadata" playsinline
