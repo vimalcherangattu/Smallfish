@@ -64,7 +64,11 @@ console.log(`\nClaim audit — ${BASE}\n`);
     waitUntil: "domcontentloaded",
   });
   await page.waitForTimeout(600);
-  const text = (await page.textContent("body")) ?? "";
+  // `innerText`, not `textContent`, at every site in this file — see the note
+  // on the unread-city block. `textContent` includes the inline RSC payload, so
+  // these assertions were reading the page's own source as if it were copy.
+  // Three of the four still did after the font URL caught the fourth.
+  const text = (await page.innerText("body")) ?? "";
 
   // "We opened N <trade> websites to build this list."
   //
@@ -126,7 +130,7 @@ console.log(`\nClaim audit — ${BASE}\n`);
     () => !/Looking through the listings/.test(document.body.textContent ?? ""),
     { timeout: 45_000 },
   );
-  const text = ((await page.textContent("body")) ?? "").replace(/\s+/g, " ");
+  const text = ((await page.innerText("body")) ?? "").replace(/\s+/g, " ");
 
   const counted = text.match(
     /([\d,]+)\s+plumbers in Denver, Colorado\.\s*([\d,]+) of them have a website/i,
@@ -222,7 +226,7 @@ console.log(`\nClaim audit — ${BASE}\n`);
     const page = await ctx.newPage();
     await page.goto(BASE + route, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(400);
-    const text = ((await page.textContent("body")) ?? "").replace(/\s+/g, " ");
+    const text = ((await page.innerText("body")) ?? "").replace(/\s+/g, " ");
     const bad = [
       /every (business|site|website|listing) (in|we)/i,
       /all \d[\d,]* (businesses|sites|websites) (in|we)/i,
