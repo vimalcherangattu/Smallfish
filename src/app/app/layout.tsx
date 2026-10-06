@@ -39,7 +39,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       />
       {/* The designer's App v2 stylesheet. Its resets are scoped to `.sf`, so
           the screens still written in the Tailwind vocabulary are untouched. */}
-      <link href="/app/kit.css" rel="stylesheet" />
+      <link href={`/app/kit.css?v=${process.env.KIT_CSS_V}`} rel="stylesheet" />
       <Shell
         signedIn={w.signedIn}
         credits={w.signedIn ? { left: w.left, of: w.of } : null}

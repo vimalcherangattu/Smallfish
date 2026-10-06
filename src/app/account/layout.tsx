@@ -23,7 +23,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
         href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&family=Libre+Franklin:wght@400;500;600;700&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap"
         rel="stylesheet"
       />
-      <link href="/app/kit.css" rel="stylesheet" />
+      <link href={`/app/kit.css?v=${process.env.KIT_CSS_V}`} rel="stylesheet" />
       <Shell
         signedIn={w.signedIn}
         credits={w.signedIn ? { left: w.left, of: w.of } : null}

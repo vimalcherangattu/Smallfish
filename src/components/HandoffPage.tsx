@@ -70,7 +70,7 @@ export default async function HandoffPage({ file }: { file: string }) {
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
       <link rel="stylesheet" href={FONTS} />
-      <link rel="stylesheet" href="/handoff/site.css" />
+      <link rel="stylesheet" href={`/handoff/site.css?v=${process.env.SITE_CSS_V}`} />
 
       <div className="sf-site" dangerouslySetInnerHTML={{ __html: html }} />
 
@@ -80,7 +80,7 @@ export default async function HandoffPage({ file }: { file: string }) {
           scroll-scrubbed arrival and nothing else (HANDOFF §9). */}
       <script src={`${GSAP}/gsap.min.js`} defer />
       <script src={`${GSAP}/ScrollTrigger.min.js`} defer />
-      <script src="/handoff/site.js" defer />
+      <script src={`/handoff/site.js?v=${process.env.SITE_JS_V}`} defer />
     </>
   );
 }
