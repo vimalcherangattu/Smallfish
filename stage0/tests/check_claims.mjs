@@ -173,7 +173,11 @@ console.log(`\nClaim audit — ${BASE}\n`);
     waitUntil: "domcontentloaded",
   });
   await page.waitForTimeout(600);
-  const text = ((await page.textContent("body")) ?? "").replace(/\s+/g, " ");
+  // What is on the screen, not the body's text nodes: `textContent` includes
+  // the inline RSC payload, and the font URL in it carries `0,400` and
+  // `72,400` (Literata/DM Mono weights), which read as thousands-figures to the
+  // check below. A visitor sees neither.
+  const text = ((await page.innerText("body")) ?? "").replace(/\s+/g, " ");
 
   check(
     "a place we cannot place says so plainly",

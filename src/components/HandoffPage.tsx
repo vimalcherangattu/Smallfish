@@ -50,10 +50,12 @@ import path from "node:path";
  * revealed again.
  */
 
+// The 2026-10-06 handoff's typeface: Literata, Libre Franklin, DM Mono. Literata
+// has no SOFT axis, and DM Mono has 400 and 500 only — there is no 600.
 const FONTS =
-  "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144," +
-  "300..700,0..100;1,9..144,300..700,0..100&family=IBM+Plex+Mono:wght@400;500;600" +
-  "&family=IBM+Plex+Sans:wght@400;500;600&display=swap";
+  "https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;" +
+  "1,7..72,400..700&family=Libre+Franklin:wght@400;500;600;700" +
+  "&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap";
 
 const GSAP = "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5";
 

@@ -187,7 +187,7 @@ body {
 .mkt .dsp {
   font-family: var(--font-display), Georgia, serif;
   font-weight: 500;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.016em;
   line-height: 0.92;
   margin: 0;
 }
@@ -274,7 +274,7 @@ body {
   font-weight: 500;
   color: transparent;
   -webkit-text-stroke: 1px var(--line-strong);
-  letter-spacing: -0.04em;
+  letter-spacing: -0.016em;
 }
 .mkt .prow {
   display: grid;
@@ -476,12 +476,12 @@ body {
  * site keeps its own `.mkt` block; this one is for signed-in screens.
  *
  * **Three voices, and the point of them is that a label is not needed.** Type
- * says who is speaking: the product in Plex Sans, the business's own words in
- * Fraunces, and anything we computed in Plex Mono. A quoted sentence set in the
+ * says who is speaking: the product in Libre Franklin, the business's own words in
+ * Literata, and anything we computed in DM Mono. A quoted sentence set in the
  * UI face reads as our claim about the business rather than theirs, which is
  * the one confusion this product cannot afford.
  */
-.sf-h1 { font: 500 32px/38px var(--font-display), Georgia, serif; letter-spacing: -0.01em; }
+.sf-h1 { font: 500 32px/38px var(--font-display), Georgia, serif; letter-spacing: -0.004em; }
 .sf-h2 { font: 600 20px/26px var(--font-sans), sans-serif; }
 .sf-h3 { font: 600 15px/21px var(--font-sans), sans-serif; }
 .sf-body { font: 400 15px/24px var(--font-sans), sans-serif; }
@@ -669,7 +669,7 @@ body {
   font-weight: 500;
   font-size: 28px;
   margin: 0;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.005em;
 }
 
 /* --- the market picker and its proof column ------------------------------ */
@@ -778,7 +778,7 @@ body {
   font-family: var(--font-display), Georgia, serif;
   font-size: 250px;
   font-weight: 600;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.016em;
   line-height: 0.78;
   color: #26303c;
 }
@@ -900,7 +900,7 @@ body {
   font-weight: 500;
   font-size: clamp(22px, 3.1vw, 36px);
   line-height: 1.25;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.005em;
   margin: 0;
   padding: 26px 0 26px 54px;
   border-bottom: 1px solid var(--line);
@@ -936,7 +936,7 @@ body {
   font-weight: 500;
   font-size: clamp(20px, 2.3vw, 30px);
   line-height: 1.3;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.005em;
   margin: 0;
 }
 @media (max-width: 860px) {
@@ -961,7 +961,7 @@ body {
      250px tall on a laptop and filled a screen with dark nothing. */
   font-size: clamp(64px, 13vw, 168px);
   font-weight: 600;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.016em;
   line-height: 0.78;
   color: #1A2433;
   user-select: none;
@@ -1193,7 +1193,7 @@ body {
   font-family: var(--font-display), Georgia, serif;
   font-size: clamp(19px, 2vw, 25px);
   line-height: 1.16;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.006em;
   font-weight: 500;
   margin: 0;
   max-width: 18ch;
@@ -1387,7 +1387,7 @@ body {
 /* ---------- the row card ------------------------------------------------- */
 .mkt .rowcard { background: var(--surface); border: 1px solid var(--line); box-shadow: 0 24px 60px rgba(14, 21, 32, 0.07); }
 .mkt .rowcard .head { display: grid; grid-template-columns: 1fr auto; gap: var(--s5); align-items: start; padding: var(--s5); border-bottom: 1px solid var(--line); }
-.mkt .rowcard .name { font-family: var(--font-display), Georgia, serif; font-size: clamp(25px, 3vw, 34px); letter-spacing: -0.025em; line-height: 1.1; margin: 0; font-weight: 500; }
+.mkt .rowcard .name { font-family: var(--font-display), Georgia, serif; font-size: clamp(25px, 3vw, 34px); letter-spacing: -0.006em; line-height: 1.1; margin: 0; font-weight: 500; }
 .mkt .rowcard .place { font: 400 14px var(--font-mono), monospace; color: var(--ink-3); margin: 10px 0 0; }
 .mkt .mailwrap { padding: var(--s5); background: var(--paper-2); }
 
@@ -1411,7 +1411,7 @@ body {
 .mkt .step:hover .stepart { transform: rotate(var(--rot, 0deg)) translateY(-8px); box-shadow: 0 22px 44px rgba(14, 21, 32, 0.11); background: var(--surface); }
 .mkt .stepbody { display: flex; flex-direction: column; gap: var(--s2); padding-top: var(--s1); border-top: 2px solid var(--ink); }
 .mkt .stepnum { font: 500 15px var(--font-mono), monospace; color: var(--lure-text); }
-.mkt .step h3 { font-family: var(--font-display), Georgia, serif; font-size: clamp(21px, 2.1vw, 27px); line-height: 1.2; letter-spacing: -0.02em; font-weight: 500; margin: 0; max-width: 16ch; }
+.mkt .step h3 { font-family: var(--font-display), Georgia, serif; font-size: clamp(21px, 2.1vw, 27px); line-height: 1.2; letter-spacing: -0.005em; font-weight: 500; margin: 0; max-width: 16ch; }
 .mkt .step p { margin: 0; font-size: 15px; color: var(--ink-2); }
 .mkt .miniform { display: flex; flex-direction: column; gap: 9px; width: 186px; }
 .mkt .minifield { background: var(--surface); border: 1px solid var(--line-strong); padding: 8px 10px; font-size: 12px; display: flex; gap: 8px; align-items: baseline; }
@@ -1444,7 +1444,7 @@ body {
 .mkt .slab-v3 { position: relative; isolation: isolate; overflow: hidden; padding: 132px 0; color: var(--paper); }
 .mkt .slab-v3::before { content: ""; position: absolute; left: -7%; right: -7%; top: 26px; bottom: 26px; background: var(--ink); transform: rotate(-1.35deg); z-index: -1; }
 .mkt .prices { display: flex; flex-wrap: wrap; gap: var(--s5); margin-top: var(--s4); }
-.mkt .price b { font-family: var(--font-display), Georgia, serif; font-size: clamp(32px, 4vw, 52px); font-weight: 500; letter-spacing: -0.03em; color: var(--lure); display: block; line-height: 1; }
+.mkt .price b { font-family: var(--font-display), Georgia, serif; font-size: clamp(32px, 4vw, 52px); font-weight: 500; letter-spacing: -0.012em; color: var(--lure); display: block; line-height: 1; }
 .mkt .price span { font: 400 13px var(--font-mono), monospace; color: #8a929b; }
 
 /* ---------- phones ------------------------------------------------------- */

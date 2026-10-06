@@ -349,6 +349,20 @@ MOBILE = """
    at 1440 and 390 it is two lines at both. */
 .sf-site .herohead { font-size: clamp(32px, 3.3vw, 49px); }
 
+/* Literata (2026-10-06) is wider than Fraunces, so display type tracks at
+   about -.016em. The handoff converted `.dsp` but left three display rules on
+   their Fraunces tracking, and `.herohead` overrides `.dsp`. */
+.sf-site .herohead, .sf-site .hcopy h1, .sf-site .pickout p { letter-spacing: -.016em; }
+/* Literata's font box is much taller than its glyphs, and an inline
+   background paints the whole box: at the designer's 1.04 the lime highlight
+   on line two covered the descenders of line one. Line-height alone cannot
+   clear it without pulling the two lines apart, so the highlight is painted
+   over the glyph band only. */
+.sf-site .herohead { line-height: 1.12; }
+.sf-site .herohead .hilite {
+  background: linear-gradient(var(--lure), var(--lure)) no-repeat 0 72% / 100% 76%;
+}
+
 /* The USP that leads the hero's sub-line (owner, 2026-10-04: "should be on
    top"). Brighter and heavier than the rest of the paragraph, on its own line,
    so it reads as the claim and the sentence after it as the how. */

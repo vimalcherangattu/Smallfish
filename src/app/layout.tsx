@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { CLERK_ENABLED } from "@/lib/clerk";
-import { Fraunces, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { DM_Mono, Libre_Franklin, Literata } from "next/font/google";
 import "./globals.css";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-// The three voices of the design system: the product speaks in Plex Sans, the
-// account speaks in Fraunces, and anything we computed speaks in Plex Mono.
-const display = Fraunces({ subsets: ["latin"], weight: ["500"], variable: "--font-display" });
-const sans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-sans" });
-const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-mono" });
+// The three voices of the design system: the product speaks in Libre Franklin,
+// the account speaks in Literata, and anything we computed speaks in DM Mono.
+// Typeface changed 2026-10-06 (was Fraunces / IBM Plex Sans / IBM Plex Mono).
+// Literata and Libre Franklin are variable; DM Mono has 400 and 500 only.
+const display = Literata({ subsets: ["latin"], variable: "--font-display" });
+const sans = Libre_Franklin({ subsets: ["latin"], variable: "--font-sans" });
+const mono = DM_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
   title: "Small Fish",
