@@ -79,7 +79,14 @@ export default function Shell({ children, here, bare, credits = null, signedIn =
   const at = here ?? derive(path);
   return (
     <div className="sf">
-      <div className={noRail ? undefined : "appwrap"}>
+      {/* **With no rail this had no class at all**, so it lost `.appwrap`'s
+          `min-height: 100dvh` along with its grid, and `.appmain` became as
+          tall as whatever was in it. Every short signed-out screen — first
+          run, counting, refused, nothing found — sat in a column a few hundred
+          pixels tall with the rest of the viewport empty beneath it, which
+          reads as a page that stopped loading. `.appsolo` is `.appwrap`'s
+          one-column form, which is what the rail-less layout wanted. */}
+      <div className={noRail ? "appsolo" : "appwrap"}>
         {!noRail && (
           <nav className="nav" aria-label="Primary">
             <Link className="navlogo" href="/app">
@@ -140,7 +147,12 @@ export default function Shell({ children, here, bare, credits = null, signedIn =
             )}
             <div className="row" style={{ gap: 12 }}>
               {credits ? (
-                <span className="credit">
+                /* `railed` when the rail is also on screen, because the rail's
+                   card says the same thing with a meter under it and the two
+                   sat one above the other down the left edge. The kit hides
+                   this one above 900px and brings it back below, where `.nav`
+                   is display:none and this is the only balance there is. */
+                <span className={`credit${noRail ? "" : " railed"}`}>
                   <Card s={14} />
                   {credits.left} of {credits.of} credits left
                 </span>

@@ -183,12 +183,25 @@ async function readBatch(sites: JobSiteRow[], criterion: Criterion) {
  *     of its 220 reads with a sentence saying the search was not working. The
  *     free tier's bound is its 220 reads, which is already enforced, so the
  *     abort is for plans that actually have a price.
- *   - **The band.** The abort needs the band a match will bill at, and the job
- *     row does not store the quote from the confirm screen. It needs no column:
- *     `bandForMarket` — what `chargeLeads` bills by — is `bandFor(matched /
- *     judged)`, so the same band comes off the job's own counters. The abort's
- *     arithmetic then agrees with the invoice by construction, which is the
- *     rule `unlock.ts` states one level down.
+ *   - **The band, and which denominator it divides by.** The abort needs the
+ *     band a match will bill at, and the job row does not store the quote from
+ *     the confirm screen. It needs no column, because `bandForMarket` — what
+ *     `chargeLeads` bills by — is `bandFor(matched / judged)`.
+ *
+ *     **But `judged` means two different things in this codebase, and the
+ *     first version of this used the wrong one.** The job's `sites_judged`
+ *     column counts `match` and `no_match` only (migration `0014`);
+ *     `bandForMarket` counts everything except `unread` and `needs_model`, so
+ *     a `couldnt_tell` is judged there and is not in the column. Dividing by
+ *     the column makes the rate look higher, the band cheaper and the abort
+ *     keener than the invoice it is supposed to agree with — on a read that
+ *     came back 4 settled and 8 couldn't-tell, the two disagree threefold.
+ *
+ *     So the denominator here is **reads**, which equals `bandForMarket`'s
+ *     `judged` for any job that has not recorded a `needs_model` row. One that
+ *     has was paused and resumed, and counting those rows as judged can only
+ *     lower the rate, raise the band and make this *less* likely to stop a
+ *     run. The error that remains is the safe one.
  */
 async function stillWorthReading(
   job: JobRow,
@@ -198,7 +211,7 @@ async function stillWorthReading(
    * work, so its counters are whatever they were at claim time. A check against
    * those would be comparing this batch's reads to last tick's matches.
    */
-  total: { reads: number; matches: number; judged: number },
+  total: { reads: number; matches: number },
   /** Reads before this batch, so a crossed checkpoint counts. */
   since: number,
 ): Promise<string | null> {
@@ -215,7 +228,7 @@ async function stillWorthReading(
   const plan = planOf(emptyAccount(account.plan_id));
   if (pricePerCredit(plan) <= 0) return null;
 
-  const band = bandFor(total.judged > 0 ? total.matches / total.judged : 0).credits;
+  const band = bandFor(total.reads > 0 ? total.matches / total.reads : 0).credits;
 
   const health = checkRunHealth({
     reads: total.reads,
@@ -228,12 +241,11 @@ async function stillWorthReading(
 }
 
 /**
- * Results in a batch we could not settle.
+ * Results in a batch we could not settle, for the job's `unclear` tally.
  *
- * The complement is what "judged" means for the band: `bandForMarket` divides
- * matches by the rows that reached a verdict, never by the rows we read, and
- * this has to agree with it or the abort would price a run differently from the
- * invoice. A `couldnt_tell` is our failure, not evidence of a non-match.
+ * **Not the band's denominator**, which is where this started and was wrong:
+ * `bandForMarket` treats a `couldnt_tell` as judged, so subtracting these from
+ * reads priced a run differently from its own invoice. See `stillWorthReading`.
  */
 const unclearIn = (results: Array<{ verdict: string }>) =>
   results.filter((r) => ["couldnt_tell", "blocked", "needs_model"].includes(r.verdict)).length;
@@ -308,11 +320,7 @@ export async function runJobSlice({
     // straight over a checkpoint.
     const hopeless = await stillWorthReading(
       job,
-      {
-        reads: job.sites_read + read,
-        matches: job.matched + matched,
-        judged: job.sites_judged + (results.length - unclearIn(results)),
-      },
+      { reads: job.sites_read + read, matches: job.matched + matched },
       job.sites_read + read - results.length,
     ).catch(() => null); // Never let this stop a read it cannot judge.
 

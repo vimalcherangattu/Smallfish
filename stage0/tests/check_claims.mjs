@@ -126,10 +126,16 @@ console.log(`\nClaim audit — ${BASE}\n`);
   await page.goto(BASE + "/app?q=plumbers+in+Denver+that+have+no+online+booking", {
     waitUntil: "domcontentloaded",
   });
-  await page.waitForFunction(
-    () => !/Looking through the listings/.test(document.body.textContent ?? ""),
-    { timeout: 45_000 },
-  );
+  // **Wait on the structure, not on the sentence.** This waited for the text
+  // "Looking through the listings" to disappear. That sentence was the
+  // counting screen's heading, and the moment it was rewritten the condition
+  // was satisfied instantly, so every assertion below read the *waiting*
+  // screen and five of them failed at once, pointing at the copy rather than
+  // at the coupling. The waiting state is the only thing that renders
+  // `.track.waiting`, and that is what "still counting" actually means.
+  await page.waitForFunction(() => !document.querySelector(".track.waiting"), {
+    timeout: 45_000,
+  });
   const text = ((await page.innerText("body")) ?? "").replace(/\s+/g, " ");
 
   const counted = text.match(

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { describe, percent, type Job, type JobState } from "@/lib/jobs";
@@ -39,6 +39,24 @@ import { describe, percent, type Job, type JobState } from "@/lib/jobs";
  * budget, and the same lease, so a browser racing a cron tick cannot read a
  * site twice. A read of four hundred sites finishes in about six minutes of
  * the tab being open instead of a week of it being closed.
+ *
+ * ## When it finishes, it says so to the page as well as to itself
+ *
+ * This component polls and the page around it does not. So a finished read
+ * left the **server-rendered** half of the screen exactly as it was rendered
+ * on arrival: the kicker still read "Reading", the line under it still said
+ * the read pauses when you close the page, and the panel at the bottom still
+ * explained, in the present tense, that twelve sites were in flight. Under all
+ * of that sat the counters, at 12 of 12 and 100%.
+ *
+ * Worse than stale: the page's honest endings live in that server half. A read
+ * that finds nothing has a screen that says so and offers somewhere to go, and
+ * a read that finds something renders the list itself. Neither could ever
+ * appear, because `running` is computed from the state the server saw. So
+ * every finished read looked like a running one, and the only thing offering
+ * to show the results was a button here that said "Open the 0 that fit".
+ *
+ * `router.refresh()` re-renders the server component against the real state.
  *
  * It stops on its own for the three reasons that are not "still working":
  * the job finished, the engine is unavailable (one `needs_model` is proof, and
@@ -81,6 +99,7 @@ const toJob = (r: Row): Job => ({
 });
 
 export default function ReadProgress({ id, initial }: { id: string; initial: Row }) {
+  const router = useRouter();
   const [row, setRow] = useState<Row>(initial);
   const [ranNote, setRanNote] = useState<string | null>(null);
   /** Driving the read, as opposed to merely watching it. */
@@ -89,6 +108,22 @@ export default function ReadProgress({ id, initial }: { id: string; initial: Row
   /** Read inside the loop, which must see a pause the moment it happens rather
    *  than on the next render. */
   const live = useRef(true);
+
+  /**
+   * Hand the page back to the server the moment this job stops.
+   *
+   * Once, hence the ref: `router.refresh()` re-renders the server component,
+   * which re-renders this one with a fresh `initial`, which would call it
+   * again. The finished screen is the server's to draw, and it cannot know to
+   * draw it until something tells it.
+   */
+  const handedOver = useRef(false);
+  useEffect(() => {
+    if (row.state !== "done" && row.state !== "failed") return;
+    if (handedOver.current) return;
+    handedOver.current = true;
+    router.refresh();
+  }, [row.state, router]);
 
   useEffect(() => {
     if (row.state === "done" || row.state === "failed") return;
@@ -248,11 +283,14 @@ export default function ReadProgress({ id, initial }: { id: string; initial: Row
         <p className="sf-small mt-6 text-[var(--muted)]">{row.worker_note}</p>
       )}
 
-      {row.state === "done" && (
-        <Link href={`/app?q=${encodeURIComponent(row.query)}`} className="sf-btn-lure mt-6">
-          Open the {row.matched.toLocaleString()} that fit →
-        </Link>
-      )}
+      {/* **No "Open the N that fit" button here.**
+          It rendered for every finished job, so a read that matched nothing
+          offered, as the brightest thing on the screen, to open zero
+          businesses. It also pointed at `/app?q=…`, which is the counting
+          screen and not the list, so even when N was right it went to the
+          wrong place. The list is now drawn on this page by the server once
+          the refresh above lands, and a read that found nothing gets the
+          screen that says so. Neither needs a button. */}
     </div>
   );
 }

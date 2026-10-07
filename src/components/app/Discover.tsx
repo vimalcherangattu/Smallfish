@@ -6,6 +6,7 @@ import Link from "next/link";
 
 import { Arrow, Clock, Up } from "@/components/app/icons";
 import { agree } from "@/lib/appview";
+import { splitQuery } from "@/lib/query";
 
 /**
  * Any trade, any US city: what is out there and how much of it you want.
@@ -184,20 +185,47 @@ export default function Discover({
 
   // ---------------------------------------------------------------- waiting --
   if (!data && !fail) {
+    // **What this screen said before, and why it was wrong.**
+    //
+    // "Looking through the listings. About ten seconds. We are counting the
+    // listings themselves rather than a cache of them." Both sentences were
+    // about our data layer. Whether we keep a cache is our problem; a person
+    // who has just asked for dentists in Austin learns nothing from being told
+    // we do not have one, and the screen never said their search back to them,
+    // so the only thing on it was a heading that could have belonged to anybody
+    // and a progress bar frozen at 40%.
+    //
+    // The query *is* echoed now, but only the part this step is actually
+    // counting. The old comment here was right that
+    // "Counting plumbers in Denver that have no online booking" would be a lie
+    // — the criterion is settled later, by reading websites — and wrong to
+    // conclude from that that nothing could be said. We are counting plumbers
+    // in Denver. That is what it says.
+    const asked = splitQuery(query);
+    const subject =
+      asked.what && asked.where
+        ? `Counting ${asked.what} in ${asked.where}.`
+        : asked.what
+          ? `Counting ${asked.what}.`
+          : "Counting what is out there.";
+
     return (
-      <div className="appbody">
+      <div className="appbody short">
         <div className="appmid">
-          <h1 className="t-h1">Looking through the listings.</h1>
+          <h1 className="t-h1">{subject}</h1>
           <p className="t-b" style={{ color: "#36404C", maxWidth: "52ch" }}>
-            {/* The query is deliberately not echoed here. Doing so produced
-                "Counting plumbers in Denver that have no online booking", which
-                is not what this step is counting — the criterion is settled by
-                reading websites later, not by the listings now. */}
-            About ten seconds. We are counting the listings themselves rather
-                than a cache of them.
+            {/* What they get, in the order the next screen gives it, and the
+                part that decides whether they keep waiting: this costs
+                nothing. */}
+            About ten seconds. Then you will see how many there are, how many
+            have a website we can read, and what a list would cost, before
+            anything is charged.
           </p>
-          <div className="track" style={{ maxWidth: 420 }}>
-            <i style={{ width: "40%", animation: "none" }} />
+          {/* Indeterminate, because we do not know the progress. The bar was
+              fixed at 40% and never moved, which is a progress bar that lies in
+              a product whose whole argument is that it does not. */}
+          <div className="track waiting" style={{ maxWidth: 420 }} role="presentation">
+            <i />
           </div>
         </div>
       </div>
@@ -207,7 +235,7 @@ export default function Discover({
   // ---------------------------------------------------------------- refused --
   if (fail) {
     return (
-      <div className="appbody">
+      <div className="appbody short">
         <div className="appmid">
           <h1 className="t-h1">{fail.reason}</h1>
           {fail.hint && (

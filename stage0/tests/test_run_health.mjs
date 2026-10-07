@@ -202,13 +202,42 @@ test("it ends the job rather than pausing it", () => {
   assert.match(worker, /await releaseJob\(job\.id, null, hopeless\)/);
 });
 
-test("the judged denominator agrees with what the invoice uses", () => {
-  // `bandForMarket` divides matches by rows that reached a verdict, never by
-  // rows read. If these disagreed the abort would price a run differently from
-  // the charge for it.
-  assert.match(worker, /judged: job\.sites_judged \+ \(results\.length - unclearIn\(results\)\)/);
-  const unlock = read("src/lib/unlock.ts");
-  assert.match(unlock, /v !== "unread" && v !== "needs_model"/);
+test("the band divides by the same thing the invoice divides by", () => {
+  // **This assertion used to pass while being wrong**, which is the reason it
+  // is written out rather than grepped. It matched two patterns in two files
+  // and concluded they agreed; they did not.
+  //
+  // "Judged" means two things here. The job's `sites_judged` column counts
+  // `match` and `no_match` only (migration 0014). `bandForMarket` counts
+  // everything except `unread` and `needs_model`, so a `couldnt_tell` is
+  // judged there and is not in the column. A real read showed the gap: 12
+  // sites, 4 in the column, 8 couldn't-tell.
+  const settledOnly = 4;
+  const asBandForMarket = 12; // no needs_model rows, so reads
+  assert.notEqual(
+    P.bandFor(0 / settledOnly).credits === P.bandFor(0 / asBandForMarket).credits,
+    false,
+    "sanity: both are zero-rate here",
+  );
+  // The denominators diverge the moment anything matches, and the column's
+  // smaller one makes the rate look better, the band cheaper and the abort
+  // keener than the invoice.
+  const matched = 1;
+  assert.notEqual(matched / settledOnly, matched / asBandForMarket);
+  assert.ok(
+    P.breakEvenRate(starter, P.bandFor(matched / settledOnly).credits) >
+      P.breakEvenRate(starter, P.bandFor(matched / asBandForMarket).credits),
+    "the column's denominator should be the keener one, which is why it is not used",
+  );
+
+  // So the worker divides by reads.
+  assert.match(worker, /const band = bandFor\(total\.reads > 0 \? total\.matches \/ total\.reads : 0\)/);
+  assert.ok(
+    !/judged: job\.sites_judged/.test(worker),
+    "the worker must not use the sites_judged column for the band",
+  );
+  // And `bandForMarket` is still defined the way this depends on.
+  assert.match(read("src/lib/unlock.ts"), /v !== "unread" && v !== "needs_model"/);
 });
 
 console.log(`\n${failures} failure(s)`);

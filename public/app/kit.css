@@ -221,8 +221,20 @@ b.mono,strong.mono,.mono b,.mono strong{font-weight:500}
 
 .sf {min-height:100dvh;font-family:'Libre Franklin',system-ui,sans-serif;font-size:15px;line-height:1.55}
 .sf .appwrap { display: grid; grid-template-columns: 252px minmax(0, 1fr); min-height: 100dvh; }
+/* The same box without the rail column. A grid rather than a block so its one
+   child stretches exactly as it does beside the rail. */
+.sf .appsolo { display: grid; grid-template-columns: minmax(0, 1fr); min-height: 100dvh; }
 .sf .appmain { min-width: 0; display: flex; flex-direction: column; }
 .sf .appbody { padding: 28px 32px 64px; display: flex; flex-direction: column; gap: 20px; }
+/* A screen whose whole content is one sentence sat in a band at the top with
+   three quarters of the viewport empty under it, which reads as a page that
+   failed to finish loading rather than as a pause. `.appmain` is a flex column
+   the full height of the grid, so giving the body the remaining space and
+   centring in it costs nothing on the screens that already fill it. The extra
+   bottom padding puts the content on the optical centre rather than the
+   measured one. */
+.sf .appbody.short { flex: 1; justify-content: center; padding-bottom: 104px; }
+
 /* The centred single-column screens: first run, progress, nothing found. */
 .sf .appmid { width: 100%; max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 26px; }
 .sf .nav { position: sticky; top: 0; height: 100dvh; }
@@ -261,12 +273,30 @@ b.mono,strong.mono,.mono b,.mono strong{font-weight:500}
 .sf .mailwell .bd p { transition: opacity 300ms ease; }
 .sf .track i { transition: width 400ms ease; }
 
+/* An indeterminate wait, for the counting screen. It had a bar fixed at 40%
+   with the transition switched off, which is a progress bar that does not
+   report progress — the one kind of dishonesty this product cannot afford on
+   the screen where somebody is deciding whether to trust it. This says "still
+   working" and claims nothing about how far along it is. */
+/* The same balance was on screen twice: this pill in the appbar and the
+   meter card in the rail, one above the other down the left edge. The card
+   is the fuller of the two (it has the meter and what a credit buys), so on
+   a screen that has a rail the pill stands down. */
+.sf .appbar .credit.railed { display: none; }
+
+.sf .track.waiting { position: relative; }
+.sf .track.waiting i { width: 34%; transition: none; animation: sf-wait 1.5s ease-in-out infinite; }
+@keyframes sf-wait { 0% { margin-left: -34% } 100% { margin-left: 100% } }
+
 @media (prefers-reduced-motion: reduce) {
   .sf *, .sf *::before, .sf *::after {
     animation-duration: 1ms !important; animation-iteration-count: 1 !important;
     transition-duration: 1ms !important; scroll-behavior: auto !important;
   }
   .sf .ptile:hover .ptile__front, .sf .ptile:active .ptile__front { transform: none; }
+  /* The global 1ms override would leave the sliding bar parked off-screen,
+     so the waiting state falls back to a full, still bar. */
+  .sf .track.waiting i { animation: none; margin-left: 0; width: 100%; opacity: .35; }
 }
 
 /* --- the phone (§5.7) -----------------------------------------------------
@@ -287,6 +317,9 @@ b.mono,strong.mono,.mono b,.mono strong{font-weight:500}
      29px tall — legible, and too short to press. */
   .sf .appbar > a:first-child { min-height: 44px; }
   .sf .appbar .credit { height: 30px; font-size: 12px; padding: 0 10px; }
+  /* Below 900px `.nav` is hidden, so the pill is the only balance there and
+     comes back. See `.credit.railed` above. */
+  .sf .appbar .credit.railed { display: inline-flex; }
   /* "20 free, no card" does not fit beside a wordmark and an account link. The
      offer survives; the reassurance is already in the cost bar and the
      first-run footnote, both of which say it in full. */

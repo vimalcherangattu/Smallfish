@@ -20,6 +20,7 @@ import { CLERK_ENABLED } from "@/lib/clerk";
 import { criterionForJob } from "@/lib/marketsource";
 import { humanDuration } from "@/lib/jobs";
 import { marketFromJob, settledCount } from "@/lib/jobmarket";
+import { splitQuery } from "@/lib/query";
 import { buildLeads, composeEmail, type Contacts } from "@/lib/leads";
 import { PLANS } from "@/lib/pricing";
 import { suppressedIds } from "@/lib/db";
@@ -135,17 +136,33 @@ export default async function Read({ params }: { params: Promise<{ id: string }>
 
   const running = job.state !== "done" && job.state !== "failed";
 
+  // The subject of the read, for the heading. `splitQuery` is the same parser
+  // the search box and the counting screen use, so "gyms in Dallas that have
+  // no online booking" titles as "Gyms in Dallas" on every screen that shows
+  // it. Falls back to the whole query rather than inventing one.
+  const asked = splitQuery(job.query);
+  const subject =
+    asked.what && asked.where
+      ? `${asked.what} in ${asked.where}`
+      : asked.what || job.query;
+
   return (
     <div className="appbody">
       <div className="appmid">
         {/* ------------------------------------------------- still reading -- */}
         {running && (
           <div>
+            {/* **The heading was the raw query**, so a search typed as "gym in
+                Dallas that has no online booking" became the sentence fragment
+                "Gym in Dallas that has no online booking" set as a headline.
+                The subject is the title; what we are checking it for is a
+                thing to say in words, not to trail off the end of an H1. */}
             <p className="kick">Reading</p>
             <h1 className="t-h1" style={{ marginTop: 8 }}>
-              {job.query}
+              {subject}
             </h1>
             <p className="t-b" style={{ marginTop: 12, color: "#36404C", maxWidth: "60ch" }}>
+              {criterion ? `Opening each site to see if it ${agree(criterion.text)}. ` : ""}
               {job.region_label
                 ? `${job.sites_total.toLocaleString()} websites in ${job.region_label}, read one at a time. `
                 : `${job.sites_total.toLocaleString()} websites, read one at a time. `}
