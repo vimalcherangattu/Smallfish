@@ -315,7 +315,7 @@ FILM = """
   <div class="wrap">
     <div class="sechead">
       <div class="head"><p class="kick">See it work</p><h2 class="dsp h-sec">Type one sentence. Get a list you can email.</h2></div>
-      <div class="note"><p class="lede">Who you sell to and where, in your own words. What comes back is the businesses that fit, each with the first email already written.</p></div>
+      <div class="note"><p class="lede">Dentists in Phoenix with no online booking: we read __READ__ of their websites and __FIT__ fit.</p></div>
     </div>
     <div class="filmframe rise">
       <video controls preload="metadata" playsinline
@@ -327,6 +327,91 @@ FILM = """
   </div>
 </section>
 """
+
+# --- 4c. the tighter page (owner, 2026-10-07) ------------------------------
+# "Much tighter, much smaller. So many repetitions ... we read the site, we read
+# the site." Measured before cutting: "one by one" four times, "you send it,
+# never us" six, "each with a contact and a first email already written" five,
+# two live demos plus the film, and a marquee that loops four phrases forever.
+# Each idea now appears once. Applied after COPY_EDITS, in order, so each edit
+# is keyed on the text the edits above it leave behind.
+TIGHTEN = {
+    # Hero: the USP stays; the explainer after it says the thing once.
+    "So pick a type of business and a city. We read their websites one by one "
+    "and hand back only the ones that fit \u2014 each with a contact and a first "
+    "email already written.":
+        "Small Fish hands you only the businesses that fit, each with an email "
+        "ready to send.",
+    # The three steps stay exactly as written: the owner, 2026-10-07, "somebody
+    # told me they understood the product exactly at that point." Only its em
+    # dash goes (the site carries none).
+    "Nothing to sift, no tabs to open \u2014 you get a short list":
+        "Nothing to sift, no tabs to open. You get a short list",
+    # One row: the card says it; the heading need not say it again.
+    '<p class="kick">What a list gives you vs what this gives you</p>':
+        '<p class="kick">One result</p>',
+    "This is what one business looks like.": "This is what you get.",
+    "Every line comes from something on their own website.":
+        "Every line comes from their own website.",
+    # Pricing: the slider's own line already says the misfits are free.
+    "Stop working from junk lists. Start with the businesses that need you.":
+        "Start with the businesses that need you.",
+    "We read, we cite, and we say when we could not tell. We never send.":
+        "We say so when we can\u2019t tell. We never send.",
+}
+TIGHTEN_STRIP = [
+    (re.compile(r'\s*<div class="ticker">.*?</div>', re.S), "the looping marquee"),
+    (re.compile(r'\s*<div class="note"><p class="lede">The contacts, why it fits.*?</p></div>', re.S),
+     "the row's lede, which restated the card"),
+    (re.compile(r'\s*<div class="note"><p class="lede">Nobody writes this bill down.*?</p></div>', re.S),
+     "the bill's lede"),
+    (re.compile(r'\s*<p class="closer">.*?</p>', re.S),
+     "the bill's closer, now the hero's USP"),
+    (re.compile(r'\s*<!-- =+ WHY WE BUILT IT =+ -->\s*<section id="checking".*?</section>', re.S),
+     "#checking, three promises said elsewhere"),
+    (re.compile(r'\s*<!-- =+ THE THING RUNNING =+ -->\s*<section id="film".*?</section>', re.S),
+     "#film, a second demo beside the film"),
+    (re.compile(r'\s*<!-- =+ COVERAGE =+ -->\s*<section id="markets".*?</section>', re.S),
+     "#markets, the coverage reel and its unmeasured market sizes"),
+    (re.compile(r'\s*<li>(?:(?!</li>).)*Businesses that don\'t fit are free\.</li>', re.S),
+     "the pricing tick the slider line already says"),
+    (re.compile(r'\s*<li>(?:(?!</li>).)*Every contact comes from their own website\.</li>', re.S),
+     "the pricing tick the result card already says"),
+    (re.compile(r'\s*<li>(?:(?!</li>).)*We never send anything\. You do\.</li>', re.S),
+     "the pricing tick the card and the footer already say"),
+]
+
+
+def tighten(body: str) -> str:
+    """4c on the home page: the edits, the cuts, and the film after the bill."""
+    for old, new in TIGHTEN.items():
+        if old not in body:
+            raise SystemExit(f"port: a tightening edit no longer matches:\n    {old[:90]!r}")
+        body = body.replace(old, new)
+    for pat, what in TIGHTEN_STRIP:
+        body, n = pat.subn("", body)
+        if not n:
+            raise SystemExit(f"port: nothing to strip for {what}")
+    # "Subtract, subtract, subtract ... user comes, knows exactly what it does,
+    # relates to exactly the problem, and goes and tries the product." The bill
+    # moves up to sit after the three steps: the problem a visitor recognises
+    # comes before the example answer.
+    def section(sid: str) -> re.Match[str]:
+        m = re.search(r'\s*<!-- =+ [^>]*-->\s*<section id="' + sid + r'".*?</section>', body, re.S)
+        if not m:
+            raise SystemExit(f"port: no #{sid} section to move")
+        return m
+    problem = section("problem")
+    body = body[:problem.start()] + body[problem.end():]
+    row = section("row")
+    body = body[:row.start()] + problem.group(0) + body[row.start():]
+
+    d = json.loads((ROOT / "public" / "data" / "dental-phoenix.json").read_text())
+    film = (FILM.replace("__READ__", f"{d['counts']['read']:,}")
+                .replace("__FIT__", str(d["tallies"]["no_online_booking"]["match"])))
+    end = body.index("</section>", body.index('id="row"')) + len("</section>")
+    return body[:end] + film + body[end:]
+
 
 MOBILE = """
 /* ---------------------------------------------------------------------------
@@ -494,11 +579,7 @@ def main() -> int:
                 body, n = pat.subn("", body)
                 if not n:
                     raise SystemExit(f"port: nothing to strip for {what}")
-            # The 44-second film, as its own section. HANDOFF: "If a real film
-            # is shot later it belongs in a **new** section, not in place of
-            # this one" — #film is the live demo and stays.
-            end = body.index("</section>", body.index('id="film"')) + len("</section>")
-            body = body[:end] + FILM + body[end:]
+            body = tighten(body)
         left = COVERAGE_CLAIM.search(visible(body))
         if left:
             raise SystemExit(
