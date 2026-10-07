@@ -272,5 +272,30 @@ check(
   `${midBuilt.leads.length} leads, ${J.settledCount(half)} settled`,
 );
 
+// ------------------------------------------------------------- the id scheme --
+//
+// A projected market is named `job:<uuid>` so nothing can mistake it for a file
+// under `public/data`. That matters because `/api/unlock` and `/api/export`
+// resolve a market by id and used to read a path from it: both guarded with
+// `^[a-z0-9-]+$`, which a colon fails, so every job-backed list was visible on
+// screen and refused by the two buttons on it with "Unknown market".
+
+check("the projected id round-trips", J.jobIdOf(J.jobMarketId(job.id)) === job.id);
+check("and is recognised as a job", J.isJobMarket(market.id));
+check(
+  "a shipped market file is not",
+  !J.isJobMarket("dental-phoenix") && J.jobIdOf("dental-phoenix") === null,
+);
+check(
+  "nothing that is not the exact scheme is a job id",
+  ["job:", "job:nope", "job:../../etc/passwd", `${J.jobMarketId(job.id)}x`, "", "job"]
+    .every((bad) => J.jobIdOf(bad) === null),
+);
+check(
+  "and a job id can never be read as a filename",
+  !/^[a-z0-9-]+$/.test(market.id),
+  market.id,
+);
+
 console.log(failures === 0 ? "\nall good" : `\n${failures} failed`);
 process.exit(failures === 0 ? 0 : 1);

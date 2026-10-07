@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { accountForUser, NotConfigured, recordRun } from "@/lib/accounts";
+import { marketById } from "@/lib/marketsource";
 import { chargeLeads } from "@/lib/charging";
 import { CLERK_ENABLED } from "@/lib/clerk";
 import { suppressedIds } from "@/lib/db";
@@ -61,18 +62,35 @@ export async function POST(request: Request) {
 
   const marketId = String(body.market ?? "");
   const criterionId = String(body.criterion ?? "");
-  if (!/^[a-z0-9-]+$/.test(marketId)) {
-    return Response.json({ ok: false, reason: "Unknown market." }, { status: 400 });
+
+  // **Who is asking, before what they are asking for.**
+  //
+  // This route read `public/data/<id>.json` and nothing else, so it served the
+  // four measured markets and refused every read this product actually
+  // produces: a job's id is `job:<uuid>`, which did not even pass the old id
+  // guard. The delivery screen showed the matches and Download answered
+  // "Unknown market".
+  //
+  // A job market is one workspace's own read, so it cannot be resolved without
+  // knowing whose it is. Resolved here, non-fatally — a signed-out visitor gets
+  // null and therefore cannot name a job id, which is the correct refusal. The
+  // paid path below re-reads the account inside its own try; that is one extra
+  // lookup and leaves the charging loop untouched.
+  let viewer: string | null = null;
+  if (CLERK_ENABLED) {
+    try {
+      const { userId } = await auth();
+      if (userId) viewer = (await accountForUser(userId))?.id ?? null;
+    } catch {
+      viewer = null;
+    }
   }
 
-  let market: Market;
-  try {
-    market = JSON.parse(
-      await readFile(path.join(process.cwd(), "public", "data", `${marketId}.json`), "utf8"),
-    ) as Market;
-  } catch {
+  const found = await marketById(marketId, viewer);
+  if (!found) {
     return Response.json({ ok: false, reason: `No market "${marketId}".` }, { status: 404 });
   }
+  const { market } = found;
 
   const criteria = market.criteria.filter((c) => !criterionId || c.id === criterionId);
   if (!criteria.length) {

@@ -105,6 +105,27 @@ export function businessFrom(row: JobSiteRow, criterion: Criterion): Business {
 }
 
 /**
+ * The `job:` id scheme.
+ *
+ * A projected market is named `job:<uuid>` so that nothing can mistake it for a
+ * file under `public/data` — every place that loads a market by id would have
+ * read a path, and a colon is not a legal filename character in the guards
+ * those places use. Kept here, beside the projection that mints it, and pure so
+ * `test_jobmarket.mjs` can hold it: `marketsource.ts` needs a database and
+ * cannot be unit-tested, and this is the part worth pinning.
+ */
+const JOB_ID = /^job:([0-9a-f-]{36})$/i;
+
+/** The id a projected market carries. */
+export const jobMarketId = (jobId: string) => `job:${jobId}`;
+
+/** Whether an id names a workspace's own read rather than a shipped file. */
+export const isJobMarket = (id: string) => JOB_ID.test(id);
+
+/** The job behind a projected market id, or null if it is not one. */
+export const jobIdOf = (id: string) => JOB_ID.exec(id)?.[1] ?? null;
+
+/**
  * A job and its rows as a market.
  *
  * `id` is prefixed so nothing can mistake it for a file under `public/data`:
@@ -125,7 +146,7 @@ export function marketFromJob(
   }
 
   return {
-    id: `job:${job.id}`,
+    id: jobMarketId(job.id),
     niche: "",
     metro: job.region_label ?? "",
     center: { lat: 0, lon: 0 },

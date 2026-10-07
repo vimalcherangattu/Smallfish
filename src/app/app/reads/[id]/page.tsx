@@ -4,7 +4,6 @@ import path from "node:path";
 
 import ReadProgress from "@/components/ReadProgress";
 import Results from "@/components/app/Results";
-import RecordRun from "@/components/RecordRun";
 import {
   accountForUser,
   balanceOf,
@@ -18,7 +17,7 @@ import {
 } from "@/lib/accounts";
 import { agree, evidenceFor, prettyDay } from "@/lib/appview";
 import { CLERK_ENABLED } from "@/lib/clerk";
-import { criterionForCheck } from "@/lib/csvimport";
+import { criterionForJob } from "@/lib/marketsource";
 import { humanDuration } from "@/lib/jobs";
 import { marketFromJob, settledCount } from "@/lib/jobmarket";
 import { buildLeads, composeEmail, type Contacts } from "@/lib/leads";
@@ -60,28 +59,6 @@ export const metadata = { title: "Your list | Small Fish" };
 
 const FREE_GRANT = PLANS.find((p) => p.id === "free")?.credits ?? 0;
 
-/** The question this job was asking.
- *
- *  Two shapes, exactly as the worker's own `findCriterion` resolves them: a
- *  market job names a file and a criterion inside it; a job with no market —
- *  an upload, or any trade in any US city — carries a `signals.ts` check. */
-async function criterionFor(job: JobRow): Promise<Criterion | null> {
-  if (!job.criterion_id) return null;
-  if (!job.market_id) return criterionForCheck(job.criterion_id);
-  try {
-    if (!/^[a-z0-9-]+$/.test(job.market_id)) return null;
-    const m = JSON.parse(
-      await readFile(
-        path.join(process.cwd(), "public", "data", `${job.market_id}.json`),
-        "utf8",
-      ),
-    ) as Market;
-    return m.criteria.find((c) => c.id === job.criterion_id) ?? null;
-  } catch {
-    return null;
-  }
-}
-
 export default async function Read({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
@@ -120,7 +97,7 @@ export default async function Read({ params }: { params: Promise<{ id: string }>
   }
 
   // --------------------------------------------------------- what it found --
-  const criterion = await criterionFor(job);
+  const criterion = await criterionForJob(job);
   const rows: JobSiteRow[] = criterion ? await jobSiteRows(accountId!, job.id) : [];
   const settled = settledCount(rows);
 
@@ -230,7 +207,11 @@ export default async function Read({ params }: { params: Promise<{ id: string }>
                   : null
               }
             />
-            <RecordRun market={result.marketId} criterion={result.criterionId} />
+            {/* No `RecordRun` here. A run row is keyed by market and
+                criterion, and a job's market id is `job:<uuid>` — transient,
+                rejected by `/api/runs`'s own id guard, and pointless besides:
+                the job is already listed under "my lists" from `jobsFor`.
+                Writing one would be a second, worse record of the same read. */}
           </>
         ) : (
           !running && (

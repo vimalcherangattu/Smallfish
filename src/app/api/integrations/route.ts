@@ -11,6 +11,7 @@ import {
   pushedThenSuppressed,
   recordPush,
 } from "@/lib/accounts";
+import { marketById } from "@/lib/marketsource";
 import { chargeLeads } from "@/lib/charging";
 import { CLERK_ENABLED } from "@/lib/clerk";
 import { suppressedIds } from "@/lib/db";
@@ -297,17 +298,17 @@ export async function PUT(request: Request) {
   }
 
   const marketId = String(body.market ?? "");
-  if (!/^[a-z0-9-]+$/.test(marketId)) {
-    return Response.json({ ok: false, reason: "Unknown market." }, { status: 400 });
-  }
 
-  let market: Market;
-  try {
-    const file = path.join(process.cwd(), "public", "data", `${marketId}.json`);
-    market = JSON.parse(await readFile(file, "utf8")) as Market;
-  } catch {
+  // The same resolver the screen, the unlock and the export use. This route had
+  // the third copy of "read `public/data/<id>.json`", so pushing a job-backed
+  // list to a CRM failed on the id before it reached a credential: the list was
+  // on screen, paid for, exportable, and this one button said "Unknown market".
+  // `w.accountId` is already established above, which is what a job id needs.
+  const found0 = await marketById(marketId, w.accountId ?? null);
+  if (!found0) {
     return Response.json({ ok: false, reason: `No market "${marketId}".` }, { status: 404 });
   }
+  const { market } = found0;
 
   const found = await destinationWithCipher(w.accountId!, String(body.destinationId ?? ""));
   if (!found) {

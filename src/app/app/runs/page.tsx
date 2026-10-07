@@ -145,7 +145,7 @@ export default async function RunsPage() {
                   <span className="sf-data text-[var(--muted)]">stopped early</span>
                 ) : (
                   <span className="sf-data text-[var(--muted)]">
-                    reading — {j.sites_read.toLocaleString()} of{" "}
+                    reading, {j.sites_read.toLocaleString()} of{" "}
                     {j.sites_total.toLocaleString()}
                   </span>
                 )}

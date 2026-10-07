@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { accountForUser, NotConfigured, recordRun, unlockedIds } from "@/lib/accounts";
+import { marketById } from "@/lib/marketsource";
 import { chargeLeads } from "@/lib/charging";
 import { CLERK_ENABLED } from "@/lib/clerk";
 import { suppressedIds } from "@/lib/db";
@@ -68,24 +69,7 @@ export async function POST(request: Request) {
   }
 
   const marketId = String(body.market ?? "");
-  if (!/^[a-z0-9-]+$/.test(marketId)) {
-    return Response.json({ ok: false, reason: "Unknown market." }, { status: 400 });
-  }
-
-  let market: Market;
-  try {
-    market = JSON.parse(
-      await readFile(path.join(process.cwd(), "public", "data", `${marketId}.json`), "utf8"),
-    ) as Market;
-  } catch {
-    return Response.json({ ok: false, reason: `No market "${marketId}".` }, { status: 404 });
-  }
-
   const criterionId = String(body.criterion ?? "");
-  const criteria = market.criteria.filter((c) => !criterionId || c.id === criterionId);
-  if (!criteria.length) {
-    return Response.json({ ok: false, reason: "No such criterion." }, { status: 404 });
-  }
 
   // How many of the locked rows to take. Absent means all of them; a number
   // bounded to the list so a made-up figure cannot ask for more than exists.
@@ -104,6 +88,23 @@ export async function POST(request: Request) {
         },
         { status: 409 },
       );
+    }
+
+    // **Resolved after the account, because a job market belongs to one.**
+    //
+    // This route used to read `public/data/<id>.json` and nothing else, so it
+    // served the four measured markets and refused every read this product
+    // actually produces: a job's id is `job:<uuid>`, which did not even pass
+    // the id guard. The delivery screen showed the matches and this route
+    // answered "Unknown market" when somebody tried to take them.
+    const found = await marketById(marketId, account.id);
+    if (!found) {
+      return Response.json({ ok: false, reason: `No market "${marketId}".` }, { status: 404 });
+    }
+    const { market } = found;
+    const criteria = market.criteria.filter((c) => !criterionId || c.id === criterionId);
+    if (!criteria.length) {
+      return Response.json({ ok: false, reason: "No such criterion." }, { status: 404 });
     }
 
     const { ids: suppressed } = await suppressedIds(
