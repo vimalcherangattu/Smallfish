@@ -186,9 +186,15 @@ export async function runJobSlice({
     if (noEngine) {
       const state = await releaseJob(
         job.id,
+        // Not "this picks up again by itself", which it had said since the
+        // queue moved on a scheduler alone. The read screen drives the slices
+        // now and stops on this note, and the scheduler behind it ticks once a
+        // day — so "by itself" meant tomorrow at the earliest, and never while
+        // the engine stays unavailable. What is true is that nothing was spent
+        // and nothing was lost.
         "Paused: the reading engine is not answering, so the rest of these sites " +
-          "are left alone rather than crawled for no answer. This picks up again " +
-          "by itself.",
+          "are left alone rather than crawled for no answer. Nothing was charged " +
+          "and nothing was lost. Press continue to pick up from the same site.",
       );
       return {
         jobId: job.id,
