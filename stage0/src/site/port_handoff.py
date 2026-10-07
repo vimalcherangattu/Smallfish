@@ -251,7 +251,11 @@ def scope_css(css: str) -> str:
         (r"(?m)^(\s*):root(\s*\{)", r"\1.sf-site\2"),
         (r"(?m)^(\s*)body\{margin:0;background:", r"\1body{margin:0}\n.sf-site{background:"),
         (r"(?m)^(\s*)body\{font-size:16px\}", r"\1.sf-site{font-size:16px}"),
-        (r"(?m)^(\s*)a\{color:inherit\}", r"\1.sf-site a{color:inherit}"),
+        # :where() keeps this at the specificity of a bare `a`. Scoped as
+        # `.sf-site a` it outranked every class rule that colours a link, so
+        # the lime "Sign up free" button inherited the hero's near-white text
+        # and could not be read (owner, 2026-10-07).
+        (r"(?m)^(\s*)a\{color:inherit\}", r"\1:where(.sf-site) a{color:inherit}"),
         (r"(?m)^(\s*)img,svg\{display:block\}",
          r"\1.sf-site img,.sf-site svg{display:block}"),
     ]
@@ -409,7 +413,6 @@ TIGHTEN = {
         "We say so when we can\u2019t tell. We never send.",
 }
 TIGHTEN_STRIP = [
-    (re.compile(r'\s*<div class="ticker">.*?</div>', re.S), "the looping marquee"),
     (re.compile(r'\s*<div class="note"><p class="lede">The contacts, why it fits.*?</p></div>', re.S),
      "the row's lede, which restated the card"),
     (re.compile(r'\s*<div class="note"><p class="lede">Nobody writes this bill down.*?</p></div>', re.S),
@@ -431,8 +434,31 @@ TIGHTEN_STRIP = [
 ]
 
 
+# The marquee under the hero (owner, 2026-10-07: "bring it back ... the
+# marquee should be industries and cities"). It used to loop four slogans the
+# page already says; now it says what you can ask for. No figures in it: any
+# trade in any US city is what /app searches, so the pairs are examples, not
+# claims about a market's size. Written twice because the script scrolls it by
+# half its width to loop seamlessly.
+MARQUEE = [
+    "Dentists in Phoenix", "Plumbers in Denver", "Med spas in Dallas",
+    "HVAC companies in Tampa", "Roofers in Austin", "Vets in Columbus",
+    "Law firms in Miami", "Salons in Nashville", "Gyms in Portland",
+    "Accountants in Chicago", "Auto shops in Atlanta", "Contractors in Seattle",
+]
+
+
+def marquee() -> str:
+    run = " &nbsp;\u00b7&nbsp; ".join(m.upper() for m in MARQUEE) + " &nbsp;\u00b7&nbsp; "
+    return run * 2
+
+
 def tighten(body: str) -> str:
-    """4c on the home page: the edits, the cuts, and the film after the bill."""
+    """4c on the home page: the edits, the cuts, and the film after the steps."""
+    body, n = re.subn(r'(<div class="ticker"><span class="mq kick"[^>]*>).*?(</span></div>)',
+                      lambda m: m.group(1) + marquee() + m.group(2), body, count=1, flags=re.S)
+    if not n:
+        raise SystemExit("port: no marquee to rewrite under the hero")
     for old, new in TIGHTEN.items():
         if old not in body:
             raise SystemExit(f"port: a tightening edit no longer matches:\n    {old[:90]!r}")
@@ -630,6 +656,16 @@ def main() -> int:
         # --- 4. coverage claims
         for old, new in REWRITES.items():
             body = body.replace(old, new)
+
+        # --- 4a. the call to action, both pages (owner, 2026-10-07: "sign up
+        # free is such a bad CTA"). It names a chore; the button now names the
+        # outcome. The nav keeps a short one.
+        for nav in ('<a class="cta sm outline" href="/sign-up?source=home">Sign up free',
+                    '<a class="cta sm" href="/sign-up?source=home">Sign up free'):
+            body = body.replace(nav, nav[: -len("Sign up free")] + "Get started")
+        body, n = re.subn(r'(href="/sign-up\?source=home"[^>]*>)Sign up free', r"\1Find my customers", body)
+        if not n:
+            raise SystemExit(f"port: no sign-up button found in {name}")
 
         # --- 4b. the owner's copy and structure edits (home page only)
         if dest == "home.html":

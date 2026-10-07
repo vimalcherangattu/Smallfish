@@ -118,7 +118,7 @@ export default async function Programmatic({
           }).toString()}`}
           className="mt-10 inline-block rounded-full bg-[var(--lure)] px-6 py-3 text-[14px] font-semibold text-[var(--ink)]"
         >
-          See all {p.matches}. Sign up free →
+          See all {p.matches} →
         </Link>
       </div>
     </main>

@@ -45,7 +45,9 @@
 export const SIGNUP_OPEN = true;
 
 /** The primary action, everywhere it appears. */
-export const CTA_LABEL = SIGNUP_OPEN ? "Sign up free →" : "Join the waitlist →";
+/** 2026-10-07, owner: "sign up free is such a bad CTA". The button names what
+ *  you get, not the form you fill in. */
+export const CTA_LABEL = SIGNUP_OPEN ? "Find my customers →" : "Join the waitlist →";
 
 /** Where that action goes. */
 /** Where that action goes. The home page is a door too, so it names itself —
@@ -64,4 +66,4 @@ export const CTA_NOTE_LONG = SIGNUP_OPEN
   : "We're letting people in a few at a time · no card · nothing to install";
 
 /** The nav button, which is shorter than the page buttons. */
-export const NAV_CTA = SIGNUP_OPEN ? "Sign up" : "Waitlist";
+export const NAV_CTA = SIGNUP_OPEN ? "Get started" : "Waitlist";

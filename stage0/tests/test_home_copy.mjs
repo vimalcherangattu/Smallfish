@@ -241,7 +241,8 @@ for (const word of ["criterion", "verdict", "refusal", "account"]) {
 // condition for which one: sign-up only if a stranger can describe a market and
 // get a real list back, otherwise the waitlist. Either is fine; having neither,
 // or both, is not.
-const signUp = /sign up free/i.test(home ?? "");
+// 2026-10-07: the sign-up button reads "Find my customers" (was "Sign up free").
+const signUp = /find my customers/i.test(home ?? "");
 const waitlist = /join the waitlist/i.test(home ?? "");
 check(
   "the home page has exactly one kind of call to action",
