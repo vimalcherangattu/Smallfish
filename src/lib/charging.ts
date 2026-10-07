@@ -47,6 +47,44 @@ export interface ChargeOutcome {
 }
 
 /**
+ * The refusal for a charge that could pay for nothing at all, or null.
+ *
+ * ## Why this is a named case and not just "zero rows"
+ *
+ * Partial is normal here and deliberately so: eighteen of forty-two rows is a
+ * success with a sentence attached. **None of forty-two is a different event** —
+ * it is the one failure in this product that a payment fixes, and every surface
+ * was answering it as though it had succeeded:
+ *
+ *   - `/api/export` returned 200 with a CSV of one header row, so the browser
+ *     saved a file with no businesses in it into somebody's Downloads folder,
+ *     and the sentence explaining why stayed on the page they had just left.
+ *   - `/api/integrations` answered `sent: 0` with the note, which is honest but
+ *     gave no way to act on it.
+ *
+ * Pure, so `test_spent_balance.mjs` can hold it, and shared so the two surfaces
+ * cannot drift into answering the same condition differently. `wanted` is how
+ * many rows were asked for: zero asked for is not a spent balance, it is an
+ * empty request, and the callers already answer that separately.
+ *
+ * `next` is the closing clause, because what is one press away differs — a file
+ * for the download, a delivery for the push — and a sentence that said "file"
+ * on the CRM path would be describing something that is not about to happen.
+ */
+export function spentBalance(
+  charge: Pick<ChargeOutcome, "paid" | "note">,
+  wanted: number,
+  next: string,
+): { ok: false; reason: string; addCredits: string } | null {
+  if (wanted <= 0 || charge.paid.length > 0) return null;
+  return {
+    ok: false,
+    reason: `${charge.note} ${next}`,
+    addCredits: "/account",
+  };
+}
+
+/**
  * Charge for as many of `rows` as the balance allows.
  *
  * Sequential on purpose. Each charge takes a row lock on the account, so firing

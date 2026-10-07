@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { accountForUser, NotConfigured, recordRun } from "@/lib/accounts";
 import { marketById } from "@/lib/marketsource";
-import { chargeLeads } from "@/lib/charging";
+import { chargeLeads, spentBalance } from "@/lib/charging";
 import { CLERK_ENABLED } from "@/lib/clerk";
 import { suppressedIds } from "@/lib/db";
 import { toCsv } from "@/lib/csv";
@@ -198,6 +198,24 @@ export async function POST(request: Request) {
         judged: bandForMarket(market, criteria, suppressed).judged,
       }).catch(() => undefined);
     }
+
+    // **A file with nothing in it is not a download.**
+    //
+    // There are matches, and the workspace can pay for none of them: a spent
+    // balance and no prior unlock on this market. This used to answer 200 with
+    // a CSV of one header row, so the browser saved
+    // `smallfish-dental-phoenix.csv` into somebody's Downloads folder with no
+    // businesses in it. The note explaining why appeared on the screen they
+    // had just left to look at the file.
+    //
+    // A refusal says the same thing where it can be acted on, and the status
+    // is the accurate one — this is the only failure in the product that a
+    // payment fixes. A *partial* file is still a file and still 200: eighteen
+    // of forty-two rows with a line saying so is the behaviour `csv.ts` and
+    // `charging.ts` both go out of their way to support, so the condition is
+    // "paid for none of them", never "fewer than asked".
+    const spent = spentBalance(charge, leads.length, "Add credits and the file is one press away.");
+    if (spent) return Response.json(spent, { status: 402 });
 
     return csvResponse({
       market,

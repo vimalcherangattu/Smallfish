@@ -73,11 +73,20 @@ export default function ExportButton({
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const [signIn, setSignIn] = useState<string | null>(null);
+  /**
+   * Where to go when the refusal is one money fixes.
+   *
+   * `signIn` was the only link this button could render, so a signed-in
+   * customer with a spent balance got the sentence and no way to act on it.
+   * The route names the destination rather than this component assuming one.
+   */
+  const [addCredits, setAddCredits] = useState<string | null>(null);
 
   async function run() {
     setBusy(true);
     setNote(null);
     setSignIn(null);
+    setAddCredits(null);
     try {
       const res = await fetch("/api/export", {
         method: "POST",
@@ -89,9 +98,11 @@ export default function ExportButton({
         const body = (await res.json().catch(() => ({}))) as {
           reason?: string;
           signIn?: string;
+          addCredits?: string;
         };
         setNote(body.reason ?? "That did not run. Nothing was charged.");
         setSignIn(body.signIn ?? null);
+        setAddCredits(body.addCredits ?? null);
         setBusy(false);
         return;
       }
@@ -137,6 +148,11 @@ export default function ExportButton({
                 Sign up free
               </a>
             )}
+            {addCredits && (
+              <a href={addCredits} className="underline underline-offset-2">
+                Add credits
+              </a>
+            )}
           </p>
         )}
       </div>
@@ -176,6 +192,11 @@ export default function ExportButton({
           {signIn && (
             <a href={signIn} className="underline underline-offset-2">
               Sign up free
+            </a>
+          )}
+          {addCredits && (
+            <a href={addCredits} className="underline underline-offset-2">
+              Add credits
             </a>
           )}
         </p>

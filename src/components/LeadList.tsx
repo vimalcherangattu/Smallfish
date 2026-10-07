@@ -395,6 +395,36 @@ function Unlock({ result, wallet }: { result: LeadResult; wallet: Wallet }) {
     );
   }
 
+  // **Nothing to spend is its own screen.**
+  //
+  // With a zero balance `afford` is zero, and this card used to render an
+  // enabled primary button reading "Unlock 0" with the purchase demoted to a
+  // small underlined link beside it. Pressing it posted the unlock, charged
+  // nothing, and came back "0 of 39 are yours" — the main action on the screen
+  // did nothing, which is the dead end a customer hits at exactly the moment
+  // they have decided to pay us.
+  //
+  // So at zero the one action is the one that helps. The cost stays on screen
+  // because it is what they are deciding about, and no price or plan is named
+  // here: `docs/PRICING.md` is authoritative and a price written twice is a
+  // price that diverges.
+  if (!wallet.comped && afford <= 0) {
+    return (
+      <div className="sf-card mt-6 p-5">
+        <p className="sf-h3">{result.locked} more, with names and numbers.</p>
+        <p className="sf-body mt-2 max-w-[62ch] text-[var(--ink-2)]">
+          {result.creditsEach} credit{result.creditsEach === 1 ? "" : "s"} each,{" "}
+          {cost} for all {result.locked}. Your credits are spent, so there is
+          nothing to take them with yet. Yours for twelve months once unlocked,
+          and never charged twice.
+        </p>
+        <Link href="/account" className="sf-btn sf-btn-primary mt-4 inline-block">
+          Add credits
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="sf-card mt-6 p-5">
       <p className="sf-h3">{result.locked} more, with names and numbers.</p>

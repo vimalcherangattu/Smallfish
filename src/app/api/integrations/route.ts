@@ -12,7 +12,7 @@ import {
   recordPush,
 } from "@/lib/accounts";
 import { marketById } from "@/lib/marketsource";
-import { chargeLeads } from "@/lib/charging";
+import { chargeLeads, spentBalance } from "@/lib/charging";
 import { CLERK_ENABLED } from "@/lib/clerk";
 import { suppressedIds } from "@/lib/db";
 import { matchedIn } from "@/lib/unlock";
@@ -392,6 +392,15 @@ export async function PUT(request: Request) {
   });
   const { ready, refused: destRefused } = prepare(kind, rows);
   const refused = [...gateRefused, ...destRefused];
+
+  // A spent balance is not a push that delivered nothing, it is a push that
+  // could not start — and it is the one failure here that a payment fixes. It
+  // used to answer `ok: true, sent: 0` with the note, which is honest and gives
+  // the customer nowhere to go. `spentBalance` is shared with `/api/export` so
+  // the two surfaces cannot drift into answering the same condition
+  // differently; what differs is only what is one press away.
+  const spent = spentBalance(charge, matched.length, `Add credits and ${spec.label} gets them.`);
+  if (spent) return Response.json(spent, { status: 402 });
 
   if (!ready.length) {
     return Response.json({
