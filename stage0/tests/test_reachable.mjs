@@ -30,6 +30,8 @@
  */
 
 import assert from "node:assert/strict";
+
+import { code } from "./_source.mjs";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 
@@ -64,8 +66,9 @@ function allSource() {
 const files = allSource();
 
 /** Comments stripped: a route named only in a comment explaining why it is not
- *  linked is precisely the case this test exists to fail on. */
-const code = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+ *  linked is precisely the case this test exists to fail on. Shared with
+ *  `test_optout_reach.mjs`, which hit the same trap — see `_source.mjs`. The
+ *  local regex this replaced missed a trailing `// …` after code on one line. */
 
 /**
  * Is this path linked or navigated to from somewhere other than its own page?

@@ -1,6 +1,7 @@
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { REMOVAL_DAYS, findListings } from "@/lib/suppression";
+import { readListingsMatching } from "@/lib/accounts";
 import { canWrite, currentEnv } from "@/lib/db";
 import type { Market } from "@/lib/types";
 
@@ -118,16 +119,40 @@ export async function POST(request: Request) {
     );
   }
 
-  const hits = findListings(await listings(), claim);
+  // **The four market files are no longer everything we hold.**
+  //
+  // This searched `public/data` alone, which was right when four measured
+  // markets were the whole product. `supply.ts` reads any trade in any US city
+  // and those businesses live in `job_sites`, so the form could not find most
+  // of what we have read — and told the person so in a sentence claiming we
+  // cover four metro areas, which stopped being true. Enforcement was never the
+  // broken half; `suppressedIds` reads the database too. Filing was.
+  //
+  // The job rows are narrowed in SQL and then matched by the same
+  // `findListings`, over the union, so a domain still beats a phone and a chain
+  // sharing one domain still comes back whole across both sources.
+  const fromJobs = await readListingsMatching(claim).catch(() => []);
+  const fileListings = await listings();
+  const seen = new Set(fileListings.map((l) => l.id));
+  const all: Listing[] = [
+    ...fileListings,
+    // A job row carries no address — `job_sites` has no column for one and
+    // inventing a town from a domain is the thing this product refuses to do.
+    ...fromJobs
+      .filter((j) => !seen.has(j.id))
+      .map((j) => ({ id: j.id, name: j.name, site: j.site, phone: j.phone, addr: "" })),
+  ];
+
+  const hits = findListings(all, claim);
   if (!hits.length) {
     return Response.json({
       ok: false,
       matched: 0,
       reason:
-        "Nothing we hold matches that website or phone number. That may mean you " +
-        "are not in Small Fish at all, which is the most likely answer, we cover " +
-        "four metro areas. If you believe you are, reply with the business name " +
-        "and we will look by hand.",
+        "Nothing we hold matches that website or phone number. The most likely " +
+        "answer is that you are not in Small Fish at all, we only hold " +
+        "businesses a customer has actually searched for. If you believe you " +
+        "are, reply with the business name and we will look by hand.",
     });
   }
 

@@ -112,6 +112,83 @@ export async function accountForUser(clerkUserId: string): Promise<AccountRow | 
 }
 
 /**
+ * Businesses we have read on a job, matching a removal claim.
+ *
+ * ## Why this exists
+ *
+ * `/api/opt-out` searched `public/data/*.json` and nothing else — the four
+ * measured markets. `supply.ts` means the product reads **any trade in any US
+ * city**, and those businesses live in `job_sites`, so a dentist in Austin
+ * whose site we read, judged and sold could type their own domain into the
+ * opt-out form and be told, in the form's own words, that *"we cover four metro
+ * areas"* and they are probably not in Small Fish at all.
+ *
+ * Enforcement was never the broken half: `suppressedIds` reads this database as
+ * well as the committed file, and a job market is filtered through the same
+ * `matchedIn`, so a suppression row would have been honoured. What was
+ * impossible was **filing one**, which makes the opt-out page a promise the
+ * product could not keep for most of what it now reads.
+ *
+ * ## Deliberately not scoped to an account
+ *
+ * Every other read here is scoped to one workspace, and this one must not be: a
+ * business asking to be removed has no idea which of our customers searched for
+ * them, and a removal that reached one workspace's copy would leave the rest
+ * listed. It leaks nothing — the caller supplies the domain or phone, both of
+ * which are on the business's own public website, which is where we got them —
+ * and it returns no workspace, customer or job.
+ *
+ * ## Matched in SQL first, then exactly in JS
+ *
+ * `findListings` is the authority on what a claim covers, and it stays so: this
+ * only narrows the table to plausible rows so the route is not pulling every
+ * site it has ever read. The prefilter is precise because phones are stored
+ * E.164 (`+16234629574`), so a claim's last ten digits are contiguous in the
+ * stored string; a formatted number would have needed the normalisation done in
+ * the database.
+ */
+export async function readListingsMatching(claim: string): Promise<
+  Array<{ id: string; name: string; site: string | null; phone: string | null }>
+> {
+  const trimmed = claim.trim();
+  const host = trimmed.includes("@") ? trimmed.split("@").pop()! : trimmed;
+  const domain = host
+    .replace(/^https?:\/\//i, "")
+    .replace(/^www\./i, "")
+    .split(/[/?#]/)[0]
+    .toLowerCase();
+  const tenDigits = trimmed.replace(/\D/g, "").slice(-10);
+
+  const wanted: string[] = [];
+  if (domain.includes(".")) wanted.push(`site.ilike.*${domain}*`);
+  if (tenDigits.length === 10) wanted.push(`phone.ilike.*${tenDigits}*`);
+  if (!wanted.length) return [];
+
+  // One request, `or` of the two prefilters, so a claim that is ambiguous
+  // between a domain and a number costs the same as one that is not.
+  const rows =
+    (await rest<Array<{ business_id: string; name: string | null; site: string; phone: string | null }> | null>(
+      `job_sites?or=(${encodeURIComponent(wanted.join(","))})` +
+        `&select=business_id,name,site,phone&limit=2000`,
+    ).catch(() => null)) ?? [];
+
+  // One row per business: the same site is in `job_sites` once per job that
+  // read it, and a removal is about the business rather than about our queue.
+  const seen = new Map<string, { id: string; name: string; site: string | null; phone: string | null }>();
+  for (const r of rows) {
+    if (!seen.has(r.business_id)) {
+      seen.set(r.business_id, {
+        id: r.business_id,
+        name: r.name ?? "",
+        site: r.site,
+        phone: r.phone,
+      });
+    }
+  }
+  return [...seen.values()];
+}
+
+/**
  * A workspace by its own id.
  *
  * `accountForUser` goes through `account_members` and needs a Clerk user, which
