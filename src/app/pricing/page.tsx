@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { BackLink } from "@/components/MarketingChrome";
 import BuyPlan from "@/components/BuyPlan";
-import { BANDS, COST_PER_READ, MAX_LOSS_PER_SCAN_USD, PLANS, READS_PER_CREDIT } from "@/lib/pricing";
-import { NO_WEBSITE_UNLOCK, UNLOCK_MONTHS, credits } from "@/lib/ledger";
+import { BANDS, PLANS } from "@/lib/pricing";
+import { UNLOCK_MONTHS } from "@/lib/ledger";
 
 /** The pricing page (S1-08).
  *
@@ -13,13 +13,40 @@ import { NO_WEBSITE_UNLOCK, UNLOCK_MONTHS, credits } from "@/lib/ledger";
  *  scan budget and the stop rule here, not the first time one fires. */
 export const metadata = {
   title: "Pricing | Small Fish",
-  description: "You pay per matched business, at a rate shown before anything is spent.",
+  description: `You only pay for the businesses that fit. The first ${
+    PLANS.find((p) => p.id === "free")!.credits
+  } are free, no card.`,
 };
 
 export default function Pricing() {
   const paid = PLANS.filter((p) => p.priceUsd > 0 && p.id !== "pack" && p.id !== "watch");
   const free = PLANS.find((p) => p.id === "free")!;
   const pack = PLANS.find((p) => p.id === "pack")!;
+  // The heavier bands ("double or triple"), read from BANDS rather than typed.
+  const times: Record<number, string> = { 2: "double", 3: "triple", 4: "four times over" };
+  const heavier = BANDS.filter((b) => b.credits > 1)
+    .map((b) => times[b.credits] ?? `${b.credits} times over`)
+    .join(" or ");
+
+  // 2026-10-07, owner: the old page ("the rules that decide what you are
+  // charged", "why a match is banded rather than flat-priced") was "too
+  // complex, too jargony, nobody cares, nobody understands". The guardrails
+  // are still here, said the way a buyer would ask about them.
+  const goodToKnow: [string, string][] = [
+    ["Wrong match? It's refunded.", "One click. No form, no waiting."],
+    [
+      "Pay for a business once.",
+      `If it turns up in another search, it's free to you for ${UNLOCK_MONTHS} months.`,
+    ],
+    [
+      `Harder-to-find businesses count ${heavier}.`,
+      "You see what a search will cost before it starts.",
+    ],
+    [
+      "A search that finds nothing costs nothing.",
+      "It stops on its own and tells you what to change.",
+    ],
+  ];
 
   return (
     <main className="mkt">
@@ -27,14 +54,11 @@ export default function Pricing() {
         <BackLink />
 
         <h1 className="dsp mt-10 max-w-[18ch] text-[clamp(38px,6vw,72px)]">
-          You pay for matches. Nothing else is billable.
+          You only pay for the businesses that fit.
         </h1>
-        <p className="mt-8 max-w-[62ch] text-[17px] leading-relaxed text-[var(--ink-2)]">
-          A match costs 1, 2 or 3 credits depending on how rare it is in your
-          market. The rate is set from a free sample, from the cautious end of
-          it, and shown before a scan starts, so it can only go down. Non-
-          matches and the businesses we could not settle arrive as counts and
-          reasons, free.
+        <p className="mt-8 max-w-[52ch] text-[17px] leading-relaxed text-[var(--ink-2)]">
+          The ones that don&rsquo;t fit cost nothing. Your first {free.credits} are
+          free, no card.
         </p>
 
         <div className="mt-14 grid gap-px overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--line)] md:grid-cols-4">
@@ -44,14 +68,15 @@ export default function Pricing() {
                 {p.name}
               </div>
               <div className="mono mt-3 text-[30px] leading-none">
-                {p.priceUsd === 0 ? "Free" : `$${p.priceUsd}`}
+                ${p.priceUsd}
+                {p.priceUsd > 0 && (
+                  <span className="text-[13px] text-[var(--ink-3)]"> a month</span>
+                )}
               </div>
-              <div className="mono mt-3 text-[13px] text-[var(--ink-2)]">
-                {p.credits} credits
-              </div>
-              <div className="mt-2 text-[13px] leading-snug text-[var(--ink-3)]">
-                {p.credits} common matches, or {Math.floor(p.credits / 3)} rare
-                ones
+              <div className="mt-3 text-[14px] text-[var(--ink-2)]">
+                {p.priceUsd === 0
+                  ? `${p.credits} businesses that fit`
+                  : `Up to ${p.credits.toLocaleString()} businesses that fit`}
               </div>
               {p.priceUsd === 0 ? (
                 <Link
@@ -68,71 +93,17 @@ export default function Pricing() {
         </div>
 
         <p className="mt-6 text-[14px] text-[var(--ink-3)]">
-          Also: a ${pack.priceUsd} pack of {pack.credits} credits with no
-          subscription. Unused credits carry one month, capped at one month&rsquo;s
-          allowance.
+          No subscription? Get up to {pack.credits} for ${pack.priceUsd}, once.
         </p>
 
-        <h2 className="dsp mt-24 max-w-[22ch] text-[clamp(28px,3.6vw,44px)]">
-          The rules that decide what you are charged.
-        </h2>
-        <dl className="mt-10 grid gap-8 md:grid-cols-2">
-          {[
-            ["A match is a business, not a listing",
-             "Open data lists a practice more than once. Two listings of one business at one address are one match, and the row says how many listings it stands for."],
-            [`Unlocked once, yours for ${UNLOCK_MONTHS} months`,
-             "A business you have already paid for is free to your workspace for a year, however many searches return it."],
-            ["A wrong match is refunded on the spot",
-             "One click, no form, no review queue. It leaves your export too, because a row you have told us is wrong is not one you want in your outreach."],
-            [`A business with no website costs ${credits(NO_WEBSITE_UNLOCK)} of a credit`,
-             "There is no site to read, so nothing was proved. It is sold at a quarter rate rather than leaked for free."],
-            [`Each credit carries ${READS_PER_CREDIT} reads`,
-             "Charging only for matches means a criterion nothing satisfies would otherwise read a whole market for free. The budget is shown before a scan starts."],
-            ["A hopeless scan stops itself",
-             `If matches dry up, the scan stops and tells you what it read and what to change. That costs us at most $${MAX_LOSS_PER_SCAN_USD.toFixed(2)} and costs you nothing.`],
-          ].map(([t, d]) => (
+        <dl className="mt-20 grid gap-8 md:grid-cols-2">
+          {goodToKnow.map(([t, d]) => (
             <div key={t}>
-              <dt className="text-[15px] font-semibold text-[var(--ink)]">{t}</dt>
-              <dd className="mt-2 max-w-[52ch] text-[15px] leading-relaxed text-[var(--ink-2)]">
-                {d}
-              </dd>
+              <dt className="text-[17px] font-semibold text-[var(--ink)]">{t}</dt>
+              <dd className="mt-1 text-[15px] leading-relaxed text-[var(--ink-2)]">{d}</dd>
             </div>
           ))}
         </dl>
-
-        <h2 className="dsp mt-24 max-w-[24ch] text-[clamp(28px,3.6vw,44px)]">
-          Why a match is banded rather than flat-priced.
-        </h2>
-        <p className="mt-8 max-w-[64ch] text-[15px] leading-relaxed text-[var(--ink-2)]">
-          Reading a business costs us about ${COST_PER_READ.toFixed(4)} and that
-          barely varies. What varies is how many businesses must be read to find
-          one that matches, measured across three markets, that swung 6.1×. A
-          flat price has to be set against the worst market, so everyone in a
-          good one overpays six times over and the pricing page has to keep
-          quiet about it. Banding collapses that spread to 2.3× and lets the
-          page say exactly this.
-        </p>
-        <div className="mt-10 grid gap-px overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-3">
-          {BANDS.map((b) => (
-            <div key={b.label} className="bg-[var(--paper)] p-6">
-              <div className="mono text-[12px] uppercase tracking-wider text-[var(--ink-3)]">
-                {b.label}
-              </div>
-              <div className="mono mt-2 text-[24px]">{b.credits}×</div>
-              <div className="mt-2 text-[13px] text-[var(--ink-3)]">
-                {b.minRate > 0
-                  ? `${Math.round(b.minRate * 100)}%+ of the market matches`
-                  : "under 6% matches"}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <p className="mono mt-16 text-[12px] leading-relaxed text-[var(--ink-3)]">
-          Payments are not switched on yet. Nothing on this page can be bought
-          today, the plans and the credit rules are live in the product and
-          tested, and the card step is the last thing left.
-        </p>
       </div>
     </main>
   );
