@@ -14,7 +14,7 @@ import { UNLOCK_MONTHS, ROLLOVER_MONTHS } from "@/lib/ledger";
  *  so a pricing change cannot leave the terms describing the old deal. */
 
 export const metadata = {
-  title: "Terms — Small Fish",
+  title: "Terms | Small Fish",
   description:
     "What Small Fish promises, what it charges for, what it refuses, and how to stop.",
 };
@@ -45,7 +45,7 @@ export default function Terms() {
 
         <p className="mt-8 text-[16px] leading-relaxed text-[var(--ink-2)]">
           Short, because every clause here is something the software actually
-          does. A term nobody enforces is worse than no term — it teaches you
+          does. A term nobody enforces is worse than no term. It teaches you
           that the rest of the page is decoration.
         </p>
 
@@ -65,7 +65,7 @@ export default function Terms() {
               Only a proven match costs a credit.
             </strong>{" "}
             A business that did not match, a site we could not read, and a site
-            that blocks automated reading are all free and always will be — they
+            that blocks automated reading are all free and always will be. They
             are the cases where we have not delivered anything, and charging for
             them would make &ldquo;couldn&rsquo;t tell&rdquo; profitable, which
             is exactly the incentive this product exists to avoid.
@@ -90,7 +90,7 @@ export default function Terms() {
           <p>
             Tell us and it is refunded at exactly what it cost, read back from
             the line that charged it rather than recalculated. That is a promise
-            about the software, not a goodwill gesture — the refund path is in
+            about the software, not a goodwill gesture. The refund path is in
             the database and is the same one every time.
           </p>
         </S>
@@ -103,7 +103,7 @@ export default function Terms() {
               the benchmark page
             </Link>
             , including the ones that undercut us. Read it before deciding what
-            this is worth to you — that is what it is for.
+            this is worth to you. That is what it is for.
           </p>
           <p>
             We also do not promise the data is current. A website can change the
@@ -114,7 +114,7 @@ export default function Terms() {
 
         <S title="What you agree not to do">
           <p>
-            Do not use Small Fish to contact anybody unlawfully — where you are,
+            Do not use Small Fish to contact anybody unlawfully. Where you are,
             that probably includes rules about unsolicited email and calls, and
             they are your responsibility, not ours. Do not resell the raw
             exports as a list. Do not try to get at another workspace&rsquo;s
@@ -131,8 +131,8 @@ export default function Terms() {
         <S title="Stopping">
           <p>
             Cancel whenever you like. You keep what you have exported. We keep
-            your billing ledger, because it cannot be deleted by anybody —
-            including us — and because it is the record of what you were
+            your billing ledger, because it cannot be deleted by anybody,
+            including us, and because it is the record of what you were
             charged.
           </p>
         </S>
@@ -156,7 +156,7 @@ export default function Terms() {
         <p className="mono mt-16 border-t border-[var(--line)] pt-8 text-[12px] leading-relaxed text-[var(--ink-3)]">
           Small Fish · getsmallfish@gmail.com · Every clause above describes
           something the software does. It has not been reviewed by a lawyer, and
-          it is not legal advice — have one read it before you take money from
+          it is not legal advice. Have one read it before you take money from
           anybody outside a hand-picked group.
         </p>
       </div>

@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     return Response.json(
       {
         ok: false,
-        reason: "Sign in first — a payment needs a workspace to deliver credits to.",
+        reason: "Sign in first, a payment needs a workspace to deliver credits to.",
         signIn: "/sign-in",
       },
       { status: 401 },

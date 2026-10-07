@@ -13,7 +13,7 @@ import type { Metadata } from "next";
  */
 
 export const metadata: Metadata = {
-  title: "SmallFishBot — what this crawler is",
+  title: "SmallFishBot: what this crawler is",
   description:
     "What SmallFishBot fetches, how often, how to block it, and how to have a business removed.",
 };
@@ -62,7 +62,7 @@ export default function BotPage() {
       <Section title="What it does">
         <p>
           It reads a small number of pages of a business website and records
-          facts about what the business offers — whether there is a way to book
+          facts about what the business offers: whether there is a way to book
           online, request a quote, or start a chat. People searching for
           suppliers use those facts to find businesses that match what they
           need.
@@ -125,7 +125,7 @@ export default function BotPage() {
           Being honest about the limits. A self-serve opt-out form with
           ownership verification is planned and not yet built, so removal is a
           manual request today. And removal cannot reach rows a user has
-          already exported — nothing can. What it does do is stop the business
+          already exported. Nothing can. What it does do is stop the business
           appearing in any future result or export.
         </p>
       </Section>

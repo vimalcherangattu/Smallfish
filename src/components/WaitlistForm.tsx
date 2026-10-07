@@ -57,7 +57,7 @@ export default function WaitlistForm({
         <p className="sf-h2">Thank you.</p>
         <p className="sf-body mt-3 text-[var(--ink-2)]">{done}</p>
         <p className="sf-small mt-4 text-[var(--muted)]">
-          Nothing else was stored — no tracking, and your address is not shared
+          Nothing else was stored: no tracking, and your address is not shared
           with anybody.
         </p>
       </div>

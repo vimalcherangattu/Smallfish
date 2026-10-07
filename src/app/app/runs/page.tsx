@@ -18,7 +18,7 @@ import { CLERK_ENABLED } from "@/lib/clerk";
  */
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Runs — Small Fish" };
+export const metadata = { title: "Runs | Small Fish" };
 
 const NICHE: Record<string, string> = {
   "med-spa-dallas": "Med spas in Dallas",
@@ -53,7 +53,7 @@ export default async function RunsPage() {
       <Shell>
         <Empty title="Accounts are not switched on here.">
           This deployment has no sign-in configured, so there is nowhere to keep
-          a history. Everything else works —{" "}
+          a history. Everything else works, {" "}
           <Link href="/app/search" className="underline">run a search</Link> and
           the results are the same.
         </Empty>
@@ -67,8 +67,8 @@ export default async function RunsPage() {
     return (
       <Shell>
         <Empty title="Sign in to keep your searches.">
-          Runs are kept per workspace. You can search without an account — the
-          count is free either way — but there is nowhere to put the history
+          Runs are kept per workspace. You can search without an account, the
+          count is free either way, but there is nowhere to put the history
           until there is a workspace to put it in.{" "}
           <Link href="/sign-in" className="underline">Sign in</Link>.
         </Empty>

@@ -19,7 +19,7 @@ import HandoffPage from "@/components/HandoffPage";
  */
 
 export const metadata = {
-  title: "Small Fish — find the local businesses that fit what you sell",
+  title: "Small Fish, find the local businesses that fit what you sell",
   description:
     "Tell us who you sell to and where. We check local businesses one by one " +
     "and send back the ones that fit, with contacts and a line on why each " +

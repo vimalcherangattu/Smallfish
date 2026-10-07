@@ -11,7 +11,7 @@ import HandoffPage from "@/components/HandoffPage";
  */
 
 export const metadata = {
-  title: "How we check each business — Small Fish",
+  title: "How we check each business | Small Fish",
   description:
     "What a check actually does, what we cannot read, and what we get wrong.",
 };

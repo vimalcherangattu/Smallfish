@@ -163,7 +163,7 @@ export default function BizRow({
                   ))}
                   <p className="t-s" style={{ marginTop: 4 }}>
                     Every line points at something on their own site. You edit it and you send
-                    it — we never send anything.
+                    it, we never send anything.
                   </p>
                 </div>
               </div>
@@ -229,7 +229,7 @@ export default function BizRow({
 
             <button type="button" className="qbtn" onClick={onNotAFit} disabled={!onNotAFit}>
               <Cross />
-              Not a fit — refunds the credit
+              Not a fit, refunds the credit
             </button>
           </div>
 
@@ -239,7 +239,7 @@ export default function BizRow({
                 We opened {lead.pagesRead} {lead.pagesRead === 1 ? "page" : "pages"} of{" "}
                 {lead.domain ?? "their site"} and read the words on them. We store
                 what we found, not copies of their pages, so the pages themselves are theirs to
-                show — open the site and you are looking at what we looked at.
+                show, open the site and you are looking at what we looked at.
               </p>
             </div>
           )}

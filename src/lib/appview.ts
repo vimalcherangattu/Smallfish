@@ -174,7 +174,7 @@ export function contactsFor(args: {
     {
       kind: "email",
       value: args.email,
-      absent: args.email ? null : "no email on the site — a form or a phone only",
+      absent: args.email ? null : "no email on the site, a form or a phone only",
     },
     { kind: "site", value: args.domain, absent: args.domain ? null : "no website" },
   ];

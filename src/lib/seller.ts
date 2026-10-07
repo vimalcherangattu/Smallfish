@@ -190,7 +190,7 @@ export async function readSeller(rawUrl: string): Promise<SellerResult> {
       stage: "config",
       reason:
         "Reading a site needs ANTHROPIC_API_KEY, which is not set on this " +
-        "deployment. Describe what you sell instead — the rest of the flow " +
+        "deployment. Describe what you sell instead, the rest of the flow " +
         "works on a typed description.",
     };
   }
@@ -256,7 +256,7 @@ export async function readSeller(rawUrl: string): Promise<SellerResult> {
       ok: false,
       stage: "fetch",
       reason:
-        `There is almost no readable text on ${url.hostname} — it may be built ` +
+        `There is almost no readable text on ${url.hostname}, it may be built ` +
         "entirely in images or script. Describe what you sell instead.",
     };
   }
@@ -269,7 +269,7 @@ export async function readSeller(rawUrl: string): Promise<SellerResult> {
 
 Extract only what the site actually says. For each field give the value and a
 VERBATIM quote from the text above that supports it. If the site does not say,
-return null for that field — do not infer, and do not generalise from the
+return null for that field, do not infer, and do not generalise from the
 industry. A missing field is a useful answer; a guessed one is not.
 
 Fields:

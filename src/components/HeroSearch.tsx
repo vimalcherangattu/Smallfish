@@ -334,7 +334,7 @@ function Result({ row, count }: { row: Row; count: CountResult }) {
       </p>
       <p className="mono mt-4 text-[13px]" style={{ color: "#B9BFB6" }}>
         From {sample.read} read: {sample.matched} matched, {sample.couldNotSettle} we
-        couldn&rsquo;t read well enough to say — and you&rsquo;re not billed for those.
+        couldn&rsquo;t read well enough to say, and you&rsquo;re not billed for those.
         {" "}Each match here costs {count.band.credits} credit
         {count.band.credits === 1 ? "" : "s"} ({count.band.label.toLowerCase()}), shown
         before anything is spent.
@@ -362,7 +362,7 @@ function Result({ row, count }: { row: Row; count: CountResult }) {
         </Link>
         <span className="mono text-[12px]" style={{ color: "#5B6470" }}>
           {sample.frameLimited
-            ? "A wide range because only part of this market has been read — it narrows as more of it is."
+            ? "A wide range because only part of this market has been read, it narrows as more of it is."
             : "A range, not a point: 25 reads cannot carry a single number honestly."}
         </span>
       </div>
@@ -385,8 +385,8 @@ function NotRead({ sell, city, rows }: { sell: string; city: string; rows: Row[]
         We haven&rsquo;t read {named}.
       </p>
       <p className="lede mt-5 max-w-[52ch]" style={{ color: "#B9BFB6" }}>
-        Reading a market cold — opening every business&rsquo;s own site and
-        judging it against what you asked for — is the part we are still
+        Reading a market cold, opening every business&rsquo;s own site and
+        judging it against what you asked for, is the part we are still
         building. We would rather say that than show you a number with nothing
         behind it. These are read in full today, and they are the same engine
         yours will run on:

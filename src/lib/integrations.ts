@@ -81,7 +81,7 @@ export const DESTINATIONS: Record<DestinationKind, DestinationSpec> = {
     setup:
       "Nine company properties hold the evidence. Small Fish creates them on " +
       "first connect if the private app has the schema scope, and refuses the " +
-      "push if they are missing — a company record with no reason on it is a " +
+      "push if they are missing, a company record with no reason on it is a " +
       "row you cannot defend.",
     docs: "https://developers.hubspot.com/docs/api/crm/companies",
   },
@@ -111,7 +111,7 @@ export const DESTINATIONS: Record<DestinationKind, DestinationSpec> = {
     target: "endpoint",
     setup:
       "Each delivery is signed. Verify the `X-Smallfish-Signature` header " +
-      "before trusting the body — an unsigned endpoint is an open door to " +
+      "before trusting the body, an unsigned endpoint is an open door to " +
       "anyone who learns the URL.",
     docs: "/docs/integrations",
   },
@@ -253,7 +253,7 @@ export function prepare(
         code: "no_email",
         reason:
           `${spec.label} needs an email address and we do not hold one for this ` +
-          "business. We will not guess one from the domain — a guessed address " +
+          "business. We will not guess one from the domain, a guessed address " +
           "is a bounce against your sending reputation, or worse, a real " +
           "person who never asked to hear from you.",
       });
@@ -379,7 +379,7 @@ export function missingProperties(existing: Iterable<string>): string[] {
 
 /** A line per matched criterion, joined for a textarea. */
 const evidenceLines = (r: PushRow) =>
-  r.matched.map((m) => `${m.criterion} — ${m.proof}`).join("\n");
+  r.matched.map((m) => `${m.criterion}, ${m.proof}`).join("\n");
 
 const howCheckedLines = (r: PushRow) =>
   r.matched.map((m) => `${m.criterion}: ${m.howChecked}`).join("\n");

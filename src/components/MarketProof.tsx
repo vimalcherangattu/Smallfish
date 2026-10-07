@@ -175,7 +175,7 @@ export default function MarketProof({ markets }: { markets: MarketCard[] }) {
             model verdicts whose quote was found verbatim on the page it came from
           </Proof>
           <p className="small" style={{ color: "var(--ink-2)", marginTop: 20 }}>
-            Precision 100%, lower bound 91.4% — measured on one niche of three.
+            Precision 100%, lower bound 91.4%, measured on one niche of three.
             The benchmark page says so too.
           </p>
           <a

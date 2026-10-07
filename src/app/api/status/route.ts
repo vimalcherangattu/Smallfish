@@ -106,12 +106,12 @@ export function GET() {
       of: groups.length,
       groups,
       nextStep: blocked.length
-        ? `Set ${blocked[0].missing.join(", ")} — see docs/SETUP.md §${blocked[0].section.split(" ")[0]}. ` +
+        ? `Set ${blocked[0].missing.join(", ")}, see docs/SETUP.md §${blocked[0].section.split(" ")[0]}. ` +
           "Then redeploy: Vercel bakes environment variables in at build time, " +
           "so setting one changes nothing until you do."
         : "Everything this endpoint knows about is set.",
       note:
-        "Presence only — no key, prefix or length is reported, because a status " +
+        "Presence only, no key, prefix or length is reported, because a status " +
         "page that helps you debug a key helps anyone else debug it too.",
     },
     { headers: { "cache-control": "no-store" } },

@@ -33,15 +33,15 @@ export function readFinishedEmail(job: JobRow, siteUrl: string) {
   const link = `${siteUrl.replace(/\/$/, "")}/app?q=${encodeURIComponent(job.query)}`;
   const subject =
     job.matched > 0
-      ? `${job.matched} businesses that fit — ${job.query}`
-      : `Nothing fit — ${job.query}`;
+      ? `${job.matched} businesses that fit, ${job.query}`
+      : `Nothing fit, ${job.query}`;
 
   const body = [
     job.matched > 0
       ? `We finished reading. ${job.matched.toLocaleString()} of the ${job.sites_judged.toLocaleString()} we could settle fit what you asked for.`
       : `We finished reading ${job.sites_read.toLocaleString()} websites and none of them fit what you asked for. Nothing was charged.`,
     job.unclear > 0
-      ? `${job.unclear.toLocaleString()} we could not settle either way — those are left out rather than guessed at, and they cost you nothing.`
+      ? `${job.unclear.toLocaleString()} we could not settle either way, those are left out rather than guessed at, and they cost you nothing.`
       : null,
     `Your list: ${link}`,
   ]

@@ -14,7 +14,7 @@ import OptOutForm from "@/components/OptOutForm";
  *  "you have been removed" when we mean "you will not appear in future" would
  *  be the same overclaim this product refuses everywhere else. */
 export const metadata = {
-  title: "Small Fish — remove my business",
+  title: "Remove my business | Small Fish",
   description: "How to have your business removed from Small Fish.",
 };
 
@@ -33,7 +33,7 @@ export default function OptOut() {
           <p className="mt-3 text-[15px] leading-relaxed text-[var(--ink-2)]">
             Your name, address, phone and website as they appear in Overture
             Maps, an open dataset. Plus facts we extracted from your own public
-            website — whether it offers online booking, for instance — and the
+            website (whether it offers online booking, for instance) and the
             page each fact came from. We do not keep copies of your pages, and
             nothing here came from anywhere but your public site and open data.
           </p>
@@ -52,7 +52,7 @@ export default function OptOut() {
           <p className="mt-6 text-[15px] leading-relaxed text-[var(--ink-2)]">
             Filing it here does not remove you on its own, and we would rather
             say so than let you find out later. We confirm through the contact
-            already on your listing — not the one you type above — because your
+            already on your listing, not the one you type above, because your
             website and phone number are public, so anyone could type them. An
             opt-out anyone could file for anyone else would be a tool for erasing
             a competitor, and this one is not going to be that.

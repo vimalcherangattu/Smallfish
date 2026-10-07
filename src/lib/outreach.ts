@@ -101,7 +101,7 @@ export function outreachFor(b: Business, criteria: Criterion[]): Outreach {
       `I read ${b.read.pages} page${b.read.pages === 1 ? "" : "s"} of ${where} ` +
       `and could not find ${label} anywhere on them.`;
     basis.push(
-      `criterion "${lead.c.text}" matched — ` +
+      `criterion "${lead.c.text}" matched, ` +
         (b.verdicts[lead.c.id]?.proof ?? b.verdicts[lead.c.id]?.reason ?? "no signal found"),
     );
     // Only a catalogued signal carries a consequence. An uncatalogued gap gets
@@ -116,8 +116,8 @@ export function outreachFor(b: Business, criteria: Criterion[]): Outreach {
   //    when the proof is there to quote.
   const have = haves.find((h) => h.v?.proof);
   if (have) {
-    icebreaker = `I saw on ${where} that your ${have.c.text} — ${have.v!.proof}.`;
-    basis.push(`criterion "${have.c.text}" matched — ${have.v!.proof}`);
+    icebreaker = `I saw on ${where} that your ${have.c.text}, ${have.v!.proof}.`;
+    basis.push(`criterion "${have.c.text}" matched, ${have.v!.proof}`);
   }
 
   if (!icebreaker) {
@@ -142,7 +142,7 @@ export function outreachFor(b: Business, criteria: Criterion[]): Outreach {
   const note = [
     icebreaker + aside,
     painPoint,
-    `Happy to be wrong — if there is ${missed} I missed, say so and I will drop it.`,
+    `Happy to be wrong, if there is ${missed} I missed, say so and I will drop it.`,
   ]
     .filter(Boolean)
     .join(" ");

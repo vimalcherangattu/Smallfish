@@ -109,7 +109,7 @@ export async function POST(req: Request) {
         // kind of business in the listings, which is a different sentence and a
         // different thing for the person to do about it.
         reason: `We don't have "${split.what || query}" as a kind of business in the listings.`,
-        hint: "Try the trade on its own — plumbers, dentists, roofers.",
+        hint: "Try the trade on its own, plumbers, dentists, roofers.",
       },
       { status: 404 },
     );

@@ -84,7 +84,7 @@ export default function Nothing({
             <div className="arrive" key={g.id} style={i === unsure.length - 1 ? { borderBottom: 0 } : undefined}>
               <span className="dotv" style={{ border: "1.5px dashed #8A929B" }} />
               <span className="t-b" style={{ gridColumn: "2/4" }}>
-                {g.headline} — free, never guessed
+                {g.headline}, free, never guessed
               </span>
               <span className="t-d m" style={{ textAlign: "right" }}>
                 {g.count}
@@ -110,7 +110,7 @@ export default function Nothing({
           <p className="t-s">
             Nothing was charged for this search, because it found nothing.
             {unsureTotal > 0 &&
-              ` The ${unsureTotal} we couldn't tell about were free too — they always are.`}
+              ` The ${unsureTotal} we couldn't tell about were free too, they always are.`}
           </p>
         </div>
 

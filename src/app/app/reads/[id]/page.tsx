@@ -19,7 +19,7 @@ import { humanDuration } from "@/lib/jobs";
  */
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Reading — Small Fish" };
+export const metadata = { title: "Reading | Small Fish" };
 
 export default async function Read({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -70,7 +70,7 @@ export default async function Read({ params }: { params: Promise<{ id: string }>
         <p className="sf-label">What is actually happening</p>
         <ul className="sf-small mt-3 space-y-2 text-[var(--ink-2)]">
           <li>
-            Each site is fetched politely — robots.txt honoured, a real user
+            Each site is fetched politely, robots.txt honoured, a real user
             agent, and 1.5 seconds between two requests to the same host. That
             throttle is most of the wait, and it is not negotiable.
           </li>

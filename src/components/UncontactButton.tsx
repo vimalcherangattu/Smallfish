@@ -47,7 +47,7 @@ export default function UncontactButton({ businessId }: { businessId: string }) 
       </button>
       {failed && (
         <span className="sf-small text-[var(--unsure)]">
-          didn&rsquo;t save — still marked
+          didn&rsquo;t save, still marked
         </span>
       )}
     </span>

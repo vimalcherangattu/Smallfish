@@ -90,7 +90,7 @@ export default function FreeCountPanel({
           here with a website.{" "}
           {wide && (
             <>
-              That is a wide range because {SAMPLE_SIZE} is a small sample — it
+              That is a wide range because {SAMPLE_SIZE} is a small sample. It
               narrows as more of the market is read, and reading is what a
               credit buys.
             </>
@@ -117,7 +117,7 @@ export default function FreeCountPanel({
       {shown.unsettled > 0 && (
         <p className="text-[11px] leading-snug text-[var(--muted)]">
           The {shown.unsettled} we could not settle count <em>against</em> the
-          rate above, not out of it — they cost reading and deliver you nothing,
+          rate above, not out of it, they cost reading and deliver you nothing,
           so pretending they do not exist would quote you a price the scan
           cannot honour.
           {shown.decidedRate > shown.deliveredRate && (
@@ -140,7 +140,7 @@ export default function FreeCountPanel({
           <span className="tabular">{compact(coldMarket.read)}</span> of its{" "}
           <span className="tabular">{compact(coldMarket.total)}</span>{" "}
           businesses. Reading the rest is what narrows the range above, and it
-          takes a while — start the scan and we will email you when it is done
+          takes a while. Start the scan and we will email you when it is done
           rather than hold you on this screen.
         </p>
       )}
@@ -152,7 +152,7 @@ export default function FreeCountPanel({
           read here so far, not from all{" "}
           <span className="tabular">{compact(shown.eligible)}</span>. Those were
           picked by the crawler rather than at random, so the range above is
-          only as representative as that ordering was — treat it as a reading of
+          only as representative as that ordering was. Treat it as a reading of
           this market, not a measurement of it.
         </p>
       )}
@@ -178,7 +178,7 @@ export default function FreeCountPanel({
           <>
             <div className="flex items-baseline justify-between gap-2 text-[11px]">
               <span className="text-[var(--muted)]">
-                {shown.band.label} — {shown.band.credits} credit
+                {shown.band.label}, {shown.band.credits} credit
                 {shown.band.credits === 1 ? "" : "s"} per match
               </span>
               <span className="tabular text-[var(--muted)]">
@@ -189,7 +189,7 @@ export default function FreeCountPanel({
               {shown.band.credits > shown.bandIfObserved.credits ? (
                 <>
                   Priced from the cautious end of a {shown.sampled}-business
-                  sample, not its midpoint — {shown.matched} matches out of{" "}
+                  sample, not its midpoint, {shown.matched} matches out of{" "}
                   {shown.sampled} could mean a market much thinner than it
                   looks, and we would rather quote high and bill low than quote
                   low and stop your scan. If the full run matches as often as
@@ -216,7 +216,7 @@ export default function FreeCountPanel({
             <p className="mt-1 text-[10px] leading-snug text-[var(--muted)]">
               This search may read up to{" "}
               <span className="tabular">{compact(shown.scan.budgetReads)}</span>{" "}
-              businesses — {READS_PER_CREDIT} for every credit on your balance.
+              businesses, {READS_PER_CREDIT} for every credit on your balance.
               It stops early, and says why, if matches dry up.
             </p>
           </>

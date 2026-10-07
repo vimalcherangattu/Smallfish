@@ -92,7 +92,7 @@ function OutreachBlock({
           ))}
         </ul>
         <p className="mt-1 text-[10px] italic text-[var(--muted)] opacity-80">
-          Written from observed evidence only — no model wrote this, and nothing
+          Written from observed evidence only, no model wrote this, and nothing
           in it is a claim the site did not support.
         </p>
       </details>
@@ -138,7 +138,7 @@ function LockedSummary({
           {compactish(businesses.length)} not unlocked.
         </span>{" "}
         You have paid for none of these, so their names, addresses and websites
-        stay with us — what they are is worth telling you, which one each is is
+        stay with us, what they are is worth telling you, which one each is is
         not ours to give.
       </p>
       {groups.map(([kind, reasons]) => (
@@ -228,7 +228,7 @@ function PublishedContacts({ found }: { found?: PublishedContact }) {
             <span className="text-[var(--muted)]">{r.label} · </span>
             <span className="font-medium">{r.value}</span>
             <div className="text-[10px] text-[var(--muted)]">
-              {r.how} —{" "}
+              {r.how}, {" "}
               <a
                 href={r.page}
                 target="_blank"
@@ -281,7 +281,7 @@ function PublishedContacts({ found }: { found?: PublishedContact }) {
           ? found.socials?.length
             ? "Socials are the profiles this site links to."
             : "This site links to no social profile we recognise."
-          : "Socials are missing because this site was read before we began keeping link targets — not because it has none."}
+          : "Socials are missing because this site was read before we began keeping link targets, not because it has none."}
       </p>
     </div>
   );
@@ -357,7 +357,7 @@ export default function Results({
                   </span>
                 </span>
                 <span className="mt-0.5 block truncate text-[11px] text-[var(--muted)]">
-                  {v?.proof ?? v?.reason ?? "—"}
+                  {v?.proof ?? v?.reason ?? "–"}
                 </span>
               </span>
             </button>
@@ -417,7 +417,7 @@ export default function Results({
                       onClick={() => onReport(b.id, true)}
                       className="w-full rounded-md border border-dashed border-[var(--line)] px-2.5 py-1.5 text-[11px] text-[var(--muted)] hover:border-[var(--no)] hover:text-[var(--ink)]"
                     >
-                      This match is wrong — refund it
+                      This match is wrong, refund it
                     </button>
                   ))}
 

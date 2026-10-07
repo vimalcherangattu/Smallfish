@@ -14,7 +14,7 @@ import type { MarketIndex } from "@/lib/types";
  *  all, is what makes the first list worth believing. */
 
 export const metadata = {
-  title: "Search templates — Small Fish",
+  title: "Search templates | Small Fish",
   description:
     "Searches you can start from, what each one asks of a website, and the ones we refuse because the engine cannot settle them.",
 };
@@ -42,7 +42,7 @@ export default async function Templates() {
         <p className="mt-8 max-w-[62ch] text-[17px] leading-relaxed text-[var(--ink-2)]">
           Each template is one question put to a business&rsquo;s own website. The
           counts below are stored from the last time those markets were read, not
-          a scan run for this page — crawlers visit far more often than buyers do,
+          a scan run for this page. Crawlers visit far more often than buyers do,
           and a page that counts on demand would spend real money on every visit.
         </p>
 
@@ -76,7 +76,7 @@ export default async function Templates() {
         <p className="mt-3 max-w-[62ch] text-[15px] leading-relaxed text-[var(--ink-2)]">
           The detector exists and the check is the same one above. What is missing
           is a market read against it, so there is no count to show and no page to
-          send you to. You can still run them — you would be the first.
+          send you to. You can still run them. You would be the first.
         </p>
         <ul className="mt-5 space-y-3">
           {unmeasured.map((t) => (
@@ -114,8 +114,8 @@ export default async function Templates() {
             These are a starting point, not the limit.
           </strong>{" "}
           A template exists because a cheap detector exists for it. Criteria with
-          no detector — &ldquo;does commercial work&rdquo;, &ldquo;treats exotic
-          pets&rdquo;, &ldquo;not part of a group&rdquo; — are read and judged the
+          no detector (&ldquo;does commercial work&rdquo;, &ldquo;treats exotic
+          pets&rdquo;, &ldquo;not part of a group&rdquo;) are read and judged the
           same way, just without the shortcut. Type your own on the search page.
         </p>
 

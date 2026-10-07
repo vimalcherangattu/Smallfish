@@ -28,7 +28,7 @@ import { handoffParams, readHandoff } from "@/lib/handoff";
  * visitor who opens two doors in two tabs gets two correct answers.
  */
 
-export const metadata = { title: "Create an account — Small Fish" };
+export const metadata = { title: "Create an account | Small Fish" };
 
 export default async function Page({
   searchParams,

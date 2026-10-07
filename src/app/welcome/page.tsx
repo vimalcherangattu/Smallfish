@@ -32,7 +32,7 @@ import { PLANS } from "@/lib/pricing";
  */
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Setting up — Small Fish", robots: { index: false } };
+export const metadata = { title: "Setting up | Small Fish", robots: { index: false } };
 
 /**
  * Write to them once, and record what happened either way.

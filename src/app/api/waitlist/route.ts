@@ -42,7 +42,7 @@ export async function POST(request: Request) {
         ok: false,
         reason:
           "The waitlist is not configured on this deployment, so nothing was " +
-          "saved. That is ours rather than yours — nothing about your address " +
+          "saved. That is ours rather than yours, nothing about your address " +
           "was kept.",
       },
       { status: 503 },
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
 
     if (!res.ok) {
       return Response.json(
-        { ok: false, reason: "That did not save. Nothing was kept — try again." },
+        { ok: false, reason: "That did not save. Nothing was kept, try again." },
         { status: 502 },
       );
     }
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
       ok: true,
       already: row.already,
       message: row.already
-        ? "You are already on the list — we have updated what you are looking for."
+        ? "You are already on the list, we have updated what you are looking for."
         : "You are on the list. We will write when your market is next.",
     });
   } catch {

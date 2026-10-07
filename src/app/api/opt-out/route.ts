@@ -112,7 +112,7 @@ export async function POST(request: Request) {
       {
         ok: false,
         reason:
-          "Give the website or phone number as it appears on your listing — that is what we match against.",
+          "Give the website or phone number as it appears on your listing, that is what we match against.",
       },
       { status: 400 },
     );
@@ -125,7 +125,7 @@ export async function POST(request: Request) {
       matched: 0,
       reason:
         "Nothing we hold matches that website or phone number. That may mean you " +
-        "are not in Small Fish at all, which is the most likely answer — we cover " +
+        "are not in Small Fish at all, which is the most likely answer, we cover " +
         "four metro areas. If you believe you are, reply with the business name " +
         "and we will look by hand.",
     });
@@ -144,7 +144,7 @@ export async function POST(request: Request) {
           `We can see ${hits.length === 1 ? "the listing" : `${hits.length} listings`} ` +
           "you mean, but the database this would be recorded in is not configured " +
           "on this deployment, so nothing has been filed. Email us and it will be " +
-          "handled by hand — that route works today and is not a fob-off.",
+          "handled by hand, that route works today and is not a fob-off.",
         listings: hits.map((h) => ({ name: h.name, addr: h.addr })),
       },
       { status: 503 },

@@ -150,7 +150,7 @@ export function candidatesFor(
         read: m.counts.read,
         candidates: m.counts.candidates,
         why:
-          `Your offer answers "${proposal.signal.question}" — so we looked for ` +
+          `Your offer answers "${proposal.signal.question}" so we looked for ` +
           `${m.niche.replace(/_/g, " ")} businesses whose site shows no ` +
           `${proposal.signal.label}.`,
       });

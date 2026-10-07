@@ -184,7 +184,7 @@ function Row({
                   reason: why,
                 }).catch(() => undefined);
                 setAsking(false);
-                setNote(`${note} Thank you — that goes straight into how we measure ourselves.`);
+                setNote(`${note} Thank you, that goes straight into how we measure ourselves.`);
               }}
             >
               Send
@@ -334,7 +334,7 @@ function Row({
             }}
             className="sf-small text-[var(--muted)] underline underline-offset-2"
           >
-            Not a fit — refund it
+            Not a fit, refund it
           </button>
 
           {note && !gone && <span className="sf-small text-[var(--ink-2)]">{note}</span>}
@@ -384,7 +384,7 @@ function Unlock({ result, wallet }: { result: LeadResult; wallet: Wallet }) {
         <p className="sf-h3">{result.locked} more, with names and numbers.</p>
         <p className="sf-body mt-2 max-w-[62ch] text-[var(--ink-2)]">
           The count, the evidence and the first {result.preview} are free and need
-          no account. Sign up and this exact list is waiting — the free plan
+          no account. Sign up and this exact list is waiting, the free plan
           covers {Math.min(Math.floor(FREE_CREDITS / result.creditsEach), result.locked)} of
           them.
         </p>
@@ -401,7 +401,7 @@ function Unlock({ result, wallet }: { result: LeadResult; wallet: Wallet }) {
       <p className="sf-body mt-2 max-w-[62ch] text-[var(--ink-2)]">
         {wallet.comped
           ? "This workspace is comped, so they cost nothing."
-          : `${result.creditsEach} credit${result.creditsEach === 1 ? "" : "s"} each — ` +
+          : `${result.creditsEach} credit${result.creditsEach === 1 ? "" : "s"} each, ` +
             `${cost} for all ${result.locked}. You have ${(wallet.balance / 1000).toFixed(0)}, ` +
             `which covers ${Math.min(afford, result.locked)}.`}{" "}
         Yours for twelve months once unlocked, and never charged twice.

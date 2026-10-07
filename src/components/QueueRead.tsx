@@ -62,7 +62,7 @@ export default function QueueRead({ query, sites }: { query: string; sites: numb
       <p className="sf-body mt-2 max-w-[62ch] text-[var(--ink-2)]">
         {sites.toLocaleString()} websites, fetched one at a time and judged
         against what you asked for. That takes{" "}
-        <strong>{humanDuration(seconds)}</strong> — most of which is the 1.5
+        <strong>{humanDuration(seconds)}</strong> most of which is the 1.5
         seconds we wait between two requests to the same host.
       </p>
 
@@ -82,7 +82,7 @@ export default function QueueRead({ query, sites }: { query: string; sites: numb
       )}
 
       <button onClick={go} disabled={busy} className="sf-btn-lure mt-4">
-        {busy ? "Starting…" : long ? `Start the read — ${humanDuration(seconds)}` : "Read them now"}
+        {busy ? "Starting…" : long ? `Start the read, ${humanDuration(seconds)}` : "Read them now"}
       </button>
 
       {note && (

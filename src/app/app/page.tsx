@@ -60,7 +60,7 @@ export const dynamic = "force-dynamic";
 /** What signing up grants, from the pricing table — the same source the appbar
  *  pill and `/pricing` read, so the three cannot disagree. */
 const FREE_GRANT = PLANS.find((p) => p.id === "free")?.credits ?? 0;
-export const metadata = { title: "Find businesses — Small Fish" };
+export const metadata = { title: "Find businesses | Small Fish" };
 
 /**
  * The workspace's credits and unlocks, or the signed-out equivalent.

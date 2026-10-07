@@ -124,7 +124,7 @@ export async function POST(request: Request) {
           result.reason === "Already refunded."
           ? "This one was already refunded."
           : result.reason === "Nothing was charged for this."
-            ? "Nothing was charged for this one, so there is nothing to refund — it is off your list."
+            ? "Nothing was charged for this one, so there is nothing to refund, it is off your list."
             : (result.reason ?? "That did not go through."),
     });
   } catch (err) {

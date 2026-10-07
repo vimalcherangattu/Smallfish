@@ -20,7 +20,7 @@ import { REMOVAL_DAYS } from "@/lib/suppression";
  *  change with it. */
 
 export const metadata = {
-  title: "Privacy — Small Fish",
+  title: "Privacy | Small Fish",
   description:
     "What Small Fish holds about a listed business, what it holds about a customer, and how to have either removed.",
 };
@@ -52,7 +52,7 @@ export default function Privacy() {
           to. A <strong className="font-semibold text-[var(--ink)]">customer</strong>{" "}
           signed up and agreed to something. A{" "}
           <strong className="font-semibold text-[var(--ink)]">listed business</strong>{" "}
-          did not — they are here because their details are in an open dataset
+          did not. They are here because their details are in an open dataset
           and their website is public. Calling both &ldquo;users&rdquo; would
           hide that, so they are dealt with separately, and the businesses come
           first.
@@ -70,8 +70,8 @@ export default function Privacy() {
             Google&rsquo;s terms require.
           </p>
           <p>
-            Plus facts we read from your own public website — whether it offers
-            online booking, for instance — together with the page address each
+            Plus facts we read from your own public website (whether it offers
+            online booking, for instance), together with the page address each
             fact came from and the sentence that showed it.
           </p>
           <p>
@@ -93,7 +93,7 @@ export default function Privacy() {
             <Link href="/bot" className="underline underline-offset-4">
               a page explaining it
             </Link>{" "}
-            — rather than pretending to be a browser. We measured what that
+, rather than pretending to be a browser. We measured what that
             costs: presenting as a browser would let us read one more site in
             78. It is not a trade worth making.
           </p>
@@ -148,15 +148,15 @@ export default function Privacy() {
             <strong>Clerk</strong>, who run our sign-in. Your workspace, your
             credit balance and every line of your billing ledger, held by{" "}
             <strong>Supabase</strong> in a Postgres database in the United
-            States. If you pay us, <strong>Stripe</strong> handles the card —{" "}
+            States. If you pay us, <strong>Stripe</strong> handles the card, {" "}
             <strong className="text-[var(--ink)]">
               we never see or store card details
             </strong>
             .
           </p>
           <p>
-            We record product events — a search was confirmed, an export was
-            downloaded — to know whether the thing works. Those events carry
+            We record product events (a search was confirmed, an export was
+            downloaded) to know whether the thing works. Those events carry
             counts and reasons and are stripped of identifying fields before
             they are stored; the database rejects an event carrying a business
             name, address, phone, email or website outright.
@@ -166,7 +166,7 @@ export default function Privacy() {
         <S title="Your ledger cannot be edited, including by us">
           <p>
             Every charge, refund and grant is a line that cannot be changed or
-            deleted — the database refuses both. A correction is a new line, so
+            deleted. The database refuses both. A correction is a new line, so
             the history still shows what happened. If you close your account we
             keep that ledger and remove what identifies you, because destroying
             the record of what you were charged would remove the one thing a

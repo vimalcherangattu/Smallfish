@@ -43,7 +43,7 @@ import type { MarketIndex } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "See three of your customers, free — Small Fish",
+  title: "See three of your customers, free | Small Fish",
   description:
     "Tell us what you sell. We name three small businesses that need it, with " +
     "the sentence off their own website that says so. No account.",
@@ -87,7 +87,7 @@ export default async function Sample({
     <div className="mx-auto max-w-[820px] px-6 py-12 sm:px-10">
       <h1 className="sf-h1">See three of your customers. Free.</h1>
       <p className="sf-body mt-3 max-w-[58ch] text-[var(--ink-2)]">
-        Tell us what you sell. We name three small businesses that need it —
+        Tell us what you sell. We name three small businesses that need it,
         by name, with their number and the sentence off their own website that
         says so. No account, no card.
       </p>
@@ -99,7 +99,7 @@ export default async function Sample({
         <div className="sf-card mt-8 p-6">
           <p className="sf-h3">We could not turn that into something we can see.</p>
           <p className="sf-body mt-3 max-w-[62ch] text-[var(--ink-2)]">
-            This product only claims things a website actually shows — no online
+            This product only claims things a website actually shows: no online
             booking, no quote form, no live chat. If what you sell is worth
             buying for a reason a page cannot reveal, we would rather say so than
             hand you a list we cannot stand behind.
@@ -123,7 +123,7 @@ export default async function Sample({
           <ul className="sf-small mt-2 space-y-1 text-[var(--muted)]">
             {inference.refused.map((r) => (
               <li key={r.signal.id}>
-                <strong>{r.signal.label}</strong> — would take {r.wouldTake}
+                <strong>{r.signal.label}</strong> would take {r.wouldTake}
               </li>
             ))}
           </ul>
@@ -173,7 +173,7 @@ export default async function Sample({
             </p>
             <p className="sf-body mt-2 max-w-[62ch] text-[var(--ink-2)]">
               The free plan covers twenty of them. You are only ever charged for
-              a business that matches — the ones that do not fit, and the ones
+              a business that matches, the ones that do not fit, and the ones
               whose sites we could not read well enough to say either way, cost
               nothing and are still reported.
             </p>
@@ -229,7 +229,7 @@ export default async function Sample({
               </>
             )}{" "}
             The finished markets are dental practices in Phoenix, med spas in
-            Dallas and HVAC companies in Tampa — tell us yours and it goes next
+            Dallas and HVAC companies in Tampa. Tell us yours and it goes next
             in the queue.
           </p>
           <WaitlistForm source="sample" market={sells} />
@@ -238,7 +238,7 @@ export default async function Sample({
             <Link href="/app/upload" className="underline underline-offset-2">
               Upload it
             </Link>{" "}
-            and we read every site on it — any city, starting now.
+            and we read every site on it, any city, starting now.
           </p>
         </div>
       )}

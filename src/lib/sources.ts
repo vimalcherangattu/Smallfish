@@ -67,7 +67,7 @@ export const PUBLIC_SOURCES: PublicSource[] = [
     name: "NPPES / NPI Registry",
     tells: "Every US healthcare provider: name, taxonomy, practice address, sole proprietor or organisation.",
     whyItMatters:
-      "Distinguishes a one-dentist practice from a twelve-provider group without reading a word of the site — the size question the website almost never answers.",
+      "Distinguishes a one-dentist practice from a twelve-provider group without reading a word of the site, the size question the website almost never answers.",
     home: "https://npiregistry.cms.hhs.gov/api-page",
     free: true,
     coverage: "by_industry",
@@ -100,7 +100,7 @@ export const PUBLIC_SOURCES: PublicSource[] = [
     status: "needs_work",
     settleable: false,
     blocker:
-      "Coverage varies by state and by trade. Absence is only a finding where we know that trade is licensed in that state — otherwise a clean miss is meaningless.",
+      "Coverage varies by state and by trade. Absence is only a finding where we know that trade is licensed in that state, otherwise a clean miss is meaningless.",
   },
   {
     id: "osha",
@@ -132,7 +132,7 @@ export const PUBLIC_SOURCES: PublicSource[] = [
     name: "Census County Business Patterns",
     tells: "Establishment counts and employment bands by NAICS code and geography.",
     whyItMatters:
-      "Sizes a market before a single site is read — how many of this trade exist in this county, so a search can be quoted honestly.",
+      "Sizes a market before a single site is read, how many of this trade exist in this county, so a search can be quoted honestly.",
     home: "https://www.census.gov/data/developers/data-sets/cbp-nonemp-zbp/cbp-api.html",
     free: true,
     coverage: "national",

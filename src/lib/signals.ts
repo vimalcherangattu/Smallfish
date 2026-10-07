@@ -110,7 +110,7 @@ export const SIGNALS: ObservableSignal[] = [
     inCriterion: /\bcontact forms?\b/i,
     inOffer: /\bcontact forms?\b/i,
     wouldTake:
-      "a form classifier that can tell a contact form from a newsletter box — " +
+      "a form classifier that can tell a contact form from a newsletter box, " +
       "the bare <form> pattern was removed from the detector because it fired " +
       "on every mailing-list signup.",
   },
@@ -127,7 +127,7 @@ export const SIGNALS: ObservableSignal[] = [
     inCriterion: /\b(mobile|responsive|viewport)\b/i,
     inOffer: /\b(redesign|web ?design|rebuild|modern\w* (the )?site|mobile)\b/i,
     wouldTake:
-      "a viewport-meta and stylesheet check in the probe. Cheap, but unbuilt — " +
+      "a viewport-meta and stylesheet check in the probe. Cheap, but unbuilt, " +
       "and a viewport tag is weak evidence of a site that actually works on a phone.",
   },
   {

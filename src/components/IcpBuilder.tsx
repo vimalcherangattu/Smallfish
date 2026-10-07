@@ -71,7 +71,7 @@ export default function IcpBuilder({
       setSiteNote(
         `Read ${p.pagesRead.length} page${p.pagesRead.length === 1 ? "" : "s"}.` +
           (missing.length
-            ? ` The site does not say: ${missing.join(", ")}. That is what it says, not what we failed to find — add it above if it matters.`
+            ? ` The site does not say: ${missing.join(", ")}. That is what it says, not what we failed to find. Add it above if it matters.`
             : "") +
           (p.dropped.length
             ? ` ${p.dropped.length} claim${p.dropped.length === 1 ? " was" : "s were"} dropped for having no supporting sentence on the page.`
@@ -146,7 +146,7 @@ export default function IcpBuilder({
           <ul className="mt-1.5 space-y-1">
             {quotes.map((q) => (
               <li key={q.field} className="text-[10px] leading-snug text-[var(--muted)]">
-                <span className="font-semibold">{q.field}</span> — &ldquo;{q.quote}&rdquo;
+                <span className="font-semibold">{q.field}</span> &ldquo;{q.quote}&rdquo;
               </li>
             ))}
           </ul>

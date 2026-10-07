@@ -256,7 +256,7 @@ export default function Discover({
             {f.alreadyYours > 0 && (
               <>
                 {" "}
-                {n(f.alreadyYours)} you have had before, so they are not in what follows — you
+                {n(f.alreadyYours)} you have had before, so they are not in what follows, you
                 never pay for the same business twice.
               </>
             )}
@@ -342,9 +342,9 @@ export default function Discover({
                   >
                     {n(c)}
                     {sizing && c === sizing.credits && c === sizing.realistic
-                      ? " — all your credits"
+                      ? " all your credits"
                       : sizing && c === sizing.realistic && sizing.short
-                        ? " — all there is"
+                        ? " all there is"
                         : ""}
                   </button>
                 ))}
@@ -389,7 +389,7 @@ export default function Discover({
               </button>
               {!haveAccount && (
                 <p className="t-s" style={{ maxWidth: "58ch" }}>
-                  A read is queued against a workspace, so this needs an account —{" "}
+                  A read is queued against a workspace, so this needs an account, {" "}
                   <Link className="lnk" href={`/sign-up?q=${encodeURIComponent(query)}`}>
                     sign up and these {n(picked)} are free
                   </Link>
@@ -498,7 +498,7 @@ function Arithmetic({
         can close this.
       </p>
       <p className="t-s" style={{ maxWidth: "62ch" }}>
-        You pay for the ones that fit and nothing for the rest — not for the ones that do not
+        You pay for the ones that fit and nothing for the rest, not for the ones that do not
         fit, and not for the ones we could not tell about.
         {rates && (
           <>

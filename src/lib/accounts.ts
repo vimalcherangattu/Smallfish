@@ -51,7 +51,7 @@ export class NotConfigured extends Error {
     super(
       "The database is not configured on this deployment. Set " +
         "NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY and " +
-        "SUPABASE_SERVICE_ROLE_KEY — see docs/SETUP.md §1.",
+        "SUPABASE_SERVICE_ROLE_KEY, see docs/SETUP.md §1.",
     );
   }
 }
@@ -522,7 +522,7 @@ export async function downgradeToFree(accountId: string): Promise<void> {
 // a key that bypasses every row-level policy in the database.
 if (typeof window !== "undefined") {
   throw new Error(
-    "lib/accounts.ts is server-only — it holds the Supabase service-role key, " +
+    "lib/accounts.ts is server-only, it holds the Supabase service-role key, " +
       "which bypasses every row-level security policy. Call it from a route " +
       "handler or a server component, never from a client component.",
   );

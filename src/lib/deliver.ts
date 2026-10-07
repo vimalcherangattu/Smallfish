@@ -353,7 +353,7 @@ export async function deliver(args: {
           sent: 0,
           error:
             "That endpoint is not a public https URL. Private addresses and " +
-            "plain http are refused — the first because our server would be " +
+            "plain http are refused, the first because our server would be " +
             "fetching your network, the second because the rows would cross " +
             "the internet in the clear.",
         };
@@ -382,7 +382,7 @@ export async function deliver(args: {
 // alongside the page that calls it.
 if (typeof window !== "undefined") {
   throw new Error(
-    "lib/deliver.ts is server-only — it decrypts customers' CRM credentials. " +
+    "lib/deliver.ts is server-only, it decrypts customers' CRM credentials. " +
       "Call it from a route handler, never from a client component.",
   );
 }

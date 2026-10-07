@@ -102,10 +102,10 @@ export async function chargeLeads(args: {
     note:
       unpaid > 0
         ? `${paid.length} of ${rows.length} are yours. The other ${unpaid} need ` +
-          `${unpaid * band} more credit${unpaid * band === 1 ? "" : "s"} — you have ` +
+          `${unpaid * band} more credit${unpaid * band === 1 ? "" : "s"}, you have ` +
           `${credits(balance)} left. Nothing was charged for them.`
         : comped
-          ? `${paid.length} rows. This workspace is comped, so they cost nothing — ` +
+          ? `${paid.length} rows. This workspace is comped, so they cost nothing, ` +
             `the ledger records what they would have cost.`
           : `${paid.length} rows, ${credits(milliSpent)} credits. ${credits(balance)} left.`,
   };

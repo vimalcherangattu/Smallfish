@@ -84,7 +84,7 @@ const GROUPS: Array<{
     outcomes: ["dead"],
     headline: "The website in their listing is gone",
     detail:
-      "The address does not resolve to anything any more. The business may well still be trading — the site is what is missing.",
+      "The address does not resolve to anything any more. The business may well still be trading, the site is what is missing.",
     ours: false,
   },
   {
@@ -106,7 +106,7 @@ const GROUPS: Array<{
     outcomes: ["js_shell"],
     headline: "Their page is empty until a browser runs it",
     detail:
-      "The HTML we received had no words in it — the content is assembled in the visitor's browser. We read what a page sends, so there was nothing to read.",
+      "The HTML we received had no words in it, the content is assembled in the visitor's browser. We read what a page sends, so there was nothing to read.",
     ours: false,
   },
   {
@@ -138,7 +138,7 @@ const GROUPS: Array<{
     outcomes: ["probe_error"],
     headline: "Our own read failed",
     detail:
-      "Our request never completed — our network, not their site. We do not count this against the business and we will try again.",
+      "Our request never completed, our network, not their site. We do not count this against the business and we will try again.",
     ours: true,
   },
 ];
@@ -232,7 +232,7 @@ export function unsureSentence(groups: UnsureGroup[], thing: string): string | n
     ours === 0
       ? "Their sites don't settle it either way, so we left them out rather than guess."
       : ours === n
-        ? "That is our gap, not theirs — the reading that would settle it has not run."
+        ? "That is our gap, not theirs, the reading that would settle it has not run."
         : `${ours} of those are our own gap, not theirs.`;
   return `We couldn't tell on ${n} ${thing}. ${tail} You were not charged for any of them.`;
 }

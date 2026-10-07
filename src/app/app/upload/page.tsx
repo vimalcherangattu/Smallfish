@@ -16,7 +16,7 @@ import { CHECK_OPTIONS } from "@/lib/csvimport";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Check a list you already have — Small Fish",
+  title: "Check a list you already have | Small Fish",
   description:
     "Upload a CSV of businesses and we read each website to find the ones that " +
     "fit, with the evidence off their own page.",
@@ -28,7 +28,7 @@ export default function Upload() {
       <h1 className="sf-h1">Check a list you already have.</h1>
       <p className="sf-body mt-3 max-w-[58ch] text-[var(--ink-2)]">
         Upload a CSV and we read every website on it, one at a time, and tell you
-        which ones fit — with the sentence off their own page that says so. Any
+        which ones fit, with the sentence off their own page that says so. Any
         city, any trade, whatever you brought.
       </p>
       <p className="sf-small mt-3 max-w-[58ch] text-[var(--muted)]">

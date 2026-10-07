@@ -139,7 +139,7 @@ export default function FirstRun() {
           <div className="evbox">
             <p className="t-b">
               So we will look for {to.trim() || "businesses"} in {where.trim() || "your area"}{" "}
-              that <b>{criterion}</b> — the ones that need what you sell.
+              that <b>{criterion}</b> the ones that need what you sell.
             </p>
           </div>
         )}
@@ -154,7 +154,7 @@ export default function FirstRun() {
                 <p className="t-b">
                   <b>We can&rsquo;t settle that from a website.</b> To know whether a business
                   needs {refused.refused[0].signal.label}, we would need{" "}
-                  {refused.refused[0].wouldTake}. Carry on — we will find the{" "}
+                  {refused.refused[0].wouldTake}. Carry on, we will find the{" "}
                   {to.trim() || "businesses"} and ask you what to look for.
                 </p>
               ) : (
@@ -165,7 +165,7 @@ export default function FirstRun() {
                       look for on their sites. That is the next screen's question,
                       and it asks it with the checks the engine can actually settle. */}
                   <b>We can&rsquo;t tell what to look for from that.</b> Carry on and we will
-                  find the {to.trim() || "businesses"} first, then ask you — or say what a
+                  find the {to.trim() || "businesses"} first, then ask you, or say what a
                   customer would see, or not see, on their site: &ldquo;online
                   booking&rdquo;, &ldquo;a quote form&rdquo;, &ldquo;live chat&rdquo;.
                 </p>

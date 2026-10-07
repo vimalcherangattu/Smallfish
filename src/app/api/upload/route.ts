@@ -51,7 +51,7 @@ export async function POST(req: Request) {
     return Response.json(
       {
         ok: false,
-        reason: "Sign up first — a read is queued against your workspace.",
+        reason: "Sign up first, a read is queued against your workspace.",
         signIn: "/sign-up",
       },
       { status: 401 },
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
         ok: false,
         reason:
           `That file is ${(csv.length / 1_000_000).toFixed(1)} MB and the limit is ` +
-          `${MAX_BYTES / 1_000_000} MB. Split it, or send the columns you need — a ` +
+          `${MAX_BYTES / 1_000_000} MB. Split it, or send the columns you need, a ` +
           `name, a website and a phone number is all this reads.`,
       },
       { status: 413 },
@@ -91,7 +91,7 @@ export async function POST(req: Request) {
         ok: false,
         reason:
           "That is not something we can settle from a website. Pick one of the " +
-          "checks offered — each one names what it looks for on the page.",
+          "checks offered, each one names what it looks for on the page.",
       },
       { status: 400 },
     );
@@ -128,7 +128,7 @@ export async function POST(req: Request) {
     }
 
     const label = String(body.label ?? "").trim().slice(0, 80) || "your list";
-    const query = `${label} — ${criterion.text}`;
+    const query = `${label}, ${criterion.text}`;
     const seconds = estimateSeconds(parsed.rows.length);
 
     const id = await queueJob({

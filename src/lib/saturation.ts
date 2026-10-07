@@ -104,7 +104,7 @@ export function saturationSet(index: MarketIndex | null): {
           matches,
           why:
             matches === 0 && (t.needs_model ?? 0) > 0
-              ? `Nothing judged yet — ${t.needs_model} businesses need a model run before this market has anything to publish.`
+              ? `Nothing judged yet, ${t.needs_model} businesses need a model run before this market has anything to publish.`
               : `${matches} proven ${matches === 1 ? "match" : "matches"}, and a page needs ${MIN_PROVEN_MATCHES}. A thin page is worse than no page.`,
         });
         continue;

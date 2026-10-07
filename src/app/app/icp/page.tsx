@@ -42,7 +42,7 @@ export default function IcpPage() {
       <p className="sf-body mt-3 max-w-[62ch] text-[var(--ink-2)]">
         Describe what you sell. We turn it into things that can actually be
         checked on a business&rsquo;s own website, and tell you plainly which of
-        them cannot be — a criterion we cannot settle is worse than no criterion,
+        them cannot be, a criterion we cannot settle is worse than no criterion,
         because it comes back as a verdict you cannot defend.
       </p>
 

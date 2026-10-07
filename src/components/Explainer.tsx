@@ -214,7 +214,7 @@ export default function Explainer({
                 <svg width="13" height="15" viewBox="0 0 14 16" aria-hidden>
                   <path d="M1 1.5v13l12-6.5z" fill="currentColor" />
                 </svg>
-                Watch it — {DURATION_LABEL}
+                Watch it, {DURATION_LABEL}
               </span>
             </button>
           )}

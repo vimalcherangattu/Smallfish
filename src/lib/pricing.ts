@@ -322,7 +322,7 @@ export function checkRunHealth(args: {
     billedUsd,
     reason:
       `${matches} matched out of ${reads} read. At that rate the search would ` +
-      `spend the rest of your balance without finding much. Stopping here — ` +
+      `spend the rest of your balance without finding much. Stopping here, ` +
       `you keep the ${matches} found and nothing else was charged.`,
   };
 }

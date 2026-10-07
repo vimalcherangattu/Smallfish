@@ -157,7 +157,7 @@ export default function ExportButton({
           // send to a client.
           title={
             withheld > 0
-              ? `${withheld} non-matches stay out of the file — their names are not ` +
+              ? `${withheld} non-matches stay out of the file, their names are not ` +
                 `yours to export. Their reasons are in the summary above.`
               : undefined
           }

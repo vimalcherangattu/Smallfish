@@ -39,7 +39,7 @@ export default function BuyPlan({ planId, name }: { planId: string; name: string
     } catch {
       setProblem({
         reason:
-          "That did not reach us — the request failed before it arrived. " +
+          "That did not reach us, the request failed before it arrived. " +
           "Nothing was charged.",
       });
     } finally {

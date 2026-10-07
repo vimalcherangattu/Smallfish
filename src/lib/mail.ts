@@ -99,7 +99,7 @@ export function welcomeEmail(args: {
       ? `Your list is ready: ${args.query}.`
       : `Your workspace is ready.`,
     `${link}`,
-    `You have ${args.credits} credits. One credit unlocks one business — its name, ` +
+    `You have ${args.credits} credits. One credit unlocks one business, its name, ` +
       `its number, and a line you can open with. Businesses that did not fit, and ` +
       `ones we could not read well enough to say either way, cost nothing and ` +
       `never will.`,
@@ -153,7 +153,7 @@ export function nudgeEmail(args: {
     text: [
       opening,
       link,
-      `If the search wasn't right, changing it costs nothing — you're only ` +
+      `If the search wasn't right, changing it costs nothing, you're only ` +
         `charged for a business you take, and never for one that didn't fit.`,
       footer(site, args.email),
     ].join("\n\n"),
@@ -195,7 +195,7 @@ export function digestEmail(args: {
       news
         .map(
           (l) =>
-            `${l.added} new — ${l.query}\n${site}/app?q=${encodeURIComponent(l.query)}`,
+            `${l.added} new, ${l.query}\n${site}/app?q=${encodeURIComponent(l.query)}`,
         )
         .join("\n\n"),
       `Each one was read this week and matched. Nothing is charged until you take it.`,

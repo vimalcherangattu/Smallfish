@@ -30,12 +30,12 @@ const ROWS: [string, string, string][] = [
   ],
   [
     "Volume",
-    "Tens of thousands of rows for tens of dollars — genuinely cheaper per row, by a wide margin",
+    "Tens of thousands of rows for tens of dollars, genuinely cheaper per row, by a wide margin",
     "Hundreds of proven matches. Nobody should buy this for volume",
   ],
   [
     "Filtering by what a site says",
-    "Category, rating, presence of a website — not what the site actually says",
+    "Category, rating, presence of a website, not what the site actually says",
     "The criterion is read on the page: booking widget, service offered, quote form",
   ],
   [
@@ -45,7 +45,7 @@ const ROWS: [string, string, string][] = [
   ],
   [
     "Speed",
-    "Immediate — the data is already collected",
+    "Immediate. The data is already collected",
     "A market has to be read. A cold market takes time, and we say so before you start",
   ],
 ];
@@ -84,22 +84,22 @@ export default function Compare() {
         </h2>
         <ul className="mt-8 grid gap-5 text-[15px] leading-relaxed text-[var(--ink-2)] sm:grid-cols-2">
           <li>You want every business in a category, not a filtered subset.</li>
-          <li>Your filter is something a listing already carries — rating, review count, has-a-website.</li>
+          <li>Your filter is something a listing already carries: rating, review count, has-a-website.</li>
           <li>You need tens of thousands of rows, and cost per row is what decides it.</li>
           <li>You need the data today, and cannot wait for a market to be read.</li>
         </ul>
 
         <p className="mt-14 max-w-[64ch] text-[15px] leading-relaxed text-[var(--ink-2)]">
           What Small Fish is for is the case where the thing you care about is only
-          visible on the business&rsquo;s own site — no online booking, no quote form,
-          a service offered or not — and where sending a hundred emails you can
+          visible on the business&rsquo;s own site, no online booking, no quote form,
+          a service offered or not, and where sending a hundred emails you can
           defend beats sending ten thousand you cannot.
         </p>
 
         <p className="mono mt-10 text-[12px] leading-relaxed text-[var(--ink-3)]">
           A measured side-by-side on identical searches is S0-19 and is not run
           yet. Until it is, this page compares what each tool is for, not how
-          accurate each one is — we are not going to publish an accuracy claim
+          accurate each one is, we are not going to publish an accuracy claim
           about someone else&rsquo;s product that we have not measured.
         </p>
       </div>

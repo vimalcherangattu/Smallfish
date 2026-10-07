@@ -115,7 +115,7 @@ export default function DestinationsPage() {
       <p className="sf-body mt-3 max-w-[64ch] text-[var(--ink-2)]">
         A CSV works without any of this. Connect a destination and matched rows
         go straight into it, with the sentence that proves each one travelling
-        alongside — a row in a CRM that has lost its evidence is a row you
+        alongside, a row in a CRM that has lost its evidence is a row you
         cannot defend.
       </p>
 
@@ -136,7 +136,7 @@ export default function DestinationsPage() {
           <h2 className="sf-h2">Connected</h2>
           {rows.length === 0 ? (
             <p className="sf-body mt-3 text-[var(--muted)]">
-              Nothing yet. Exports still work — this is for sending matches
+              Nothing yet. Exports still work, this is for sending matches
               somewhere automatically.
             </p>
           ) : (
@@ -200,7 +200,7 @@ export default function DestinationsPage() {
             {spec?.requiresEmail && (
               <p className="sf-small sf-pending rounded-lg p-3">
                 {spec.label} needs an email address for every lead. We hold one
-                only where the business publishes it on its own site — rows
+                only where the business publishes it on its own site, rows
                 without one are refused and counted, never guessed from the
                 domain.
               </p>

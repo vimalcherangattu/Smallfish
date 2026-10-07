@@ -179,7 +179,7 @@ export default function UploadList({ checks }: { checks: CheckOption[] }) {
                 {refusedOnce.map((c) => (
                   <li key={c.id}>
                     <strong>{c.text}</strong>
-                    {c.wouldTake ? ` — would take ${c.wouldTake}` : ""}
+                    {c.wouldTake ? ` would take ${c.wouldTake}` : ""}
                   </li>
                 ))}
               </ul>

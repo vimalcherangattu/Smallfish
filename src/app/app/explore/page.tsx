@@ -538,7 +538,7 @@ export default function Page() {
                           title={
                             `Overture lists a row per listing, so one practice can appear ` +
                             `several times. ${duplicateRecords} were folded into the business ` +
-                            `they belong to — you are never charged twice for one website.`
+                            `they belong to, you are never charged twice for one website.`
                           }
                           className="underline decoration-dotted underline-offset-2"
                         >
@@ -576,7 +576,7 @@ export default function Page() {
                 <span className="font-medium">
                   {money(cost.coldCost)} to scan this region
                 </span>{" "}
-                — {compact(cost.unread)} unread at ~
+, {compact(cost.unread)} unread at ~
                 {money(COST.coldPerBusiness)} each, {compact(cost.alreadyRead)}{" "}
                 cached at ~{money(COST.warmPerBusiness)}. Once the market is
                 warm: {money(cost.warmCost)}.
@@ -587,7 +587,7 @@ export default function Page() {
                       That is above the {compact(COST.warnAboveCandidates)}
                       -candidate threshold
                     </strong>{" "}
-                    — tighten the region, or unlock progressively with the
+, tighten the region, or unlock progressively with the
                     strongest matches first.
                   </>
                 )}
@@ -683,7 +683,7 @@ export default function Page() {
               detection and the absence-proof rule. Only{" "}
               <strong>{compact(market.counts.read)}</strong> of{" "}
               {compact(market.counts.candidates)} listings in this market have
-              been read, so most show <em>not read yet</em> — that is the
+              been read, so most show <em>not read yet</em> that is the
               cold-market state, not a gap in the data. Counts above are
               businesses rather than listings, which is why they are smaller.
               Nothing here is generated: no model has run.

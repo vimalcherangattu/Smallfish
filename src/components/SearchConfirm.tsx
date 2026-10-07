@@ -185,7 +185,7 @@ export default function SearchConfirm({
                     <div className="mt-0.5 text-[var(--muted)]">{c.how}</div>
                     {!c.provable && (
                       <div className="mt-0.5 text-[var(--unsure)]">
-                        Not settleable today — this one will come back as
+                        Not settleable today, this one will come back as
                         &ldquo;not yet judged&rdquo; until a model runs.
                       </div>
                     )}
@@ -204,7 +204,7 @@ export default function SearchConfirm({
 
           {parsed.overLimit && (
             <p className="rounded-md bg-[var(--unsure-soft)] px-2.5 py-2 text-[11px] leading-snug text-[var(--unsure)]">
-              {parsed.criteria.length} criteria — the limit is {MAX_CRITERIA}.
+              {parsed.criteria.length} criteria, the limit is {MAX_CRITERIA}.
               More criteria lower the match rate and raise the cost of every
               scan. Drop one.
             </p>
@@ -261,7 +261,7 @@ export default function SearchConfirm({
                   Closest provable version:{" "}
                   <strong className="text-[var(--ink)]">{d.proxy.text}</strong>
                   {!d.proxy.provableToday &&
-                    " — which we also cannot check today, so it is on the roadmap rather than in this search."}
+                    " which we also cannot check today, so it is on the roadmap rather than in this search."}
                 </div>
               )}
             </div>
@@ -275,7 +275,7 @@ export default function SearchConfirm({
                 {parsed.unrecognised.join(" or ")}
               </strong>{" "}
               from that. No model is reading this query yet, so the parser only
-              recognises what it has a rule for — say it more plainly, or use
+              recognises what it has a rule for, say it more plainly, or use
               the ICP flow.
               {index && (
                 <>
@@ -332,7 +332,7 @@ export default function SearchConfirm({
                   {resolved.rare && (
                     <p className="mt-1 text-[11px] leading-snug text-[var(--unsure)]">
                       That is under {Math.round(RARE_MATCH_RATE * 100)}% of the{" "}
-                      {compact(resolved.judged)} judged so far — a rare search.
+                      {compact(resolved.judged)} judged so far, a rare search.
                       Widen the area or loosen a criterion before unlocking.
                     </p>
                   )}
@@ -352,7 +352,7 @@ export default function SearchConfirm({
 
           {blocked && (
             <p className="text-[11px] leading-snug text-[var(--muted)]">
-              Nothing is counted while the search declines to make sense —
+              Nothing is counted while the search declines to make sense,
               resolve the note above first.
             </p>
           )}

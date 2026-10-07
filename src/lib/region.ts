@@ -254,7 +254,7 @@ export function resolveRegion(
       note:
         `${state.name} is bigger than one search can read, so this reads ${cap} businesses ` +
         `spread across its ${sample.length} largest cities rather than everything in one of ` +
-        `them. There are many more — narrow to a city and you get a list you can work ` +
+        `them. There are many more, narrow to a city and you get a list you can work ` +
         `through, at the same price per match.`,
     };
   }

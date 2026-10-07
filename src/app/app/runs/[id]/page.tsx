@@ -122,7 +122,7 @@ export default async function RunPage({ params }: { params: Promise<{ id: string
 
       <p className="sf-small mt-6 max-w-[62ch] text-[var(--muted)]">
         The counts above are what this search found when it ran. The rows
-        themselves are not frozen — opening them reads the market as it stands
+        themselves are not frozen, opening them reads the market as it stands
         now, which for these markets is the same data.
       </p>
     </div>

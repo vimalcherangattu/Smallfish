@@ -84,7 +84,7 @@ export function requestRemoval(
     removeBy: by.toISOString(),
     note:
       `Removed from all future searches and exports within ${REMOVAL_DAYS} days. ` +
-      "Rows already exported by a customer are in their files and we cannot recall them — " +
+      "Rows already exported by a customer are in their files and we cannot recall them, " +
       "we can tell you the date each was exported if that helps you follow up.",
   };
 }

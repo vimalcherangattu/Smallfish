@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const p = await pageFor((await params).slug);
   if (!p) return {};
   return {
-    title: `${p.headline} — Small Fish`,
+    title: `${p.headline} | Small Fish`,
     description: `${p.matches} ${p.niche} in ${p.metro} ${p.headline.split(" ").slice(-3).join(" ")}, each with the page we read and the words we found there.`,
   };
 }
@@ -80,7 +80,7 @@ export default async function Programmatic({
           <div>
             <div className="mono text-[22px]">{p.couldNotSettle}</div>
             <div className="mt-1 text-[13px] leading-snug text-[var(--ink-3)]">
-              read, but the evidence did not settle it — counted against us, not
+              read, but the evidence did not settle it, counted against us, not
               hidden
             </div>
           </div>
@@ -95,7 +95,7 @@ export default async function Programmatic({
         <p className="mt-12 max-w-[62ch] text-[15px] leading-relaxed text-[var(--ink-2)]">
           We do not claim to have read every {p.niche.replace(/s$/, "")} in{" "}
           {p.metro.split(",")[0]}. We claim that for the {p.matches} above, the
-          pages that would carry a booking widget were read and none was found —
+          pages that would carry a booking widget were read and none was found,
           which is the only thing that makes a &ldquo;no&rdquo; worth anything.
         </p>
 
@@ -118,7 +118,7 @@ export default async function Programmatic({
           }).toString()}`}
           className="mt-10 inline-block rounded-full bg-[var(--lure)] px-6 py-3 text-[14px] font-semibold text-[var(--ink)]"
         >
-          See all {p.matches} — sign up free →
+          See all {p.matches}. Sign up free →
         </Link>
       </div>
     </main>

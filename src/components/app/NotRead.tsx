@@ -54,7 +54,7 @@ export default function NotRead({
           <p className="t-b" style={{ marginTop: 12, color: "#36404C", maxWidth: "58ch" }}>
             {didYouMean ? (
               <>
-                Any US city or state works — we think you meant a real one and typed it
+                Any US city or state works, we think you meant a real one and typed it
                 slightly differently.
               </>
             ) : (

@@ -89,7 +89,7 @@ export default function Results(p: ResultsProps) {
       <div className="between" style={{ alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
         <div style={{ maxWidth: "72ch" }}>
           <h1 className="t-h1">
-            {sentence(p.what, p.where, p.criterion)} —{" "}
+            {sentence(p.what, p.where, p.criterion)}, {" "}
             <span className="mono" style={{ fontWeight: 500 }}>
               {fits} fit
             </span>
@@ -156,7 +156,7 @@ export default function Results(p: ResultsProps) {
 
           {shown.length === 0 ? (
             <p className="t-b">
-              Nothing is left on this list — every row has been marked as not a fit, and the
+              Nothing is left on this list, every row has been marked as not a fit, and the
               credits went back.
             </p>
           ) : (
@@ -221,7 +221,7 @@ export default function Results(p: ResultsProps) {
           <p className="t-s" style={{ marginTop: 8, maxWidth: "64ch" }}>
             We opened their sites, found what you asked us to look for, and left them off the
             list. They are not shown by name because you did not ask for them and were not
-            charged for them — a no is a finished answer, not a shorter list to work.
+            charged for them, a no is a finished answer, not a shorter list to work.
           </p>
         </div>
       )}
@@ -343,7 +343,7 @@ function Unsure({
         <div>
           <p className="t-h2">What you can do with these</p>
           <p className="t-s" style={{ marginTop: 7, maxWidth: "64ch" }}>
-            Open them yourself — it takes a minute each and you&rsquo;ll know. Or ask for
+            Open them yourself, it takes a minute each and you&rsquo;ll know. Or ask for
             something else, and we will read them again for nothing.
           </p>
         </div>
@@ -402,7 +402,7 @@ function CostBar({
           {granted ? (
             <>
               You are seeing {cost.preview} without an account. Make one and we will show you{" "}
-              {freed} more, with no card — one credit is one business that fits, and anything
+              {freed} more, with no card, one credit is one business that fits, and anything
               you mark &ldquo;not a fit&rdquo; comes straight back.
             </>
           ) : (

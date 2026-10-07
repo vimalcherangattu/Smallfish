@@ -281,7 +281,7 @@ export function depletion(unlocked: number, proven: number): Depletion {
     exhausted,
     message: exhausted
       ? `${unlocked} of about ${proven} unlocked here. This market is nearly ` +
-        "used up — another one will serve you better than another month of this."
+        "used up, another one will serve you better than another month of this."
       : `${unlocked} of about ${proven} unlocked here.`,
   };
 }
@@ -309,7 +309,7 @@ export function pauseUntil(from: string, months: number): { until: string; note:
     until: d.toISOString(),
     note:
       `Billing stops until ${d.toISOString().slice(0, 10)}. Credits you have ` +
-      "already paid for stay, saved searches stay, and alerts stop — watching " +
+      "already paid for stay, saved searches stay, and alerts stop, watching " +
       "costs us money every week, so it is not something we can leave running " +
       "for free. Cancel instead at any time; nothing here is a substitute for " +
       "that.",

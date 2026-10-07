@@ -20,7 +20,7 @@ import { VERDICT_LABEL, type Market, type VerdictKind } from "@/lib/types";
  */
 
 export const metadata = {
-  title: "Markets we have read — Small Fish",
+  title: "Markets we have read | Small Fish",
   description:
     "The markets read end to end, with every verdict and the page it came from.",
 };
@@ -145,13 +145,13 @@ export default async function Markets() {
         <div className="panel" style={{ maxWidth: "64ch" }}>
           <p className="lab" style={{ color: "var(--ink-3)" }}>What is not here</p>
           <p className="small" style={{ color: "var(--ink-2)", lineHeight: 1.65, marginTop: 10 }}>
-            A fourth market — vet clinics in Columbus — was read, and neither of
+            A fourth market, vet clinics in Columbus, was read, and neither of
             the things we asked about it could be settled on enough sites to be
             worth showing. It is left off rather than padded out, which is the
             same rule as everything else here.
           </p>
           <p className="small" style={{ color: "var(--ink-2)", lineHeight: 1.65, marginTop: 12 }}>
-            Any other market works the same way — what you are looking for is
+            Any other market works the same way: what you are looking for is
             read off the page, so nothing has to be built for a new one.{" "}
             <Link href="/how-we-check" style={{ textDecoration: "underline" }}>
               How we check

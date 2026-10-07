@@ -44,7 +44,7 @@ export default function ReadTheRest({
     <div className="mt-6 border-t border-[var(--line)] pt-5">
       <p className="sf-small text-[var(--muted)]">
         We have read {read.toLocaleString()} of these. Another{" "}
-        {unread.toLocaleString()} have a website nobody has been through yet —{" "}
+        {unread.toLocaleString()} have a website nobody has been through yet, {" "}
         {humanDuration(estimateSeconds(unread))} of reading.
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-3">

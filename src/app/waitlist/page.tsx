@@ -19,7 +19,7 @@ import { PLANS } from "@/lib/pricing";
  */
 
 export const metadata = {
-  title: "Join the waitlist — Small Fish",
+  title: "Join the waitlist | Small Fish",
   description:
     "Tell us your first market and we will write when it is next. " +
     "We are letting people in a few at a time.",
@@ -64,7 +64,7 @@ export default function WaitlistPage() {
             <p className="small" style={{ color: "var(--ink-2)", lineHeight: 1.6 }}>
               Reading a market means opening every business&rsquo;s own website and
               judging it against what you asked for. That part runs, and it has
-              been run on four markets end to end — but it is not yet switched on
+              been run on four markets end to end, but it is not yet switched on
               for a market you name, and we would rather queue you than sell you
               something that does not exist yet.
             </p>

@@ -185,7 +185,7 @@ export async function POST(request: Request) {
         reason:
           "This deployment has no INTEGRATION_SECRET_KEY, so a credential " +
           "cannot be stored safely. Rather than keep your token in the clear, " +
-          "this refuses — see docs/SETUP.md.",
+          "this refuses, see docs/SETUP.md.",
       },
       { status: 503 },
     );
@@ -231,7 +231,7 @@ export async function POST(request: Request) {
         ok: false,
         reason:
           "That endpoint is not a public https URL. Private addresses and plain " +
-          "http are refused — the first because our server would be fetching " +
+          "http are refused, the first because our server would be fetching " +
           "your network, the second because the rows would cross the internet " +
           "in the clear.",
       },
@@ -411,7 +411,7 @@ export async function PUT(request: Request) {
       {
         ok: false,
         reason:
-          "This deployment cannot open the stored credential — INTEGRATION_SECRET_KEY " +
+          "This deployment cannot open the stored credential, INTEGRATION_SECRET_KEY " +
           "is missing or has changed. Reconnect the destination.",
       },
       { status: 503 },

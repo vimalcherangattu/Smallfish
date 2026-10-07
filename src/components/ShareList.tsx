@@ -41,7 +41,7 @@ export default function ShareList({
         <>
           <p className="sf-small text-[var(--muted)]">
             Send this list to somebody. They see the count, the evidence and
-            three of the businesses by name — never the ones you paid to unlock.
+            three of the businesses by name, never the ones you paid to unlock.
           </p>
           <button
             type="button"

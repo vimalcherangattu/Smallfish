@@ -17,7 +17,7 @@ import { CTA_HREF, CTA_LABEL } from "@/lib/launch";
  */
 
 export const metadata = {
-  title: "Why it exists — Small Fish",
+  title: "Why it exists | Small Fish",
   description:
     "The accounts the big nets can't read, why it stops at drafted, and why a " +
     "new market needs no code.",
@@ -66,7 +66,7 @@ export default function WhyItExists() {
           </h2>
           <p className="lede" style={{ gridColumn: "9 / span 4", color: "var(--ink-2)" }}>
             What you are looking for is read off the page, so a new market needs
-            no code and no catalogue — only businesses whose websites have enough
+            no code and no catalogue: only businesses whose websites have enough
             on them to read.
           </p>
         </div>

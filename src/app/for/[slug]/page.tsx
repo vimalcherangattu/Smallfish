@@ -47,7 +47,7 @@ export async function generateMetadata({
   const door = await doorFor({ marketId: market, who: nameFromSlug(slug) });
   if (!door) return { title: "Small Fish" };
   return {
-    title: `${door.fit} ${door.niche} in ${door.metro.split(",")[0]} with ${door.criterionText} — Small Fish`,
+    title: `${door.fit} ${door.niche} in ${door.metro.split(",")[0]} with ${door.criterionText} | Small Fish`,
     description:
       `We read ${door.read} ${door.niche} websites in ${door.metro}. ` +
       `${door.fit} ${door.criterionPredicate}. Three of them, in full, with the email we would open with.`,
@@ -102,7 +102,7 @@ export default async function DoorPage({
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 20, marginTop: 26, alignItems: "center" }}>
           <Link className="cta" data-magnet href={href}>
-            See all {door.fit} — sign up free →
+            See all {door.fit}. Sign up free →
           </Link>
           <Link href="/how-we-check" className="sf-tap small" style={{ color: "var(--ink-3)", textDecoration: "underline", textUnderlineOffset: 3 }}>
             How we checked
@@ -199,7 +199,7 @@ export default async function DoorPage({
               {door.hidden} more, all with contacts and an email.
             </p>
             <Link className="cta" href={href}>
-              See all {door.fit} — sign up free →
+              See all {door.fit}. Sign up free →
             </Link>
             <p className="lab" style={{ color: "var(--ink-3)" }}>
               no card · takes 30 seconds · your market is already filled in

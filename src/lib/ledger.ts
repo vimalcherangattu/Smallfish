@@ -148,7 +148,7 @@ export function chargeForMatch(
     return {
       charged: false,
       milli: 0,
-      reason: `Already unlocked on ${account.unlocked[businessId].slice(0, 10)} — free to this workspace for ${UNLOCK_MONTHS} months.`,
+      reason: `Already unlocked on ${account.unlocked[businessId].slice(0, 10)}, free to this workspace for ${UNLOCK_MONTHS} months.`,
     };
   }
 
@@ -193,7 +193,7 @@ export function chargeForNoWebsite(
     milli: -NO_WEBSITE_UNLOCK,
     at: args.now,
     businessId: args.businessId,
-    why: `No website to read, so nothing was proved about it — ${credits(NO_WEBSITE_UNLOCK)} of a credit for the listing itself.`,
+    why: `No website to read, so nothing was proved about it, ${credits(NO_WEBSITE_UNLOCK)} of a credit for the listing itself.`,
   };
   account.entries.push(entry);
   account.unlocked[args.businessId] = args.now;

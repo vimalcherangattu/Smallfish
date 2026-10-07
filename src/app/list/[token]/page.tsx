@@ -41,7 +41,7 @@ import type { Market, MarketIndex } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "A list shared with you — Small Fish",
+  title: "A list shared with you | Small Fish",
   // A share link is passed between people, not indexed. It carries three real
   // businesses' names, and they did not agree to appear in a search result.
   robots: { index: false, follow: false },
@@ -123,7 +123,7 @@ export default async function SharedListPage({
         {result.leads.length.toLocaleString()} {niche} in {city} to call.
       </h1>
       <p className="sf-body mt-3 max-w-[62ch] text-[var(--ink-2)]">
-        Every one of them {criterion.text.replace(/^has /, "has ")} — checked by
+        Every one of them {criterion.text.replace(/^has /, "has ")}, checked by
         reading their website, not by guessing. We read{" "}
         {result.read.toLocaleString()} of them to find these.
       </p>
@@ -160,7 +160,7 @@ export default async function SharedListPage({
         </p>
         <p className="sf-body mt-2 max-w-[62ch] text-[var(--ink-2)]">
           The free plan covers twenty of them. You are only charged for a
-          business that matches — the ones that do not fit, and the ones we could
+          business that matches, the ones that do not fit, and the ones we could
           not read well enough to say either way, cost nothing and are still
           reported.
         </p>

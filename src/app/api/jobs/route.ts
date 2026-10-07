@@ -106,7 +106,7 @@ export async function POST(req: Request) {
   const acct = await account();
   if (!acct) {
     return Response.json(
-      { ok: false, reason: "Sign in first — a read is queued against your workspace.", signIn: "/sign-in" },
+      { ok: false, reason: "Sign in first. A read is queued against your workspace.", signIn: "/sign-in" },
       { status: 401 },
     );
   }
@@ -239,7 +239,7 @@ export async function POST(req: Request) {
         ok: false,
         reason:
           "We could not turn that into a check we can settle off a website. " +
-          "Ask for online booking, a quote form or live chat — present or absent.",
+          "Ask for online booking, a quote form or live chat, present or absent.",
       },
       { status: 422 },
     );

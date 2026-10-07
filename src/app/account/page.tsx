@@ -48,7 +48,7 @@ import { toCredits } from "@/lib/wallet";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-export const metadata = { title: "Credits and plan — Small Fish" };
+export const metadata = { title: "Credits and plan | Small Fish" };
 
 const LABEL: Record<Entry["kind"], string> = {
   grant: "Granted",
@@ -169,7 +169,7 @@ export default async function Account() {
                 {new Date(account.comped_until!).toISOString().slice(0, 10)}. Every unlock is
                 still written below at zero, with what it would have cost, so the record of
                 what you took is complete. Reading is capped at{" "}
-                {(account.comped_read_budget ?? 0).toLocaleString()} sites a period — a cost
+                {(account.comped_read_budget ?? 0).toLocaleString()} sites a period, a cost
                 bound on us, not a limit on you.
               </p>
             </div>
@@ -334,7 +334,7 @@ export default async function Account() {
                   }}
                 >
                   <span className="mono" style={{ width: "6ch", flexShrink: 0, fontSize: 14 }}>
-                    {e.milli === 0 ? "—" : `${e.milli > 0 ? "+" : "−"}${credits(Math.abs(e.milli))}`}
+                    {e.milli === 0 ? "–" : `${e.milli > 0 ? "+" : "−"}${credits(Math.abs(e.milli))}`}
                   </span>
                   <span className="t-b" style={{ flex: 1, minWidth: "20ch" }}>
                     {e.why}
@@ -347,7 +347,7 @@ export default async function Account() {
             </div>
           )}
           <p className="t-s" style={{ marginTop: 12, maxWidth: "64ch" }}>
-            These lines cannot be edited or deleted, by us or by anybody — the database
+            These lines cannot be edited or deleted, by us or by anybody, the database
             refuses it. A correction is a new line, so the history still shows what happened.
             If a match here is wrong, say so and it is refunded at exactly what it cost, read
             back from the line that charged it rather than recalculated.
@@ -377,7 +377,7 @@ export default async function Account() {
   } catch (err) {
     return err instanceof NotConfigured ? (
       <Problem title="The database is not configured on this deployment.">
-        Nothing is broken and nothing was lost — there is simply nowhere to read a balance
+        Nothing is broken and nothing was lost, there is simply nowhere to read a balance
         from yet. See <span className="mono">docs/SETUP.md</span> §1, or{" "}
         <Link href="/api/status" style={{ textDecoration: "underline" }}>
           /api/status

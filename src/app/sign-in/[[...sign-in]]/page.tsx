@@ -2,7 +2,7 @@ import { SignIn } from "@clerk/nextjs";
 import { CLERK_ENABLED, AFTER_AUTH_PATH } from "@/lib/clerk";
 import NoAuth from "@/components/NoAuth";
 
-export const metadata = { title: "Sign in — Small Fish" };
+export const metadata = { title: "Sign in | Small Fish" };
 
 export default function Page() {
   if (!CLERK_ENABLED) return <NoAuth />;

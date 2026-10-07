@@ -18,9 +18,9 @@ import path from "node:path";
  *  right to wonder what else was moved down the page. */
 
 export const metadata = {
-  title: "The benchmark — Small Fish",
+  title: "The benchmark | Small Fish",
   description:
-    "Precision, recall, couldn't-tell and cost, measured rather than claimed — including the numbers that undercut the headline.",
+    "Precision, recall, couldn't-tell and cost, measured rather than claimed, including the numbers that undercut the headline.",
 };
 
 type Row = { id: string; label: string; metric: string; target: string; measured: string; date: string };
@@ -34,7 +34,12 @@ type Benchmark = {
 async function benchmark(): Promise<Benchmark | null> {
   try {
     const file = path.join(process.cwd(), "public", "data", "benchmark.json");
-    return JSON.parse(await readFile(file, "utf8")) as Benchmark;
+    // The figures are written in PROJECT_PLAN.md's prose, em dashes and all.
+    // The site carries none (owner, 2026-10-07), so they become commas on the
+    // way in. A cell that is only "—" is the plan's "no target" and stays.
+    return JSON.parse(await readFile(file, "utf8"), (_k, v) =>
+      typeof v === "string" && v.trim() !== "\u2014" ? v.replace(/\s*\u2014\s*/g, ", ") : v,
+    ) as Benchmark;
   } catch {
     return null;
   }
@@ -107,7 +112,7 @@ export default async function Benchmark() {
         <p className="mt-8 max-w-[62ch] text-[17px] leading-relaxed text-[var(--ink-2)]">
           Every figure here is measured against businesses a person labelled by
           hand, without seeing what the engine said. None of it is generated from
-          this page — it is read from the same table the plan is run off, so a
+          this page, it is read from the same table the plan is run off, so a
           number here cannot be newer or older than the number we work from.
         </p>
         <p className="mono mt-5 text-[12px] text-[var(--ink-3)]">
@@ -140,7 +145,7 @@ export default async function Benchmark() {
             <strong className="font-semibold text-[var(--ink)]">
               Two identical runs disagreed with each other.
             </strong>{" "}
-            Same code, same frozen corpus, same labels — and precision came back
+            Same code, same frozen corpus, same labels, and precision came back
             different, by the margin in the noise-floor row above. That spread is
             wider than the gap between the models we tested, which means no
             engine change smaller than it can honestly be called an improvement.
@@ -194,7 +199,7 @@ export default async function Benchmark() {
           </li>
           <li>
             <span className="mono text-[13px] text-[var(--ink-3)]">4 · </span>Our
-            own failures — proxy errors, timeouts, network faults — are excluded
+            own failures, proxy errors, timeouts, network faults, are excluded
             from every rate rather than counted against the business. A site we
             could not reach is our problem, not evidence about them.
           </li>
@@ -225,8 +230,8 @@ export default async function Benchmark() {
  *  — it is a diagnostic we track, not a bar we set — and printing "target —"
  *  makes it look like a bar we forgot to fill in. */
 function Stamp({ row }: { row: Row }) {
-  const target = ["—", "-", "", "measure"].includes(row.target)
-    ? "no target — tracked, not gated"
+  const target = ["\u2014", "\u2013", "-", "", "measure"].includes(row.target)
+    ? "no target, tracked, not gated"
     : `target ${row.target}`;
   return (
     <div className="mono mt-3 text-[11px] uppercase tracking-wider text-[var(--ink-3)]">

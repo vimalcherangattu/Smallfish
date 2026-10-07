@@ -87,7 +87,7 @@ export async function startCheckout(
   if (plan.priceUsd === 0) {
     return {
       ok: false,
-      reason: "The free plan needs no checkout — it is granted on sign-up.",
+      reason: "The free plan needs no checkout, it is granted on sign-up.",
       missing: [],
     };
   }

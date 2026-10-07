@@ -41,7 +41,7 @@ export default function OptOutForm() {
       setResult({
         ok: false,
         reason:
-          "That did not reach us — the request failed before it arrived. Try " +
+          "That did not reach us. The request failed before it arrived. Try " +
           "again, or email us, which does not depend on this form working.",
       });
     } finally {

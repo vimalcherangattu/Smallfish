@@ -12,7 +12,7 @@ import { NO_WEBSITE_UNLOCK, UNLOCK_MONTHS, credits } from "@/lib/ledger";
  *  home page carries what the product does not do: a customer should meet the
  *  scan budget and the stop rule here, not the first time one fires. */
 export const metadata = {
-  title: "Small Fish — pricing",
+  title: "Pricing | Small Fish",
   description: "You pay per matched business, at a rate shown before anything is spent.",
 };
 
@@ -32,7 +32,7 @@ export default function Pricing() {
         <p className="mt-8 max-w-[62ch] text-[17px] leading-relaxed text-[var(--ink-2)]">
           A match costs 1, 2 or 3 credits depending on how rare it is in your
           market. The rate is set from a free sample, from the cautious end of
-          it, and shown before a scan starts — so it can only go down. Non-
+          it, and shown before a scan starts, so it can only go down. Non-
           matches and the businesses we could not settle arrive as counts and
           reasons, free.
         </p>
@@ -85,7 +85,7 @@ export default function Pricing() {
             ["A wrong match is refunded on the spot",
              "One click, no form, no review queue. It leaves your export too, because a row you have told us is wrong is not one you want in your outreach."],
             [`A business with no website costs ${credits(NO_WEBSITE_UNLOCK)} of a credit`,
-             "There is no site to read, so nothing was proved — it is sold at a quarter rate rather than leaked for free."],
+             "There is no site to read, so nothing was proved. It is sold at a quarter rate rather than leaked for free."],
             [`Each credit carries ${READS_PER_CREDIT} reads`,
              "Charging only for matches means a criterion nothing satisfies would otherwise read a whole market for free. The budget is shown before a scan starts."],
             ["A hopeless scan stops itself",
@@ -106,7 +106,7 @@ export default function Pricing() {
         <p className="mt-8 max-w-[64ch] text-[15px] leading-relaxed text-[var(--ink-2)]">
           Reading a business costs us about ${COST_PER_READ.toFixed(4)} and that
           barely varies. What varies is how many businesses must be read to find
-          one that matches — measured across three markets, that swung 6.1×. A
+          one that matches, measured across three markets, that swung 6.1×. A
           flat price has to be set against the worst market, so everyone in a
           good one overpays six times over and the pricing page has to keep
           quiet about it. Banding collapses that spread to 2.3× and lets the
@@ -130,7 +130,7 @@ export default function Pricing() {
 
         <p className="mono mt-16 text-[12px] leading-relaxed text-[var(--ink-3)]">
           Payments are not switched on yet. Nothing on this page can be bought
-          today — the plans and the credit rules are live in the product and
+          today, the plans and the credit rules are live in the product and
           tested, and the card step is the last thing left.
         </p>
       </div>

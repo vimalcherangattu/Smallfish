@@ -31,7 +31,7 @@ import UncontactButton from "@/components/UncontactButton";
  */
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Contacted — Small Fish" };
+export const metadata = { title: "Contacted | Small Fish" };
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -71,7 +71,7 @@ export default async function ContactedPage() {
       <Shell>
         <Empty title="Accounts are not switched on here.">
           This deployment has no sign-in configured, so there is no workspace to
-          keep a record against. Everything else works —{" "}
+          keep a record against. Everything else works, {" "}
           <Link href="/app" className="underline">run a search</Link> and the
           results are the same.
         </Empty>
@@ -124,7 +124,7 @@ export default async function ContactedPage() {
       <Shell>
         <Empty title="Nobody yet.">
           Every business you tick as contacted on a list appears here, so you do
-          not write to the same one twice — which is the thing that makes an
+          not write to the same one twice, which is the thing that makes an
           opener quoting their own website look automated instead of attentive.{" "}
           <Link href="/app" className="underline">Open a list</Link>.
         </Empty>

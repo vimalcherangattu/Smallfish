@@ -476,7 +476,7 @@ export function composeEmail(
   //    read is *our* evidence and belongs on our screen, under "how we know".
   const observation =
     criterion.type === "absence"
-      ? `There's no ${thing} on ${where}${b.phone ? " — everything points at the phone" : ""}.`
+      ? `There's no ${thing} on ${where}${b.phone ? " everything points at the phone" : ""}.`
       : `I noticed ${where} ${criterion.text.replace(/^has /i, "has ")}.`;
 
   // 2. Why that costs them something, in their terms. Straight from the signal
@@ -491,7 +491,7 @@ export function composeEmail(
   //    branch is a recorded fact, never an inference about the business.
   let easier: string | null = null;
   if (criterion.type === "absence" && r.quote) {
-    easier = "You already take enquiries through the site, so the form habit is there — this is the next step, not a new one.";
+    easier = "You already take enquiries through the site, so the form habit is there, this is the next step, not a new one.";
   } else if (r.chat) {
     easier = "You already run chat, so the appetite for handling this online is clearly there.";
   } else if (r.cms.length) {
@@ -530,13 +530,13 @@ export function composeEmail(
   const ask = offer
     ? pick(
         [
-          `Happy to show you what ${named} would look like on your site — worth a short reply?`,
+          `Happy to show you what ${named} would look like on your site, worth a short reply?`,
           `If it's useful I can show you what ${named} would look like for you. Worth a short reply?`,
-          `I can show you what ${named} would look like on ${where} — worth a short reply?`,
+          `I can show you what ${named} would look like on ${where}, worth a short reply?`,
         ],
         `${b.id}:ask`,
       )
-    : "Happy to show you what it would look like on your own site — worth a short reply?";
+    : "Happy to show you what it would look like on your own site, worth a short reply?";
 
   const greeting = "Hi there,";
   const body = [
@@ -588,7 +588,7 @@ export function toned(email: Email, tone: Tone): string {
         p.intro,
         [p.observation, p.consequence].filter(Boolean).join(" "),
         p.easier,
-        "No rush at all — happy to leave it with you either way.",
+        "No rush at all, happy to leave it with you either way.",
         p.ask,
       ]);
     case "More direct":

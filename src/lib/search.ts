@@ -302,7 +302,7 @@ export function parseSearch(raw: string): ParsedSearch {
       .map((id) => SIGNALS.find((s) => s.id === id))
       .filter((s): s is ObservableSignal => Boolean(s))
       .map((s) => ({
-        label: `${s.absenceText} — ${s.provable ? s.how : "not settleable today"}`,
+        label: `${s.absenceText}, ${s.provable ? s.how : "not settleable today"}`,
         criterion: criterionFrom(s, true, m[0]),
       }));
     out.clarifications.push({

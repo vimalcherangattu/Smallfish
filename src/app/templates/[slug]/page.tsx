@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const t = templateFor(await index(), (await params).slug);
   if (!t) return {};
   return {
-    title: `${t.title} — Small Fish`,
+    title: `${t.title} | Small Fish`,
     description: `${t.matches} proven across ${t.markets} measured ${
       t.markets === 1 ? "market" : "markets"
     }. ${t.how}`,
@@ -82,7 +82,7 @@ export default async function TemplatePage({
             </strong>{" "}
             This template only returns a business once the pages that would carry
             the signal have been read and none was found. Where those pages could
-            not be read, the answer is &ldquo;couldn&rsquo;t tell&rdquo; — counted
+            not be read, the answer is &ldquo;couldn&rsquo;t tell&rdquo;, counted
             below, and never billed.
           </p>
         )}
@@ -93,7 +93,7 @@ export default async function TemplatePage({
               Where this count comes from.
             </strong>{" "}
             {t.derivedOnly ? "Every market below was" : "Some of the markets below were"}{" "}
-            read for the opposite question, and one read settles both directions —
+            read for the opposite question, and one read settles both directions,
             a business ruled out of that criterion is a business proved into this
             one. Those rows are marked with the question that was actually put to
             the site. Nothing here was inferred from a business we did not read.
@@ -119,7 +119,7 @@ export default async function TemplatePage({
 
         <p className="mt-8 max-w-[62ch] text-[15px] leading-relaxed text-[var(--ink-2)]">
           The couldn&rsquo;t-tell column is the honest one. Those are businesses
-          whose sites were fetched and still did not settle the question — we do
+          whose sites were fetched and still did not settle the question, we do
           not guess them either way, and you are not charged for them.
         </p>
 
@@ -128,7 +128,7 @@ export default async function TemplatePage({
             <span className="mono text-[11px] uppercase tracking-wider text-[var(--ink-3)]">
               why it is worth a call ·{" "}
             </span>
-            {t.consequence}. That is a likely consequence, not one we measured —
+            {t.consequence}. That is a likely consequence, not one we measured,
             we observed the gap, not its effect, and it is phrased so you can
             check it against the business in front of you.
           </p>

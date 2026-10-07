@@ -128,7 +128,7 @@ export async function POST(request: Request) {
         ok: true,
         unlocked: 0,
         unpaid: 0,
-        note: "Nothing left to unlock — this list is already yours.",
+        note: "Nothing left to unlock, this list is already yours.",
       });
     }
 
