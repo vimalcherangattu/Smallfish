@@ -215,6 +215,17 @@ export const ABORT_CHECKS = [200, 400, 800, 1600] as const;
 export const MAX_LOSS_PER_SCAN_USD = ABORT_CHECKS[0] * COST_PER_READ;
 
 /**
+ * Did a read count pass a checkpoint between `since` and `reads`?
+ *
+ * Exported because a batched caller needs to ask the question *before* paying
+ * for the evidence the check needs — the worker reads a dozen sites a batch and
+ * would otherwise query the account on every one. `checkRunHealth` gates on
+ * this too, so the cheap guard and the real gate cannot drift apart.
+ */
+export const crossesAbortCheck = (since: number, reads: number) =>
+  ABORT_CHECKS.some((c) => c > since && c <= reads);
+
+/**
  * Confidence used for the abort's one-sided bound, and for the band quote — 80%.
  *
  * The abort fires when the upper bound on the live match rate falls below
@@ -300,17 +311,31 @@ export type RunHealth =
  * honest evidence, and it arrives while we are spending.
  *
  * Checked only at `ABORT_CHECKS`, so the answer does not swing on one match.
+ *
+ * ## `since`, for a caller that reads in batches
+ *
+ * The gate was exact equality on `reads`, which is right for a harness that
+ * reads one site at a time and **silently never fires for anything else**. The
+ * worker reads in batches of a dozen, so its count steps 192 → 204 and lands on
+ * 200 only by luck: wiring this in without `since` would have produced an abort
+ * that could not be reached, which is worse than no abort because it looks like
+ * one.
+ *
+ * So a caller may say what the count was *before* this batch, and the check
+ * fires when a checkpoint was crossed rather than landed on. Omitted, `since`
+ * is `reads - 1` and the gate is exactly the equality it was.
  */
 export function checkRunHealth(args: {
   reads: number;
   matches: number;
   quotedBandCredits: number;
   plan: Plan;
+  /** Reads before this batch. Default `reads - 1`, i.e. exact equality. */
+  since?: number;
 }): RunHealth {
   const { reads, matches, quotedBandCredits, plan } = args;
-  if (!ABORT_CHECKS.includes(reads as (typeof ABORT_CHECKS)[number])) {
-    return { keepGoing: true };
-  }
+  const since = args.since ?? reads - 1;
+  if (!crossesAbortCheck(since, reads)) return { keepGoing: true };
   const floor = breakEvenRate(plan, quotedBandCredits);
   if (wilsonUpper(matches, reads) >= floor) return { keepGoing: true };
 

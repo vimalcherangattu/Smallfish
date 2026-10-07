@@ -39,17 +39,26 @@
 import "server-only";
 
 import {
+  accountById,
   claimJob,
   claimThisJob,
   jobFor,
   recordSites,
   releaseJob,
+  isComped,
   sweepStrandedSites,
   takeSites,
   type JobRow,
   type JobSiteRow,
 } from "@/lib/accounts";
 import { CONCURRENCY } from "@/lib/jobs";
+import { emptyAccount, planOf } from "@/lib/ledger";
+import {
+  bandFor,
+  checkRunHealth,
+  crossesAbortCheck,
+  pricePerCredit,
+} from "@/lib/pricing";
 import { send } from "@/lib/notify";
 import { judge, readSite } from "@/lib/read";
 import type { Criterion } from "@/lib/types";
@@ -144,6 +153,91 @@ async function readBatch(sites: JobSiteRow[], criterion: Criterion) {
   );
 }
 
+/**
+ * Is this read still worth continuing, for the person paying for it?
+ *
+ * ## The gap this closes
+ *
+ * `pricing.ts` says, in as many words, that *"solvency is enforced on the live
+ * run instead, by `checkRunHealth`"* — the sample cannot settle it, so the
+ * running scan has to. `checkRunHealth` is written, reasoned about at length,
+ * and covered by `test_pricing.mjs`. **Nothing called it.** Its only caller was
+ * its own test, so the abort it documents, and the `MAX_LOSS_PER_SCAN_USD`
+ * ceiling derived from it, described a mechanism that did not run.
+ *
+ * What that actually costs is the customer's reading allowance rather than our
+ * solvency: `READS_PER_CREDIT` **is** enforced, at job creation and per period,
+ * and it keeps every paid plan solvent even if nothing ever matches (Starter:
+ * 1,320 reads, $22.18, against $29). So the missing abort does not lose us
+ * money. It lets a hopeless search quietly spend a customer's whole period of
+ * reading — 1,320 sites on a question that was never going to work — instead of
+ * stopping at 200 and telling them why. One measured market in four matched
+ * nothing at all, so this is a thing that happens, not a thing that might.
+ *
+ * ## Two traps, both of which would have made this wrong
+ *
+ *   - **The free plan.** `breakEvenRate` is `Infinity` when a credit costs
+ *     nothing, so `checkRunHealth` aborts *every* free-plan run, including one
+ *     matching 26% of what it reads. True on its own terms — free reading earns
+ *     nothing — and useless as a rule: it would have stopped every trial at 200
+ *     of its 220 reads with a sentence saying the search was not working. The
+ *     free tier's bound is its 220 reads, which is already enforced, so the
+ *     abort is for plans that actually have a price.
+ *   - **The band.** The abort needs the band a match will bill at, and the job
+ *     row does not store the quote from the confirm screen. It needs no column:
+ *     `bandForMarket` — what `chargeLeads` bills by — is `bandFor(matched /
+ *     judged)`, so the same band comes off the job's own counters. The abort's
+ *     arithmetic then agrees with the invoice by construction, which is the
+ *     rule `unlock.ts` states one level down.
+ */
+async function stillWorthReading(
+  job: JobRow,
+  /**
+   * Totals **for the whole job**, not for this slice, and passed in rather than
+   * read off `job`: the row this tick is holding was fetched before any of the
+   * work, so its counters are whatever they were at claim time. A check against
+   * those would be comparing this batch's reads to last tick's matches.
+   */
+  total: { reads: number; matches: number; judged: number },
+  /** Reads before this batch, so a crossed checkpoint counts. */
+  since: number,
+): Promise<string | null> {
+  // Cheap guard first: most slices cross no checkpoint at all, and this is the
+  // only path that costs a query.
+  if (!crossesAbortCheck(since, total.reads)) return null;
+
+  const account = await accountById(job.account_id).catch(() => null);
+  if (!account) return null; // Not the worker's to decide on no evidence.
+  // A comped workspace is not buying anything, so it has no break-even to fall
+  // below; neither has a plan whose credits are free. See the note above.
+  if (isComped(account)) return null;
+
+  const plan = planOf(emptyAccount(account.plan_id));
+  if (pricePerCredit(plan) <= 0) return null;
+
+  const band = bandFor(total.judged > 0 ? total.matches / total.judged : 0).credits;
+
+  const health = checkRunHealth({
+    reads: total.reads,
+    matches: total.matches,
+    quotedBandCredits: band,
+    plan,
+    since,
+  });
+  return health.keepGoing ? null : health.reason;
+}
+
+/**
+ * Results in a batch we could not settle.
+ *
+ * The complement is what "judged" means for the band: `bandForMarket` divides
+ * matches by the rows that reached a verdict, never by the rows we read, and
+ * this has to agree with it or the abort would price a run differently from the
+ * invoice. A `couldnt_tell` is our failure, not evidence of a non-match.
+ */
+const unclearIn = (results: Array<{ verdict: string }>) =>
+  results.filter((r) => ["couldnt_tell", "blocked", "needs_model"].includes(r.verdict)).length;
+
 /** Work one claimed job for as long as the budget allows. */
 export async function runJobSlice({
   job,
@@ -166,9 +260,7 @@ export async function runJobSlice({
 
     read += results.length;
     matched += results.filter((r) => r.verdict === "match").length;
-    unclear += results.filter((r) =>
-      ["couldnt_tell", "blocked", "needs_model"].includes(r.verdict),
-    ).length;
+    unclear += unclearIn(results);
 
     // `needs_model` means exactly one thing: `judge` found no model key. It is
     // not what a model outage looks like — that comes back `couldnt_tell`, our
@@ -203,6 +295,42 @@ export async function runJobSlice({
         unclear,
         state,
         note: "no model key, so nothing past technology detection can be settled",
+        ms: Date.now() - started,
+      };
+    }
+
+    // **Is this still worth the customer's reading?** See `stillWorthReading`.
+    //
+    // After the batch is written, so the matches it found count toward the
+    // decision — a check before the write would judge a run on evidence we had
+    // already paid for and not yet used. `since` is the count before this
+    // batch, because the read total steps by a dozen and would otherwise skip
+    // straight over a checkpoint.
+    const hopeless = await stillWorthReading(
+      job,
+      {
+        reads: job.sites_read + read,
+        matches: job.matched + matched,
+        judged: job.sites_judged + (results.length - unclearIn(results)),
+      },
+      job.sites_read + read - results.length,
+    ).catch(() => null); // Never let this stop a read it cannot judge.
+
+    if (hopeless) {
+      // `failure` rather than a note, because this is an end and not a pause:
+      // the sites left are deliberately not going to be read, so a state that
+      // invited "press continue" would be offering to spend more on the thing
+      // we just said was not working. The matches found stay bought and the
+      // results screen still renders them — it opens on `settled > 0`, not on
+      // the job's state.
+      await releaseJob(job.id, null, hopeless);
+      return {
+        jobId: job.id,
+        read,
+        matched,
+        unclear,
+        state: "failed",
+        note: hopeless,
         ms: Date.now() - started,
       };
     }

@@ -111,6 +111,23 @@ export async function accountForUser(clerkUserId: string): Promise<AccountRow | 
   return rows[0]?.accounts ?? null;
 }
 
+/**
+ * A workspace by its own id.
+ *
+ * `accountForUser` goes through `account_members` and needs a Clerk user, which
+ * the worker does not have — it holds a job, and a job knows its `account_id`
+ * and nothing about who is signed in. Needed so the solvency check can read the
+ * plan: what a read is worth depends on what the customer is paying, and the
+ * job row does not carry it.
+ */
+export async function accountById(accountId: string): Promise<AccountRow | null> {
+  const rows =
+    (await rest<AccountRow[] | null>(
+      `accounts?id=eq.${encodeURIComponent(accountId)}&select=*&limit=1`,
+    )) ?? [];
+  return rows[0] ?? null;
+}
+
 export async function balanceOf(accountId: string): Promise<number> {
   const rows =
     (await rest<Array<{ milli: number }> | null>(
