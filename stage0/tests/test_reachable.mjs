@@ -67,9 +67,18 @@ const files = allSource();
  *  linked is precisely the case this test exists to fail on. */
 const code = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 
-/** Is this path linked or navigated to from somewhere other than its own page? */
-function linkedFrom(route) {
-  const own = path.join(SRC, "app", route.replace(/^\//, ""));
+/**
+ * Is this path linked or navigated to from somewhere other than its own page?
+ *
+ * `ownRoute` exists for a dynamic route, where the two differ. `/app/runs/[id]`
+ * is matched by its static prefix `/app/runs/`, but its **own page** is the
+ * `[id]` directory — and its natural door is the list at `/app/runs`, which
+ * sits in the parent of it. Excluding by the prefix would have discarded that
+ * list as self-linking and reported the detail screen orphaned, which is
+ * exactly what it did the first time the sweep below ran.
+ */
+function linkedFrom(route, ownRoute = route) {
+  const own = path.join(SRC, "app", ownRoute.replace(/^\//, ""));
   return files
     .filter((f) => !f.file.startsWith(own))
     .filter((f) => {
@@ -154,6 +163,105 @@ test("and never links a derived row, whose counts describe the opposite search",
     readFileSync(path.join(SRC, "app/templates/[slug]/page.tsx"), "utf8"),
   );
   assert.match(page, /filter\(\(u\) => !u\.derived && u\.matches > 0\)/);
+});
+
+/* ------------------------------------------- every screen, not just the list -- */
+
+/**
+ * The same question asked of **every** route rather than of eight named ones.
+ *
+ * `MUST_BE_REACHABLE` is a hand-maintained list, which means it covers the
+ * screens somebody thought of. It did its job and it cannot catch the next one:
+ * a screen built tomorrow is reachable-by-default as far as this file is
+ * concerned, because nobody adds their own new route to a list of routes that
+ * might be orphaned.
+ *
+ * `/app/icp` is how that failed in practice. It is S1-23 – S1-26, a whole
+ * screen, and its own file says "it gets a place in the navigation and a URL
+ * you can come back to". The App v2 shell rewrite cut the sidebar to three
+ * items and nothing links to it now. It is not in the list above, so nothing
+ * said so.
+ *
+ * Scoped to `/app/**` and `/account` — the screens the Product stream owns. The
+ * marketing pages are GTM's and their entry points are campaigns and search
+ * results rather than in-app links, so sweeping them from here would be this
+ * stream deciding somebody else's question.
+ */
+
+/** Routes with a `page.tsx`, found rather than listed. */
+function routesUnder(dir, prefix) {
+  const out = [];
+  for (const name of readdirSync(dir)) {
+    const full = path.join(dir, name);
+    if (!statSync(full).isDirectory()) continue;
+    // A route group `(x)` does not appear in the URL.
+    const here = prefix + (/^\(.*\)$/.test(name) ? "" : `/${name}`);
+    if (readdirSync(full).includes("page.tsx")) out.push(here);
+    out.push(...routesUnder(full, here));
+  }
+  return out;
+}
+
+/**
+ * Screens reached by something other than an in-app link, with the reason.
+ *
+ * **Adding to this list is a decision, not a fix.** An entry put here to quiet
+ * the assertion is a screen nobody can get to, carrying a comment that claims
+ * otherwise.
+ */
+const NO_LINK_NEEDED = {
+  "/app": "the section root, and the product's main screen",
+  "/account": "covered by its own case above, and where Stripe returns to",
+  "/app/icp":
+    "Deliberately not a front door. `AppNav.tsx` records the decision: 'Who to " +
+    "target' was a second front door for the same question the search box " +
+    "already asks, and a product that does one thing should not offer six " +
+    "places to start doing it. The screen stays at its URL for anyone sent " +
+    "there. This entry exists so the next person to notice it has no door " +
+    "reads the reason rather than wiring one up — which is what happened on " +
+    "2026-10-07, and was reverted for being the duplication the owner had " +
+    "already asked us not to add.",
+};
+
+test("every screen under /app and /account has a door, or a written reason", () => {
+  const APP = path.join(SRC, "app");
+  const found = [
+    ...routesUnder(path.join(APP, "app"), "/app"),
+    ...routesUnder(path.join(APP, "account"), "/account"),
+    ...["/app", "/account"].filter((r) =>
+      readdirSync(path.join(APP, r.slice(1))).includes("page.tsx"),
+    ),
+  ];
+
+  const orphans = found
+    // A dynamic segment is linked by template literal, so ask about the static
+    // part: `/app/reads/[id]` is reachable if anything writes `/app/reads/`.
+    .map((r) => ({ route: r, want: r.replace(/\/\[[^\]]+\].*$/, "/") }))
+    .filter(
+      ({ route, want }) => !NO_LINK_NEEDED[route] && linkedFrom(want, route).length === 0,
+    )
+    .map(({ route }) => route);
+
+  assert.deepEqual(
+    orphans,
+    [],
+    `no link anywhere in src/ reaches: ${orphans.join(", ")}. A screen with no ` +
+      `door is the same as not existing, except that it also has to be ` +
+      `maintained — mount it where people work, delete it, or add it to ` +
+      `NO_LINK_NEEDED with the reason.`,
+  );
+});
+
+test("a route named only in a comment is not a door", () => {
+  // `code()` is what makes the sweep above mean anything, and this repository
+  // names routes in prose constantly: `AppNav.tsx` explains that `/app/icp` is
+  // not in the nav *by naming it*. A matcher that counted comments would have
+  // reported every screen reachable, forever. Checked on the real file rather
+  // than a fixture, because that comment is the live example.
+  const nav = code(readFileSync(path.join(SRC, "components/AppNav.tsx"), "utf8"));
+  assert.ok(!nav.includes("/app/icp"), "the comment naming /app/icp survived stripping");
+  // And the hrefs in the same file do survive, or the stripper is too greedy.
+  assert.ok(nav.includes('href: "/app/runs"'), "a real link was stripped");
 });
 
 console.log(`\n${failures} failure(s)`);
