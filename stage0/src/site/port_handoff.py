@@ -347,6 +347,55 @@ TIGHTEN = {
     # dash goes (the site carries none).
     "Nothing to sift, no tabs to open \u2014 you get a short list":
         "Nothing to sift, no tabs to open. You get a short list",
+    # The steps, told in full (owner, 2026-10-07, on this section: "I need
+    # more ... you tell us who you sell to and where, then we go through the
+    # area to find the right businesses, then we read their websites and public
+    # information and match it with exactly what you sell, give you only that,
+    # and you only pay for that"). Four steps instead of three. Step 2 is new;
+    # "the whole area" is the businesses listed there in open map data, which
+    # is what the engine actually starts from.
+    """          <div class="stepbody">
+            <span class="stepnum">01</span>
+            <h3>Tell us who you sell to and where.</h3>
+            <p>A type of business and a city. That's the whole form.</p>
+          </div>
+        </div>
+""": """          <div class="stepbody">
+            <span class="stepnum">01</span>
+            <h3>Tell us who you sell to and where.</h3>
+            <p>A type of business and a city. That's the whole form.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="stepart" aria-hidden="true">
+            <div class="areamap">""" + "".join(
+                '<i class="on"></i>' if k in (3, 9, 14, 20) else "<i></i>" for k in range(24)
+            ) + """</div>
+          </div>
+          <div class="stepbody">
+            <span class="stepnum">02</span>
+            <h3>We find the businesses in that area.</h3>
+            <p>All the ones listed there on open map data. Not a list someone sold you.</p>
+          </div>
+        </div>
+""",
+    """            <span class="stepnum">02</span>
+            <h3>We read them one by one.</h3>
+            <p>Each on its own website, page by page. Nothing is guessed from a database.</p>""":
+    """            <span class="stepnum">03</span>
+            <h3>We read their websites against what you sell.</h3>
+            <p>Their own site and public listing, page by page, checked against your customer profile. Nothing is guessed.</p>""",
+    """            <span class="stepnum">03</span>
+            <h3>Get only the ones that fit.</h3>
+            <p>Contacts, the reason it fits, and an email you can send as it is.</p>""":
+    """            <span class="stepnum">04</span>
+            <h3>You get only the ones that fit.</h3>
+            <p>Contacts, the reason it fits, and an email ready to send. You pay only for these.</p>""",
+    '<span class="flowarrow b" aria-hidden="true">':
+        '<span class="flowarrow c" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" '
+        'stroke="currentColor" stroke-width="2.2"><path d="M5 12h13M12 6l6 6-6 6"></path></svg></span>\n'
+        '      <span class="flowarrow b" aria-hidden="true">',
     # One row: the card says it; the heading need not say it again.
     '<p class="kick">What a list gives you vs what this gives you</p>':
         '<p class="kick">One result</p>',
@@ -393,23 +442,20 @@ def tighten(body: str) -> str:
         if not n:
             raise SystemExit(f"port: nothing to strip for {what}")
     # "Subtract, subtract, subtract ... user comes, knows exactly what it does,
-    # relates to exactly the problem, and goes and tries the product." The bill
-    # moves up to sit after the three steps: the problem a visitor recognises
-    # comes before the example answer.
-    def section(sid: str) -> re.Match[str]:
-        m = re.search(r'\s*<!-- =+ [^>]*-->\s*<section id="' + sid + r'".*?</section>', body, re.S)
-        if not m:
-            raise SystemExit(f"port: no #{sid} section to move")
-        return m
-    problem = section("problem")
-    body = body[:problem.start()] + body[problem.end():]
-    row = section("row")
-    body = body[:row.start()] + problem.group(0) + body[row.start():]
+    # relates to exactly the problem, and goes and tries the product." Then, on
+    # the live page: the bill for a bought list, "a useless section, cut it",
+    # and the example row with its email, which the film right after the three
+    # steps already shows. What is left: hero, three steps, film, price, close.
+    for sid in ("problem", "row"):
+        body, n = re.subn(r'\s*<!-- =+ [^>]*-->\s*<section id="' + sid + r'".*?</section>',
+                          "", body, count=1, flags=re.S)
+        if not n:
+            raise SystemExit(f"port: no #{sid} section to cut")
 
     d = json.loads((ROOT / "public" / "data" / "dental-phoenix.json").read_text())
     film = (FILM.replace("__READ__", f"{d['counts']['read']:,}")
                 .replace("__FIT__", str(d["tallies"]["no_online_booking"]["match"])))
-    end = body.index("</section>", body.index('id="row"')) + len("</section>")
+    end = body.index("</section>", body.index('id="how"')) + len("</section>")
     return body[:end] + film + body[end:]
 
 
@@ -446,6 +492,25 @@ MOBILE = """
 .sf-site .herohead { line-height: 1.12; }
 .sf-site .herohead .hilite {
   background: linear-gradient(var(--lure), var(--lure)) no-repeat 0 72% / 100% 76%;
+}
+
+/* The steps are four (2026-10-07): the grid, the arrows between the cards,
+   and the new step 2's picture, a block of the area with a few that fit. */
+.sf-site .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.sf-site .flowarrow.a { left: calc(25% - 13px); }
+.sf-site .flowarrow.c { left: calc(50% - 13px); animation-delay: .25s; }
+.sf-site .flowarrow.b { left: calc(75% - 13px); }
+.sf-site .step:nth-child(4) .stepart { --rot: .6deg; }
+.sf-site .step h3 { font-size: 22px; }
+.sf-site .areamap { display: grid; grid-template-columns: repeat(8, 10px); gap: 14px 16px; }
+.sf-site .areamap i { width: 10px; height: 10px; border-radius: 50%; background: var(--line-2, #c9cfc8); }
+.sf-site .areamap i.on { background: var(--lure); box-shadow: 0 0 0 4px rgba(200, 240, 60, .25); }
+@media (max-width: 1100px) {
+  .sf-site .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sf-site .flowarrow { display: none; }
+}
+@media (max-width: 820px) {
+  .sf-site .steps { grid-template-columns: 1fr; }
 }
 
 /* The USP that leads the hero's sub-line (owner, 2026-10-04: "should be on
@@ -580,6 +645,15 @@ def main() -> int:
                 if not n:
                     raise SystemExit(f"port: nothing to strip for {what}")
             body = tighten(body)
+        # No em dashes in anything a visitor reads (owner, 2026-10-07). A lone
+        # one is an empty-value glyph and becomes an en dash; any other is
+        # copy, and copy is a person's call, so the port stops.
+        body = body.replace(">\u2014<", ">\u2013<")
+        if "\u2014" in visible(body):
+            i = visible(body).index("\u2014")
+            raise SystemExit(f"port: {name} has an em dash in its copy:\n"
+                             f"    ...{visible(body)[max(0, i - 60):i + 40]}...\n"
+                             "  Add a COPY_EDITS or TIGHTEN entry that rewrites the sentence.")
         left = COVERAGE_CLAIM.search(visible(body))
         if left:
             raise SystemExit(

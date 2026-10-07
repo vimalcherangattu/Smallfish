@@ -325,10 +325,10 @@ check(
 // designer actually named the thing, and it survives a copy edit.
 if (home && accuracy) {
   const raw = readFileSync(path.join(OUT, "index.html"), "utf8");
-  // 2026-10-07: cut to six sections ("subtract, subtract, subtract"). The three
+  // 2026-10-07: cut to five sections ("subtract, subtract, subtract"). The three
   // steps stay second (the owner: that is where people understand it); the bill
-  // comes before the example row, so the problem comes before the answer.
-  const ORDER = ["how", "problem", "row", "watch", "price", "signup"];
+  // and the example row went, and the film shows the result instead.
+  const ORDER = ["how", "watch", "price", "signup"];
   const at = ORDER.map((id) => [id, raw.indexOf(`id="${id}"`)]);
 
   for (const [id, i] of at) check(`the home page has the #${id} section`, i >= 0);
