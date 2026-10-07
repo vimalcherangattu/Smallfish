@@ -620,6 +620,7 @@ export function buildLeads({
   unlocked = new Set<string>(),
   preview = FREE_PREVIEW,
   limit = 200,
+  only,
 }: {
   query: string;
   index: MarketIndex | null;
@@ -630,12 +631,22 @@ export function buildLeads({
   unlocked?: ReadonlySet<string>;
   preview?: number;
   limit?: number;
+  /**
+   * The criterion to report on, when the caller already knows it.
+   *
+   * The measured path resolves it by looking the typed query up against
+   * `index.json`. A **job** has no entry there — it was created for a city
+   * nobody has a file for, or for a CSV somebody uploaded — so it carries its
+   * own criterion and passes it here. Without this, the entire delivery half of
+   * those two flows had nowhere to render: see `jobmarket.ts`.
+   */
+  only?: Criterion;
 }): LeadResult | null {
   const split = splitQuery(query);
-  const hit = marketFor(index, split.what, split.where);
-  if (!hit) return null;
+  const hit = only ? null : marketFor(index, split.what, split.where);
+  if (!only && !hit) return null;
 
-  const criterion = market.criteria.find((c) => c.id === hit.criterion.id);
+  const criterion = only ?? market.criteria.find((c) => c.id === hit!.criterion.id);
   if (!criterion) return null;
 
   // One row per business before anything is counted, so the number on screen is

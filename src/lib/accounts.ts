@@ -588,6 +588,48 @@ export async function queueJob(args: {
   })) as unknown as string;
 }
 
+/**
+ * Everything a finished job learned, so it can be shown to the person who paid
+ * for it.
+ *
+ * ## Nothing read these rows back, and that was the hole in the product
+ *
+ * `job_sites` is where both of the job-shaped flows write their verdicts — the
+ * CSV upload and, since P0.2, any trade in any US city. The worker filled them
+ * in faithfully and **no screen in the product ever read them**. A customer
+ * could search, spend credits, watch the read finish, and the "open the N that
+ * fit" link took them to `/app?q=…`, which looks the query up against the four
+ * measured market files, finds nothing, and offers to count the city again.
+ * The matches they had just bought were in the database and on no screen.
+ *
+ * Paginated because a job can carry thousands of rows and PostgREST caps a
+ * response; ordered by `ordinal` so the list is the reading order, which is the
+ * order the estimate and the progress counters were about.
+ */
+export async function jobSiteRows(
+  accountId: string,
+  jobId: string,
+  limit = 5_000,
+): Promise<JobSiteRow[]> {
+  // Scoped through the job, so a guessed id from another workspace reads as an
+  // empty list rather than as somebody else's work.
+  const job = await jobFor(accountId, jobId);
+  if (!job) return [];
+
+  const out: JobSiteRow[] = [];
+  const page = 1_000;
+  for (let from = 0; from < limit; from += page) {
+    const rows =
+      (await rest<JobSiteRow[] | null>(
+        `job_sites?job_id=eq.${jobId}&select=*&order=ordinal.asc` +
+          `&offset=${from}&limit=${Math.min(page, limit - from)}`,
+      )) ?? [];
+    out.push(...rows);
+    if (rows.length < page) break;
+  }
+  return out;
+}
+
 /** One job, for the progress page. Scoped to the account so a guessed id from
  *  another workspace reads as missing rather than as somebody else's work. */
 export async function jobFor(accountId: string, id: string): Promise<JobRow | null> {

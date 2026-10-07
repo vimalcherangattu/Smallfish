@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { describe, percent, type Job, type JobState } from "@/lib/jobs";
 
@@ -21,6 +21,30 @@ import { describe, percent, type Job, type JobState } from "@/lib/jobs";
  * Polling ends the moment the job is done or failed. A page left open
  * overnight against a finished job is a request every four seconds, for ever,
  * from a tab nobody is looking at.
+ *
+ * ## It also drives the read, because nothing else does
+ *
+ * The queue moves on a Vercel Cron entry, and Hobby caps crons at **once a
+ * day** — a faster expression does not throttle, it fails the build, which
+ * froze production for three days. One tick reads about as much as fits in 45
+ * seconds. So a four-hundred-site read, on the scheduler alone, finishes
+ * **next week**, and that was true of every read this product can start.
+ *
+ * There was a button here that ran one slice per press. It worked, and asking
+ * somebody to press a button eight times is not a product.
+ *
+ * So this chains the slices itself while the tab is open: run one, take the
+ * counters the database gives back, run the next. It is the same authorised
+ * endpoint the button used — the caller's own job, their own crawl and model
+ * budget, and the same lease, so a browser racing a cron tick cannot read a
+ * site twice. A read of four hundred sites finishes in about six minutes of
+ * the tab being open instead of a week of it being closed.
+ *
+ * It stops on its own for the three reasons that are not "still working":
+ * the job finished, the engine is unavailable (one `needs_model` is proof, and
+ * crawling on would spend the budget to learn nothing), or a slice read
+ * **nothing** — which means something is wrong and retrying in a loop would
+ * turn one failure into a thousand requests.
  */
 
 interface Row {
@@ -58,8 +82,13 @@ const toJob = (r: Row): Job => ({
 
 export default function ReadProgress({ id, initial }: { id: string; initial: Row }) {
   const [row, setRow] = useState<Row>(initial);
-  const [running, setRunning] = useState(false);
   const [ranNote, setRanNote] = useState<string | null>(null);
+  /** Driving the read, as opposed to merely watching it. */
+  const [driving, setDriving] = useState(true);
+  const [slice, setSlice] = useState(false);
+  /** Read inside the loop, which must see a pause the moment it happens rather
+   *  than on the next render. */
+  const live = useRef(true);
 
   useEffect(() => {
     if (row.state === "done" || row.state === "failed") return;
@@ -71,6 +100,71 @@ export default function ReadProgress({ id, initial }: { id: string; initial: Row
     }, 4000);
     return () => clearInterval(t);
   }, [id, row.state]);
+
+  // The loop. One at a time, never overlapping: a second slice while the first
+  // holds the lease would be refused anyway, and would read as an error.
+  useEffect(() => {
+    live.current = driving;
+    if (!driving) return;
+    if (row.state === "done" || row.state === "failed") return;
+
+    let cancelled = false;
+    (async () => {
+      while (!cancelled && live.current) {
+        setSlice(true);
+        let read = 0;
+        try {
+          const res = await fetch("/api/worker", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ job: id }),
+          });
+          const b = (await res.json()) as {
+            ok?: boolean; read?: number; matched?: number; state?: string;
+            note?: string; reason?: string;
+          };
+          if (!b.ok) {
+            setRanNote(b.reason ?? "That did not run.");
+            setDriving(false);
+            break;
+          }
+          read = b.read ?? 0;
+          if (b.note) {
+            // The engine is unavailable, or the job asks something we cannot
+            // check. Either way the next slice learns the same thing.
+            setRanNote(b.note);
+            setDriving(false);
+          }
+        } catch {
+          setRanNote("Lost the connection. Press continue to pick it up.");
+          setDriving(false);
+          break;
+        } finally {
+          setSlice(false);
+        }
+
+        const fresh = await fetch(`/api/jobs?id=${encodeURIComponent(id)}`)
+          .then((r) => (r.ok ? r.json() : null))
+          .catch(() => null);
+        if (cancelled) break;
+        if (fresh?.job) setRow(fresh.job);
+
+        const state = fresh?.job?.state;
+        if (state === "done" || state === "failed") break;
+        // A slice that read nothing has not made progress, and the next one
+        // would not either. Better to stop and say so than to spin.
+        if (read === 0) {
+          setRanNote((n) => n ?? "That slice read nothing. Press continue to try again.");
+          setDriving(false);
+          break;
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, driving, row.state]);
 
   const job = toJob(row);
   const pct = percent(job);
@@ -90,62 +184,31 @@ export default function ReadProgress({ id, initial }: { id: string; initial: Row
         />
       </div>
 
-      {/* Run it by hand.
-          
-          The queue moves on a Vercel Cron entry that needs CRON_SECRET and a
-          plan permitting a minute-level schedule — neither of which is fixable
-          from inside this repository. Without them a queued read never finishes,
-          and the honest thing is not a spinner that spins forever: it is a
-          button that does the work, on your own budget, on your own read.
-          
-          It stays available even once the cron runs, because "do it now" is a
-          reasonable thing to want while somebody is watching a demo. */}
+      {/* Drive it, or stop driving it.
+
+          This replaced a button that ran exactly one 45-second slice per press.
+          The slice is the same; what changed is that the page now asks for the
+          next one itself. The control is here because a person who only wanted
+          to look should be able to stop spending their crawl budget, and
+          because "continue" is what you want after a dropped connection. */}
       {row.state !== "done" && row.state !== "failed" && (
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <button
             type="button"
-            disabled={running}
-            onClick={async () => {
-              setRunning(true);
+            onClick={() => {
               setRanNote(null);
-              try {
-                const res = await fetch("/api/worker", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ job: id }),
-                });
-                const b = (await res.json()) as {
-                  ok?: boolean;
-                  read?: number;
-                  matched?: number;
-                  note?: string;
-                  reason?: string;
-                };
-                if (b.ok) {
-                  setRanNote(
-                    b.note ??
-                      `Read ${(b.read ?? 0).toLocaleString()} more, ${(b.matched ?? 0).toLocaleString()} of them a fit.`,
-                  );
-                  // The counters are the database's, so ask it rather than
-                  // adding up what this press happened to do.
-                  const j = await fetch(`/api/jobs?id=${encodeURIComponent(id)}`)
-                    .then((r) => (r.ok ? r.json() : null))
-                    .catch(() => null);
-                  if (j?.job) setRow(j.job);
-                } else {
-                  setRanNote(b.reason ?? "That did not run.");
-                }
-              } catch {
-                setRanNote("Could not reach the server.");
-              } finally {
-                setRunning(false);
-              }
+              setDriving((d) => !d);
             }}
-            className="sf-btn"
+            className={driving ? "sf-btn" : "sf-btn-lure"}
           >
-            {running ? "Reading…" : "Read a batch now"}
+            {driving ? (slice ? "Reading… (pause)" : "Pause") : "Continue reading"}
           </button>
-          {ranNote && <span className="sf-small text-[var(--ink-2)]">{ranNote}</span>}
+          <span className="sf-small text-[var(--ink-2)]">
+            {ranNote ??
+              (driving
+                ? "Reading while this tab is open."
+                : "Paused. Nothing is being read.")}
+          </span>
         </div>
       )}
 

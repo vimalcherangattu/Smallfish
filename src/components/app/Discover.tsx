@@ -494,8 +494,13 @@ function Arithmetic({
       </p>
       <p className="t-b" style={{ display: "flex", alignItems: "center", gap: 8, color: "#36404C" }}>
         <Clock s={16} />
-        {spell(secs(low), secs(high))} of reading. We will email you when it is done, so you
-        can close this.
+        {/* **Not "we will email you when it is done."** That was true only if a
+            mail provider is configured and the scheduler runs, and on the plan
+            this ships on the scheduler ticks once a day — so the promise was
+            for an email that may not send about a read that would not have
+            finished. What is true is what the next screen does: it drives the
+            read itself while it is open. */}
+        {spell(secs(low), secs(high))} of reading, on the next screen, while you watch it.
       </p>
       <p className="t-s" style={{ maxWidth: "62ch" }}>
         You pay for the ones that fit and nothing for the rest, not for the ones that do not

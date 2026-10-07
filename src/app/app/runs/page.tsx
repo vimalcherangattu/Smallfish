@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { accountForUser, runsFor, type RunRow } from "@/lib/accounts";
+import { accountForUser, jobsFor, runsFor, type JobRow, type RunRow } from "@/lib/accounts";
 import { CLERK_ENABLED } from "@/lib/clerk";
 
 /**
@@ -77,6 +77,7 @@ export default async function RunsPage() {
   }
 
   let runs: RunRow[] = [];
+  let jobs: JobRow[] = [];
   try {
     const account = await accountForUser(userId);
     if (!account) {
@@ -91,6 +92,14 @@ export default async function RunsPage() {
       );
     }
     runs = await runsFor(account.id);
+    // **Jobs were missing from "my lists" entirely.**
+    //
+    // A run is keyed by `market_id__criterion_id`, and a job created for a cold
+    // city or a CSV upload has **no market id** — so every read this product
+    // can now start was absent from the one screen whose job is to let somebody
+    // find it again. The list was reachable from the browser's history and
+    // nowhere else.
+    jobs = await jobsFor(account.id).catch(() => []);
   } catch {
     return (
       <Shell>
@@ -102,7 +111,7 @@ export default async function RunsPage() {
     );
   }
 
-  if (runs.length === 0) {
+  if (runs.length === 0 && jobs.length === 0) {
     return (
       <Shell>
         <Empty title="Nothing run yet.">
@@ -115,6 +124,45 @@ export default async function RunsPage() {
 
   return (
     <Shell>
+      {/* The reads, newest first. A job is a list somebody asked for and paid
+          for; it belongs above the saved market searches, not after them. */}
+      {jobs.length > 0 && (
+        <div className="mt-8 space-y-3">
+          {jobs.map((j) => (
+            <Link
+              key={j.id}
+              href={`/app/reads/${j.id}`}
+              className="sf-card block p-5 hover:border-[var(--line-strong)]"
+            >
+              <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+                <span className="sf-h3">{j.query}</span>
+                <span className="sf-data text-[var(--muted)]">{ago(j.created_at)}</span>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1">
+                {j.state === "done" ? (
+                  <span className="sf-data text-[var(--accent)]">{j.matched} fit</span>
+                ) : j.state === "failed" ? (
+                  <span className="sf-data text-[var(--muted)]">stopped early</span>
+                ) : (
+                  <span className="sf-data text-[var(--muted)]">
+                    reading — {j.sites_read.toLocaleString()} of{" "}
+                    {j.sites_total.toLocaleString()}
+                  </span>
+                )}
+                {j.state === "done" && (
+                  <span className="sf-data text-[var(--muted)]">
+                    of {j.sites_judged.toLocaleString()} judged
+                  </span>
+                )}
+                {j.region_label && (
+                  <span className="sf-data text-[var(--muted)]">{j.region_label}</span>
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
       <div className="mt-8 space-y-3">
         {runs.map((r) => (
           <Link
