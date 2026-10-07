@@ -248,10 +248,21 @@ export default function ReadProgress({ id, initial }: { id: string; initial: Row
       )}
 
       <div className="mt-6 grid gap-3 sm:grid-cols-4">
+        {/* **These four now add up, and one of them used to be our word.**
+            It was Read / Judged / A fit so far / Couldn't tell, where "judged"
+            meant settled either way and so already contained "a fit so far",
+            while the heading above said the same thing a third time: "0 fit,
+            out of 4 we could settle." Three of the four numbers described the
+            same four businesses and none of them accounted for the other
+            eight.
+
+            Fit, didn't fit and couldn't tell partition the sites read, so the
+            row reads left to right as 12 = 0 + 4 + 8 and the honest middle
+            number is visible rather than inferred. */}
         {[
           ["Websites read", row.sites_read, row.sites_total],
-          ["Judged", row.sites_judged, null],
-          ["A fit so far", row.matched, null],
+          ["A fit", row.matched, null],
+          ["Didn’t fit", Math.max(0, row.sites_judged - row.matched), null],
           ["Couldn’t tell", row.unclear, null],
         ].map(([label, value, of]) => (
           <div key={String(label)} className="sf-card p-4">

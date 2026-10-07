@@ -185,8 +185,8 @@ export default function SearchConfirm({
                     <div className="mt-0.5 text-[var(--muted)]">{c.how}</div>
                     {!c.provable && (
                       <div className="mt-0.5 text-[var(--unsure)]">
-                        Not settleable today, this one will come back as
-                        &ldquo;not yet judged&rdquo; until a model runs.
+                        We cannot settle this one yet, so it comes back as
+                        &ldquo;not yet judged&rdquo; rather than as a verdict.
                       </div>
                     )}
                     {c.type === "absence" && c.provable && (
@@ -352,8 +352,7 @@ export default function SearchConfirm({
 
           {blocked && (
             <p className="text-[11px] leading-snug text-[var(--muted)]">
-              Nothing is counted while the search declines to make sense,
-              resolve the note above first.
+              Nothing is counted until the note above is resolved.
             </p>
           )}
         </div>

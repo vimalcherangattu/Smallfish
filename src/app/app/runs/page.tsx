@@ -18,7 +18,11 @@ import { CLERK_ENABLED } from "@/lib/clerk";
  */
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Runs | Small Fish" };
+// One noun for this screen. The rail calls it "My lists", the heading said
+// "Your runs." and the line under it said "the same market ... the row":
+// three names for one thing and two of them ours. A list is what the
+// customer leaves with, so that is the word everywhere.
+export const metadata = { title: "Your lists | Small Fish" };
 
 const NICHE: Record<string, string> = {
   "med-spa-dallas": "Med spas in Dallas",
@@ -202,10 +206,10 @@ export default async function RunsPage() {
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="mx-auto max-w-[900px] px-6 py-10 sm:px-10">
-      <h1 className="sf-h1">Your runs.</h1>
+      <h1 className="sf-h1">Your lists.</h1>
       <p className="sf-body mt-3 max-w-[60ch] text-[var(--ink-2)]">
-        Every search you have run, what it found, and when. Opening the same
-        market again updates the row rather than adding one.
+        Every search you have run, what it found, and when. Running the same
+        one again updates it here rather than adding a second.
       </p>
       {children}
     </div>

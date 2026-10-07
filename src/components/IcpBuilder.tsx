@@ -226,7 +226,7 @@ export default function IcpBuilder({
             {!candidates.length ? (
               <p className="mt-2 text-[11px] leading-snug text-[var(--muted)]">
                 {inference.propose.length
-                  ? "None of the four measured markets carries that criterion yet. Stage 0 measured med spas, dental, HVAC and veterinary; the rest of the country is unmeasured, not empty."
+                  ? "We have no measured market carrying that criterion yet. So far we have measured med spas, dental, HVAC and veterinary; the rest of the country is unmeasured, not empty."
                   : "Nothing to count until there is a provable criterion above."}
               </p>
             ) : (
@@ -263,8 +263,7 @@ export default function IcpBuilder({
             {candidates.length > 0 && (
               <p className="mt-2.5 text-[10px] leading-snug text-[var(--muted)]">
                 Pick one and it becomes an ordinary search &mdash; same map,
-                same criteria, same proof. Nothing downstream knows this flow
-                exists.
+                same criteria, same proof.
               </p>
             )}
           </div>

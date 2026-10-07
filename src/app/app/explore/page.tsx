@@ -536,9 +536,9 @@ export default function Page() {
                         {" · "}
                         <span
                           title={
-                            `Overture lists a row per listing, so one practice can appear ` +
-                            `several times. ${duplicateRecords} were folded into the business ` +
-                            `they belong to, you are never charged twice for one website.`
+                            `The listings carry a row per location, so one practice can ` +
+                            `appear several times. ${duplicateRecords} were folded into the ` +
+                            `business they belong to, you are never charged twice for one website.`
                           }
                           className="underline decoration-dotted underline-offset-2"
                         >
@@ -592,8 +592,12 @@ export default function Page() {
                   </>
                 )}
                 <span className="mt-1 block opacity-75">
-                  Per-business figures are planning estimates until the cost
-                  meter runs.
+                  {/* "until the cost meter runs" named one of our own
+                      components at somebody who has never heard of it. What
+                      they need to know is that the figure is an estimate and
+                      what would make it exact. */}
+                  Per-business figures are estimates until we have read the
+                  market and measured them.
                 </span>
               </div>
             </div>

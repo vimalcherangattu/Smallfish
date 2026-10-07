@@ -265,13 +265,15 @@ export default async function Read({ params }: { params: Promise<{ id: string }>
               What is actually happening
             </p>
             <ul className="col" style={{ gap: 8, marginTop: 10 }}>
+              {/* Two of these three bullets used to be about us: a throttle
+                  described by its mechanism, and "Twelve sites are in flight at
+                  once", which is a number only we care about. What a person
+                  waiting actually wants to know is why it takes this long and
+                  whether it is costing them anything. */}
               <li className="t-s">
-                Each site is fetched politely: robots.txt honoured, a real user agent, and
-                1.5 seconds between two requests to the same host. That throttle is most of
-                the wait, and it is not negotiable.
-              </li>
-              <li className="t-s">
-                Twelve sites are in flight at once. More would be faster and worse manners.
+                We wait a second and a half between two requests to the same website,
+                and we say who we are. Most of the wait is that pause. It is also why
+                nobody we read has a reason to block you later.
               </li>
               <li className="t-s">
                 A site we cannot settle is recorded as such rather than guessed at. You are
