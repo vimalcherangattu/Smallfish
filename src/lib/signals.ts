@@ -138,6 +138,43 @@ export const SIGNALS: ObservableSignal[] = [
       /\b(web ?site design|web design|redesign|rebuild (their|the)? ?(web ?site)?|new web ?site|wix|squarespace|webflow)\b/i,
   },
 
+  {
+    id: "published_phone",
+    label: "a phone number on their site",
+    question: "Does the site publish a number you could ring?",
+    provable: true,
+    // Read off the page by `contacts.ts`, which refuses a number that neither
+    // matches the listing nor sits beside a word like "call" in the listing's
+    // own area code. So this is "they publish a number we could verify", not
+    // "a ten-digit string appears somewhere".
+    detected: (r) => (r.contacts?.phones.length ?? 0) > 0,
+    how: "Reads the number off their own pages and checks it against the one on their listing.",
+    absenceText: "publishes no phone number on their site",
+    presenceText: "publishes a phone number on their site",
+    offerNeeds: "presence",
+    costsWhenMissing:
+      "there is no number on the site to ring, so anyone who wants to speak to " +
+      "them has to find one somewhere else",
+    inCriterion: /\b(phone|telephone|number to (call|ring)|contact number|reachable by phone)\b/i,
+    inOffer: /\b(cold call|calling|phone outreach|dialer|call list)\b/i,
+  },
+  {
+    id: "published_email",
+    label: "an email address on their site",
+    question: "Does the site publish an address you could write to?",
+    provable: true,
+    detected: (r) => (r.contacts?.emails.length ?? 0) > 0,
+    how: "Takes the address off a mailto: link or the page itself, ignoring the platform's own.",
+    absenceText: "publishes no email address on their site",
+    presenceText: "publishes an email address on their site",
+    offerNeeds: "presence",
+    costsWhenMissing:
+      "there is no address on the site to write to, so the only way in is a " +
+      "form or the phone",
+    inCriterion: /\b(e-?mail(s| address)?|address to write|mailto)\b/i,
+    inOffer: /\b(email outreach|cold email|sequenc\w+|newsletter|mail merge)\b/i,
+  },
+
   // ---- Wanted, not provable today. Kept so the flow can say no. ----
   {
     id: "contact_form",

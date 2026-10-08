@@ -1,3 +1,5 @@
+import type { SiteContacts } from "@/lib/contacts";
+
 /** Shapes of the measured data in `public/data/`, written by
  *  `stage0/src/coverage/export_app_data.py`. */
 
@@ -34,6 +36,16 @@ export interface ReadResult {
   quote: boolean;
   chat: boolean;
   cms: string[];
+  /**
+   * What the site publishes about reaching them, found while we were on it.
+   *
+   * Optional because it arrived after the four measured markets were written
+   * and their files do not carry it — those are served from
+   * `public/data/contacts-*.json` instead, by the batch extractor this was
+   * ported from. Absent means "not looked for on this read", never "they
+   * publish nothing": `withheld` inside it is how the second thing is said.
+   */
+  contacts?: SiteContacts;
 }
 
 export interface Business {

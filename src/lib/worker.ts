@@ -130,7 +130,11 @@ async function readBatch(sites: JobSiteRow[], criterion: Criterion) {
   return Promise.all(
     sites.map(async (s) => {
       try {
-        const read = await readSite(s.site, criterion);
+        // The listing's own name and phone travel with the read: the first
+        // attributes the page to this business, the second is what a number
+        // printed on it is checked against. Without them `contactsFrom`
+        // withholds rather than guessing.
+        const read = await readSite(s.site, criterion, { name: s.name, phone: s.phone });
         const v = await judge(read, criterion);
         return {
           business_id: s.business_id,

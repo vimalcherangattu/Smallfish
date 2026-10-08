@@ -2,6 +2,7 @@ import "server-only";
 
 import { flat, MAX_PAGES, robotsAllows, safeUrl } from "@/lib/seller";
 import { signalForCriterion } from "@/lib/signals";
+import { contactsFrom } from "@/lib/contacts";
 import type { Criterion, ReadResult, Verdict, VerdictKind } from "@/lib/types";
 
 /**
@@ -46,6 +47,30 @@ async function throttle(host: string) {
   const wait = prev + PER_DOMAIN_DELAY_MS - Date.now();
   if (wait > 0) await new Promise((r) => setTimeout(r, wait));
   lastHit.set(host, Date.now());
+}
+
+/**
+ * Links on one page, absolute where they can be made so.
+ *
+ * `contactsFrom` wants `mailto:` and the socials, and those are the two kinds
+ * a relative-URL resolver would mangle, so they pass through as written.
+ */
+function linksOf(html: string, base: string): string[] {
+  const out: string[] = [];
+  for (const m of html.matchAll(/href=["']([^"']+)["']/gi)) {
+    const href = m[1].trim();
+    if (!href) continue;
+    if (/^(mailto:|tel:)/i.test(href)) {
+      out.push(href);
+      continue;
+    }
+    try {
+      out.push(new URL(href, base).toString());
+    } catch {
+      /* a malformed href is not worth failing a read over */
+    }
+  }
+  return [...new Set(out)];
 }
 
 function textOf(html: string): string {
@@ -180,7 +205,17 @@ export interface SiteRead {
 }
 
 /** Fetch what is needed to answer `criterion` about this site. */
-export async function readSite(rawUrl: string, criterion: Criterion): Promise<SiteRead> {
+export async function readSite(
+  rawUrl: string,
+  criterion: Criterion,
+  /**
+   * What the listing says about this business, for attribution and for the
+   * phone check. Optional, because a CSV upload may carry only a website, and
+   * `contactsFrom` degrades honestly: with no name it attributes nothing and
+   * withholds, which is the safe direction.
+   */
+  business?: { name?: string | null; addr?: string | null; phone?: string | null },
+): Promise<SiteRead> {
   const empty = (outcome: string): SiteRead => ({
     result: { outcome, pages: 0, chars: 0, booking: false, vendors: [], quote: false, chat: false, cms: [] },
     text: "",
@@ -233,10 +268,38 @@ export async function readSite(rawUrl: string, criterion: Criterion): Promise<Si
 
   const all = htmls.join("\n");
   const d = detect(all);
-  const text = htmls.map(textOf).join(" \n ");
+  const perPage = htmls.map((h, i) => ({
+    url: fetched[i] ?? url.toString(),
+    text: textOf(h),
+    links: linksOf(h, fetched[i] ?? url.toString()),
+  }));
+  const text = perPage.map((p) => p.text).join(" \n ");
+
+  // **Contacts, while we are already on the page.**
+  //
+  // The read used to throw this away: it fetched the pages, judged the
+  // criterion and kept neither the text nor the links, so every cold-city job
+  // delivered the phone Overture listed and no email, ever. The extraction
+  // rules are `contacts.ts`, ported from the batch script that produced the
+  // shipped `contacts-*.json` files rather than invented here.
+  //
+  // **Attribution is weaker on this path than in the batch**, and knowingly
+  // so. It tests a distinctive name word or the business's town against the
+  // page and the domain; a job carries the name but not the address, so the
+  // town half cannot run. Measured on 570 dental businesses: 85% are named on
+  // their own site, 83% mention their town, 93% do one or the other. So this
+  // attributes about 85% and withholds the rest, where the batch withholds 7%.
+  // Withholding is the safe direction — the alternative is printing a
+  // stranger's phone number beside somebody's name — and an `addr` column on
+  // `job_sites` would recover the difference.
+  const contacts = contactsFrom({
+    pages: perPage,
+    business: { name: business?.name ?? null, addr: business?.addr ?? null, site: url.toString() },
+    listedPhone: business?.phone ?? null,
+  });
 
   return {
-    result: { outcome: "ok", pages: htmls.length, chars: text.length, ...d },
+    result: { outcome: "ok", pages: htmls.length, chars: text.length, ...d, contacts },
     text,
     pagesFetched: fetched,
   };

@@ -117,14 +117,15 @@ test("the read is capped, and shares the cap with the search box", () => {
 });
 
 test("the catalogue is as small as it is, out loud", () => {
-  // An open ICP box over a four-item catalogue is honest only because it
-  // refuses most of what goes in. Pinned so that the number moving is a
-  // decision somebody makes rather than something that drifts: it is the real
-  // ceiling on what any ICP can ask for, and the product's main constraint.
+  // The real ceiling on what any ICP can ask for, pinned so that it moving is
+  // a decision somebody makes rather than a drift. It has moved twice in one
+  // day and caught both: three that morning, four once `builder` exposed the
+  // platform detection that was already running, six once the live read
+  // started extracting contacts and "has a phone number" became a search.
   const everything = P.planFromOffer("I sell a helpline to gyms");
   assert.equal(
     everything.available.length,
-    4,
+    6,
     "the provable catalogue changed size, which changes what an ICP can ask for",
   );
 });
