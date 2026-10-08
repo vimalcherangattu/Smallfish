@@ -202,6 +202,15 @@ export interface SiteRead {
    *  store extracted facts, not page copies. */
   text: string;
   pagesFetched: string[];
+  /**
+   * How well we covered the places this criterion would show up, which is what
+   * an **absence** verdict is proved with. See `judge`.
+   *
+   * `targeted` is how many criterion-relevant routes the home page linked to;
+   * `reached` is how many of those we actually got. A site that links none is
+   * not badly covered — the home page is the whole site, and that is complete.
+   */
+  coverage: { targeted: number; reached: number };
 }
 
 /** Fetch what is needed to answer `criterion` about this site. */
@@ -220,6 +229,7 @@ export async function readSite(
     result: { outcome, pages: 0, chars: 0, booking: false, vendors: [], quote: false, chat: false, cms: [] },
     text: "",
     pagesFetched: [],
+    coverage: { targeted: 0, reached: 0 },
   });
 
   const url = safeUrl(rawUrl);
@@ -257,10 +267,13 @@ export async function readSite(
 
   const htmls = [first];
   const fetched = [url.toString()];
-  for (const link of pagesFor(first, url, criterion)) {
+  const targets = pagesFor(first, url, criterion);
+  let reached = 0;
+  for (const link of targets) {
     try {
       htmls.push(await get(link));
       fetched.push(link);
+      reached += 1;
     } catch {
       /* one unreachable sub-page does not fail the read */
     }
@@ -302,8 +315,50 @@ export async function readSite(
     result: { outcome: "ok", pages: htmls.length, chars: text.length, ...d, contacts },
     text,
     pagesFetched: fetched,
+    coverage: { targeted: targets.length, reached },
   };
 }
+
+/* ------------------------------------------------- the absence rule, pure -- */
+
+/**
+ * Does this verdict assert that the thing **is there**?
+ *
+ * A criterion of type `absence` reads "has no X", so a `match` asserts X is
+ * missing and a `no_match` asserts it is present. For `presence` it is the
+ * other way round. This decides what can prove the verdict: a quote can only
+ * ever show something is there.
+ */
+export const assertsPresence = (
+  criterionType: string,
+  verdict: "match" | "no_match",
+): boolean => (criterionType === "presence") === (verdict === "match");
+
+/**
+ * Did we look in enough places to trust the silence?
+ *
+ * The same rule `engine/absence.py` has had since S0-13, which the live judge
+ * did not implement. **A complete one-page site passes**: there is no second
+ * page to read and nowhere else the criterion could be hiding, which is what
+ * `homepage_is_whole_site` means there. What fails is having found routes that
+ * would show it and reaching none of them.
+ *
+ * The live judge used `pages < 2` instead, so every one-page site was refused —
+ * and a small business is usually a one-page site.
+ */
+export const coverageProvesAbsence = (c: { targeted: number; reached: number }): boolean =>
+  !(c.targeted > 0 && c.reached === 0);
+
+/**
+ * What proves an absence: the pages we opened, not a sentence off them.
+ *
+ * CLAUDE.md: "A 'no X' verdict requires that the X-relevant pages were read and
+ * no signal was found." It is a statement about our own crawl, so we write it
+ * rather than asking the model to describe it.
+ */
+export const absenceProof = (label: string, pages: string[]): string =>
+  `No ${label} on ${pages.length === 1 ? "the one page this site has" : `${pages.length} pages`}: ` +
+  `${pages.join(", ")}. No ${label} script on any of them.`;
 
 /* ------------------------------------------------------------------ judge -- */
 
@@ -368,8 +423,23 @@ export async function judge(
     `Answer "no_match" only if you found positive evidence it is FALSE.\n` +
     `Answer "couldnt_tell" if the pages you were given do not settle it. ` +
     `Guessing is worse than couldn't-tell; there is no penalty for it.\n\n` +
-    `If you answer match or no_match you MUST quote, verbatim, one sentence or ` +
-    `phrase from the text below that supports it. Quote exactly; do not paraphrase.\n\n` +
+    // **A quote is only possible for a thing that is there.**
+    //
+    // This used to demand one for every verdict, and that single sentence is
+    // why no absence criterion could ever match: no page says "we have no live
+    // chat", so the model either refused to answer or invented a quote that
+    // failed the containment check below. Either way, "couldn't tell".
+    //
+    // So the quote is asked for when the answer asserts something is present,
+    // and when it asserts something is absent the proof is the pages we read —
+    // which is what CLAUDE.md's absence rule asks for, and what `judge` builds
+    // below rather than trusting the model to describe.
+    `If your answer says the thing IS present, you MUST quote, verbatim, one ` +
+    `sentence or phrase from the text below that shows it. Quote exactly; do ` +
+    `not paraphrase.\n` +
+    `If your answer says the thing is NOT present, leave "proof" empty. Do not ` +
+    `invent a sentence saying it is missing; no website says that. Answer ` +
+    `"couldnt_tell" instead if the pages given do not cover where it would be.\n\n` +
     `Reply as JSON: {"verdict":"match|no_match|couldnt_tell","proof":"<exact quote or empty>","reason":"<one short sentence>"}\n\n` +
     `--- PAGE TEXT (${read.pagesFetched.length} pages) ---\n${body}`;
 
@@ -396,28 +466,67 @@ export async function judge(
     return { verdict: "couldnt_tell" as VerdictKind, reason: out.reason ?? "not settled from the pages read" };
   }
 
-  // The quote check. A proof that is not in the text we fetched is not proof,
-  // whatever the model believed, so the verdict drops rather than shipping a
-  // citation a customer could check and find missing.
-  const proof = (out.proof ?? "").trim();
-  if (!proof || !flat(read.text).includes(flat(proof))) {
+  // **Which way round this verdict points**, which decides what can prove it.
+  //
+  // A criterion of type `absence` reads "has no X", so a `match` asserts X is
+  // *missing* and a `no_match` asserts it is *there*. For `presence` it is the
+  // other way round. A quote can only ever show that something is there.
+  const assertsPresent = assertsPresence(criterion.type, verdict);
+
+  if (assertsPresent) {
+    // The quote check, unchanged. A proof that is not in the text we fetched is
+    // not proof, whatever the model believed, so the verdict drops rather than
+    // shipping a citation a customer could check and find missing.
+    const proof = (out.proof ?? "").trim();
+    if (!proof || !flat(read.text).includes(flat(proof))) {
+      return {
+        verdict: "couldnt_tell" as VerdictKind,
+        reason: proof
+          ? "the supporting quote was not found on the pages we read"
+          : "no supporting quote was given",
+      };
+    }
+    return { verdict: verdict as VerdictKind, proof, reason: out.reason ?? "" };
+  }
+
+  // ------------------------------------------------- proving an absence --
+  //
+  // CLAUDE.md: "A 'no X' verdict requires that the X-relevant pages were read
+  // and no signal was found. Missing evidence is 'couldn't tell', never 'no'."
+  // That is coverage, not a quote, and the engine used to demand a quote here
+  // as well — which no page can supply, so nothing ever settled.
+  //
+  // Coverage is complete when we read the home page and every
+  // criterion-relevant route it linked to. **A site that links none is not
+  // poorly covered**: the home page is the whole site. The old proxy for this
+  // was `pages < 2`, which failed exactly those one-page sites, and small
+  // businesses are mostly one-page sites.
+  const { targeted } = read.coverage;
+  if (!coverageProvesAbsence(read.coverage)) {
     return {
       verdict: "couldnt_tell" as VerdictKind,
-      reason: proof
-        ? "the supporting quote was not found on the pages we read"
-        : "no supporting quote was given",
+      reason:
+        `the ${targeted === 1 ? "page" : "pages"} that would show it could not be ` +
+        `fetched, so we cannot call it absent`,
     };
   }
 
-  // An absence verdict needs to have looked in the right place. One page is not
-  // a search; `pagesFor` targets the criterion, so more than one page means the
-  // relevant routes existed and were read.
-  if (criterion.type === "absence" && verdict === "match" && read.result.pages < 2) {
+  // The detector gets the last word against the model. If a vendor script for
+  // this signal is on the page, the thing is there whatever the model said.
+  if (signal?.detected?.(r)) {
     return {
-      verdict: "couldnt_tell" as VerdictKind,
-      reason: "only the home page could be read, which is not enough to call something absent",
+      verdict: (criterion.type === "presence" ? "match" : "no_match") as VerdictKind,
+      proof: r.vendors.length ? `${r.vendors.join(", ")} found on the page` : `${signal.label} found on the page`,
+      reason: "technology detection found it on the page",
     };
   }
 
-  return { verdict: verdict as VerdictKind, proof, reason: out.reason ?? "settled from the pages read" };
+  // The proof is what we looked at, written here rather than taken from the
+  // model: it is a statement about our own crawl, and only we know it.
+  const label = signal?.label ?? "it";
+  return {
+    verdict: verdict as VerdictKind,
+    proof: absenceProof(label, read.pagesFetched),
+    reason: out.reason ?? `read ${read.pagesFetched.length} pages and found no ${label}`,
+  };
 }
