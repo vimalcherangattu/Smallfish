@@ -56,6 +56,7 @@ interface Supply {
     listings: number;
     withSite: number;
     alreadyYours: number;
+    alreadyChecked: number;
     fresh: number;
     ms: number;
   };
@@ -281,11 +282,31 @@ export default function Discover({
           <p className="t-b" style={{ marginTop: 12, color: "#36404C", maxWidth: "56ch" }}>
             <b style={{ color: "#0E1520" }}>{n(f.withSite)}</b> of them have a website we can
             read.
-            {f.alreadyYours > 0 && (
+            {(f.alreadyYours > 0 || f.alreadyChecked > 0) && (
               <>
-                {" "}
-                {n(f.alreadyYours)} you have had before, so they are not in what follows, you
-                never pay for the same business twice.
+                {/* **This said "N you have had before ... you never pay for the
+                    same business twice" about one combined total.** Most of
+                    that total was businesses we had opened for this question
+                    and found did not fit: never delivered, never charged for,
+                    and in one real case produced by a read that matched
+                    nothing at all. Telling somebody they already have seventy
+                    businesses they have never seen is the product miscounting
+                    itself at them. Both exclusions are right; the sentence
+                    was not. */}
+                {f.alreadyYours > 0 && (
+                  <>
+                    {" "}
+                    {n(f.alreadyYours)} {f.alreadyYours === 1 ? "is" : "are"} already yours, so
+                    they are not in what follows, you never pay for the same business twice.
+                  </>
+                )}
+                {f.alreadyChecked > 0 && (
+                  <>
+                    {" "}
+                    {n(f.alreadyChecked)} we have already opened for this exact question and
+                    they did not fit, so we will not spend your reading on them again.
+                  </>
+                )}
               </>
             )}
           </p>

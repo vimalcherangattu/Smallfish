@@ -19,7 +19,7 @@ import { agree, evidenceFor, prettyDay } from "@/lib/appview";
 import { CLERK_ENABLED } from "@/lib/clerk";
 import { criterionForJob } from "@/lib/marketsource";
 import { humanDuration } from "@/lib/jobs";
-import { marketFromJob, settledCount } from "@/lib/jobmarket";
+import { marketFromJob, outcomeOf, settledCount } from "@/lib/jobmarket";
 import { splitQuery } from "@/lib/query";
 import { buildLeads, composeEmail, type Contacts } from "@/lib/leads";
 import { PLANS } from "@/lib/pricing";
@@ -101,6 +101,8 @@ export default async function Read({ params }: { params: Promise<{ id: string }>
   const criterion = await criterionForJob(job);
   const rows: JobSiteRow[] = criterion ? await jobSiteRows(accountId!, job.id) : [];
   const settled = settledCount(rows);
+  // What the read actually produced, which is more than one number.
+  const outcome = outcomeOf(rows);
 
   let result = null;
   let byId = new Map<string, ReturnType<typeof marketFromJob>["businesses"][number]>();
@@ -233,17 +235,49 @@ export default async function Read({ params }: { params: Promise<{ id: string }>
         ) : (
           !running && (
             <div>
+              {/* **It said "Nothing fit, out of the N we settled" and N was the
+                  number of sites read.** A row can be finished and have reached
+                  no verdict at all, so a real read reported "out of the 12 we
+                  settled" when four were settled and eight were couldn't-tell:
+                  the sentence claimed twelve Dallas gyms all have live chat.
+
+                  The three endings below are different answers and only one of
+                  them is about the market. Nothing fit is a result. We could
+                  not tell is our failure. The engine was not running is our
+                  failure and a fixable one, and saying "nothing fit" to that is
+                  the product lying about its own availability. */}
               <p className="kick">Finished</p>
               <h1 className="t-h1" style={{ marginTop: 8 }}>
                 {job.state === "failed"
                   ? "This stopped before it finished."
-                  : `Nothing fit, out of the ${settled.toLocaleString()} we settled.`}
+                  : outcome.noEngine > 0
+                    ? "We could not read these."
+                    : outcome.settled === 0
+                      ? `We opened ${outcome.read.toLocaleString()} and could not settle any of them.`
+                      : `Nothing fit, out of the ${outcome.settled.toLocaleString()} we could settle.`}
               </h1>
               <p className="t-b" style={{ marginTop: 12, color: "#36404C", maxWidth: "58ch" }}>
-                {job.state === "failed"
-                  ? (job.failure ?? "It stopped early.")
-                  : `We opened ${job.sites_read.toLocaleString()} websites and checked each against ` +
-                    `“${criterion ? agree(criterion.text) : job.query}”.`}{" "}
+                {job.state === "failed" ? (
+                  (job.failure ?? "It stopped early.")
+                ) : outcome.noEngine > 0 ? (
+                  <>
+                    The part that reads a page and answers a question was not
+                    available, so {outcome.noEngine.toLocaleString()} of{" "}
+                    {outcome.read.toLocaleString()} came back with no answer. That is
+                    ours to fix, not a fact about these businesses.
+                  </>
+                ) : (
+                  <>
+                    We opened {outcome.read.toLocaleString()} websites and checked each
+                    against “{criterion ? agree(criterion.text) : job.query}”.{" "}
+                    {outcome.unsure > 0 && (
+                      <>
+                        {outcome.unsure.toLocaleString()} of them we could not read well
+                        enough to say either way, which is ours rather than theirs.{" "}
+                      </>
+                    )}
+                  </>
+                )}{" "}
                 Nothing was charged.
               </p>
               <div className="nextstep">

@@ -167,8 +167,43 @@ export function marketFromJob(
   };
 }
 
-/** How many of a job's rows have an answer yet. The results screen opens as
- *  soon as this is above zero rather than waiting for the whole read, because a
- *  partial list of real matches is worth more than a progress bar. */
-export const settledCount = (rows: JobSiteRow[]) =>
+/** How many of a job's rows we have finished with, whatever the answer. The
+ *  results screen opens as soon as this is above zero rather than waiting for
+ *  the whole read, because a partial list of real matches is worth more than a
+ *  progress bar.
+ *
+ *  **Read, not settled.** It was called `settledCount` and the finished screen
+ *  printed it as "out of the N we settled", which is a different and much
+ *  stronger claim: a row can be done and have reached no verdict at all. A real
+ *  read came back "Nothing fit, out of the 12 we settled" when four had been
+ *  settled and eight were couldn't-tell, so the sentence said twelve Dallas
+ *  gyms all have live chat. Use `outcomeOf` to say anything about verdicts. */
+export const readCount = (rows: JobSiteRow[]) =>
   rows.filter((r) => r.state === "done").length;
+
+/** Kept for callers that only ask "is there anything to show yet". */
+export const settledCount = readCount;
+
+/**
+ * What a finished read actually produced.
+ *
+ * The finished screen had one number and used it for everything, so it could
+ * not tell "we checked twelve and none fit" from "we could not check any of
+ * them". Those are opposite answers: the first is a real result about the
+ * market, the second is a failure of ours, and only one of them should make
+ * somebody change their search.
+ */
+export function outcomeOf(rows: JobSiteRow[]) {
+  const done = rows.filter((r) => r.state === "done");
+  const by = (...v: string[]) => done.filter((r) => v.includes(r.verdict ?? "")).length;
+  return {
+    read: done.length,
+    matched: by("match"),
+    /** Reached a verdict either way. The honest denominator for "none fit". */
+    settled: by("match", "no_match"),
+    /** Read, and we could not say. Ours, not theirs. */
+    unsure: by("couldnt_tell", "blocked"),
+    /** The engine was not available. Ours, and fixable. */
+    noEngine: by("needs_model"),
+  };
+}

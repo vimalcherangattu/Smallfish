@@ -1086,6 +1086,30 @@ export async function everGivenIds(
   accountId: string,
   opts: { criterionId?: string | null; limit?: number } = {},
 ): Promise<Set<string>> {
+  return (await excludedFor(accountId, opts)).ids;
+}
+
+/**
+ * The same two exclusions, **counted apart**, because they are not the same
+ * thing and the screen said they were.
+ *
+ * It reported one total as *"70 you have had before, so they are not in what
+ * follows, you never pay for the same business twice"*. Most of that 70 were
+ * businesses we had read for this question and found did not fit — the
+ * customer never received them, was never charged for them, and in one case
+ * the read that produced them matched nothing at all. Telling somebody they
+ * already have seventy businesses they have never seen is the product
+ * miscounting itself at them.
+ *
+ * Both exclusions are right; only the sentence was wrong. `held` is yours
+ * already and will never be charged twice. `checked` is ones we have opened
+ * for this exact question, where reading again would spend a crawl and a model
+ * call to re-learn an answer we have.
+ */
+export async function excludedFor(
+  accountId: string,
+  opts: { criterionId?: string | null; limit?: number } = {},
+): Promise<{ ids: Set<string>; held: number; checked: number }> {
   const limit = Math.max(1, Math.min(opts.limit ?? 20_000, 50_000));
   const out = new Set<string>();
 
@@ -1098,8 +1122,9 @@ export async function everGivenIds(
   } catch {
     // Nothing to exclude. See the note above.
   }
+  const held = out.size;
 
-  if (!opts.criterionId) return out;
+  if (!opts.criterionId) return { ids: out, held, checked: 0 };
 
   try {
     // Two round trips rather than a PostgREST embed: `job_sites` carries no
@@ -1126,7 +1151,7 @@ export async function everGivenIds(
     // As above.
   }
 
-  return out;
+  return { ids: out, held, checked: Math.max(0, out.size - held) };
 }
 
 /** Put a job's work list in place. Idempotent — see migration `0014`. */

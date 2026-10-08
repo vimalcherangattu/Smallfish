@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { accountForUser, balanceOf, everGivenIds } from "@/lib/accounts";
+import { accountForUser, balanceOf, excludedFor } from "@/lib/accounts";
 import { CLERK_ENABLED } from "@/lib/clerk";
 import { parseSearch } from "@/lib/search";
 import { SIGNALS } from "@/lib/signals";
@@ -146,8 +146,8 @@ export async function POST(req: Request) {
     supplyFor(categories, region),
     acct ? balanceOf(acct.id) : Promise.resolve(0),
     acct && criterion
-      ? everGivenIds(acct.id, { criterionId: `${criterion.signalId}:${criterion.type}` })
-      : Promise.resolve(new Set<string>()),
+      ? excludedFor(acct.id, { criterionId: `${criterion.signalId}:${criterion.type}` })
+      : Promise.resolve({ ids: new Set<string>(), held: 0, checked: 0 }),
   ]);
 
   // Signed out, size against what signing up grants rather than against zero.
@@ -163,7 +163,7 @@ export async function POST(req: Request) {
   // Businesses this workspace has already been given come off what is left to
   // find, so the number on screen is the number of *new* names — which is the
   // only number that means anything to somebody on their second search.
-  const fresh = Math.max(0, supply.withSite - given.size);
+  const fresh = Math.max(0, supply.withSite - given.ids.size);
 
   const sized = rates ? sizeAsk({ want: credits, withSite: fresh, rates }) : null;
 
@@ -185,8 +185,17 @@ export async function POST(req: Request) {
     found: {
       listings: supply.listings,
       withSite: supply.withSite,
-      /** Already given to this workspace, and therefore not offered again. */
-      alreadyYours: given.size,
+      /** Already unlocked by this workspace. Yours, and never charged twice. */
+      alreadyYours: given.held,
+      /**
+       * Already opened for this exact question and found not to fit.
+       *
+       * Counted apart from `alreadyYours` because the screen reported one
+       * total as "you have had before", and most of it was businesses the
+       * customer never received. Reading them again would spend a crawl and a
+       * model call to re-learn an answer we have.
+       */
+      alreadyChecked: given.checked,
       fresh,
       ms: supply.ms,
     },
