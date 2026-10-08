@@ -111,6 +111,131 @@ export async function accountForUser(clerkUserId: string): Promise<AccountRow | 
   return rows[0]?.accounts ?? null;
 }
 
+/* --------------------------------------------------------------- ICPs -- */
+
+export interface IcpRow {
+  id: string;
+  account_id: string;
+  name: string;
+  offer: string;
+  /** The edited plan, as `icpplan.ts` shapes it. */
+  plan: unknown;
+  created_at: string;
+  updated_at: string;
+  archived_at: string | null;
+}
+
+/**
+ * Does this deployment have the ICP table yet?
+ *
+ * Migration `0022` is applied by hand, so there is a window where the code
+ * knows about `icps` and the database does not. Every reader below answers
+ * emptily rather than throwing in that window, and the screens say "not set up
+ * here" the way they already do for a missing Clerk or a missing database —
+ * a half-deployed feature should degrade, not 500.
+ *
+ * PostgREST answers an unknown relation with 404 and `PGRST205`, which is
+ * distinguishable from a real failure. Anything else still throws, because a
+ * permissions mistake that read as "no ICPs" would be a silent data loss.
+ */
+/** The same shape `jobFor` guards with: an id that is not one never reaches
+ *  the database, so a malformed path cannot be probed for existence. */
+const UUID = /^[0-9a-f-]{36}$/i;
+
+const MISSING_TABLE = /PGRST205|does not exist|Could not find the table/i;
+const noTable = (err: unknown) => MISSING_TABLE.test(String(err));
+
+/** Every ICP this workspace has, newest first. */
+export async function icpsFor(accountId: string): Promise<IcpRow[]> {
+  try {
+    return (
+      (await rest<IcpRow[] | null>(
+        `icps?account_id=eq.${encodeURIComponent(accountId)}&archived_at=is.null` +
+          `&select=*&order=updated_at.desc`,
+      )) ?? []
+    );
+  } catch (err) {
+    if (noTable(err)) return [];
+    throw err;
+  }
+}
+
+/** One ICP, scoped to the workspace that owns it. */
+export async function icpFor(accountId: string, id: string): Promise<IcpRow | null> {
+  if (!UUID.test(id)) return null;
+  try {
+    const rows =
+      (await rest<IcpRow[] | null>(
+        `icps?id=eq.${id}&account_id=eq.${encodeURIComponent(accountId)}&select=*&limit=1`,
+      )) ?? [];
+    return rows[0] ?? null;
+  } catch (err) {
+    if (noTable(err)) return null;
+    throw err;
+  }
+}
+
+/**
+ * Create or replace one.
+ *
+ * `id` absent creates; present updates, scoped to the owner so an id from
+ * somebody else's workspace writes nothing rather than writing theirs.
+ */
+export async function saveIcp(args: {
+  accountId: string;
+  id?: string | null;
+  name: string;
+  offer: string;
+  plan: unknown;
+}): Promise<IcpRow | null> {
+  const body = JSON.stringify({
+    account_id: args.accountId,
+    name: args.name.trim().slice(0, 120),
+    offer: args.offer ?? "",
+    plan: args.plan ?? {},
+  });
+  try {
+    if (args.id && UUID.test(args.id)) {
+      const rows =
+        (await rest<IcpRow[] | null>(
+          `icps?id=eq.${args.id}&account_id=eq.${encodeURIComponent(args.accountId)}`,
+          { method: "PATCH", headers: { Prefer: "return=representation" }, body },
+        )) ?? [];
+      return rows[0] ?? null;
+    }
+    const rows =
+      (await rest<IcpRow[] | null>("icps", {
+        method: "POST",
+        headers: { Prefer: "return=representation" },
+        body,
+      })) ?? [];
+    return rows[0] ?? null;
+  } catch (err) {
+    if (noTable(err)) return null;
+    throw err;
+  }
+}
+
+/** Archive rather than delete, so a job that names an ICP keeps something to
+ *  name. The unique index on the name is partial, so the name frees up. */
+export async function archiveIcp(accountId: string, id: string): Promise<boolean> {
+  if (!UUID.test(id)) return false;
+  try {
+    await rest(
+      `icps?id=eq.${id}&account_id=eq.${encodeURIComponent(accountId)}`,
+      {
+        method: "PATCH",
+        headers: { Prefer: "return=minimal" },
+        body: JSON.stringify({ archived_at: new Date().toISOString() }),
+      },
+    );
+    return true;
+  } catch (err) {
+    if (noTable(err)) return false;
+    throw err;
+  }
+}
+
 /**
  * Businesses we have read on a job, matching a removal claim.
  *

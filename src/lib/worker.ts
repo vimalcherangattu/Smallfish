@@ -142,6 +142,13 @@ async function readBatch(sites: JobSiteRow[], criterion: Criterion) {
           proof: v.proof ?? null,
           pages: read.result.pages ?? 0,
           outcome: read.result.outcome ?? "ok",
+          // Written in the same call as the verdict, deliberately. A contact
+          // stored by a second write is a row a dying tick can leave half
+          // updated, and this whole file is built around a tick dying at any
+          // point. Harmless before migration `0022` is applied: the old
+          // `record_sites` record definition simply does not name this field,
+          // so `jsonb_to_recordset` ignores it.
+          contacts: read.result.contacts ?? null,
         };
       } catch {
         // Never blame the environment on the business.
@@ -151,6 +158,7 @@ async function readBatch(sites: JobSiteRow[], criterion: Criterion) {
           proof: null,
           pages: 0,
           outcome: "error",
+          contacts: null,
         };
       }
     }),
