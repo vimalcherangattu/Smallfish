@@ -783,6 +783,14 @@ export interface JobRow {
    * shows it so a paused read reads as paused rather than as stalled.
    */
   worker_note?: string | null;
+  /** Matches asked for. Migration `0023`; absent on a job queued before it,
+   *  which then behaves as it always did — finished when its list is. */
+  want?: number | null;
+  /** The categories the customer confirmed, so a top-up searches the same set
+   *  rather than re-deriving one from the query. */
+  categories?: string[] | null;
+  /** Current horizon in miles. Widens only when the region is exhausted. */
+  radius_miles?: number | null;
 }
 
 export async function queueJob(args: {
@@ -805,6 +813,82 @@ export async function queueJob(args: {
     p_estimate: args.estimateSeconds,
     p_email: args.notifyEmail ?? null,
   })) as unknown as string;
+}
+
+/**
+ * What a job needs to remember in order to carry on looking.
+ *
+ * Written after `queueJob` rather than through it, so `queue_job`'s signature
+ * is untouched and this degrades to a no-op while migration `0023` is
+ * unapplied: PostgREST rejects an unknown column and the job simply behaves as
+ * it did before, finishing when its first list runs out.
+ */
+export async function describeJob(
+  jobId: string,
+  args: { want?: number | null; categories?: string[] | null; radiusMiles?: number | null },
+): Promise<boolean> {
+  if (!UUID.test(jobId)) return false;
+  try {
+    await rest(`jobs?id=eq.${jobId}`, {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({
+        want: args.want ?? null,
+        categories: args.categories ?? null,
+        radius_miles: args.radiusMiles ?? null,
+      }),
+    });
+    return true;
+  } catch (err) {
+    // An unapplied migration is not a failed search.
+    if (/PGRST204|column|does not exist/i.test(String(err))) return false;
+    throw err;
+  }
+}
+
+/**
+ * Add more sites to a job that has run out, and put it back to work.
+ *
+ * Separate from `addJobSites` because that one only inserts: a job released as
+ * `done` would keep the new rows and never claim them. `extend_job` does both
+ * under one statement — see migration `0023`.
+ */
+export async function extendJob(
+  jobId: string,
+  rows: Array<{ business_id: string; name?: string | null; site: string; phone?: string | null; ordinal?: number }>,
+  radiusMiles?: number | null,
+): Promise<number> {
+  if (!rows.length) return 0;
+  try {
+    return Number(
+      await rpc<number>("extend_job", {
+        p_job: jobId,
+        p_rows: rows.map((r, i) => ({
+          business_id: r.business_id,
+          name: r.name ?? null,
+          site: r.site,
+          phone: r.phone ?? null,
+          ordinal: r.ordinal ?? i + 1,
+        })),
+        p_radius: radiusMiles ?? null,
+      }),
+    );
+  } catch (err) {
+    // The function arrives with `0023`. Until then a job ends where it ended,
+    // which is the behaviour this replaces rather than something worse.
+    if (/PGRST202|does not exist|Could not find the function/i.test(String(err))) return 0;
+    throw err;
+  }
+}
+
+/** Every business id already on a job, so a top-up does not re-add them. */
+export async function jobBusinessIds(jobId: string): Promise<Set<string>> {
+  if (!UUID.test(jobId)) return new Set();
+  const rows =
+    (await rest<Array<{ business_id: string }> | null>(
+      `job_sites?job_id=eq.${jobId}&select=business_id&limit=50000`,
+    ).catch(() => null)) ?? [];
+  return new Set(rows.map((r) => r.business_id));
 }
 
 /**

@@ -164,11 +164,11 @@ const CATEGORY = /^[a-z0-9_]+$/;
  * on screen — a state read is a sample of its largest cities and says so — so
  * the number quoted and the businesses read are the same set.
  */
-function within(r: Resolution) {
+function within(r: Resolution, radiusMiles: number = RADIUS_MILES) {
   const cities = r.sample.length ? r.sample : r.city ? [r.city] : [];
   if (!cities.length) return null;
 
-  const boxes = cities.map((c) => box(c.center[1], c.center[0], RADIUS_MILES));
+  const boxes = cities.map((c) => box(c.center[1], c.center[0], radiusMiles));
   const bbox = {
     xmin: Math.min(...boxes.map((b) => b.xmin)),
     xmax: Math.max(...boxes.map((b) => b.xmax)),
@@ -181,7 +181,7 @@ function within(r: Resolution) {
       const [lon, lat] = c.center;
       return `3958.8 * 2 * ASIN(SQRT(POW(SIN(RADIANS(ST_Y(geometry) - ${lat})/2),2)
         + COS(RADIANS(${lat})) * COS(RADIANS(ST_Y(geometry)))
-        * POW(SIN(RADIANS(ST_X(geometry) - ${lon})/2),2))) <= ${RADIUS_MILES}`;
+        * POW(SIN(RADIANS(ST_X(geometry) - ${lon})/2),2))) <= ${radiusMiles}`;
     })
     .join(" OR ");
 
@@ -209,12 +209,25 @@ function within(r: Resolution) {
 export async function supplyFor(
   categories: string[],
   region: Resolution,
-  opts: { rows?: boolean; limit?: number; exclude?: Iterable<string> } = {},
+  opts: {
+    rows?: boolean;
+    limit?: number;
+    exclude?: Iterable<string>;
+    /**
+     * How far out to look, in miles. Defaults to `RADIUS_MILES`.
+     *
+     * It was a constant, which made "we read everything near Dallas and found
+     * none of what you asked for" a dead end rather than a reason to look
+     * further. A job widens this when its region runs out before its target is
+     * met; see migration `0023`.
+     */
+    radiusMiles?: number;
+  } = {},
 ): Promise<Supply> {
   const cats = categories.filter((c) => CATEGORY.test(c));
   if (!cats.length) return { listings: 0, withSite: 0, ms: 0, rows: opts.rows ? [] : undefined };
 
-  const where = within(region);
+  const where = within(region, opts.radiusMiles ?? RADIUS_MILES);
   if (!where) return { listings: 0, withSite: 0, ms: 0, rows: opts.rows ? [] : undefined };
 
   const started = Date.now();

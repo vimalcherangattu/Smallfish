@@ -5,6 +5,7 @@ import {
   accountForUser,
   addJobSites,
   balanceOf,
+  describeJob,
   everGivenIds,
   jobFor,
   queueJob,
@@ -18,7 +19,7 @@ import { splitQuery } from "@/lib/query";
 import { CITY_CAP, resolveRegion, type Places } from "@/lib/region";
 import { parseSearch } from "@/lib/search";
 import { matchRates, sizeAsk } from "@/lib/sizing";
-import { supplyFor } from "@/lib/supply";
+import { RADIUS_MILES, supplyFor } from "@/lib/supply";
 import { matchTrade, type Taxonomy } from "@/lib/trades";
 import { toCredits } from "@/lib/wallet";
 import type { Market, MarketIndex } from "@/lib/types";
@@ -333,6 +334,16 @@ export async function POST(req: Request) {
       ordinal: i + 1,
     })),
   );
+
+  // **What the job needs in order to carry on looking.**
+  //
+  // The list above is sized from a match-rate estimate, so a job whose estimate
+  // is wrong used to stop with fewer matches than were asked for and call
+  // itself finished. It now keeps going, and to do that it has to remember what
+  // it was looking for: how many, which categories the customer confirmed, and
+  // how far out it is currently searching. Best-effort — before migration
+  // `0023` this is a no-op and a job ends where it always ended.
+  await describeJob(id, { want, categories, radiusMiles: RADIUS_MILES });
 
   return Response.json({
     ok: true,

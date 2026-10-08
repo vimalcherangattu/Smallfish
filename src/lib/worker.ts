@@ -40,27 +40,34 @@ import "server-only";
 
 import {
   accountById,
+  balanceOf,
   claimJob,
   claimThisJob,
   jobFor,
   recordSites,
   releaseJob,
+  extendJob,
   isComped,
+  jobBusinessIds,
   sweepStrandedSites,
   takeSites,
   type JobRow,
   type JobSiteRow,
 } from "@/lib/accounts";
 import { CONCURRENCY } from "@/lib/jobs";
-import { emptyAccount, planOf } from "@/lib/ledger";
+import { emptyAccount, MILLI, planOf } from "@/lib/ledger";
 import {
   bandFor,
   checkRunHealth,
   crossesAbortCheck,
   pricePerCredit,
+  READS_PER_CREDIT,
 } from "@/lib/pricing";
 import { send } from "@/lib/notify";
+import { splitQuery } from "@/lib/query";
 import { judge, readSite } from "@/lib/read";
+import { resolveRegion, type Places } from "@/lib/region";
+import { supplyFor } from "@/lib/supply";
 import type { Criterion } from "@/lib/types";
 
 /** Where links in the finished-read note point. */
@@ -262,6 +269,145 @@ async function stillWorthReading(
 const unclearIn = (results: Array<{ verdict: string }>) =>
   results.filter((r) => ["couldnt_tell", "blocked", "needs_model"].includes(r.verdict)).length;
 
+/**
+ * Out of sites, and not out of the search.
+ *
+ * ## The failure this exists for
+ *
+ * Two gyms in Dallas with no live chat. `sizing.ts` put twelve sites on the
+ * job — its estimate of how many reads find two matches, derived from the four
+ * measured markets — all twelve were read, none matched, and the job called
+ * itself finished. There were 1,542 readable gyms in the region. The customer
+ * asked for two and got nothing, and the screen reported it as a fact about
+ * Dallas.
+ *
+ * Nothing was broken: a job is finished when its list is empty, and the list is
+ * sized from an estimate. **An estimate being wrong is exactly when a search
+ * most needs to carry on**, which is the one thing it could not do.
+ *
+ * ## Three bounds, and only one of them is "no more businesses"
+ *
+ *   1. **The target.** Found what was asked for, so stop. This also stops a job
+ *      that has its two from reading the other ten, which is money saved rather
+ *      than spent.
+ *   2. **The budget**, `READS_PER_CREDIT × credits`. "Keep looking" means keep
+ *      looking within what the balance pays for; eleven reads per credit is
+ *      what keeps every plan solvent when nothing matches. A search that
+ *      widened for ever would be a bill that widened for ever.
+ *   3. **The horizon.** Only when the region is genuinely exhausted does it
+ *      widen, and only to `MAX_RADIUS_MILES`.
+ *
+ * The three are reported apart, because "we ran out of your reading" and
+ * "there are no more businesses near Dallas" are different answers and only one
+ * of them is fixed by buying credits.
+ */
+
+/** The city dataset, read once per container. The same file `/api/jobs` reads
+ *  to resolve a region in the first place. */
+let placesCache: Places | null | undefined;
+async function loadPlaces(): Promise<Places | null> {
+  if (placesCache !== undefined) return placesCache;
+  try {
+    const { readFile } = await import("node:fs/promises");
+    const path = await import("node:path");
+    placesCache = JSON.parse(
+      await readFile(path.join(process.cwd(), "public", "data", "places-us.json"), "utf8"),
+    ) as Places;
+  } catch {
+    placesCache = null;
+  }
+  return placesCache;
+}
+
+const RADIUS_STEPS = [25, 50, 100] as const;
+const MAX_RADIUS_MILES = RADIUS_STEPS[RADIUS_STEPS.length - 1];
+
+/** The next horizon out, or null when there is nowhere further to go. */
+export const widerThan = (miles: number): number | null =>
+  RADIUS_STEPS.find((r) => r > miles) ?? null;
+
+/**
+ * How many more sites this job may read, given what the balance pays for.
+ *
+ * Current balance rather than the one at creation: somebody who tops up
+ * mid-search should get the search they paid for.
+ */
+export const readsLeft = (credits: number, alreadyRead: number): number =>
+  Math.max(0, credits * READS_PER_CREDIT - alreadyRead);
+
+async function keepLooking(job: JobRow): Promise<{ added: number; why: string | null }> {
+  // Nothing to carry on towards. A job queued before migration `0023` has no
+  // `want`, and it behaves exactly as it did before: finished when the list is.
+  const want = job.want ?? 0;
+  if (want <= 0) return { added: 0, why: null };
+  if (job.matched >= want) return { added: 0, why: null };
+
+  const account = await accountById(job.account_id).catch(() => null);
+  if (!account) return { added: 0, why: null };
+  const credits = Math.floor((await balanceOf(job.account_id).catch(() => 0)) / MILLI);
+  const budget = readsLeft(credits, job.sites_read);
+  if (budget <= 0) {
+    return {
+      added: 0,
+      why:
+        `We read the ${job.sites_read.toLocaleString()} your credits cover and found ` +
+        `${job.matched} of the ${want} you asked for. More credits, and we keep going.`,
+    };
+  }
+
+  const categories = job.categories ?? [];
+  if (!categories.length) return { added: 0, why: null };
+
+  // The region is re-resolved from the query rather than stored, so there is
+  // one definition of where a search covers. `places-us.json` ships in the
+  // bundle; a deployment without it simply cannot widen.
+  const split = splitQuery(job.query);
+  const places = await loadPlaces();
+  const region = places && split.where ? resolveRegion(places, split.where) : null;
+  if (!region) return { added: 0, why: null };
+
+  // Everything already on this job, so a top-up is new businesses and not the
+  // same ones re-queued.
+  const already = await jobBusinessIds(job.id);
+
+  let radius = job.radius_miles ?? RADIUS_STEPS[0];
+  for (;;) {
+    const supply = await supplyFor(categories, region, {
+      rows: true,
+      limit: Math.min(budget, 500),
+      exclude: already,
+      radiusMiles: radius,
+    }).catch(() => null);
+
+    const rows = supply?.rows ?? [];
+    if (rows.length) {
+      const added = await extendJob(
+        job.id,
+        rows.map((r, i) => ({ business_id: r.id, name: r.name, site: r.site, phone: r.phone, ordinal: i + 1 })),
+        radius,
+      );
+      return {
+        added,
+        why:
+          radius === (job.radius_miles ?? RADIUS_STEPS[0])
+            ? null
+            : `Nothing left within ${job.radius_miles ?? RADIUS_STEPS[0]} miles, so we widened to ${radius}.`,
+      };
+    }
+
+    const wider = widerThan(radius);
+    if (!wider) {
+      return {
+        added: 0,
+        why:
+          `We have read every ${split.what || "business"} with a website within ` +
+          `${MAX_RADIUS_MILES} miles of ${region.label}. ${job.matched} of them fit.`,
+      };
+    }
+    radius = wider;
+  }
+}
+
 /** Work one claimed job for as long as the budget allows. */
 export async function runJobSlice({
   job,
@@ -273,9 +419,30 @@ export async function runJobSlice({
   let matched = 0;
   let unclear = 0;
 
+  /** Said on the job when a search stops for a reason that is not "finished". */
+  let stoppedBecause: string | null = null;
+
   while (roomFor(started, budgetMs)) {
-    const sites = await takeSites(job.id, BATCH);
-    if (!sites.length) break;
+    // **Enough is enough.** A job that has the matches it was asked for stops
+    // rather than reading the rest of its list, which is the customer's crawl
+    // budget not spent. `want` is absent on a job queued before migration
+    // `0023`, and those behave as they always did.
+    if ((job.want ?? 0) > 0 && job.matched + matched >= (job.want ?? 0)) break;
+
+    let sites = await takeSites(job.id, BATCH);
+
+    if (!sites.length) {
+      // Out of sites, and possibly not out of the search. See `keepLooking`.
+      const more = await keepLooking({
+        ...job,
+        sites_read: job.sites_read + read,
+        matched: job.matched + matched,
+      }).catch(() => ({ added: 0, why: null }));
+      stoppedBecause = more.why;
+      if (more.added <= 0) break;
+      sites = await takeSites(job.id, BATCH);
+      if (!sites.length) break;
+    }
 
     const results = await readBatch(sites, criterion);
 
@@ -356,7 +523,10 @@ export async function runJobSlice({
     }
   }
 
-  const state = await releaseJob(job.id);
+  // Why it stopped, when that is not simply "it finished". The three reasons
+  // are reported apart because only one of them is about the market: the
+  // budget ran out, the horizon ran out, or we found what was asked for.
+  const state = await releaseJob(job.id, stoppedBecause);
 
   // The note the person was promised when they left. Written here because this
   // is the only place that knows the job just finished — `release_job` is the
