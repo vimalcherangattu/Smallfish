@@ -97,7 +97,19 @@ export function inferFromOffer(description: string): Inference {
   return {
     propose: hits
       .filter((s) => s.provable)
-      .map((s) => ({ signal: s, criterionText: s.absenceText, type: "absence" as const })),
+      .map((s) => {
+        // `offerNeeds` rather than always absence. Two flows proposing
+        // opposite criteria from the same sentence is worse than either being
+        // wrong on its own: `icpplan.ts` reads this field, and a web-design
+        // offer would have been told "is not on a website builder" here and
+        // "is on a website builder" there.
+        const type = s.offerNeeds ?? "absence";
+        return {
+          signal: s,
+          criterionText: type === "absence" ? s.absenceText : s.presenceText,
+          type,
+        };
+      }),
     refused: hits
       .filter((s) => !s.provable)
       .map((s) => ({ signal: s, wouldTake: s.wouldTake ?? "unspecified" })),

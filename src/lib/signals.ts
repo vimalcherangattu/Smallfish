@@ -18,6 +18,15 @@
 
 import type { ReadResult } from "@/lib/types";
 
+/**
+ * Platforms that count as a builder, matching what `read.ts` detects.
+ *
+ * WordPress is deliberately out: it is as often a developer's choice as a
+ * DIY one, so "on WordPress" says nothing about who built it, and a criterion
+ * that fires on half the web is not a criterion.
+ */
+const BUILDERS = new Set(["wix", "squarespace", "godaddy_website_builder", "webflow", "shopify"]);
+
 export interface ObservableSignal {
   id: string;
   /** Short noun phrase, as it reads mid-sentence. */
@@ -44,6 +53,17 @@ export interface ObservableSignal {
   inOffer: RegExp;
   /** Only for `provable: false`: what it would take to settle it. */
   wouldTake?: string;
+  /**
+   * Which side of this signal an offer is needed on. Defaults to `absence`.
+   *
+   * Nearly every entry here is a gap somebody sells into: you sell booking
+   * software to practices that have none. **`builder` is the other kind** — a
+   * web designer wants the sites that *are* on Wix, not the ones that are not
+   * — and before this field the catalogue had no way to say so, so
+   * `inferFromOffer` turned "we rebuild outdated websites" into "is not on a
+   * website builder", which is the opposite of the ask.
+   */
+  offerNeeds?: "absence" | "presence";
 }
 
 export const SIGNALS: ObservableSignal[] = [
@@ -93,6 +113,29 @@ export const SIGNALS: ObservableSignal[] = [
       "a question asked while nobody is at the phone has nowhere to land",
     inCriterion: /\b(chats?|live chat|messenger|live support)\b/i,
     inOffer: /\b(chat\w*|chatbot|messaging|instant repl\w+|website assistant)\b/i,
+  },
+
+  {
+    id: "builder",
+    label: "a DIY website builder",
+    question: "Was this site assembled on a drag-and-drop website builder?",
+    provable: true,
+    // **The cheapest check in the catalogue.** The builder leaves its own
+    // markup in the page source, so this settles with no model call at all and
+    // cannot come back "couldn't tell" — `icpplan.ts` reports it as `observed`
+    // rather than `read` for exactly that reason.
+    detected: (r) => r.cms.some((c) => BUILDERS.has(c)),
+    how: "Looks for the builder's own markup in the page source: Wix, Squarespace, GoDaddy, Webflow or Shopify.",
+    absenceText: "is not on a website builder",
+    presenceText: "is on a website builder",
+    // An offer about websites wants the ones that *are* on a builder.
+    offerNeeds: "presence",
+    costsWhenMissing:
+      "the site was assembled from a template, so changing how it works usually " +
+      "means rebuilding it rather than editing it",
+    inCriterion: /\b(wix|squarespace|godaddy|webflow|shopify|website builder|drag[- ]and[- ]drop|template site)\b/i,
+    inOffer:
+      /\b(web ?site design|web design|redesign|rebuild (their|the)? ?(web ?site)?|new web ?site|wix|squarespace|webflow)\b/i,
   },
 
   // ---- Wanted, not provable today. Kept so the flow can say no. ----

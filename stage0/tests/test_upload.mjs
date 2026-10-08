@@ -246,18 +246,27 @@ test("the upload screen counts the refusals rather than stating a number", () =>
 test("and the plan's decision log agrees with the catalogue it describes", () => {
   const plan = readFileSync(path.join(process.cwd(), "PROJECT_PLAN.md"), "utf8");
   const unprovable = S.SIGNALS.filter((s) => !s.provable);
-  const claim = plan.match(/(\w+) of the seven catalogued signals cannot be settled/);
-  if (claim) {
-    const words = { One: 1, Two: 2, Three: 3, Four: 4, Five: 5, Six: 6, Seven: 7 };
-    const stated = words[claim[1]] ?? Number(claim[1]);
-    assert.equal(
-      stated,
-      unprovable.length,
-      `the log says ${claim[1]} unprovable signals; the catalogue has ` +
-        `${unprovable.length} (${unprovable.map((s) => s.id).join(", ")})`,
-    );
-  }
-  assert.equal(S.SIGNALS.length, 7, "the log says seven catalogued signals");
+  // **Both numbers come out of the log, neither is written here.**
+  // This used to match the literal word "seven" and then assert `SIGNALS.length
+  // === 7`, so it could only ever be right once: adding `builder` made the
+  // regex miss and the hardcoded 7 fail, and the failure pointed at the test
+  // rather than at the sentence that had gone stale. The coupling worth having
+  // is the log against the catalogue, so that is the only one asserted.
+  const WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
+  const num = (w) => WORDS[String(w).toLowerCase()] ?? Number(w);
+  const claim = plan.match(/(\w+) of the (\w+) catalogued signals cannot be settled/);
+  assert.ok(claim, "the decision log no longer states how many signals cannot be settled");
+  assert.equal(
+    num(claim[1]),
+    unprovable.length,
+    `the log says ${claim[1]} unprovable signals; the catalogue has ` +
+      `${unprovable.length} (${unprovable.map((s) => s.id).join(", ")})`,
+  );
+  assert.equal(
+    num(claim[2]),
+    S.SIGNALS.length,
+    `the log says ${claim[2]} catalogued signals; the catalogue has ${S.SIGNALS.length}`,
+  );
 });
 
 rmSync(dir, { recursive: true, force: true });
