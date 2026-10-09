@@ -101,8 +101,22 @@ not being tested.
   credentials, `bbox` gives row-group pruning. Boundaries for city/county/state come from
   Overture Divisions in the same release.
 - **Google Places:** gap-fill only, storing place IDs only, as Google's terms require.
-- **Never scrape Google Maps.** It breaks Google's terms; `hiQ v. LinkedIn` concerns
-  computer-crime law, not contract terms, and does not make it safe.
+- **Use a provider to aim, never resell it.** *(Replaces "Never scrape Google Maps",
+  reversed by the owner 2026-10-09 — see the decision log.)* A commissioned scrape may
+  decide **which websites we open**. What we sell is our own reading of the business's
+  own public site, with our own proof sentence. Their payload is transient: we keep our
+  verdict, our evidence and an id, and nothing else. `src/lib/providers.ts` enforces the
+  line in its own interface — a `Candidate` has nowhere to put a review body, because a
+  field that exists is a field something eventually persists.
+  - The risk is **contract, not computer-crime**. Google's terms prohibit scraping their
+    maps, and commissioning an actor splits that rather than removing it. `hiQ v.
+    LinkedIn` was never the reassurance it is quoted as being — it is about the CFAA,
+    which is a different question.
+  - **Review prose is still out.** Rating and review count are numbers and travel; the
+    text is user-generated content under somebody else's licence, and it does not get
+    used as a filter signal until a lawyer has looked at it. Named, not quietly shipped.
+  - Overture stays the default. A paid provider that switched itself on because a key
+    happened to exist is a bill nobody chose.
 - **Store extracted facts, not page copies.**
 
 ## Environment

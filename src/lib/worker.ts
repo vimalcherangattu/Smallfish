@@ -67,7 +67,7 @@ import { send } from "@/lib/notify";
 import { splitQuery } from "@/lib/query";
 import { judge, readSite } from "@/lib/read";
 import { resolveRegion, type Places } from "@/lib/region";
-import { supplyFor } from "@/lib/supply";
+import { findCandidates, readable } from "@/lib/providers";
 import type { Criterion } from "@/lib/types";
 
 /** Where links in the finished-read note point. */
@@ -372,14 +372,17 @@ async function keepLooking(job: JobRow): Promise<{ added: number; why: string | 
 
   let radius = job.radius_miles ?? RADIUS_STEPS[0];
   for (;;) {
-    const supply = await supplyFor(categories, region, {
+    const supply = await findCandidates({
+      categories,
+      trade: splitQuery(job.query).what,
+      region,
       rows: true,
       limit: Math.min(budget, 500),
       exclude: already,
       radiusMiles: radius,
     }).catch(() => null);
 
-    const rows = supply?.rows ?? [];
+    const rows = readable(supply?.rows);
     if (rows.length) {
       const added = await extendJob(
         job.id,

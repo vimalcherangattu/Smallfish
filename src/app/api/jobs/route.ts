@@ -19,7 +19,8 @@ import { splitQuery } from "@/lib/query";
 import { CITY_CAP, resolveRegion, type Places } from "@/lib/region";
 import { parseSearch } from "@/lib/search";
 import { matchRates, sizeAsk } from "@/lib/sizing";
-import { RADIUS_MILES, supplyFor } from "@/lib/supply";
+import { findCandidates, readable } from "@/lib/providers";
+import { RADIUS_MILES } from "@/lib/supply";
 import { matchTrade, type Taxonomy } from "@/lib/trades";
 import { toCredits } from "@/lib/wallet";
 import type { Market, MarketIndex } from "@/lib/types";
@@ -291,12 +292,16 @@ export async function POST(req: Request) {
   const sized = sizeAsk({ want, withSite: 1_000_000, rates });
   const budget = Math.min(sized.reads.high, credits * READS_PER_CREDIT, CITY_CAP * 5);
 
-  const supply = await supplyFor(categories, region, {
+  const supply = await findCandidates({
+    categories,
+    trade: split.what,
+    region,
     rows: true,
     limit: budget,
     exclude: given,
   });
-  const rows = supply.rows ?? [];
+  // Narrowed to candidates with a website: the product reads one.
+  const rows = readable(supply.rows);
 
   if (!rows.length) {
     return Response.json(
