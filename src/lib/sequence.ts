@@ -24,7 +24,7 @@
 export const CAMPAIGN_NAME = "Small Fish · agencies · v1";
 
 /** CASL wants a mailing address; CAN-SPAM wants a physical postal address. */
-export const POSTAL_ADDRESS = "52 Mabelle Ave, Etobicoke, ON, Canada";
+export const POSTAL_ADDRESS = "52 Mabelle Ave, Etobicoke, ON M9A 4X9, Canada";
 
 export interface Step {
   subject: string;

@@ -39,8 +39,6 @@ no human support. The product sells itself or it does not.
 
 ## Open items
 
-- `OPS_EMAILS` must be set on Vercel for `/ops/outreach` to open.
-- The postal code is missing from the footer address.
 - Instantly may only offer webhooks on a higher plan. If registering fails, the push
   route says so and logs `webhook_failed`; sending still works, replies then wait in
   Instantly's inbox.
