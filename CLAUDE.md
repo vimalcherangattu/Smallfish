@@ -1,5 +1,43 @@
 # Small Fish — working notes for Claude Code
 
+## The one problem
+
+The owner, 2026-10-15, asked for the problem in one sentence:
+
+> **"I sell to small businesses but I can't find them anywhere easily."**
+
+That is the mandate it came with: *"I want this product to do one thing very well.
+One problem it solves and it solves it damn fucking well. Do this while maintaining
+gross profit margins."*
+
+**Use it as the cut.** A feature that does not help somebody find the small
+businesses they sell to is not this product, however good it is. That is what took
+"Contacted" out of the sidebar, the map link off the results screen and the three
+"check a list you already have" prompts out of the refusal screens on 2026-10-15 —
+every route still works, what went was the standing offer of a second thing.
+
+**It is narrower than what I had drafted**, and the difference matters. My draft was
+*"businesses in your area that are missing the thing you sell, proven by reading
+their own site"* — which loads the criterion into the problem. The owner's sentence
+does not. **Finding is the problem; the gap and the proof are what make the found
+list worth paying for.** So:
+
+- **The finding has to be excellent, free and instant.** `/app/find` — two fields, a
+  real count off the live Overture release, five real samples, no account — is not a
+  milestone on the way to the product. Under this sentence it *is* the product's
+  front door, and 9 seconds for a city nobody has touched is the thing being sold.
+- **The reading is the proof layer, not the problem.** It is still held to every rule
+  below: absence needs positive proof, missing evidence is "couldn't tell", we quote
+  their own site. Reordered, not relaxed.
+- **This is why the two mandates agree rather than compete.** Finding is free to us
+  (Overture, no key, no per-row cost). Reading is where every cent of cost sits —
+  `COST_PER_READ_ALL_IN` in `pricing.ts`. A product whose core is the free half and
+  whose charge is the proof is the shape that holds a 70% floor. If a change makes
+  the finding worse to make the reading cheaper, it is the wrong trade.
+
+Where a founding document, a plan item or a screen implies the product is about
+something else, this sentence wins and the disagreement goes in the decision log.
+
 ## Founding documents (live, read via the Claude Docs connector)
 
 - PMM research: https://claude.ai/code/artifact/acbd9367-fb11-46b3-b0dd-d3db0a184aae
