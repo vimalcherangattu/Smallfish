@@ -8,7 +8,7 @@ import { SIGNALS } from "@/lib/signals";
 import { splitQuery } from "@/lib/query";
 import { resolveRegion, type Places } from "@/lib/region";
 import { choices, matchRates, perHundred, sizeAsk } from "@/lib/sizing";
-import { findCandidates } from "@/lib/providers";
+import { COUNTING, findCandidates } from "@/lib/providers";
 import { matchTrade, pretty, type Taxonomy } from "@/lib/trades";
 import { FREE_GRANT, toCredits } from "@/lib/wallet";
 import type { MarketIndex } from "@/lib/types";
@@ -146,7 +146,8 @@ export async function POST(req: Request) {
     // Through the adapter, so the count comes from whichever provider will
     // also supply the rows. A count from one and a read from another would
     // be two different markets described as one.
-    findCandidates({ categories, trade: split.what, region, rows: false }),
+    // Free and unlimited, so always the open data — `COUNTING` carries why.
+    findCandidates({ categories, trade: split.what, region, rows: false }, COUNTING),
     acct ? balanceOf(acct.id) : Promise.resolve(0),
     acct && criterion
       ? excludedFor(acct.id, { criterionId: `${criterion.signalId}:${criterion.type}` })

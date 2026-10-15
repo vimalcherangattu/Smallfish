@@ -344,6 +344,26 @@ export const PROVIDERS: SupplyProvider[] = [apify, overture];
  * provider that switched itself on because a key happened to exist is a bill
  * nobody chose.
  */
+/**
+ * **Counting is always free, whatever `SUPPLY_PROVIDER` says.**
+ *
+ * The pool count has no signup, no limit and no charge, by design: it is the
+ * top of the funnel and the PRD makes it unlimited. Counting Dallas dentists
+ * scans 3,336 places, and at Compass's $1.50 per 1,000 that is **$5.00 a
+ * count** — one person refreshing the page costs more than a customer pays.
+ *
+ * So the provider is chosen per purpose rather than once globally. Overture
+ * answers every count for nothing; the paid provider is for the rows we
+ * actually read, where the volume is the few hundred we judge rather than
+ * every listing in the metro, and where the reviews and ratings it carries
+ * are the thing being bought.
+ *
+ * A single `SUPPLY_PROVIDER` switch would have been simpler and would have
+ * put an unbounded bill behind an anonymous button. `margin.py` is where that
+ * arithmetic lives.
+ */
+export const COUNTING = "overture" as const;
+
 export function providerFor(preferred?: string | null): SupplyProvider {
   const want = (preferred ?? process.env.SUPPLY_PROVIDER ?? "").trim().toLowerCase();
   if (want) {

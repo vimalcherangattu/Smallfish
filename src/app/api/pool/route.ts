@@ -40,7 +40,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { poolClaim, sampleRows, thinness } from "@/lib/pool";
-import { findCandidates } from "@/lib/providers";
+import { COUNTING, findCandidates } from "@/lib/providers";
 import { resolveRegion, type Places } from "@/lib/region";
 import { matchTrade, suggestTrade, type Taxonomy } from "@/lib/trades";
 
@@ -174,12 +174,13 @@ export async function POST(req: Request) {
   }
 
   const started = Date.now();
-  const supply = await findCandidates({
-    categories,
-    trade: typedTrade,
-    region,
-    rows: true,
-  });
+  // Counting is free and unlimited, so it is always the open data. See
+  // `COUNTING` in providers.ts: on a paid provider this one anonymous button
+  // would cost about $5 per press in a metro.
+  const supply = await findCandidates(
+    { categories, trade: typedTrade, region, rows: true },
+    COUNTING,
+  );
 
   const rows = supply.rows ?? [];
   return Response.json({

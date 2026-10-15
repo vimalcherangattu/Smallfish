@@ -95,6 +95,38 @@ test("and another provider's ids are namespaced", () => {
 
 /* ------------------------------------------------- choosing a provider -- */
 
+test("counting is always the free provider, whatever SUPPLY_PROVIDER says", () => {
+  // The arithmetic, from margin.py: counting Dallas dentists scans 3,336
+  // places, and at $1.50 per 1,000 that is **$5.00 a press** on a button with
+  // no signup, no limit and no charge. A single global switch would have put
+  // an unbounded bill behind an anonymous click, and nothing on a screen
+  // would have said so — the failure is a monthly invoice, not a broken page.
+  assert.match(live, /export const COUNTING = "overture" as const;/);
+
+  for (const route of ["src/app/api/pool/route.ts", "src/app/api/supply/route.ts"]) {
+    const src = code(read(route));
+    assert.match(src, /COUNTING/, `${route} does not pin its count to the free provider`);
+    // Every count in a counting route must name it. A bare findCandidates
+    // here is one that would follow SUPPLY_PROVIDER onto the paid actor.
+    for (const call of src.match(/findCandidates\([\s\S]{0,220}?\)/g) ?? []) {
+      assert.match(call, /COUNTING/, `an unpinned count in ${route}: ${call.slice(0, 80)}`);
+    }
+  }
+});
+
+test("but reading still follows the configured provider", () => {
+  // The split only works if the other half actually switches: reviews and
+  // ratings are the thing being bought, and they arrive with the rows we read.
+  for (const route of ["src/lib/worker.ts", "src/app/api/jobs/route.ts"]) {
+    const src = code(read(route));
+    assert.ok(/findCandidates\(/.test(src), `${route} no longer fetches rows`);
+    assert.ok(
+      !/findCandidates\([\s\S]{0,220}?COUNTING/.test(src),
+      `${route} pins its READ to the free provider, so the paid one can never be used`,
+    );
+  }
+});
+
 test("the free one is the default, and a key alone does not switch it", () => {
   // A paid provider that switched itself on because a key happened to exist is
   // a bill nobody chose.
