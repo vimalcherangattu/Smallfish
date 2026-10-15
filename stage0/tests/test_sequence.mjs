@@ -71,7 +71,7 @@ await test("the copy has the address, a way to stop, no dash, and no call", () =
     assert.match(st.body, /Mabelle Ave/);
     assert.match(st.body, /Reply "no"/);
     assert.doesNotMatch(`${st.subject}${st.body}`, /—/);
-    assert.doesNotMatch(st.body, /\b(demo|call|meeting|calendly)\b/i);
+    assert.doesNotMatch(st.body, /\b(demo|meeting|calendly|(book|schedule|hop on|jump on|quick) a call)\b/i, "never offers a call or demo with us");
   }
 });
 
@@ -82,7 +82,7 @@ await test("the seller copy greets by first name and uses only supplied variable
     for (const m of `${st.subject} ${st.body}`.matchAll(/\{\{(\w+)\}\}/g)) assert.ok(builtIn.has(m[1]) || m[1] in vars, `{{${m[1]}}}`);
     assert.match(st.body, /Mabelle Ave/);
     assert.doesNotMatch(`${st.subject}${st.body}`, /—/);
-    assert.doesNotMatch(st.body, /\b(demo|call|meeting|calendly)\b/i);
+    assert.doesNotMatch(st.body, /\b(demo|meeting|calendly|(book|schedule|hop on|jump on|quick) a call)\b/i, "never offers a call or demo with us");
   }
   assert.equal(S.campaignFor("seller").steps, S.SELLER_STEPS);
   assert.equal(S.campaignFor("agency").steps, S.STEPS);

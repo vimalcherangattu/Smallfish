@@ -21,6 +21,8 @@
  *   records the click, and tracking links cost deliverability.
  */
 
+import { PLANS } from "@/lib/pricing";
+
 export const CAMPAIGN_NAME = "Small Fish · agencies · v1";
 /** Named sales and growth leaders at companies that sell to small businesses,
  *  found through SuperSearch (owner's call, 2026-10-15). Its own campaign,
@@ -40,6 +42,7 @@ export interface Step {
 }
 
 const sign = "{{sendingAccountFirstName}}<br/>Small Fish";
+const FREE = PLANS.find((p) => p.id === "free")!.credits;
 const footer =
   `<br/><br/><span style="color:#888;font-size:12px">${POSTAL_ADDRESS}. ` +
   `Not useful? Reply "no" and we won't write again.</span>`;
@@ -54,9 +57,9 @@ export const STEPS: Step[] = [
     body:
       "Hi {{companyName}} team,<br/><br/>" +
       "You do marketing for {{niche}}, so this might be useful. We read the websites of " +
-      "the {{count}} {{niche}} in {{city}} and pulled out the ones with no {{gap}}.<br/><br/>" +
+      "the {{count}} {{niche}} in {{city}} and pulled out the ones with no {{gap}}: the ones worth " +
+      "calling this week, each with a one-line reason to reach out.<br/><br/>" +
       "Here are a few, free: {{listUrl}}<br/><br/>" +
-      "Each one comes with the reason it made the list, straight off their own site.<br/><br/>" +
       sign + footer,
     delay: 3,
   },
@@ -91,8 +94,8 @@ export const SELLER_STEPS: Step[] = [
     body:
       "Hi {{firstName}},<br/><br/>" +
       "Your team sells to {{niche}}, so this might be useful. We read the websites of the " +
-      "{{count}} {{niche}} in {{city}} and pulled out the ones with no {{gap}}, each with the " +
-      "reason taken from their own site.<br/><br/>" +
+      "{{count}} {{niche}} in {{city}} and pulled out the ones with no {{gap}}: who to call, " +
+      "and a one-line reason to reach out now.<br/><br/>" +
       "Here are a few, free: {{listUrl}}<br/><br/>" +
       sign + footer,
     delay: 3,
@@ -102,7 +105,7 @@ export const SELLER_STEPS: Step[] = [
     body:
       "Hi {{firstName}},<br/><br/>" +
       "Your reps can run this for any trade in any US city, and say what to look for in plain " +
-      "words, like \"no online booking\". The first 20 that fit are free, no card: {{signUpUrl}}<br/><br/>" +
+      `words, like "no online booking". Fewer wasted calls. The first ${FREE} that fit are free, no card: {{signUpUrl}}<br/><br/>` +
       sign + footer,
     delay: 4,
   },

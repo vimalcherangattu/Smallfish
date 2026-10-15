@@ -18,11 +18,15 @@ const SMB_WORDS =
   "small business, small businesses, local businesses, SMB, dental practices, dentists, contractors, " +
   "home services, med spas, restaurants, law firms, HVAC, plumbers, roofers, salons, clinics";
 
+// PRD v2 (2026-10-15): the buyer is "a founder, solo seller or small sales
+// team selling to US small businesses". So small companies, and the founder
+// or owner first.
 const LEADERS = [
+  "Owner", "Founder", "Co-Founder", "CEO", "President",
   "VP Sales", "Head of Sales", "Director of Sales", "Sales Director", "VP of Sales",
   "Head of Growth", "VP Growth", "Head of Business Development", "VP Business Development",
   "Head of Marketing", "VP Marketing", "Director of Demand Generation", "Head of Revenue",
-  "Chief Revenue Officer", "Founder", "Co-Founder", "CEO",
+  "Chief Revenue Officer",
 ];
 
 export interface Segment {
@@ -32,7 +36,7 @@ export interface Segment {
 }
 
 const base = {
-  employeeCount: ["25 - 100", "100 - 250", "250 - 1000"],
+  employeeCount: ["0 - 25", "25 - 100"],
   title: { include: LEADERS },
   keyword_filter: { include: SMB_WORDS, include_mode: "ANY" },
   locations: [{ country: "United States" }],
@@ -44,10 +48,10 @@ const base = {
 export const SEGMENTS: Segment[] = [
   {
     id: "smb-sellers-hiring-reps",
-    what: "25 to 1,000 staff, sell to small or local businesses, hiring SDRs or AEs now; the sales or growth leader",
+    what: "under 100 staff, sell to small or local businesses, hiring SDRs or AEs now; founder or sales lead",
     filters: {
       ...base,
-      industry: { include: ["Software & Internet", "Business Services", "Financial Services", "Telecommunications"] },
+      industry: { include: ["Software & Internet", "Business Services", "Financial Services", "Telecommunications", "Wholesale & Distribution"] },
       jobListing: ["Sales Development Representative", "Business Development Representative", "Account Executive"],
     },
   },
@@ -56,12 +60,12 @@ export const SEGMENTS: Segment[] = [
     what: "the same companies, hiring or not",
     filters: {
       ...base,
-      industry: { include: ["Software & Internet", "Business Services", "Financial Services", "Telecommunications"] },
+      industry: { include: ["Software & Internet", "Business Services", "Financial Services", "Telecommunications", "Wholesale & Distribution"] },
     },
   },
   {
     id: "smb-agencies-25plus",
-    what: "marketing agencies of 25+ staff serving small or local businesses; founder or head of growth",
+    what: "marketing agencies under 100 staff serving small or local businesses; founder or head of growth",
     filters: {
       ...base,
       industry: { include: ["Business Services", "Media & Entertainment"] },
@@ -103,7 +107,9 @@ const TRADE_WORDS: Record<string, string> = {
 };
 
 export function tradeSegments(): Array<Segment & { niche: string }> {
-  const sellers = ["Software & Internet", "Business Services", "Financial Services", "Telecommunications"];
+  // The PRD's sellers: booking software, POS, payroll, web design, agencies,
+  // insurance, cleaning supplies.
+  const sellers = ["Software & Internet", "Business Services", "Financial Services", "Telecommunications", "Wholesale & Distribution"];
   const out: Array<Segment & { niche: string }> = [];
   for (const hiring of [true, false]) {
     for (const [niche, words] of Object.entries(TRADE_WORDS)) {

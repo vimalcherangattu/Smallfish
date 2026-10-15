@@ -49,8 +49,8 @@ export default async function Hi({ params }: { params: Promise<{ token: string }
           {niche?.label ?? "businesses"} in {city}. Here are some with no {gap}.
         </h1>
         <p className="mt-6 max-w-[56ch] text-[17px] leading-relaxed text-[var(--ink-2)]">
-          We read each business&rsquo;s own website and kept only the ones that fit. Every row
-          says how we know.
+          Who to contact, and a reason to reach out now. We read each business&rsquo;s own
+          website and kept only the ones that fit.
         </p>
 
         <ProspectList token={token} initial={p.list_rows} gap={gap} />

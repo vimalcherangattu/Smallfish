@@ -47,7 +47,11 @@ export default function ProspectList({ token, initial, gap }: { token: string; i
             {r.site.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
             {r.phone ? `  ·  ${r.phone}` : ""}
           </div>
-          <p className="mt-3 text-[14px] leading-relaxed text-[var(--ink-2)]">{r.proof}</p>
+          {/* PRD v2: a row answers "who, how to reach them, why now". The pages
+              we read stay in the row's data, not on screen. */}
+          <p className="mt-3 text-[15px] leading-relaxed text-[var(--ink-2)]">
+            Why them: no {gap.replace(/^(a|an) /i, "")} on their website.
+          </p>
         </li>
       ))}
     </ol>
