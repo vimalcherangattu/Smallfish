@@ -22,8 +22,20 @@ type Result = {
   works: boolean;
   status: number | null;
   accounts: number | null;
+  /** Counts only: how many inboxes Instantly is still setting up, how many are
+   *  ready, and the raw `status` / `warmup_status` values it reports, tallied.
+   *  Raw because Instantly does not document the enums; a guessed label here
+   *  would be the kind of number this endpoint exists to avoid. */
+  inboxes?: { settingUp: number; ready: number; status: Record<string, number>; warmup: Record<string, number> };
   message: string;
 };
+
+const tally = (items: Record<string, unknown>[], field: string) =>
+  items.reduce<Record<string, number>>((acc, a) => {
+    const v = String(a[field] ?? "none");
+    acc[v] = (acc[v] ?? 0) + 1;
+    return acc;
+  }, {});
 
 export async function GET() {
   const key = process.env.INSTANTLY_API_KEY;
@@ -57,13 +69,23 @@ export async function GET() {
         message: `Instantly refused the key (${res.status})${said ? `: ${said.slice(0, 160)}` : "."}`,
       });
     }
-    const body = JSON.parse(text) as { items?: unknown[] };
-    const n = Array.isArray(body.items) ? body.items.length : 0;
+    const body = JSON.parse(text) as { items?: Record<string, unknown>[] };
+    const items = Array.isArray(body.items) ? body.items : [];
+    const n = items.length;
+    const settingUp = items.filter((a) => a.setup_pending === true).length;
     return out({
       configured: true, works: true, status: res.status, accounts: n,
-      message: n
-        ? `The key works and sees ${n} sending inbox${n === 1 ? "" : "es"}.`
-        : "The key works. No sending inboxes are connected yet.",
+      inboxes: {
+        settingUp,
+        ready: n - settingUp,
+        status: tally(items, "status"),
+        warmup: tally(items, "warmup_status"),
+      },
+      message: !n
+        ? "The key works. No sending inboxes are connected yet."
+        : settingUp
+          ? `The key works. ${settingUp} of ${n} inboxes are still being set up by Instantly; warmup can be switched on once they are ready.`
+          : `The key works and all ${n} inboxes are set up.`,
     });
   } catch (err) {
     return out({
