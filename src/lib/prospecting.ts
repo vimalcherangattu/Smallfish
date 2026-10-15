@@ -20,13 +20,19 @@ import { canWrite, currentEnv } from "@/lib/db";
 import { findCandidates, readable } from "@/lib/providers";
 import {
   AGENCY_CATEGORIES,
+  GAP,
+  NICHES,
   domainOf,
+  listQuery,
   nichesIn,
   pickEmail,
   primaryNiche,
+  token,
 } from "@/lib/prospects";
-import { readSite } from "@/lib/read";
-import type { Resolution } from "@/lib/region";
+import { judge, readSite } from "@/lib/read";
+import { resolveRegion, type Places, type Resolution } from "@/lib/region";
+import { SIGNAL_BY_ID } from "@/lib/signals";
+import { matchTrade, type Taxonomy } from "@/lib/trades";
 import type { Criterion } from "@/lib/types";
 
 /** What we read an agency's site for. Not a catalogue signal, so `pagesFor`
@@ -233,4 +239,180 @@ export async function sweep(
     byStatus,
     ms: Date.now() - started,
   };
+}
+
+/* ------------------------------------------------- the free list (A2) -- */
+
+/**
+ * What `/hi/[token]` shows. Everything but `rows` is set when the email is
+ * drafted, because it is free: one count query. `rows` is built on the first
+ * visit, because it is not: about 10 to 20 model reads, $0.09 to $0.21 at the
+ * measured cost per match. Building it only for the agencies that click is the
+ * difference between a few dollars per thousand emails and a hundred and fifty.
+ */
+export interface ProspectList {
+  token: string;
+  name: string | null;
+  niche: string | null;
+  city: string | null;
+  state: string | null;
+  list_query: string | null;
+  list_listings: number | null;
+  list_readable: number | null;
+  list_read: number | null;
+  list_rows: ListRow[] | null;
+  list_at: string | null;
+}
+
+export interface ListRow {
+  name: string;
+  site: string;
+  phone: string | null;
+  proof: string;
+}
+
+/** Lists built per UTC day, at most. A bot that follows every link in every
+ *  email would otherwise spend the model budget for us. */
+export const DAILY_LIST_CAP = 25;
+/** Stop reading once this many fit: the page shows three. */
+const WANT = 3;
+/** And never read more than this many for one list. */
+const MAX_READS = 24;
+
+const pick =
+  "list_token,name,niche,city,state,list_query,list_listings,list_readable,list_read,list_rows,list_at";
+
+export async function listByToken(t: string): Promise<ProspectList | null> {
+  if (!/^[A-Za-z0-9]{10}$/.test(t) || !canWrite()) return null;
+  const rows = (await rest(`gtm_prospects?list_token=eq.${t}&select=${pick}&limit=1`)) as
+    | Array<Omit<ProspectList, "token"> & { list_token: string }>
+    | null;
+  const r = rows?.[0];
+  return r ? { ...r, token: r.list_token } : null;
+}
+
+async function listsBuiltToday(): Promise<number> {
+  const since = new Date(new Date().toISOString().slice(0, 10)).toISOString();
+  const rows = (await rest(
+    `gtm_prospects?list_at=gte.${since}&list_rows=not.is.null&select=id&limit=${DAILY_LIST_CAP + 1}`,
+  )) as unknown[] | null;
+  return rows?.length ?? 0;
+}
+
+const where = (p: { city: string | null; state: string | null }) =>
+  [p.city, p.state].filter(Boolean).join(", ");
+
+/** The search the free list runs, and its criterion. Null when the niche has
+ *  no gap, which `test_prospects.mjs` says cannot happen. */
+export function listCriterion(nicheId: string | null): { criterion: Criterion; label: string } | null {
+  const n = NICHES.find((x) => x.id === nicheId);
+  const g = n ? SIGNAL_BY_ID[GAP[n.id]] : null;
+  if (!n || !g) return null;
+  return {
+    label: g.label,
+    criterion: { id: `${g.id}:absence`, type: "absence", text: g.absenceText, explain: g.how, needsModel: true },
+  };
+}
+
+/**
+ * The free half, run when a prospect is drafted: a token, the search in words,
+ * and how many of that trade the city has. One count query, no reads.
+ */
+export async function prepareList(
+  p: { domain: string; niche: string | null; city: string | null; state: string | null; list_token?: string | null },
+  data: { taxo: Taxonomy; places: Places },
+  rand: (n: number) => Uint8Array,
+): Promise<{ token: string; query: string; listings: number; readable: number } | null> {
+  const n = NICHES.find((x) => x.id === p.niche);
+  const c = listCriterion(p.niche);
+  const region = resolveRegion(data.places, where(p));
+  const trade = n ? matchTrade(data.taxo, n.trade).best : null;
+  if (!n || !c || !region || !trade) return null;
+  const s = await findCandidates({ categories: trade.categories, trade: n.trade, region, rows: false });
+  const out = {
+    token: p.list_token || token(rand),
+    query: listQuery(n, where(p), c.criterion.text),
+    listings: s.listings,
+    readable: s.withSite,
+  };
+  if (canWrite()) {
+    await rest(`gtm_prospects?domain=eq.${encodeURIComponent(p.domain)}`, {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({
+        list_token: out.token,
+        list_query: out.query,
+        list_listings: out.listings,
+        list_readable: out.readable,
+        updated_at: new Date().toISOString(),
+      }),
+    });
+  }
+  return out;
+}
+
+export type BuildResult =
+  | { ok: true; rows: ListRow[]; read: number }
+  | { ok: false; reason: "unknown" | "capped" | "no_niche" | "nothing_found"; read?: number };
+
+/**
+ * The paid half, run on the first visit. Reads the niche in the agency's city
+ * with exactly the read and judge a customer's job uses, stops at three that
+ * fit, and keeps our verdict and the proof, nothing else.
+ *
+ * Suppressed businesses are skipped before they are read: a business that
+ * asked to be left out does not turn up in our own marketing either.
+ */
+export async function buildList(
+  t: string,
+  data: { taxo: Taxonomy; places: Places; suppressed: Set<string> },
+  budgetMs = 45_000,
+): Promise<BuildResult> {
+  const started = Date.now();
+  const p = await listByToken(t);
+  if (!p) return { ok: false, reason: "unknown" };
+  if (p.list_rows?.length) return { ok: true, rows: p.list_rows, read: p.list_read ?? 0 };
+  // Tried and found nothing: say so again rather than paying to find nothing
+  // twice. A week later the sites may have changed, so it may try once more.
+  if (p.list_at && p.list_rows && Date.now() - new Date(p.list_at).getTime() < 7 * 86_400_000) {
+    return { ok: false, reason: "nothing_found", read: p.list_read ?? 0 };
+  }
+  if ((await listsBuiltToday()) >= DAILY_LIST_CAP) return { ok: false, reason: "capped" };
+
+  const n = NICHES.find((x) => x.id === p.niche);
+  const c = listCriterion(p.niche);
+  const region = resolveRegion(data.places, where(p));
+  const trade = n ? matchTrade(data.taxo, n.trade).best : null;
+  if (!n || !c || !region || !trade) return { ok: false, reason: "no_niche" };
+
+  const s = await findCandidates({ categories: trade.categories, trade: n.trade, region, rows: true, limit: 200 });
+  const queue = readable(s.rows ?? []).filter((r) => !data.suppressed.has(r.id)).slice(0, MAX_READS);
+  const rows: ListRow[] = [];
+  let read = 0;
+  await Promise.all(
+    Array.from({ length: 6 }, async () => {
+      while (queue.length && rows.length < WANT && Date.now() - started < budgetMs) {
+        const b = queue.shift()!;
+        read += 1;
+        try {
+          const r = await readSite(b.site, c.criterion, { name: b.name, phone: b.phone ?? null, addr: b.addr ?? null });
+          const v = await judge(r, c.criterion);
+          if (v.verdict === "match" && rows.length < WANT) {
+            rows.push({ name: b.name ?? domainOf(b.site) ?? b.site, site: b.site, phone: b.phone ?? null, proof: v.proof ?? v.reason });
+          }
+        } catch {
+          /* one site failing does not fail the list */
+        }
+      }
+    }),
+  );
+
+  // Keep a partial list rather than throw away what it cost. A visit that
+  // found two shows two, and says it stopped looking.
+  await rest(`gtm_prospects?list_token=eq.${t}`, {
+    method: "PATCH",
+    headers: { Prefer: "return=minimal" },
+    body: JSON.stringify({ list_rows: rows, list_read: read, list_at: new Date().toISOString(), updated_at: new Date().toISOString() }),
+  });
+  return rows.length ? { ok: true, rows, read } : { ok: false, reason: "nothing_found", read };
 }

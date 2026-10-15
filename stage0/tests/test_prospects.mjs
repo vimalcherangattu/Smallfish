@@ -109,5 +109,25 @@ test("agency categories are real Overture ids", () => {
   for (const c of P.AGENCY_CATEGORIES) assert.ok(ids.has(c), c);
 });
 
+const sig = fs.readFileSync("src/lib/signals.ts", "utf8");
+test("every niche has a gap, and every gap is a provable signal", () => {
+  for (const n of P.NICHES) {
+    const g = P.GAP[n.id];
+    assert.ok(g, `no gap for ${n.id}`);
+    const block = sig.slice(sig.indexOf(`id: "${g}"`), sig.indexOf(`id: "${g}"`) + 400);
+    assert.match(block, /provable: true/, `${g} is not provable`);
+  }
+});
+
+test("the list query reads as a search", () => {
+  assert.equal(P.listQuery({ id: "dental", label: "dentists" }, "Phoenix, AZ", "has no online booking"), "dentists in Phoenix, AZ that have no online booking");
+});
+
+test("tokens are ten characters with no lookalikes", () => {
+  const t = P.token((n) => Uint8Array.from({ length: n }, (_, i) => i * 37));
+  assert.equal(t.length, 10);
+  assert.doesNotMatch(t, /[01IlO]/);
+});
+
 if (failures) { console.log(`\n${failures} failed`); process.exit(1); }
 console.log("\nall pass");

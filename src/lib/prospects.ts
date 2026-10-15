@@ -231,3 +231,30 @@ export function pickEmail(emails: string[], domain: string | null): string | nul
   const role = (e: string) => /^(info|hello|hi|contact|team|office|sales|support|admin|marketing|inquiries|enquiries)@/.test(e);
   return clean.sort((a, b) => Number(role(a)) - Number(role(b)))[0] ?? null;
 }
+
+/**
+ * The gap an agency in this niche sells into, as a catalogue signal id.
+ *
+ * Booking for practices that take appointments, a quote form for trades that
+ * price jobs, live chat for the rest. Every id here is `provable: true` in
+ * `signals.ts`; `test_prospects.mjs` holds that, because the free list in the
+ * first email has to be a list the engine can actually settle.
+ */
+export const GAP: Record<string, string> = {
+  dental: "booking", medspa: "booking", chiro: "booking", vet: "booking",
+  physio: "booking", salon: "booking", restaurant: "booking",
+  hvac: "quote_form", plumbing: "quote_form", roofing: "quote_form",
+  electrical: "quote_form", landscaping: "quote_form",
+  legal: "chat", realestate: "chat",
+};
+
+/** The search we hand the app: "dentists in Phoenix, AZ with no online booking". */
+export function listQuery(niche: Pick<Niche, "id" | "label">, where: string, absenceText: string): string {
+  return `${niche.label} in ${where} that ${absenceText.replace(/^has no /, "have no ")}`;
+}
+
+/** An unguessable link token. Ten base-62 characters is ~59 bits. */
+export function token(rand: (n: number) => Uint8Array): string {
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  return Array.from(rand(10), (b) => abc[b % abc.length]).join("");
+}
