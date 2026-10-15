@@ -34,7 +34,8 @@ not mean nobody else may read it.
 | `src/lib/{doors,launch,site,showcase,seller,saturation}.ts` | Door context, attribution, marketing data |
 | `src/app/globals.css` | The marketing stylesheet — see §3 |
 | `src/app/{sitemap.ts,robots.ts}` | |
-| `stage0/tests/{test_home_copy,test_seller,test_share,test_optout,check_motion}.mjs` | |
+| `stage0/tests/{test_home_copy,test_seller,test_share,test_optout,check_motion,test_prospects}.mjs` | |
+| `src/lib/{prospects,prospecting}.ts`, `src/app/api/outreach/` | Small Fish's own outbound: finding agency prospects with the engine, and the sender's status (2026-10-15). Reads `providers.ts` and `read.ts`, changes neither. |
 
 ### Product owns
 
