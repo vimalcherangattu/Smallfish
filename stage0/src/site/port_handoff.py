@@ -58,7 +58,7 @@ PAGES = {"smallfish-home.html": "home.html",
 
 # --- 1. hrefs ---------------------------------------------------------------
 HREFS = {
-    "/signup": "/sign-up?source=home",
+    "/signup": "/app/find?source=home",
     "/signin": "/app",
     "/remove": "/opt-out",
     "/how-we-crawl": "/bot",
@@ -660,10 +660,10 @@ def main() -> int:
         # --- 4a. the call to action, both pages (owner, 2026-10-07: "sign up
         # free is such a bad CTA"). It names a chore; the button now names the
         # outcome. The nav keeps a short one.
-        for nav in ('<a class="cta sm outline" href="/sign-up?source=home">Sign up free',
-                    '<a class="cta sm" href="/sign-up?source=home">Sign up free'):
+        for nav in ('<a class="cta sm outline" href="/app/find?source=home">Sign up free',
+                    '<a class="cta sm" href="/app/find?source=home">Sign up free'):
             body = body.replace(nav, nav[: -len("Sign up free")] + "Get started")
-        body, n = re.subn(r'(href="/sign-up\?source=home"[^>]*>)Sign up free', r"\1Find my customers", body)
+        body, n = re.subn(r'(href="/app/find\?source=home"[^>]*>)Sign up free', r"\1Find my customers", body)
         if not n:
             raise SystemExit(f"port: no sign-up button found in {name}")
 

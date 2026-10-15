@@ -36,7 +36,7 @@ export default async function Hi({ params }: { params: Promise<{ token: string }
   const gap = listCriterion(p.niche)?.label ?? "it";
   const city = p.city ?? "your city";
   const count = p.list_readable ?? p.list_listings;
-  const signUp = `/sign-up?${new URLSearchParams({ source: `outreach/${token}`, q: p.list_query })}`;
+  const signUp = `/app/find?${new URLSearchParams({ source: `outreach/${token}` })}`;
 
   return (
     <main className="mkt">
@@ -60,7 +60,7 @@ export default async function Hi({ params }: { params: Promise<{ token: string }
             href={signUp}
             className="rounded-full bg-[var(--ink)] px-6 py-3.5 text-[15px] font-semibold text-[var(--paper)]"
           >
-            Get the full list free →
+            Search any trade, any city →
           </Link>
           <span className="text-[14px] text-[var(--ink-3)]">No card. You only pay for the ones that fit.</span>
         </div>

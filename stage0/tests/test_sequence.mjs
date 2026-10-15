@@ -63,7 +63,7 @@ await test("every variable the copy uses is supplied per lead", () => {
     assert.ok(builtIn.has(m[1]) || m[1] in vars, `{{${m[1]}}} has no value`);
   }
   assert.equal(vars.listUrl, "https://www.getsmallfish.com/hi/AbCdEfGhJk");
-  assert.match(vars.signUpUrl, /source=outreach%2FAbCdEfGhJk/);
+  assert.match(vars.signUpUrl, /\/app\/find\?source=outreach%2FAbCdEfGhJk/);
 });
 
 await test("the copy has the address, a way to stop, no dash, and no call", () => {
@@ -148,8 +148,9 @@ await test("three automated answers per thread, then silence", async () => {
 
 await test("another city or trade gets a ready search link", () => {
   const html = R.otherListReply(ctx, "roofers", "Denver");
-  assert.match(html, /roofers in Denver/);
-  assert.match(html, /q=roofers\+in\+Denver/);
+  assert.match(html, /roofers/);
+  assert.match(html, /Denver/);
+  assert.match(html, /\/app\/find\?source=outreach%2Freply/);
 });
 
 await test("a model that answers nonsense sends nothing", async () => {

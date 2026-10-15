@@ -67,7 +67,7 @@ export function factSheet(c: ReplyContext): string {
     `Exports: CSV, and pushing to a CRM from inside the app.`,
     `There are no calls or demos; everything is self-serve at ${c.site}.`,
     `This prospect's free list: ${c.listUrl}`,
-    `Start the full list free: ${c.signUpUrl}`,
+    `Search any trade in any US city, free: ${c.signUpUrl}`,
   ].join("\n");
 }
 
@@ -163,9 +163,9 @@ export function otherListReply(c: ReplyContext, trade: string | null, city: stri
   const where = (city || c.city).trim();
   if (!what || !where) return null;
   const q = `${what} in ${where}`;
-  const url = `${c.site}/sign-up?${new URLSearchParams({ source: "outreach/reply", q })}`;
+  const url = `${c.site}/app/find?${new URLSearchParams({ source: "outreach/reply" })}`;
   return textToHtml(
-    `Here you go, ${q}: ${url}\n\nIt opens with the search already typed. The first ${
+    `Here you go: type "${what}" and "${where}" here and you'll see how many there are in seconds: ${url}\n\nThe first ${
       PLANS.find((p) => p.id === "free")!.credits
     } that fit are free.\n\n${c.sender.split(" ")[0]}`,
   );

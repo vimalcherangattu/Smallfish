@@ -191,7 +191,8 @@ export function leadVariables(
     gap: label.gap.replace(/^(a|an) /i, ""),
     listUrl: `${site}/hi/${p.list_token}`,
     widgetUrl: `${site}/check/widget`,
-    signUpUrl: `${site}/sign-up?${new URLSearchParams({ source, q: p.list_query ?? "" })}`,
+    // PRD v2's entry is the two-field search; `source` names the email.
+    signUpUrl: `${site}/app/find?${new URLSearchParams({ source })}`,
   };
 }
 

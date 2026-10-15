@@ -53,7 +53,10 @@ export const CTA_LABEL = SIGNUP_OPEN ? "Find my customers →" : "Join the waitl
 /** Where that action goes. The home page is a door too, so it names itself —
  *  without a source every direct and word-of-mouth signup is indistinguishable
  *  from one a channel earned. */
-export const CTA_HREF = SIGNUP_OPEN ? "/sign-up?source=home" : "/waitlist";
+// 2026-10-15, owner: the home page's action is PRD v2's two-field search
+// (/app/find), not a sign-up form. `source` stays on the link so the door is
+// still named once that screen carries it into sign-up.
+export const CTA_HREF = SIGNUP_OPEN ? "/app/find?source=home" : "/waitlist";
 
 /** The line under the hero button. */
 export const CTA_NOTE = SIGNUP_OPEN

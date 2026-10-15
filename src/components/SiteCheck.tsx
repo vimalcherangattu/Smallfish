@@ -81,7 +81,7 @@ export default function SiteCheck({ agency: refName = null }: { agency?: string 
           <div className="mt-6 border-t border-[var(--line)] pt-5 text-[15px]">
             Want every business in a city that {r.answer === "no" ? "is missing it" : "fits"}?{" "}
             <Link
-              href={`/sign-up?source=check${refName ? `/${refName}` : ""}`}
+              href={`/app/find?source=check${refName ? `/${refName}` : ""}`}
               target={refName ? "_blank" : undefined}
               className="font-semibold underline"
             >

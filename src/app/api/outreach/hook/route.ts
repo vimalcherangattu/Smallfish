@@ -86,7 +86,7 @@ async function answer(email: string) {
     niche: n?.label ?? "local businesses",
     city: p?.city ?? "your city",
     listUrl: p?.list_token ? `${SITE}/hi/${p.list_token}` : SITE,
-    signUpUrl: `${SITE}/sign-up?${new URLSearchParams({ source: `outreach/${p?.list_token ?? "reply"}`, q: p?.list_query ?? "" })}`,
+    signUpUrl: `${SITE}/app/find?${new URLSearchParams({ source: `outreach/${p?.list_token ?? "reply"}` })}`,
     sender: incoming.eaccount.split("@")[0].replace(/^\w/, (c) => c.toUpperCase()),
     site: SITE,
   };
