@@ -18,19 +18,21 @@ Rules for whoever edits it:
 
 ## On Vimal
 
-- Open `/api/provider-check` signed in and paste the JSON. 10 seconds, under a cent, unblocks reviews.
-- Nothing else. Apify and Resend are set; price per fit, labelling and gate item 1 came off this list on 2026-10-15.
+- Nothing. Apify, Resend and the provider check are done; pricing, labelling and gate item 1 came off this list on 2026-10-15.
+- Optional whenever you like: set `SUPPLY_PROVIDER=apify`. Safe now that counting is pinned to free Overture.
 
 ## In flight
 
-- Milestone 3: the intake, then read and judge. Named contacts land inside it.
+- Milestone 3, slice 3: one migration against the PRD shape, then the judge.
 
 ## Where the product is
 
-- PRD v2 adopted 2026-10-15. Milestone 2 of 6 done.
+- PRD v2 adopted 2026-10-15. Milestone 2 of 6 done, 3 in progress.
 - **Testable now: `/app/find`** — two fields, a real count, five samples. No account.
 - `/app` is still the old single-sentence search, and still works. It gets replaced once milestone 3 can read.
-- Rating and review count are blank until the Apify check passes: Overture carries neither.
+- Pricing re-solved to hold a 70% gross margin floor: bands 1/4/5, 3 reads a credit, 12 reviews a match.
+- Counting is pinned to free Overture; only reading uses the paid provider.
+- Built but not yet wired to a screen: `fit.ts` (blind rows, reveal), `rules.ts` (listing pre-filter).
 - Built: supply for any US city, polite fetcher, contacts, credits, Stripe, CSV, opt-out.
 - Built 2026-10-15: `fit.ts` — Strong/Maybe/No, blind rows, a credit buys a reveal.
 - Provider: Apify Compass, keys set, default still Overture until the check reads clean.
