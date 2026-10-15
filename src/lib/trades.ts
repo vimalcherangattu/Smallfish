@@ -35,6 +35,11 @@
  * being wrong is a missed category, which the near-miss list still shows.
  */
 
+// Region's Damerau-Levenshtein, reused rather than reimplemented: the same
+// bounded distance, with the same reasoning about transposition, already runs
+// against 2,398 city names. A second copy here would drift from it.
+import { distance } from "@/lib/region";
+
 /** One row of the shipped taxonomy, generated from the Overture release by
  *  `stage0/src/coverage/export_trades.py`. */
 export interface Category {
@@ -424,3 +429,119 @@ export function matchTrade(taxo: Taxonomy | null, typed: string): Match {
 
 /** The categories named on screen, as a person would read them. */
 export const pretty = (id: string) => id.replace(/_/g, " ");
+
+/**
+ * What they probably meant, when nothing matched.
+ *
+ * The owner asked for this in the first sentence of the ICP brief — the search
+ * has to *"count for spelling mistakes or things we don't understand"* — and
+ * without it `matchTrade` refuses "plumers" outright, which is the one failure
+ * a stranger reads as "this product does not work" rather than "I mistyped".
+ *
+ * ## It suggests and never silently resolves
+ *
+ * The same choice `resolveRegion` already made for cities, and for the reason
+ * written there: *"silently reading Phoenix because somebody typed Pheonix is
+ * answering confidently for a place nobody asked about."* Reading plumbing for
+ * somebody who typed "plumers" is the same move, and the cost lands later —
+ * nine seconds of scan, a pool count and five samples for a trade they did not
+ * ask for. So this returns a question for the screen to put, and they press it
+ * or they do not.
+ *
+ * ## The distance is bounded by the word
+ *
+ * `distance` is region's Damerau-Levenshtein, reused rather than reimplemented:
+ * one edit for a short word, two for a long one, with transposition counting as
+ * one because it is the commonest typo there is. A flat two would turn "gyms"
+ * into "gems"; a flat one would never reach "chiropracter".
+ *
+ * Compared against the **words of the category ids** and the synonym keys,
+ * because those are the vocabulary a match can actually be made on. Ranked by
+ * distance, then by US listings, so a tie goes to the trade more people mean.
+ */
+export function suggestTrade(
+  taxo: Taxonomy | null,
+  typed: string,
+): { word: string; anchor: string } | null {
+  if (!taxo?.categories?.length) return null;
+  const all = words(typed);
+  const meaningful = all.filter((w) => !FILLER.has(w));
+  const head = meaningful[meaningful.length - 1] ?? all[all.length - 1];
+  if (!head || head.length < 3) return null;
+
+  const cap = head.length <= 5 ? 1 : 2;
+  const listings = new Map(taxo.categories.map((c) => [c.id, c.n]));
+
+  // The vocabulary: every word of every category id, plus every synonym key.
+  // A map so the same word from several categories keeps the biggest one.
+  const vocab = new Map<string, string>();
+  const offer = (word: string, anchor: string) => {
+    if (word.length < 3) return;
+    const held = vocab.get(word);
+    if (!held || (listings.get(anchor) ?? 0) > (listings.get(held) ?? 0)) {
+      vocab.set(word, anchor);
+    }
+  };
+  for (const c of taxo.categories) for (const w of words(c.id)) offer(w, c.id);
+  for (const [key, anchor] of Object.entries(SYNONYM)) {
+    for (const w of words(key)) offer(w, anchor);
+  }
+
+  // Two ways in, because the real misses arrive as both.
+  //
+  // `distance` catches a transposition or a dropped letter. It does **not**
+  // catch "plumers", which is 4 edits from `plumbing` — people mistype the
+  // inflected form of a word the taxonomy spells as a different inflection.
+  // For those, prefix agreement is the measure, and this is where `SUGGEST`
+  // earns being looser than `AGREE`: agreement("plumers", "plumbing") is
+  // exactly 0.50, just under the 0.55 that `matchTrade` requires to *resolve*.
+  //
+  // Lowering `AGREE` itself is not the fix — its comment records the two
+  // collisions that caused (`space` joining a search for spas, and a
+  // 356,313-listing catch-all joining med spas). A suggestion carries none of
+  // that risk, because it is a question somebody presses: wrong costs a click,
+  // where a wrong resolution costs a nine-second scan of the wrong market.
+  let best: { word: string; anchor: string; d: number; agree: number; n: number } | null = null;
+  for (const [word, anchor] of vocab) {
+    const d = distance(head, word, cap);
+    const agree = agreement(head, word);
+    if (d > cap && agree < SUGGEST) continue;
+
+    // **The first letter has to survive, unless it is the single typo.**
+    //
+    // Measured on the real taxonomy: "plummber" is two edits from `lumber`
+    // (drop the p, drop an m) and four from `plumbing`, so ranking by distance
+    // alone suggested a lumber yard to somebody looking for a plumber. People
+    // mistype the middle of a word, not its start. `d <= 1` still lets a
+    // genuine first-character slip through.
+    if (d > 1 && word[0] !== head[0]) continue;
+
+    const n = listings.get(anchor) ?? 0;
+    // A single edit is the strongest signal there is, so it outranks a longer
+    // shared prefix. Past that, prefix agreement decides, then the trade more
+    // people mean.
+    const tier = (x: { d: number }) => (x.d <= 1 ? 0 : 1);
+    const better =
+      !best ||
+      tier({ d }) < tier(best) ||
+      (tier({ d }) === tier(best) && agree > best.agree) ||
+      (tier({ d }) === tier(best) && agree === best.agree && d < best.d) ||
+      (tier({ d }) === tier(best) && agree === best.agree && d === best.d && n > best.n);
+    if (better) best = { word, anchor, d, agree, n };
+  }
+
+  // An exact hit is not a suggestion — if the word already matched, the caller
+  // would not be here, and offering somebody their own spelling back is noise.
+  if (!best || (best.d === 0 && best.agree === 1)) return null;
+  return { word: best.word, anchor: best.anchor };
+}
+
+/**
+ * How much of a word a *suggestion* may share, as against a resolution.
+ *
+ * Deliberately below `AGREE`. A suggestion is a question on screen and its
+ * failure mode is a click; a resolution reads a market and its failure mode is
+ * nine seconds spent on a trade nobody asked for. Same reason `resolveRegion`
+ * suggests "Phoenix" for "pheonix" rather than silently reading it.
+ */
+export const SUGGEST = 0.45;

@@ -212,6 +212,18 @@ export default function FirstRun() {
               Your first 20 are free and we don&rsquo;t ask for a card.
             </b>
           </p>
+          {/* The door to the new flow while it is being built. `/app/find` asks
+              two fields and counts the market before anything is read; it
+              replaces this screen once the intake behind it exists. A screen
+              with no link is the same as not existing, which is what
+              `test_reachable.mjs` says and is why this is here rather than in
+              NO_LINK_NEEDED. */}
+          <p className="t-s" style={{ maxWidth: "62ch" }}>
+            <Link href="/app/find" style={{ color: "#0E1520", textDecoration: "underline" }}>
+              Or just see how many there are
+            </Link>{" "}
+            — a business type and a place, a real count, nothing read and nothing charged.
+          </p>
         </div>
 
       </div>

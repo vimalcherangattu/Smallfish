@@ -27,7 +27,7 @@ import { readFileSync } from "node:fs";
 import { compileLib } from "./_tsmodules.mjs";
 
 const { load } = compileLib(["src/lib/trades.ts"], "sf-trades-");
-const { matchTrade, agreement, AGREE, FAMILY_AGREE } = await load("trades");
+const { matchTrade, suggestTrade, agreement, AGREE, SUGGEST, FAMILY_AGREE } = await load("trades");
 
 const taxo = JSON.parse(readFileSync("public/data/trades.json", "utf8"));
 
@@ -216,6 +216,68 @@ check(
   "filler words alone match nothing",
   matchTrade(taxo, "businesses companies").best === null ||
     matchTrade(taxo, "businesses companies").best.anchor !== undefined,
+);
+
+// ------------------------------------------------- misspellings, suggested --
+//
+// The owner asked for this in the first sentence of the ICP brief: the search
+// has to "count for spelling mistakes or things we don't understand". These run
+// against the real 1,644-category taxonomy, because that is where every one of
+// the wrong answers below actually came from.
+
+check(
+  "a typo the stem layer cannot reach is suggested",
+  // agreement("plumers", "plumbing") is exactly 0.50, just under the measured
+  // AGREE of 0.55, so `matchTrade` refuses it and SUGGEST picks it up.
+  suggestTrade(taxo, "plumers")?.word === "plumbing",
+  `got ${JSON.stringify(suggestTrade(taxo, "plumers"))}`,
+);
+
+check(
+  "a doubled letter does not send a plumber to a lumber yard",
+  // The real wrong answer, before the first-letter rule: "plummber" is two
+  // edits from `lumber` (drop the p, drop an m) and four from `plumbing`, so
+  // ranking on distance alone suggested lumber.
+  suggestTrade(taxo, "plummber")?.word === "plumbing",
+  `got ${JSON.stringify(suggestTrade(taxo, "plummber"))}`,
+);
+
+check(
+  "a transposition is caught, because it is the commonest typo there is",
+  suggestTrade(taxo, "dnetist")?.word === "dentist",
+  `got ${JSON.stringify(suggestTrade(taxo, "dnetist"))}`,
+);
+
+check(
+  "nonsense is refused rather than forced onto the nearest trade",
+  suggestTrade(taxo, "xqzzyqq") === null,
+  `got ${JSON.stringify(suggestTrade(taxo, "xqzzyqq"))}`,
+);
+
+check(
+  "and a word that already resolves is never offered back to the typist",
+  // `matchTrade` handles these, so a suggestion would be noise on a screen
+  // that is not even shown. Each must resolve, which is the real assertion.
+  ["dentists", "roofer", "electrican", "landscapng", "chiroprator"].every(
+    (w) => matchTrade(taxo, w).best !== null,
+  ),
+);
+
+check(
+  "SUGGEST is looser than AGREE, and deliberately so",
+  SUGGEST < AGREE,
+  `SUGGEST ${SUGGEST} vs AGREE ${AGREE} — a suggestion costs a click, a wrong resolution costs a scan`,
+);
+
+check(
+  "the first letter is required unless the typo is a single edit",
+  // Pinning the rule rather than only its one example: a candidate that
+  // changes the first letter needs distance 1, not 2.
+  (() => {
+    const got = suggestTrade(taxo, "oofing");
+    return got === null || got.word[0] === "o" || got.word === "roofing";
+  })(),
+  `got ${JSON.stringify(suggestTrade(taxo, "oofing"))}`,
 );
 
 console.log(failures === 0 ? "\nall good" : `\n${failures} failed`);

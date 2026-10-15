@@ -83,9 +83,18 @@ export function sampleRows(rows: Candidate[], n = 5): PoolSample[] {
   const first: Candidate[] = [];
   const rest: Candidate[] = [];
 
-  // Readable first, and within that the order the provider gave, which for
-  // Overture is release order and carries no editorial meaning.
-  const ordered = [...rows].sort((a, b) => Number(Boolean(b.site)) - Number(Boolean(a.site)));
+  // Readable first, and within that a stride through the list rather than its
+  // head.
+  //
+  // **The head is not a sample.** `supply.ts` returns rows `ORDER BY name`, and
+  // names beginning with a digit sort first, so the top five Austin dentists
+  // were "04 Dental", "1460 Dental Studio", "183 Family Dentistry" and
+  // "360 SDM Dental Lab" — a market that reads like a directory glitch on the
+  // first screen a stranger sees. Striding across the whole list costs nothing
+  // and makes five rows that look like the place.
+  const ordered = spread(
+    [...rows].sort((a, b) => Number(Boolean(b.site)) - Number(Boolean(a.site))),
+  );
 
   for (const r of ordered) {
     const name = normalise(r.name);
@@ -110,6 +119,57 @@ export function sampleRows(rows: Candidate[], n = 5): PoolSample[] {
 }
 
 /**
+ * Walk the list at a stride, so the five come from across it rather than off
+ * the top.
+ *
+ * Deterministic on purpose — no shuffle. A random sample would make the screen
+ * different on every reload, which reads as instability on exactly the screen
+ * whose job is to make the market feel solid, and it would make this untestable
+ * without seeding. A stride is reproducible and spreads just as well.
+ *
+ * Every row is still returned, so the dedupe below never runs short: the stride
+ * only decides which ones it meets first.
+ */
+function spread<T>(rows: T[]): T[] {
+  const n = rows.length;
+  if (n <= 2) return rows;
+
+  const out: T[] = [];
+  const seen = new Uint8Array(n);
+  const take = (i: number) => {
+    if (i < 0 || i >= n || seen[i]) return;
+    seen[i] = 1;
+    out.push(rows[i]!);
+  };
+
+  // Bisection, breadth first: the start, then the midpoint of the whole list,
+  // then the midpoints of each half, and so on. The first handful therefore
+  // span the **whole** range rather than its first slice.
+  //
+  // A fixed stride was the first attempt and was not enough: at 400 rows and a
+  // stride of 10 the first five taken were indices 0, 10, 20, 30, 40 — the top
+  // tenth of the alphabet, which is the same defect in a longer form. The test
+  // caught it, which is why it asserts the span and not merely "not the head".
+  take(0);
+  let ranges: Array<[number, number]> = [[0, n - 1]];
+  while (ranges.length > 0 && out.length < n) {
+    const next: Array<[number, number]> = [];
+    for (const [lo, hi] of ranges) {
+      if (hi - lo < 2) continue;
+      const mid = (lo + hi) >> 1;
+      take(mid);
+      next.push([lo, mid], [mid, hi]);
+    }
+    ranges = next;
+  }
+
+  // Every row still comes back, so the dedupe below can never run short — the
+  // bisection only decides which ones it meets first.
+  for (let i = 0; i < n; i += 1) take(i);
+  return out;
+}
+
+/**
  * A chain's branches collapse onto one name.
  *
  * Trailing location suffixes are what make "Aspen Dental" look like five
@@ -127,20 +187,27 @@ const normalise = (name: string): string =>
     .trim();
 
 /**
- * The town or neighbourhood off the address, or null.
+ * The town, from the provider's own field. Never parsed out of the address.
  *
- * Overture addresses are "123 Main St, Austin, TX 78701", so the town is the
- * second comma field. Returning null rather than guessing is deliberate — the
- * sample row simply omits it, and `contacts.ts` already learned that a town
- * inferred wrongly is worse than one left out.
+ * **Retraction.** The first version of this read the second comma field of
+ * `addr`, on the stated assumption that Overture addresses look like
+ * "123 Main St, Austin, TX 78701". They do not: `addr` is
+ * `addresses[1].freeform`, which is the **street line** — "11200 Lakeline
+ * Blvd, Suite 100". So the first real run of this screen rendered five
+ * neighbourhoods reading "Suite 100", "Ste 2103", "Suite #470" and "TX 78665".
+ *
+ * Worse than the bug: `test_pool.mjs` passed, because its fixture encoded the
+ * same guess. A test written from an assumption confirms the assumption. The
+ * fixtures now carry a real Overture `freeform` string, and the town comes
+ * from `addresses[1].locality`, which is the field that actually holds it.
+ *
+ * Null means the listing carried none, and the row omits it rather than
+ * guessing — the rule `contacts.ts` already follows for attribution.
  */
-function townOf(r: Candidate): string | null {
-  const parts = (r.addr ?? "").split(",").map((p) => p.trim()).filter(Boolean);
-  if (parts.length < 2) return null;
-  const town = parts[1];
-  if (!town || /^\d/.test(town) || town.length < 2) return null;
-  return town;
-}
+const townOf = (r: Candidate): string | null => {
+  const town = (r.town ?? "").trim();
+  return town.length > 1 ? town : null;
+};
 
 /**
  * The sentence over the count, with both numbers in it.

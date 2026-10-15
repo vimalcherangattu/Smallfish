@@ -66,6 +66,17 @@ export interface Candidate {
   /** The listing address. Used to attribute a page to this business by its
    *  town, never shown as a verified address. */
   addr: string | null;
+  /**
+   * The town, as the provider names it, or null.
+   *
+   * A separate field rather than the second comma piece of `addr`, because
+   * `addr` is the **street** line: Overture's is `addresses[1].freeform`, which
+   * reads "11200 Lakeline Blvd, Suite 100". Parsing a town out of it rendered
+   * "Suite 100" and "TX 78665" as neighbourhoods on the first pool screen. Null
+   * means we were not told, and the row omits it rather than guessing — the
+   * same rule `contacts.ts` follows for attribution.
+   */
+  town?: string | null;
   lat: number;
   lon: number;
   /** Which provider produced it. Kept so a row can always say where it came
@@ -159,6 +170,7 @@ export const overture: SupplyProvider = {
         site: r.site,
         phone: r.phone,
         addr: r.addr ?? null,
+        town: r.town ?? null,
         lat: r.lat,
         lon: r.lon,
         source: "overture",
@@ -290,6 +302,9 @@ export const apify: SupplyProvider = {
         site,
         phone: pick(it, "phone", "phoneUnformatted", "internationalPhoneNumber"),
         addr: pick(it, "address", "formattedAddress", "fullAddress"),
+        // Maps actors spell the town several ways and some omit it. Null is a
+        // fine answer; a guessed one is not.
+        town: pick(it, "city", "locality", "town", "neighborhood"),
         lat: num(loc, "lat", "latitude") ?? num(it, "lat", "latitude") ?? 0,
         lon: num(loc, "lng", "lon", "longitude") ?? num(it, "lng", "lon", "longitude") ?? 0,
         source: "apify",

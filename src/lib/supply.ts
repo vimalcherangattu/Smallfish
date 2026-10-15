@@ -75,6 +75,10 @@ export interface Candidate {
   site: string;
   phone: string | null;
   addr: string | null;
+  /** The town, from Overture's `addresses[1].locality`. Null when the listing
+   *  carries none — omitted on screen rather than guessed, because `addr` is
+   *  only the street line and parsing a town out of it yields "Suite 100". */
+  town: string | null;
   lat: number;
   lon: number;
 }
@@ -249,6 +253,12 @@ export async function supplyFor(
            websites[1]                   AS site,
            phones[1]                     AS phone,
            addresses[1].freeform         AS addr,
+           -- The town, from Overture's own field rather than parsed out of the
+           -- freeform line. freeform is the STREET line, "11200 Lakeline Blvd,
+           -- Suite 100", so reading its second comma piece as the town yields
+           -- "Suite 100" and "TX 78665" -- which is exactly what the first pool
+           -- screen rendered before this column existed. See pool.ts townOf.
+           addresses[1].locality         AS town,
            ST_X(geometry)                AS lon,
            ST_Y(geometry)                AS lat
     FROM read_parquet([${fileList}])
@@ -282,7 +292,7 @@ export async function supplyFor(
     const limit = Math.max(1, Math.min(opts.limit ?? 1000, 5000));
 
     const result = await con.run(`
-      SELECT id, name, cat, site, phone, addr, lon, lat
+      SELECT id, name, cat, site, phone, addr, town, lon, lat
       FROM hits
       WHERE ${READABLE} ${notThese}
       ORDER BY name
@@ -295,8 +305,9 @@ export async function supplyFor(
       site: String(r[3]),
       phone: r[4] == null ? null : String(r[4]),
       addr: r[5] == null ? null : String(r[5]),
-      lon: Number(r[6]),
-      lat: Number(r[7]),
+      town: r[6] == null ? null : String(r[6]),
+      lon: Number(r[7]),
+      lat: Number(r[8]),
     }));
   }
 
