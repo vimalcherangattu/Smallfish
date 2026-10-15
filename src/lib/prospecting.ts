@@ -273,11 +273,11 @@ export interface ListRow {
 
 /** Lists built per UTC day, at most. A bot that follows every link in every
  *  email would otherwise spend the model budget for us. */
-export const DAILY_LIST_CAP = 25;
+export const DAILY_LIST_CAP = 20;
 /** Stop reading once this many fit: the page shows three. */
 const WANT = 3;
 /** And never read more than this many for one list. */
-const MAX_READS = 24;
+const MAX_READS = 40;
 
 const pick =
   "list_token,name,niche,city,state,list_query,list_listings,list_readable,list_read,list_rows,list_at";
@@ -390,7 +390,7 @@ export async function buildList(
   const rows: ListRow[] = [];
   let read = 0;
   await Promise.all(
-    Array.from({ length: 6 }, async () => {
+    Array.from({ length: 8 }, async () => {
       while (queue.length && rows.length < WANT && Date.now() - started < budgetMs) {
         const b = queue.shift()!;
         read += 1;

@@ -43,7 +43,7 @@ export default async function Hi({ params }: { params: Promise<{ token: string }
         )}
         <h1 className="dsp mt-6 max-w-[22ch] text-[clamp(32px,5vw,56px)]">
           {count ? `${count.toLocaleString()} ` : ""}
-          {niche?.label ?? "businesses"} in {city}. Here are three with no {gap}.
+          {niche?.label ?? "businesses"} in {city}. Here are some with no {gap}.
         </h1>
         <p className="mt-6 max-w-[56ch] text-[17px] leading-relaxed text-[var(--ink-2)]">
           We read each business&rsquo;s own website and kept only the ones that fit. Every row

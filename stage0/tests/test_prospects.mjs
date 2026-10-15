@@ -102,6 +102,16 @@ test("entities are decoded before quoting", () => {
   assert.match(hits[0].quote, /We're/);
 });
 
+test("terms-of-service boilerplate is not a legal niche", () => {
+  // measured: Los Angeles, from an agency's terms page
+  const t = "You agree to cover any expense (including reasonable attorneys' fees) incurred by us. Attorneys’ fees are on you. We charge attorneys' fees to clients.";
+  assert.deepEqual(P.nichesIn(t).map((h) => h.id), []);
+});
+
+test("numeric entities are decoded", () => {
+  assert.equal(P.decode("PR &#038; Publicity, the client&#x27;s site"), "PR & Publicity, the client's site");
+});
+
 const fs = await import("node:fs");
 const taxo = JSON.parse(fs.readFileSync("public/data/trades.json", "utf8"));
 test("agency categories are real Overture ids", () => {

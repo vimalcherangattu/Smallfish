@@ -56,7 +56,7 @@ export const NICHES: Niche[] = [
   { id: "hvac", label: "HVAC companies", trade: "hvac", pattern: /\b(hvac|heating and (?:air|cooling)|air conditioning)\b/i },
   { id: "plumbing", label: "plumbers", trade: "plumbers", pattern: /\b(plumbers?|plumbing)\b/i },
   { id: "roofing", label: "roofers", trade: "roofers", pattern: /\b(roofers?|roofing)\b/i },
-  { id: "legal", label: "law firms", trade: "lawyers", pattern: /\b(law firms?|attorneys?|lawyers?|legal practices?)\b/i },
+  { id: "legal", label: "law firms", trade: "lawyers", pattern: /\b(law firms?|attorneys?(?![’']? fees)|lawyers?|legal practices?)\b/i },
   { id: "chiro", label: "chiropractors", trade: "chiropractors", pattern: /\b(chiropract\w*)\b/i },
   { id: "vet", label: "veterinary clinics", trade: "veterinarians", pattern: /\b(veterinar\w*|vet clinics?|animal hospitals?)\b/i },
   { id: "realestate", label: "real estate agents", trade: "real estate agents", pattern: /\b(real estate agents?|realtors?|real estate brokerages?)\b/i },
@@ -92,8 +92,10 @@ export function decode(text: string): string {
     .replace(/&#8217;|&#039;|&#39;|&rsquo;|&lsquo;/g, "'")
     .replace(/&#8220;|&#8221;|&ldquo;|&rdquo;|&quot;/g, '"')
     .replace(/&#8211;|&#8212;|&ndash;|&mdash;/g, "-")
-    .replace(/&amp;/g, "&")
-    .replace(/&nbsp;|&#160;/g, " ");
+    .replace(/&nbsp;|&#160;/g, " ")
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+    .replace(/&amp;/g, "&");
 }
 
 /** Sentences, roughly. Agency copy is mostly fragments and lists, so a

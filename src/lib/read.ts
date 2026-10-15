@@ -356,9 +356,15 @@ export const coverageProvesAbsence = (c: { targeted: number; reached: number }):
  * no signal was found." It is a statement about our own crawl, so we write it
  * rather than asking the model to describe it.
  */
-export const absenceProof = (label: string, pages: string[]): string =>
-  `No ${label} on ${pages.length === 1 ? "the one page this site has" : `${pages.length} pages`}: ` +
-  `${pages.join(", ")}. No ${label} script on any of them.`;
+export const absenceProof = (label: string, pages: string[]): string => {
+  // "a way to request a quote online" reads "No a way to…" with the article
+  // left on. The catalogue's labels are written to follow "has", not "no".
+  const bare = label.replace(/^(a|an) /i, "");
+  return (
+    `No ${bare} on ${pages.length === 1 ? "the one page this site has" : `${pages.length} pages`}: ` +
+    `${pages.join(", ")}. No ${bare} script on any of them.`
+  );
+};
 
 /* ------------------------------------------------------------------ judge -- */
 
