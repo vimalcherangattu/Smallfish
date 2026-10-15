@@ -112,9 +112,21 @@ not being tested.
     maps, and commissioning an actor splits that rather than removing it. `hiQ v.
     LinkedIn` was never the reassurance it is quoted as being — it is about the CFAA,
     which is a different question.
-  - **Review prose is still out.** Rating and review count are numbers and travel; the
-    text is user-generated content under somebody else's licence, and it does not get
-    used as a filter signal until a lawyer has looked at it. Named, not quietly shipped.
+  - **Review prose is in, by the owner's call of 2026-10-15** — *(reverses "review prose
+    is still out … until a lawyer has looked at it", 2026-10-09; see the decision log)*.
+    PRD v2 makes it central: the "Why them" opener is drawn from what customers complain
+    about, and ~20 reviews are read newest and lowest-rated first. Two disciplines hold,
+    and they are the whole of what makes it defensible:
+    - **Store the snippets used as evidence, never the review corpus.** This is "store
+      extracted facts, not page copies" applied to somebody else's UGC. A review we did
+      not quote is not kept.
+    - **A blind row carries no verbatim quote.** A quoted sentence is a search string
+      that finds the business in one query, which is the same leak as printing the
+      domain — `unlock.ts` has dropped `proof` from locked rows for that reason since
+      P0.4. So the judge returns **two** sentences: a generalised "Why them", safe to
+      show before payment, and the verbatim evidence, revealed with the row. Two fields
+      rather than stripping one afterwards, so the leak is impossible and not just
+      unlikely.
   - Overture stays the default. A paid provider that switched itself on because a key
     happened to exist is a bill nobody chose.
 - **Store extracted facts, not page copies.**
@@ -273,10 +285,22 @@ reports them present. Re-run preflight rather than trusting this paragraph.
 [PASS] S0-16 hand-labelled set: 142 labels across 2 markets — THIN
 ```
 
-### The one credential blocker
+### The one credential blocker — and it is not a *product* blocker
 
-- **Anthropic:** no key by any path. Needs `ANTHROPIC_API_KEY` set as an environment
-  variable (the egress-credential route does not reach `api.anthropic.com` — see above).
+**Retraction, 2026-10-15.** This was written up as "the one hard launch blocker". It is
+not: **production has `ANTHROPIC_API_KEY`.** `preflight.py` runs in the session container
+and says nothing about Vercel, and the two were conflated for a week.
+
+The proof is in the production data rather than an env listing. The key check in `judge`
+(2026-09-29) and the no-engine pause in the worker (2026-09-30) both predate the
+2026-10-07/08 jobs; those jobs read 12 of 12 sites and recorded **zero `needs_model`
+rows**, with proofs that are verbatim page quotes ("Reserve Classes") where technology
+detection would have written "X found on the page". The model answered.
+
+- **Anthropic, in this container:** no key by any path. Needs `ANTHROPIC_API_KEY` as an
+  environment variable (the egress-credential route does not reach `api.anthropic.com` —
+  see above). This blocks the **Stage 0 benchmark**: S0-17's metered markets, the
+  hand-labelling in S0-16, any re-run of the cost meter. It has never blocked a customer.
 
 ### Where the gate actually stands
 
