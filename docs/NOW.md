@@ -23,12 +23,14 @@ Rules for whoever edits it:
 
 ## In flight
 
-- Milestone 2: two-field search to a real pool count, shipping at `/app/find`.
+- Milestone 3: the intake, then read and judge. Named contacts land inside it.
 
 ## Where the product is
 
-- PRD v2 adopted 2026-10-15. Milestone 1 of 6 done, 2 in progress.
-- The new flow is NOT yet on a screen. `/app` is still the old single-sentence search.
+- PRD v2 adopted 2026-10-15. Milestone 2 of 6 done.
+- **Testable now: `/app/find`** — two fields, a real count, five samples. No account.
+- `/app` is still the old single-sentence search, and still works. It gets replaced once milestone 3 can read.
+- Rating and review count are blank until the Apify check passes: Overture carries neither.
 - Built: supply for any US city, polite fetcher, contacts, credits, Stripe, CSV, opt-out.
 - Built 2026-10-15: `fit.ts` — Strong/Maybe/No, blind rows, a credit buys a reveal.
 - Provider: Apify Compass, keys set, default still Overture until the check reads clean.
