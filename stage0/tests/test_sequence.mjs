@@ -24,7 +24,7 @@ const R = await load("replies");
 const { PLANS } = await load("pricing");
 
 const ok = {
-  domain: "acme.com", name: "Acme Dental Marketing | Grow your practice", email: "hi@acme.com",
+  domain: "acme.com", name: "Acme Dental Marketing | Grow your practice", email: "jane@acme.com",
   niche: "dental", city: "Phoenix", state: "AZ", status: "found", list_token: "AbCdEfGhJk",
   list_query: "dentists in Phoenix, AZ that have no online booking", list_readable: 1200, list_listings: 1400,
 };
@@ -39,8 +39,13 @@ await test("no address, no niche, no list, no send", () => {
 await test("anyone already queued, replied or suppressed is never queued again", () => {
   for (const status of ["queued", "replied", "interested", "suppressed", "bounced"]) assert.ok(S.blocked({ ...ok, status }, none));
 });
+await test("info@ and other role addresses are never queued", () => {
+  for (const e of ["info@acme.com", "hello@acme.com", "contact@acme.com", "Sales@acme.com"]) assert.match(S.blocked({ ...ok, email: e }, none), /generic/);
+  assert.equal(S.blocked({ ...ok, email: "viktoria@acme.com" }, none), null);
+});
+
 await test("a suppressed address or domain blocks", () => {
-  assert.match(S.blocked(ok, { ...none, suppressedEmails: new Set(["hi@acme.com"]) }), /address asked/);
+  assert.match(S.blocked(ok, { ...none, suppressedEmails: new Set(["jane@acme.com"]) }), /address asked/);
   assert.match(S.blocked(ok, { ...none, suppressedDomains: new Set(["acme.com"]) }), /domain asked/);
 });
 await test("a city with almost none of the trade is not worth an email", () => assert.match(S.blocked({ ...ok, list_readable: 5 }, none), /too few/));

@@ -188,3 +188,14 @@ export async function reply(to: Email, subject: string, html: string): Promise<u
     body: JSON.stringify({ reply_to_uuid: to.id, eaccount: to.eaccount, subject, body: { html } }),
   });
 }
+
+/* ------------------------------------------------------- supersearch -- */
+
+/** How many people match, without enriching or spending a credit. */
+export async function countLeads(filters: Record<string, unknown>): Promise<number> {
+  const r = await api<{ number_of_leads?: number }>("/supersearch-enrichment/count-leads-from-supersearch", {
+    method: "POST",
+    body: JSON.stringify({ search_filters: filters }),
+  });
+  return r?.number_of_leads ?? 0;
+}

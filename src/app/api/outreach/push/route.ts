@@ -2,7 +2,8 @@ import { randomBytes } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { activate, addLeads, ensureCampaign, ensureWebhook, inboxes, instantlyReady } from "@/lib/instantly";
+import { activate, addLeads, countLeads, ensureCampaign, ensureWebhook, inboxes, instantlyReady } from "@/lib/instantly";
+import { ownersAt, SEGMENTS } from "@/lib/research";
 import { cronAuthorised, hookSecret } from "@/lib/outreachauth";
 import { listCriterion, logEvent, prepareList, rest, suppressedOutreach } from "@/lib/prospecting";
 import { NICHES } from "@/lib/prospects";
@@ -56,6 +57,23 @@ export async function GET(req: Request) {
   out.prepared = prepared;
 
   if (!instantlyReady()) return Response.json({ ...out, sending: "INSTANTLY_API_KEY is not set" });
+
+  // 1b · size the audiences. Free: a count spends no credits. Logged so the
+  // choice of who to write to is read off numbers.
+  const agencyDomains = (((await rest(
+    "gtm_prospects?niche=not.is.null&select=domain&limit=500",
+  )) as Array<{ domain: string }>) ?? []).map((r) => r.domain);
+  const research: Record<string, number | string> = {};
+  for (const seg of [...SEGMENTS, ...(agencyDomains.length ? [ownersAt(agencyDomains)] : [])]) {
+    try {
+      research[seg.id] = await countLeads(seg.filters);
+      await logEvent("research_count", {}, { segment: seg.id, what: seg.what, count: research[seg.id] });
+    } catch (err) {
+      research[seg.id] = String(err).slice(0, 200);
+      await logEvent("research_failed", {}, { segment: seg.id, error: String(err).slice(0, 400) });
+    }
+  }
+  out.research = research;
 
   // 2 · campaign, webhook, queue
   const boxes = await inboxes();

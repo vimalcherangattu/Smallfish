@@ -73,6 +73,10 @@ export default async function Outreach() {
     prospects.filter((p) => p.niche).reduce<Record<string, number>>((a, p) => ((a[p.niche!] = (a[p.niche!] ?? 0) + 1), a), {}),
   ).sort((a, b) => b[1] - a[1]);
 
+  // Latest count per audience, from the daily run.
+  const sized = new Map<string, Event>();
+  for (const e of events) if (e.kind === "research_count" && !sized.has(String(e.detail.segment))) sized.set(String(e.detail.segment), e);
+
   const cell = "border-b border-[var(--line)] px-3 py-2 align-top";
   return (
     <main className="mkt">
@@ -107,6 +111,20 @@ export default async function Outreach() {
                 <td className={cell}>{k}</td>
                 <td className={`${cell} mono text-right`}>{v.toLocaleString()}</td>
                 <td className={`${cell} text-[var(--ink-3)]`}>{d}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <h2 className="mt-12 text-[20px] font-semibold">Audiences, sized</h2>
+        <p className="mt-1 text-[13px] text-[var(--ink-3)]">Named people with verified work addresses in Instantly SuperSearch. Counting is free.</p>
+        <table className="mt-3 w-full text-[14px]">
+          <tbody>
+            {[...sized.values()].map((e) => (
+              <tr key={e.id}>
+                <td className={cell}>{String(e.detail.what)}</td>
+                <td className={`${cell} mono text-right`}>{Number(e.detail.count).toLocaleString()}</td>
+                <td className={`${cell} whitespace-nowrap text-[var(--ink-3)]`}>{when(e.at)}</td>
               </tr>
             ))}
           </tbody>

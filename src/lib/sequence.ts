@@ -74,6 +74,9 @@ export const STEPS: Step[] = [
   },
 ];
 
+export const ROLE_ADDRESS =
+  /^(info|hello|hi|contact|team|office|sales|support|admin|marketing|inquiries|enquiries|customerservice|customercare|help|mail|general|studio|reception|service|booking|bookings|jobs|careers)@/i;
+
 export interface Prospect {
   domain: string;
   name: string | null;
@@ -96,6 +99,9 @@ export function blocked(
 ): string | null {
   if (p.status !== "found") return `status is ${p.status}`;
   if (!p.email) return "no address published on their own site";
+  // 64% of the first batch were info@ and the like. They reach an inbox nobody
+  // decides from, and they hurt the domain when nobody replies.
+  if (ROLE_ADDRESS.test(p.email)) return "generic address, not a person";
   if (!p.niche) return "no niche strong enough to write about";
   if (!p.list_token || !p.list_query) return "their free list is not prepared";
   if (!p.city) return "no city";
