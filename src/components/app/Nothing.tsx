@@ -100,11 +100,11 @@ export default function Nothing({
               Ask for something else
               <Arrow s={17} />
             </Link>
+            {/* "Check a list you already have" came out on 2026-10-15, with
+                the other CSV doors. A search that found nothing should send
+                you back to searching, not sideways into a second product. */}
             <Link className="qbtn" href="/templates">
               See what we can prove
-            </Link>
-            <Link className="qbtn" href="/app/upload">
-              Check a list you already have
             </Link>
           </div>
           <p className="t-s">

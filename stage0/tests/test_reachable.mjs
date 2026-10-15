@@ -112,7 +112,10 @@ const MUST_BE_REACHABLE = [
   "/templates",
   "/app/explore",
   "/app/upload",
-  "/app/contacted",
+  // `/app/contacted` came off this list on 2026-10-15, and it is the only
+  // entry ever to have done so. See `NO_LINK_NEEDED` below for the reason —
+  // the short version is that the mark is on the row and the aggregate screen
+  // was the product claiming to do a second thing.
   "/app/runs",
   "/sample",
   "/account",
@@ -215,6 +218,19 @@ function routesUnder(dir, prefix) {
 const NO_LINK_NEEDED = {
   "/app": "the section root, and the product's main screen",
   "/account": "covered by its own case above, and where Stripe returns to",
+  "/app/contacted":
+    "Lost its door on 2026-10-15, on the owner's mandate: 'I want this " +
+    "product to do one thing very well.' The one thing is finding small " +
+    "businesses worth calling and proving why. Keeping track of who you " +
+    "called afterwards is a CRM — the second-best version of something the " +
+    "customer already owns — and a nav item for it on every screen said the " +
+    "product was about two things. **The feature it serves is not gone:** " +
+    "'Mark as contacted' is on the row in `BizRow.tsx`, it persists through " +
+    "`/api/contacted`, and `/app` and `/app/reads/[id]` both read it back and " +
+    "render the row as contacted. That is the mark doing its job where the " +
+    "person already is. This screen was the same rows listed a second time " +
+    "under their own heading. It stays at its URL so nobody mid-flow loses a " +
+    "page they had open, and `Shell.tsx`'s `derive` still resolves it.",
   "/app/icp":
     "Deliberately not a front door. `AppNav.tsx` records the decision: 'Who to " +
     "target' was a second front door for the same question the search box " +

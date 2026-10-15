@@ -103,10 +103,11 @@ export default function Results(p: ResultsProps) {
           </p>
         </div>
         <div className="row wrap" style={{ gap: 10 }}>
-          <Link className="qbtn" href="/app/explore">
-            <Map />
-            Where we looked
-          </Link>
+          {/* "Where we looked" went on 2026-10-15, with the one-thing
+              mandate. A map of the search area is interesting and answers a
+              question nobody asked on the way to calling somebody: the rows
+              already say which town each business is in, which is the part
+              that changes what you do. `/app/explore` keeps its route. */}
           {/* Not an `<a href="/api/export?…">`. That route is POST-only, so
               the link 405'd — and worse, a GET that worked would have written
               the file without going through `charging.ts`. The CRM push shipped

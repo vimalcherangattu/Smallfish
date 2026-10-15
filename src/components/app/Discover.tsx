@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-import { Arrow, Clock, Up } from "@/components/app/icons";
+import { Arrow, Clock } from "@/components/app/icons";
 import { agree } from "@/lib/appview";
 import { splitQuery } from "@/lib/query";
 
@@ -243,13 +243,16 @@ export default function Discover({
             </p>
           )}
           <div className="nextstep">
+            {/* The CSV door came out on 2026-10-15. The owner's mandate is one
+                thing done well, and the one thing is finding businesses in an
+                area that are missing what you sell. Checking a list somebody
+                already has is a different product — it skips the finding,
+                which is the half we are good at. `/app/upload` still works
+                and the route stays; what goes is the offer of it as a way out
+                of a refusal. See `test_reachable.mjs`. */}
             <Link className="btn" href="/app">
               Ask for something else
               <Arrow s={17} />
-            </Link>
-            <Link className="qbtn" href="/app/upload">
-              <Up s={15} />
-              Check a list you already have
             </Link>
           </div>
           <p className="t-s">Nothing was charged for this.</p>

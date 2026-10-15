@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Arrow, Up } from "@/components/app/icons";
+import { Arrow } from "@/components/app/icons";
 
 /**
  * A place we could not place.
@@ -89,21 +89,12 @@ export default function NotRead({
               </span>
             </span>
           </Link>
-          <Link className="ptile" href="/app/upload">
-            <span className="ptile__back" aria-hidden="true" />
-            <span className="ptile__front">
-              <span className="ptile__ico">
-                <Up s={17} />
-              </span>
-              <span className="ptile__txt">
-                <b>Bring your own list</b>
-                <em>
-                  A CSV with a website column is all it needs. We open each one and tell you
-                  which fit, with the sentence off their page that says so.
-                </em>
-              </span>
-            </span>
-          </Link>
+          {/* "Bring your own list" came out on 2026-10-15. It was the biggest
+              of the three CSV doors — a full tile, with copy good enough that
+              it read as a second product rather than a fallback, which is
+              exactly the problem. The owner's mandate is one thing done well,
+              and a mistyped city is a spelling problem, not a reason to be
+              sold a different way of working. `/app/upload` still works. */}
         </div>
 
         <p className="t-s">Nothing was charged for this.</p>

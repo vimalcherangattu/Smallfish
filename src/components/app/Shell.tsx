@@ -62,9 +62,34 @@ export interface ShellProps {
  * §4's rule is that the product does one thing and the sidebar is short. A
  * fifth item that leads somewhere unrelated does not satisfy it by counting.
  */
+/**
+ * **Two, from 2026-10-15.** "Contacted" came out.
+ *
+ * The owner's mandate: *"I want this product to do one thing very well. One
+ * problem it solves and it solves it damn fucking well."* The one thing is
+ * finding small businesses worth calling and proving why. Keeping track of
+ * who you have called afterwards is a CRM, it is the second-best version of
+ * something the customer already owns, and a nav item for it says the product
+ * is about two things.
+ *
+ * **The mark stays; the aggregate screen loses its door.** "Mark as contacted"
+ * is on the row, where the person is actually working, it persists through
+ * `/api/contacted`, and `/app` and `/app/reads/[id]` both render it back. That
+ * is the whole of what the feature is for. `/app/contacted` is a second list
+ * of the same rows under a different heading, and it is the one that made the
+ * product look like it was about two things.
+ *
+ * The route and the screen stay at their URL for anyone mid-flow, which is why
+ * `derive` below still resolves it. What goes is any invitation to it, and
+ * `test_reachable.mjs` carries the reason under `NO_LINK_NEEDED` so the next
+ * person to notice it has no door reads this rather than wiring one up.
+ *
+ * An earlier draft of this comment claimed `/app/runs` still linked a list's
+ * contacted rows. It does not, and never did — written and left here because
+ * a wrong reason in a comment outlives the change it was explaining.
+ */
 const ITEMS = [
   { key: "lists", href: "/app/runs", label: "My lists", icon: List },
-  { key: "contacted", href: "/app/contacted", label: "Contacted", icon: Tick },
   { key: "credits", href: "/account", label: "Credits and plan", icon: Card },
 ] as const;
 
