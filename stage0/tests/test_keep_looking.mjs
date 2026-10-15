@@ -56,7 +56,21 @@ const worker = code(readFileSync(path.join(process.cwd(), "src/lib/worker.ts"), 
 test("keep looking means within what the balance pays for", () => {
   // READS_PER_CREDIT is what keeps every plan solvent when nothing matches. A
   // search that widened for ever would be a bill that widened for ever.
-  assert.equal(P.READS_PER_CREDIT, 11);
+  //
+  // **11 until 2026-10-15, now 3.** The old value came from
+  // `1 / (3 × NO_HOPE_RATE)`, an abort rule with no price in it, and it let
+  // $0.20 of reading run against a credit sold for $0.19. It is derived from
+  // the owner's 70% margin floor now, so this asserts the derivation rather
+  // than the digit: pinning the number again would just be the same mistake
+  // with a newer value.
+  assert.equal(
+    P.READS_PER_CREDIT,
+    Math.max(
+      1,
+      Math.floor(((1 - P.MIN_GROSS_MARGIN) * P.cheapestCredit()) / P.COST_PER_READ_ALL_IN),
+    ),
+  );
+  assert.ok(P.READS_PER_CREDIT >= 1, "a credit must buy at least one read");
   assert.match(worker, /readsLeft\(credits, job\.sites_read\)/);
   assert.match(worker, /credits \* READS_PER_CREDIT - alreadyRead/);
 });
