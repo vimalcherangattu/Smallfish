@@ -122,6 +122,22 @@ test("the actor is never guessed", () => {
   assert.match(src, /there is no safe default/);
 });
 
+test("the actor id works in the form Apify prints it", () => {
+  // Apify's listing says `compass/crawler-google-places`; its REST path wants
+  // `compass~crawler-google-places`. Pasting the displayed form gives `%2F` and
+  // a 404 that reads like a dead actor rather than a typo — the first thing the
+  // owner would hit on switching the provider on.
+  assert.match(live, /replace\("\/", "~"\)/);
+  // And the encode is still there, so the normalisation did not open a hole.
+  assert.match(live, /encodeURIComponent\(actor\.trim\(\)\.replace/);
+  // The URL must use it rather than encoding the raw value again.
+  assert.match(live, /\/acts\/\$\{actorPath\(actor\)\}/);
+  assert.ok(
+    !/\/acts\/\$\{encodeURIComponent\(actor\)\}/.test(live),
+    "the raw actor id is still being encoded straight into the path",
+  );
+});
+
 test("a provider having a bad afternoon does not fail the search", () => {
   // These actors break when Google changes; that is a known cost of the
   // approach rather than a surprise. Falling back to the open data and saying

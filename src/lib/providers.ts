@@ -208,7 +208,20 @@ const num = (o: Record<string, unknown>, ...keys: string[]): number | null => {
  * both input and output field names, and a wrong id baked in here would either
  * fail loudly in production or, worse, run and bill for the wrong thing. If it
  * is unset this provider is simply unavailable and Overture answers.
+ *
+ * ## The one shape that is normalised, because the obvious paste is wrong
+ *
+ * Apify shows an actor as `compass/crawler-google-places` on its listing page
+ * and in its docs prose, but its REST path wants `compass~crawler-google-places`.
+ * Pasting the displayed form gives `%2F` through `encodeURIComponent` and a 404
+ * that looks like a dead actor rather than a typo. So the separator is
+ * normalised here: both forms work, and nobody loses an afternoon to it. A
+ * tilde survives `encodeURIComponent` untouched (RFC 3986 unreserved), so the
+ * encode still guards everything else.
  */
+export const actorPath = (actor: string): string =>
+  encodeURIComponent(actor.trim().replace("/", "~"));
+
 export const apify: SupplyProvider = {
   id: "apify",
   label: "Commissioned listings",
@@ -232,7 +245,7 @@ export const apify: SupplyProvider = {
     // timeout; ours is shorter, because a search that hangs is worse for the
     // person waiting than one that falls back.
     const res = await fetch(
-      `${APIFY_BASE}/acts/${encodeURIComponent(actor)}/run-sync-get-dataset-items?token=${encodeURIComponent(token)}`,
+      `${APIFY_BASE}/acts/${actorPath(actor)}/run-sync-get-dataset-items?token=${encodeURIComponent(token)}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
