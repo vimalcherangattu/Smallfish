@@ -33,6 +33,11 @@ const ROUTES = [
   "/app",
   "/app?q=dentists+in+Phoenix+that+have+no+online+booking",
   "/app?q=plumbers+in+Zzzqqville",
+  // Added 2026-10-15, after an em dash shipped to production on this screen
+  // and nothing caught it: the rule was only ever enforced on the routes
+  // listed here, so a new screen arrived outside it. A list is a rule that
+  // holds until somebody adds a page, which is what happened.
+  "/app/find",
   "/app/upload",
   "/app/runs",
   "/app/contacted",

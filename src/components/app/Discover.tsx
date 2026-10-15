@@ -218,9 +218,7 @@ export default function Discover({
             {/* What they get, in the order the next screen gives it, and the
                 part that decides whether they keep waiting: this costs
                 nothing. */}
-            About ten seconds. Then you will see how many there are, how many
-            have a website we can read, and what a list would cost, before
-            anything is charged.
+            Ten seconds or so. Nothing is charged for looking.
           </p>
           {/* Indeterminate, because we do not know the progress. The bar was
               fixed at 40% and never moved, which is a progress bar that lies in

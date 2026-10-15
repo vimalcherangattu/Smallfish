@@ -180,8 +180,7 @@ export default function PoolSearch() {
           Which businesses, and where?
         </h1>
         <p className="t-b" style={{ marginTop: 12, color: "#36404C", maxWidth: "56ch" }}>
-          We will tell you how many exist and how many have a website we can read.
-          No account, and nothing is charged for looking.
+          Free, and no account needed.
         </p>
 
         <form
@@ -220,7 +219,7 @@ export default function PoolSearch() {
         </form>
 
         <p className="t-s" style={{ marginTop: 10 }}>
-          A US city, county or state. Try {exTrade.toLowerCase()} in {exWhere}.
+          A US city, county or state.
         </p>
 
         {problem && (
@@ -284,10 +283,13 @@ export default function PoolSearch() {
             )}
 
             {/* The slow half. "Counting", never a number we do not have. */}
+            {/* What the wait is for, in one line, about them.
+                It used to read "we read the release live rather than quoting a
+                cached guess", which is our data layer explained to somebody who
+                wants plumbers. Whether we keep a cache is our problem. */}
             {!counted && counting && (
               <p className="t-b" style={{ marginTop: 16, color: "#5B6470" }}>
-                Counting them in the listings. About nine seconds for a city —
-                we read the release live rather than quoting a cached guess.
+                Counting every one of them. Ten seconds or so.
               </p>
             )}
 
@@ -353,10 +355,14 @@ export default function PoolSearch() {
                     <button className="btn big" type="button" onClick={onward}>
                       Get specific <Arrow />
                     </button>
+                    {/* What happens next, said once. The previous version
+                        apologised here for the next screen being the older one,
+                        which is build status rather than anything a customer
+                        needs: it belongs in a note to the owner, not on a page
+                        a stranger reads. */}
                     <p className="t-s" style={{ maxWidth: "62ch" }}>
-                      Next you say what you sell, and we read these sites to find the
-                      ones worth calling. That screen is still the old one-sentence
-                      search — the short intake replaces it next.
+                      Tell us what you sell, and we read these sites to find the ones
+                      worth calling.
                     </p>
                   </div>
                 )}

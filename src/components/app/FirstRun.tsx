@@ -221,8 +221,8 @@ export default function FirstRun() {
           <p className="t-s" style={{ maxWidth: "62ch" }}>
             <Link href="/app/find" style={{ color: "#0E1520", textDecoration: "underline" }}>
               Or just see how many there are
-            </Link>{" "}
-            — a business type and a place, a real count, nothing read and nothing charged.
+            </Link>
+            . A business type and a place, and a real count. Nothing read, nothing charged.
           </p>
         </div>
 
