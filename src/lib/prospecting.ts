@@ -74,7 +74,7 @@ function conn() {
   };
 }
 
-async function rest(path: string, init?: RequestInit): Promise<unknown> {
+export async function rest(path: string, init?: RequestInit): Promise<unknown> {
   const { url, headers } = conn();
   const res = await fetch(`${url}/${path}`, {
     ...init,
@@ -84,6 +84,41 @@ async function rest(path: string, init?: RequestInit): Promise<unknown> {
   if (!res.ok) throw new Error(`${init?.method ?? "GET"} ${path}: ${res.status} ${await res.text()}`);
   const body = await res.text();
   return body ? JSON.parse(body) : null;
+}
+
+/** One line in the outreach log. Never throws: a tracking write that fails
+ *  must not stop a send or a reply. */
+export async function logEvent(
+  kind: string,
+  who: { domain?: string | null; email?: string | null },
+  detail: Record<string, unknown> = {},
+): Promise<void> {
+  try {
+    await rest("gtm_events", {
+      method: "POST",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({ kind, domain: who.domain ?? null, email: who.email?.toLowerCase() ?? null, detail }),
+    });
+  } catch {
+    /* logged nowhere, on purpose: see above */
+  }
+}
+
+/** Addresses and domains that asked us to stop. */
+export async function suppressedOutreach(): Promise<{ emails: Set<string>; domains: Set<string> }> {
+  const rows = ((await rest("gtm_suppressed?select=value&limit=50000")) as Array<{ value: string }> | null) ?? [];
+  const emails = new Set<string>();
+  const domains = new Set<string>();
+  for (const r of rows) (r.value.includes("@") ? emails : domains).add(r.value.toLowerCase());
+  return { emails, domains };
+}
+
+export async function suppressOutreach(value: string, why: string): Promise<void> {
+  await rest("gtm_suppressed?on_conflict=value", {
+    method: "POST",
+    headers: { Prefer: "resolution=ignore-duplicates,return=minimal" },
+    body: JSON.stringify({ value: value.toLowerCase(), why }),
+  });
 }
 
 /** Every domain already stored. A few thousand short strings at most. */
@@ -252,6 +287,7 @@ export async function sweep(
  */
 export interface ProspectList {
   token: string;
+  domain: string;
   name: string | null;
   niche: string | null;
   city: string | null;
@@ -280,7 +316,7 @@ const WANT = 3;
 const MAX_READS = 40;
 
 const pick =
-  "list_token,name,niche,city,state,list_query,list_listings,list_readable,list_read,list_rows,list_at";
+  "list_token,domain,name,niche,city,state,list_query,list_listings,list_readable,list_read,list_rows,list_at";
 
 export async function listByToken(t: string): Promise<ProspectList | null> {
   if (!/^[A-Za-z0-9]{10}$/.test(t) || !canWrite()) return null;
@@ -414,5 +450,6 @@ export async function buildList(
     headers: { Prefer: "return=minimal" },
     body: JSON.stringify({ list_rows: rows, list_read: read, list_at: new Date().toISOString(), updated_at: new Date().toISOString() }),
   });
+  await logEvent("list_built", { domain: p.domain }, { found: rows.length, read });
   return rows.length ? { ok: true, rows, read } : { ok: false, reason: "nothing_found", read };
 }

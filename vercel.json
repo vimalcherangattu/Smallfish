@@ -12,6 +12,10 @@
     {
       "path": "/api/outreach/prospects",
       "schedule": "41 5 * * *"
+    },
+    {
+      "path": "/api/outreach/push",
+      "schedule": "53 13 * * *"
     }
   ]
 }

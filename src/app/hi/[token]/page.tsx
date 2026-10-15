@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import ProspectList from "@/components/ProspectList";
-import { listByToken, listCriterion } from "@/lib/prospecting";
+import { listByToken, listCriterion, logEvent } from "@/lib/prospecting";
 import { NICHES } from "@/lib/prospects";
 
 /**
@@ -28,12 +28,15 @@ export default async function Hi({ params }: { params: Promise<{ token: string }
   const { token } = await params;
   const p = await listByToken(token).catch(() => null);
   if (!p || !p.list_query) notFound();
+  // A mail scanner opening the link counts too; the list itself is only built
+  // by the page's script, which scanners do not run.
+  await logEvent("visited", { domain: p.domain });
 
   const niche = NICHES.find((n) => n.id === p.niche);
   const gap = listCriterion(p.niche)?.label ?? "it";
   const city = p.city ?? "your city";
   const count = p.list_readable ?? p.list_listings;
-  const signUp = `/sign-up?${new URLSearchParams({ source: "outreach", q: p.list_query })}`;
+  const signUp = `/sign-up?${new URLSearchParams({ source: `outreach/${token}`, q: p.list_query })}`;
 
   return (
     <main className="mkt">
