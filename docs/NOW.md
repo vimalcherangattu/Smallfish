@@ -18,12 +18,15 @@ Rules for whoever edits it:
 
 ## On Vimal
 
-- Nothing. Apify, Resend and the provider check are done; pricing, labelling and gate item 1 came off this list on 2026-10-15.
+- **One sentence from you.** What is the one problem Small Fish solves? My draft: *businesses
+  in your area that are missing the thing you sell, proven by reading their own site.* Say yes
+  or rewrite it and it goes into CLAUDE.md as the rule every future session cuts against.
 - Optional whenever you like: set `SUPPLY_PROVIDER=apify`. Safe now that counting is pinned to free Overture.
 
 ## In flight
 
 - Milestone 3, slice 3: one migration against the PRD shape, then the judge.
+- Needs your word: the one-sentence definition of the one problem, to put in CLAUDE.md.
 
 ## Where the product is
 
@@ -36,7 +39,13 @@ Rules for whoever edits it:
 - Built: supply for any US city, polite fetcher, contacts, credits, Stripe, CSV, opt-out.
 - Built 2026-10-15: `fit.ts` — Strong/Maybe/No, blind rows, a credit buys a reveal.
 - Provider: Apify Compass, keys set, default still Overture until the check reads clean.
-- Production: live on `main`, suite 76/76.
+- Production: live on `main`, suite 78/78, all seven browser checks green.
+- Cut 2026-10-15 on the one-thing mandate: "Contacted" out of the sidebar, the map link off
+  the results screen, the three "check a list you already have" prompts gone. Routes all stay.
+- **Fixed 2026-10-15, and it was live:** "Not a fit, refunds the credit" refunded nothing, and
+  contacted marks never reached the server. Both buttons now call their routes.
+- Fixed with it: the CRM push was unreachable. The page that adds a destination was linked
+  only from a dead component, and the push rendered nothing until a destination existed.
 - Known hole: 42% of reads return zero pages. The headless fallback is milestone 3.
 - Known deviation: no rising pool count. Overture returns one total, so a number before it lands would be invented.
 - Not applied: migrations 0022/0023, superseded by one set written against the PRD.
