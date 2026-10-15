@@ -26,6 +26,10 @@ export default function Check() {
           there, with the proof. Free, five a day.
         </p>
         <SiteCheck />
+        <p className="mt-12 text-[14px] text-[var(--ink-3)]">
+          Run an agency?{" "}
+          <a href="/check/widget" className="underline">Put this check on your own site, free.</a>
+        </p>
       </div>
     </main>
   );

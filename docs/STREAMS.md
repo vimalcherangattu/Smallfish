@@ -35,7 +35,7 @@ not mean nobody else may read it.
 | `src/app/globals.css` | The marketing stylesheet — see §3 |
 | `src/app/{sitemap.ts,robots.ts}` | |
 | `stage0/tests/{test_home_copy,test_seller,test_share,test_optout,check_motion,test_prospects}.mjs` | |
-| `src/lib/{prospects,prospecting,sequence,replies,instantly,outreachauth,research,ops,contactpipe}.ts`, `src/app/api/outreach/`, `src/app/hi/[token]/`, `src/app/ops/`, `src/components/{ProspectList,SiteCheck}.tsx`, `src/lib/sitecheck.ts`, `src/app/api/check/`, `stage0/tests/test_sequence.mjs` | Small Fish's own outbound: finding agency prospects with the engine, and the sender's status (2026-10-15). Reads `providers.ts` and `read.ts`, changes neither. |
+| `src/lib/{prospects,prospecting,sequence,replies,instantly,outreachauth,research,ops,contactpipe}.ts`, `src/app/api/outreach/`, `src/app/hi/[token]/`, `src/app/ops/`, `src/components/{ProspectList,SiteCheck,WidgetSnippet}.tsx`, `src/app/embed/`, `src/lib/sitecheck.ts`, `src/app/api/check/`, `stage0/tests/test_sequence.mjs` | Small Fish's own outbound: finding agency prospects with the engine, and the sender's status (2026-10-15). Reads `providers.ts` and `read.ts`, changes neither. |
 
 ### Product owns
 

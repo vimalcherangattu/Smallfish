@@ -41,12 +41,16 @@ export default async function Outreach() {
     );
   }
 
-  const [prospects, events, accounts, boxes] = await Promise.all([
+  const [prospects, events, accounts, boxes, checks] = await Promise.all([
     get<Prospect[]>("gtm_prospects?select=domain,name,email,niche,city,state,status,list_token,updated_at,niche_quote&order=updated_at.desc&limit=5000"),
     get<Event[]>("gtm_events?select=id,kind,domain,email,detail,at&order=at.desc&limit=5000"),
     get<Array<{ source: string | null; plan_id: string }>>("accounts?source=like.outreach*&select=source,plan_id&limit=5000"),
     instantlyReady() ? inboxes().catch(() => []) : Promise.resolve([]),
+    get<Array<{ ref: string | null; verdict: string | null }>>("gtm_checks?select=ref,verdict&order=at.desc&limit=5000"),
   ]);
+  const embeds = Object.entries(
+    checks.filter((c) => c.ref).reduce<Record<string, number>>((a, c) => ((a[c.ref!] = (a[c.ref!] ?? 0) + 1), a), {}),
+  ).sort((a, b) => b[1] - a[1]);
 
   const by = (k: string) => events.filter((e) => e.kind === k);
   const status = (s: string[]) => prospects.filter((p) => s.includes(p.status)).length;
@@ -61,6 +65,8 @@ export default async function Outreach() {
     ["Answered automatically", by("auto_replied").length, "sent with no human"],
     ["Interested", status(["interested"]), "asked a question or wanted more"],
     ["Signed up", accounts.length, "a workspace whose source is an outreach link"],
+    ["Free website checks", checks.length, "on /check and agency embeds"],
+    ["Checks from agency embeds", checks.filter((c) => c.ref).length, `${embeds.length} agencies embedding`],
     ["Paying", accounts.filter((a) => a.plan_id !== "free").length, "on a paid plan"],
     ["Asked to stop", status(["suppressed"]), "blocked everywhere, for good"],
     ["Bounced", status(["bounced"]), "never retried"],
@@ -129,6 +135,13 @@ export default async function Outreach() {
             ))}
           </tbody>
         </table>
+
+        {embeds.length > 0 && (
+          <>
+            <h2 className="mt-12 text-[20px] font-semibold">Agencies embedding the checker</h2>
+            <p className="mt-2 text-[14px] text-[var(--ink-2)]">{embeds.map(([d, n]) => `${d} ${n}`).join(" · ")}</p>
+          </>
+        )}
 
         <h2 className="mt-12 text-[20px] font-semibold">By trade</h2>
         <p className="mt-2 text-[14px] text-[var(--ink-2)]">{niches.map(([n, c]) => `${n} ${c}`).join(" · ") || "None yet"}</p>
