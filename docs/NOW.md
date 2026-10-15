@@ -18,22 +18,21 @@ Rules for whoever edits it:
 
 ## On Vimal
 
-- Apify: token + `APIFY_ACTOR=compass~crawler-google-places`, leave `SUPPLY_PROVIDER` unset. Reviews cannot run without it.
-- `RESEND_API_KEY` on Vercel. Needed for milestone 6, nothing before.
-- Price per fit. Needs milestone 3's measured cost per Strong fit first.
-- S0-16 hand-labelling: 142 labels across 2 markets, needs 3 x 100. Human work, gates precision.
-- Gate item 1: does not pass as written. Proceed anyway, or spend on match rate first.
+- Open `/api/provider-check` signed in and paste the JSON. 10 seconds, under a cent, unblocks reviews.
+- Nothing else. Apify and Resend are set; price per fit, labelling and gate item 1 came off this list on 2026-10-15.
 
 ## In flight
 
-- Milestone 1: apply the approved KEEP / HIDE / DELETE.
+- Milestone 2: two-field search to a real pool count, shipping at `/app/find`.
 
 ## Where the product is
 
-- PRD v2 adopted 2026-10-15. Milestone 1 of 6.
+- PRD v2 adopted 2026-10-15. Milestone 1 of 6 done, 2 in progress.
+- The new flow is NOT yet on a screen. `/app` is still the old single-sentence search.
 - Built: supply for any US city, polite fetcher, contacts, credits, Stripe, CSV, opt-out.
-- Built today: `fit.ts` — Strong/Maybe/No, blind rows, a credit buys a reveal.
-- Provider chosen: Apify Compass, ~$10 a metro, on the vendors' own pricing.
-- Production: live on `main`, suite 74/74.
+- Built 2026-10-15: `fit.ts` — Strong/Maybe/No, blind rows, a credit buys a reveal.
+- Provider: Apify Compass, keys set, default still Overture until the check reads clean.
+- Production: live on `main`, suite 76/76.
 - Known hole: 42% of reads return zero pages. The headless fallback is milestone 3.
+- Known deviation: no rising pool count. Overture returns one total, so a number before it lands would be invented.
 - Not applied: migrations 0022/0023, superseded by one set written against the PRD.
