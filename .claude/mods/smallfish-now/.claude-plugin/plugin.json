@@ -1,0 +1,7 @@
+{
+  "name": "smallfish-now",
+  "version": "0.1.0",
+  "description": "A pane holding what is pending on Vimal, what the session is working on, and where the Small Fish build stands.",
+  "author": { "name": "Vimal Cherangattu" },
+  "types": "./types/index.d.ts"
+}
