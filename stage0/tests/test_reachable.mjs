@@ -12,7 +12,20 @@
  * since the search-first rebuild demoted it, reachable from an ICP result or a
  * saved run. `PushToDestination` was mounted on that same map page and so was
  * absent from the screen where people actually work — recorded in `LeadList`
- * as having been "the same as not existing".
+ * (deleted 2026-10-15) as having been "the same as not existing".
+ *
+ * ## The same failure, one level up: a test pointed at a dead file
+ *
+ * `LeadList.tsx` and three sibling components were the pre-App-v2 app. Nothing
+ * imported them, and `test_refund.mjs` and `test_spent_balance.mjs` asserted
+ * real behaviour — a refunded row stays struck through, a contacted tick
+ * reverts when the server refuses — **against those files**. They passed. The
+ * live screen had reproduced the buttons without the server calls, so "not a
+ * fit, refunds the credit" refunded nothing for weeks behind a green suite.
+ *
+ * This file's own lesson, applied to itself: built work nobody can reach is
+ * the same as unbuilt work. A *test* nobody's code can reach is worse than an
+ * absent one, because it reports the property as held.
  *
  * Note which of the two checks below caught it. The per-route "is this linked
  * at all" checks **passed the whole time**: `/templates` had its link from
@@ -65,6 +78,82 @@ function allSource() {
 
 const files = allSource();
 
+/**
+ * The files that are actually in the build, by following imports from the
+ * route tree.
+ *
+ * **Why this exists.** `linkedFrom` used to ask whether *any* file under
+ * `src/` carried the href, and on 2026-10-15 that turned out to be a much
+ * weaker question than it reads as. `/app/destinations` — the CRM connector
+ * screen — had exactly one link in the codebase, and it was in
+ * `src/components/AppNav.tsx`: the pre-App-v2 sidebar, which nothing has
+ * imported since App v2 shipped. The sweep below reported the screen
+ * reachable for weeks. It was not reachable at all, and worse, the push
+ * component on the results screen rendered `null` until a destination existed,
+ * so the only way to configure one was behind a page you could not get to.
+ *
+ * It was found by deleting the dead file, not by this test. That is the wrong
+ * way round, so: a door in a file no page can reach is not a door.
+ *
+ * Deliberately crude. A route file is a root; anything a root imports is in,
+ * transitively. It resolves `@/` and relative specifiers and ignores packages,
+ * which is all this repository uses.
+ */
+function inTheBuild() {
+  const byPath = new Map(files.map((f) => [f.file, f]));
+  /** `@/x` → `src/x`, `./x` → sibling. Returns the file that exists, or null:
+   *  a specifier may name a directory index, a `.ts` or a `.tsx`. */
+  const resolve = (from, spec) => {
+    const base = spec.startsWith("@/")
+      ? path.join(SRC, spec.slice(2))
+      : spec.startsWith(".")
+        ? path.resolve(path.dirname(from), spec)
+        : null;
+    if (!base) return null;
+    for (const cand of [
+      `${base}.tsx`,
+      `${base}.ts`,
+      path.join(base, "index.tsx"),
+      path.join(base, "index.ts"),
+    ]) {
+      if (byPath.has(cand)) return cand;
+    }
+    return null;
+  };
+
+  // Every route, layout and route handler is a root. Next renders these
+  // whether or not anything in `src/` imports them.
+  const roots = files
+    .filter((f) => f.file.startsWith(path.join(SRC, "app")))
+    .map((f) => f.file);
+  // `middleware.ts` too, and anything else at the top of `src/`, for the same
+  // reason: the framework is the importer.
+  for (const f of files) {
+    if (path.dirname(f.file) === SRC) roots.push(f.file);
+  }
+
+  const seen = new Set();
+  const stack = [...roots];
+  while (stack.length) {
+    const file = stack.pop();
+    if (seen.has(file)) continue;
+    seen.add(file);
+    const text = byPath.get(file)?.text ?? "";
+    // `import x from "…"`, `import "…"`, `export … from "…"` and the dynamic
+    // `import("…")`. Comments are not stripped here on purpose: a commented
+    // import does not make a file live, but counting one only ever errs toward
+    // calling a file live, which is the safe direction for this test — it can
+    // never invent an orphan.
+    for (const m of text.matchAll(/from\s+["']([^"']+)["']|import\(\s*["']([^"']+)["']/g)) {
+      const next = resolve(file, m[1] ?? m[2]);
+      if (next) stack.push(next);
+    }
+  }
+  return seen;
+}
+
+const LIVE = inTheBuild();
+
 /** Comments stripped: a route named only in a comment explaining why it is not
  *  linked is precisely the case this test exists to fail on. Shared with
  *  `test_optout_reach.mjs`, which hit the same trap — see `_source.mjs`. The
@@ -84,6 +173,8 @@ function linkedFrom(route, ownRoute = route) {
   const own = path.join(SRC, "app", ownRoute.replace(/^\//, ""));
   return files
     .filter((f) => !f.file.startsWith(own))
+    // A link in a file no page imports is not a link. See `inTheBuild`.
+    .filter((f) => LIVE.has(f.file))
     .filter((f) => {
       const c = code(f.text);
       return (
@@ -232,7 +323,9 @@ const NO_LINK_NEEDED = {
     "under their own heading. It stays at its URL so nobody mid-flow loses a " +
     "page they had open, and `Shell.tsx`'s `derive` still resolves it.",
   "/app/icp":
-    "Deliberately not a front door. `AppNav.tsx` records the decision: 'Who to " +
+    "Deliberately not a front door. The decision was recorded in `AppNav.tsx`, " +
+    "the pre-App-v2 sidebar, which was deleted on 2026-10-15 — so the reason " +
+    "it held is quoted here in full rather than cited: 'Who to " +
     "target' was a second front door for the same question the search box " +
     "already asks, and a product that does one thing should not offer six " +
     "places to start doing it. The screen stays at its URL for anyone sent " +
@@ -273,12 +366,22 @@ test("every screen under /app and /account has a door, or a written reason", () 
 
 test("a route named only in a comment is not a door", () => {
   // `code()` is what makes the sweep above mean anything, and this repository
-  // names routes in prose constantly: `AppNav.tsx` explains that `/app/icp` is
-  // not in the nav *by naming it*. A matcher that counted comments would have
+  // names routes in prose constantly: `Shell.tsx` explains that
+  // `/app/destinations` is reachable from the results screen *by naming it*,
+  // and `/app/contacted` lost its nav item on the owner's mandate with the
+  // reason written above the array. A matcher that counted comments would have
   // reported every screen reachable, forever. Checked on the real file rather
-  // than a fixture, because that comment is the live example.
-  const nav = code(readFileSync(path.join(SRC, "components/AppNav.tsx"), "utf8"));
-  assert.ok(!nav.includes("/app/icp"), "the comment naming /app/icp survived stripping");
+  // than a fixture, because those comments are the live example.
+  //
+  // This used to read `components/AppNav.tsx`, the pre-App-v2 sidebar, deleted
+  // on 2026-10-15. `Shell.tsx` is its replacement in the product and carries
+  // the same two properties: a route named only in prose, and a navigation
+  // table of real `href:` entries.
+  const nav = code(readFileSync(path.join(SRC, "components/app/Shell.tsx"), "utf8"));
+  assert.ok(
+    !nav.includes("/app/destinations"),
+    "the comment naming /app/destinations survived stripping",
+  );
   // And the hrefs in the same file do survive, or the stripper is too greedy.
   assert.ok(nav.includes('href: "/app/runs"'), "a real link was stripped");
 });

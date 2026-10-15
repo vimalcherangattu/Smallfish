@@ -37,6 +37,26 @@ import { Chevron, Copy, Cross, Eye, Globe, Mail, Pencil, Phone, Tick } from "@/c
  * The four tones select and order the same clauses `composeEmail` built from
  * recorded evidence. None of them writes a new sentence about the business,
  * because a friendlier tone is not worth a claim nobody can check.
+ *
+ * ## `refunded` and `note`, added 2026-10-15, and why they are props
+ *
+ * This row's two last buttons are **promises about money and about state on a
+ * server**: "Mark as contacted" and "Not a fit, refunds the credit". Until
+ * today neither reached a server — `Results` handled both by putting the id in
+ * a `useState` set, so the tick vanished on reload and the refund refunded
+ * nothing while saying it had. See `Results.tsx` for how that happened.
+ *
+ * The fetches belong in `Results`, which is the component with the account
+ * context and the only one that knows the market and criterion ids. What this
+ * row needs back is the two things a server answer can produce: a row that has
+ * been refunded, and a sentence saying an action did not go through.
+ *
+ * **A refunded row stays on screen, struck through, carrying what happened.**
+ * Removing it would leave somebody looking at a list one shorter than it was a
+ * moment ago with no way to tell whether the button worked. That rule came
+ * from `LeadList.tsx`, the screen App v2 replaced, and `test_refund.mjs` has
+ * asserted it since — against the dead file, which is why the regression was
+ * invisible.
  */
 
 export default function BizRow({
@@ -48,6 +68,8 @@ export default function BizRow({
   onContacted,
   onNotAFit,
   contacted = false,
+  refunded = null,
+  note = null,
 }: {
   lead: Lead;
   evidence: Evidence;
@@ -57,6 +79,11 @@ export default function BizRow({
   onContacted?: () => void;
   onNotAFit?: () => void;
   contacted?: boolean;
+  /** The server's sentence about a refund that went through. Non-null puts the
+   *  row in its refunded form rather than taking it off the screen. */
+  refunded?: string | null;
+  /** The server's sentence about an action that did not go through. */
+  note?: string | null;
 }) {
   const [tone, setTone] = useState<Tone>("As written");
   const [copied, setCopied] = useState(false);
@@ -66,6 +93,24 @@ export default function BizRow({
   const body = email ? toned(email, tone) : lead.message;
   const contacts = contactsFor({ phone: lead.phone, email: lead.email, domain: lead.domain });
   const named = lead.name || "this business";
+
+  // A refunded row, struck through and still here. Collapsed: there is nothing
+  // left to do with it, and leaving the panel open would offer an email draft
+  // for a business the customer has just told us was wrong.
+  if (refunded) {
+    return (
+      <div className="rowc" style={{ opacity: 0.6 }}>
+        <div className="rowtop">
+          <div style={{ minWidth: 0 }}>
+            <p className="bname" style={{ textDecoration: "line-through" }}>
+              {lead.locked ? "A business that fits" : lead.name}
+            </p>
+            <p className="reason">{refunded}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rowc" style={open ? { borderColor: "#0E1520", boxShadow: "0 10px 30px rgba(14,21,32,.07)" } : undefined}>
@@ -231,6 +276,17 @@ export default function BizRow({
               <Cross />
               Not a fit, refunds the credit
             </button>
+
+            {/* The server's own words when an action did not go through.
+                "Already refunded" and "nothing was charged for this one" are
+                both true answers a person needs to see, and a button that
+                silently does nothing is the failure this whole change is
+                about. */}
+            {note && (
+              <span className="t-s" style={{ color: "#36404C" }} role="status">
+                {note}
+              </span>
+            )}
           </div>
 
           {showPages && (

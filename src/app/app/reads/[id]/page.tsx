@@ -108,18 +108,28 @@ export default async function Read({ params }: { params: Promise<{ id: string }>
   let byId = new Map<string, ReturnType<typeof marketFromJob>["businesses"][number]>();
   let readOn: string | null = null;
   let balance = 0;
+  /** Businesses this account has already marked. `contactedIds` was imported
+   *  here and never called — the mark had nowhere to be rendered, because
+   *  `Results` had no prop for it until 2026-10-15. */
+  let contacted: string[] = [];
 
   if (criterion && settled > 0) {
     const market = marketFromJob(job, rows, criterion);
-    const [unlocked, bal, sup] = await Promise.all([
+    const [unlocked, bal, sup, marked] = await Promise.all([
       unlockedIds(accountId!, market.businesses.map((b) => b.id)),
       balanceOf(accountId!),
       suppressedIds(
         (p) => readFile(p, "utf8"),
         path.join(process.cwd(), "public", "data"),
       ).catch(() => ({ ids: new Set<string>(), whyDegraded: null })),
+      // Never fails the page: an empty set shows unticked rows, which is wrong
+      // in the direction somebody can correct.
+      contactedIds(accountId!, market.businesses.map((b) => b.id)).catch(
+        () => new Set<string>(),
+      ),
     ]);
     balance = bal;
+    contacted = [...marked];
     byId = new Map(market.businesses.map((b) => [b.id, b]));
     readOn = job.finished_at ? prettyDay(job.finished_at) : prettyDay(job.created_at);
     result = buildLeads({
@@ -215,6 +225,10 @@ export default async function Read({ params }: { params: Promise<{ id: string }>
               marketId={result.marketId}
               criterionId={result.criterionId}
               exportCost={result.locked * result.creditsEach}
+              // This screen is behind an account by construction — a job
+              // belongs to one — so the row actions are always offered here.
+              signedIn
+              contactedIds={contacted}
               cost={
                 result.locked > 0
                   ? {

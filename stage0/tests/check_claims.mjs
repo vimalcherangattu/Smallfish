@@ -208,10 +208,29 @@ console.log(`\nClaim audit — ${BASE}\n`);
     !/\b\d{1,2},\d{3}\b/.test(text),
     (text.match(/\b\d{1,2},\d{3}\b/g) ?? []).join(", "),
   );
+  // **Asserted as a property, not as three phrases.**
+  //
+  // This read `/upload|your own list|something else/`, which is the copy of
+  // the two tiles the screen carried in October 2026. The CSV tile came off on
+  // 2026-10-15 — the owner's one-thing mandate — and this failed, pointing at
+  // the words rather than at what they were there for.
+  //
+  // What it is there for is that **a mistyped city is never a dead end.** So:
+  // somewhere in the content there has to be a real link a person can press,
+  // and it has to lead into the product rather than out of it. "Type it again"
+  // satisfies that, and so did the two tiles, and so will whatever replaces
+  // them. The same move `test_leads.mjs` made after `marketFor` — assert the
+  // property, not the examples that happened to hold it.
+  //
+  // `.appmid` is the content column: the appbar's own Account link sits outside
+  // it, so a screen whose only link was the chrome would still fail this.
+  const ways = await page.$$eval(".appmid a[href]", (as) =>
+    as.map((a) => a.getAttribute("href")).filter((h) => h && h.startsWith("/")),
+  );
   check(
     "and still offers somewhere to go",
-    /upload|your own list|something else/i.test(text),
-    text.slice(0, 300),
+    ways.length > 0,
+    `links in the content column: ${JSON.stringify(ways)}`,
   );
   check(
     "and nothing was charged for finding out",

@@ -38,6 +38,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
+import { code } from "./_source.mjs";
+
 let failures = 0;
 const test = (name, fn) => {
   try {
@@ -52,7 +54,6 @@ const test = (name, fn) => {
 const read = (p) => readFileSync(path.join(process.cwd(), p), "utf8");
 const route = read("src/app/api/refund/route.ts");
 const contactedRoute = read("src/app/api/contacted/route.ts");
-const list = read("src/components/LeadList.tsx");
 const sql0003 = read("supabase/migrations/0003_refund_renew_and_reads.sql");
 const sql0016 = read("supabase/migrations/0016_contacted_and_feedback.sql");
 
@@ -123,38 +124,162 @@ test("a stated reason is kept even when the refund itself was refused", () => {
 
 /* ------------------------------------------------ what the row does next -- */
 
+/**
+ * **These assertions used to be made against `src/components/LeadList.tsx`,
+ * and that is how a live defect hid behind a green suite for weeks.**
+ *
+ * `LeadList` is the pre-App-v2 results list. It is rendered by nothing — it
+ * has no import anywhere in `src/` — and `PROJECT_PLAN.md` has listed it as
+ * dead since 2026-10-04. Every test below passed against it the whole time,
+ * because it is a correct screen. It is simply not the screen anybody sees.
+ *
+ * The screen anybody sees is `components/app/Results.tsx` rendering
+ * `components/app/BizRow.tsx`, and when App v2 was written it reproduced
+ * `LeadList`'s two buttons without `LeadList`'s two fetches:
+ *
+ *     onContacted={() => setContacted(add(contacted, r.lead.id))}
+ *     onNotAFit={() => setDropped(add(dropped, r.lead.id))}
+ *
+ * A button reading **"Not a fit, refunds the credit"** that moved no money,
+ * next to a cost bar promising *"anything you mark 'not a fit' comes straight
+ * back"*. `/api/refund` was reachable, correct and covered by every assertion
+ * above this line. Nothing connected them.
+ *
+ * So: re-pointed, deliberately, at the files the customer loads. A test naming
+ * a dead file is not weaker coverage than no test — it is worse, because it
+ * reports the property as held.
+ */
+/**
+ * **Comments stripped, and the first run of this file is why.**
+ *
+ * The comment above quotes the two broken handlers verbatim, so that the next
+ * reader can see the shape of the defect. `no row action is wired to local
+ * state alone` then matched that quotation and failed against code that was
+ * already fixed. `_source.mjs` exists for exactly this — a repository that
+ * explains its mistakes in prose cannot grep its own source for them.
+ */
+const row = code(read("src/components/app/BizRow.tsx"));
+const results = code(read("src/components/app/Results.tsx"));
+
+test("the live screen's refund button actually calls the refund route", () => {
+  // The assertion whose absence is the whole reason this comment exists. A
+  // handler that only touches React state is the defect, by definition.
+  assert.match(results, /post\("\/api\/refund"/);
+  const call = results.slice(results.indexOf('post("/api/refund"'));
+  assert.match(call.slice(0, 300), /business: lead\.id/);
+});
+
+test("and its contacted button calls the contacted route", () => {
+  assert.match(results, /post\("\/api\/contacted"/);
+  const call = results.slice(results.indexOf('post("/api/contacted"'));
+  assert.match(call.slice(0, 300), /contacted: next/);
+});
+
+test("no row action is wired to local state alone", () => {
+  // The exact shape of the bug, named so it cannot come back quietly: a
+  // handler for either button that sets a React set and stops.
+  for (const prop of ["onContacted", "onNotAFit"]) {
+    const at = results.indexOf(`${prop}={`);
+    assert.ok(at > 0, `${prop} is not passed at all`);
+    const handler = results.slice(at, at + 200);
+    assert.ok(
+      !/=>\s*set[A-Z]\w*\(/.test(handler),
+      `${prop} still assigns straight to component state: ${handler.slice(0, 90)}`,
+    );
+  }
+});
+
 test("a refunded row stays on screen rather than disappearing", () => {
-  assert.match(list, /if \(gone\) \{/);
-  assert.match(list, /line-through/);
+  // `BizRow` renders the struck-through form; `Results` must not also filter
+  // the row out, which would strike through something nobody can see.
+  assert.match(row, /if \(refunded\) \{/);
+  assert.match(row, /line-through/);
   assert.ok(
-    !/setGone\(true\)[\s\S]{0,120}return null/.test(list),
-    "the row is removed instead of struck through",
+    !/refunded\[r\.lead\.id\]/.test(results.slice(results.indexOf("const shown ="), results.indexOf("const fits ="))),
+    "the refunded row is filtered out of the list instead of struck through",
   );
 });
 
-test("and only offers the reason box after the money is already back", () => {
-  const goneBlock = list.slice(list.indexOf("if (gone) {"), list.indexOf("if (gone) {") + 2000);
-  assert.match(goneBlock, /Tell us what we got wrong/);
+test("but the headline count drops, because the credit really came back", () => {
+  assert.match(results, /const fits = p\.rows\.filter\(\(r\) => !refunded\[r\.lead\.id\]\)/);
+});
+
+test("a refund is never claimed before the server has confirmed it", () => {
+  // The one action in the product that must not be optimistic. A struck-out
+  // row is a statement that money moved.
+  const fn = results.slice(results.indexOf("async function notAFit"));
+  const body = fn.slice(0, fn.indexOf("\n}"));
+  assert.ok(
+    body.indexOf("setRefunded") > body.indexOf("await post"),
+    "the row is marked refunded before the route has answered",
+  );
+  assert.match(body, /if \(r\.ok\) setRefunded/);
 });
 
 test("the actions are hidden from somebody with no account", () => {
   // A signed-out visitor is looking at the free preview: nothing to mark, and
-  // nothing to refund.
-  assert.match(list, /\{signedIn && \(/);
-  const block = list.slice(list.indexOf("{signedIn && ("));
-  assert.match(block.slice(0, 2000), /Mark as contacted/);
-  assert.match(block.slice(0, 2000), /Not a fit/);
+  // nothing to refund. Both routes answer 401 without one.
+  assert.match(results, /onContacted=\{p\.signedIn \?/);
+  assert.match(results, /onNotAFit=\{p\.signedIn \?/);
+  // And the row disables a button it was given no handler for, so the gate
+  // above cannot leave a live-looking button behind.
+  assert.match(row, /disabled=\{!onContacted\}/);
+  assert.match(row, /disabled=\{!onNotAFit\}/);
 });
 
 test("a contacted tick that the server refused is put back, not left lying", () => {
-  assert.match(list, /if \(!r\.ok\) setDone\(!next\)/);
+  const fn = results.slice(results.indexOf("async function markContacted"));
+  const body = fn.slice(0, fn.indexOf("\n}"));
+  assert.match(body, /if \(!r\.ok\) \{/);
+  // The revert has to undo the direction it just applied, either way.
+  assert.match(body, /if \(next\) s\.delete\(lead\.id\);/);
+  assert.match(body, /else s\.add\(lead\.id\);/);
 });
 
-test("the edited draft is what gets copied, not the original", () => {
-  assert.match(list, /<Copy text=\{draft\} \/>/);
+test("and a mark already held by the server shows as marked on arrival", () => {
+  // `walletFor` fetched these the whole time and `/app` dropped them, because
+  // there was no prop to put them in. A tick that vanishes on reload is the
+  // same lie as one the server never took.
+  assert.match(results, /contactedIds\?: readonly string\[\]/);
+  assert.match(results, /new Set\(p\.contactedIds \?\? \[\]\)/);
+  for (const page of ["src/app/app/page.tsx", "src/app/app/reads/[id]/page.tsx"]) {
+    assert.match(read(page), /contactedIds=\{contacted\}/, `${page} does not pass the marks`);
+  }
+});
+
+test("an action that did not go through says so, in the server's words", () => {
+  // "Already refunded" and "nothing was charged for this one" are both true
+  // answers a person needs to read. A button that silently does nothing is
+  // indistinguishable from the bug this file now guards.
+  assert.match(results, /r\.reason \?\? "That did not go through\."/);
+  assert.match(row, /\{note && \(/);
+});
+
+test("an unreachable server is an answer, not an exception", () => {
+  // Every handler branches on `ok`, so the network failure has to arrive in
+  // the same shape as a refusal or it escapes as an unhandled rejection and
+  // the button appears to do nothing at all.
+  const helper = results.slice(results.indexOf("async function post("));
+  assert.match(helper, /catch \{/);
+  assert.match(helper, /ok: false, reason: "Could not reach the server\. Nothing changed\."/);
+});
+
+/* ---------------------------------------------- what the live screen lacks -- */
+
+test("the reason box is a recorded omission, not a silent one", () => {
+  // `LeadList` asked "Tell us what we got wrong" **after** refunding, and
+  // `/api/refund` still takes that optional `reason` in a second request.
+  // App v2 does not ask. That is deliberate for now: the button's promise is
+  // that the money comes back, and it now does; collecting why is our
+  // measurement, not the customer's errand.
+  //
+  // It is worth having — a labelled wrong match is exactly what gate item 2
+  // needs and `recordFeedback` is already wired — so this asserts the route
+  // keeps the door open rather than pretending the screen uses it.
+  assert.match(route, /body\.reason/);
   assert.ok(
-    !/<Copy text=\{lead\.message\}/.test(list),
-    "copy still takes the underived original",
+    !/Tell us what we got wrong/.test(results + row),
+    "the reason box exists on the live screen now, so give this test its real assertion",
   );
 });
 

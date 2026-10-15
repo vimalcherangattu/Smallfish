@@ -145,6 +145,11 @@ export default async function App({
 
   let result = null;
   let signedIn = false;
+  /** Businesses this account has already marked. `walletFor` has fetched these
+   *  since the contacted screen existed, and until 2026-10-15 this page threw
+   *  them away: `Results` had no prop to put them in, so every reload showed
+   *  the marks gone. */
+  let contacted: string[] = [];
   let byId = new Map<string, Business>();
   let criterionRow: Criterion | null = null;
   let readOn: string | null = null;
@@ -167,6 +172,7 @@ export default async function App({
       // 500 on the one screen the product is.
       const w = await walletFor(market.businesses.map((b) => b.id));
       signedIn = w.signedIn;
+      contacted = w.contacted;
       byId = new Map(market.businesses.map((b) => [b.id, b]));
       criterionRow = market.criteria.find((c) => c.id === hit.criterion.id) ?? null;
       // The market's read date, if any read in it carries one. Absent for
@@ -281,6 +287,11 @@ export default async function App({
         // number in it, which is a better sentence than a credit count they
         // cannot act on.
         exportCost={signedIn ? result.locked * result.creditsEach : 0}
+        // The two row actions post to routes that 401 without an account, and
+        // a signed-out visitor looking at the free preview has nothing to mark
+        // or refund either way.
+        signedIn={signedIn}
+        contactedIds={contacted}
         cost={
           result.locked > 0
             ? {

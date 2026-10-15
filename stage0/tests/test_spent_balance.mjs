@@ -43,6 +43,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import { compileLib } from "./_tsmodules.mjs";
+import { code } from "./_source.mjs";
 
 let failures = 0;
 const test = (name, fn) => {
@@ -56,6 +57,9 @@ const test = (name, fn) => {
 };
 
 const read = (p) => readFileSync(path.join(process.cwd(), p), "utf8");
+/** Comments stripped: the cases at the foot of this file explain a defect by
+ *  quoting it, and a raw-text match finds the explanation. See `_source.mjs`. */
+const results = code(read("src/components/app/Results.tsx"));
 
 /* ------------------------------------------------------------ the decision -- */
 
@@ -155,29 +159,56 @@ test("the download button can show the way to fix it", () => {
   assert.match(btn, /Add credits/);
 });
 
-/* ------------------------------------------------------- the unlock card -- */
+/* ------------------------------------------------------- the cost bar -- */
 
-test("the unlock card never offers to unlock zero", () => {
-  const list = read("src/components/LeadList.tsx");
-  // The zero branch must return before the button that labels itself with
-  // `afford`, otherwise the primary action on the screen reads "Unlock 0".
-  const guard = list.indexOf("afford <= 0");
-  assert.ok(guard > 0, "the zero-balance branch should exist");
+/**
+ * **Re-pointed 2026-10-15, from `LeadList.tsx` to the screen that ships.**
+ *
+ * These two cases asserted that the old results list never rendered a button
+ * reading "Unlock 0" when the balance could not afford a single row, and that
+ * the zero branch's one action was the link to buy credits. Both held. They
+ * held against `src/components/LeadList.tsx`, which is imported by nothing and
+ * has been dead since App v2 — so they were a report about a screen no
+ * customer loads. `test_refund.mjs` has the long version of how much that cost
+ * us; this file lost the same way and more quietly.
+ *
+ * On the live screen (`components/app/Results.tsx`'s `CostBar`) the property is
+ * **structural rather than guarded**: there is no unlock button at all. The
+ * rows are not bought one at a time from the list — the signed-in action is a
+ * link to `/account`, which is where the old zero branch pointed anyway. So
+ * the assertion is that it stays that way: a screen with no spend button
+ * cannot label one with a number nobody can afford.
+ */
+test("the cost bar has no spend button to mislabel", () => {
+  const bar = results.slice(results.indexOf("function CostBar"));
   assert.ok(
-    guard < list.indexOf("`Unlock ${"),
-    "the zero branch has to come before the Unlock button",
+    !/<button/.test(bar),
+    "a button has appeared in the cost bar, so it needs the zero-balance guard " +
+      "LeadList had — see the comment above",
   );
+  assert.ok(!/Unlock/.test(bar), "an Unlock control is back, and with it the zero case");
 });
 
-test("and at zero the one action is the one that helps", () => {
-  const list = read("src/components/LeadList.tsx");
-  const branch = list.slice(list.indexOf("afford <= 0"), list.indexOf("afford <= 0") + 1200);
-  assert.match(branch, /href="\/account"/);
-  assert.match(branch, /sf-btn-primary/);
-  assert.ok(
-    !/<button/.test(branch),
-    "no button in the zero branch, the primary action is the link to credits",
-  );
+test("and its one action is the one that helps", () => {
+  const bar = results.slice(results.indexOf("function CostBar"));
+  // Signed out, sign up; signed in and short, the credits screen. Never a
+  // dead-ended count.
+  assert.match(bar, /href=\{granted \? "\/sign-up\?source=results" : "\/account"\}/);
+});
+
+test("and it does not promise a refund the row cannot deliver", () => {
+  // The bar says "anything you mark 'not a fit' comes straight back" — twice.
+  // That sentence was false from the day App v2 shipped until the button was
+  // wired to `/api/refund` on 2026-10-15. If the copy makes the promise, the
+  // row has to keep it.
+  const bar = results.slice(results.indexOf("function CostBar"));
+  if (/not a[\s\S]{0,40}fit/.test(bar)) {
+    assert.match(
+      results,
+      /post\("\/api\/refund"/,
+      "the cost bar promises a refund and nothing on this screen calls the refund route",
+    );
+  }
 });
 
 console.log(`\n${failures} failure(s)`);

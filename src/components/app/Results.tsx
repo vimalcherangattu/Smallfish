@@ -29,6 +29,37 @@ import type { UnsureGroup } from "@/lib/unsure";
  * the invoice, so a client-side re-sort would put different rows on the screen
  * than on the bill. §10's last row says the same thing for a different reason —
  * *"re-sorting a live list is how people lose the business they were reading."*
+ *
+ * ## Two buttons that made promises this component did not keep — fixed
+ *    2026-10-15
+ *
+ * `BizRow` has rendered **"Mark as contacted"** and **"Not a fit, refunds the
+ * credit"** since App v2 shipped. This component wired both of them to a
+ * `useState` set and nothing else:
+ *
+ *     onContacted={() => setContacted(add(contacted, r.lead.id))}
+ *     onNotAFit={() => setDropped(add(dropped, r.lead.id))}
+ *
+ * So the tick disappeared on reload, and **the refund button refunded nothing
+ * while its own label said it did.** `/api/refund` and `/api/contacted` both
+ * existed the whole time, both are tested, and `LeadList.tsx` — the screen App
+ * v2 replaced — called both correctly. The rewrite reproduced the buttons and
+ * not the calls.
+ *
+ * Nothing caught it. `test_refund.mjs` and `test_spent_balance.mjs` assert
+ * these exact properties, and they assert them **against `LeadList.tsx`**,
+ * which is rendered by nothing. Tests pointed at a dead file pass forever and
+ * report coverage of a screen no customer sees. That is the lesson worth more
+ * than the fix: the assertions have been re-pointed here, and the next rewrite
+ * of this screen will fail them instead of inheriting its predecessor's
+ * passing suite.
+ *
+ * Two rules carried over from `LeadList`, both of which are about not lying:
+ *
+ * - **Contacted reverts when the server refuses it.** A tick the server does
+ *   not hold is worse than one that refuses, because the person believes it.
+ * - **A refunded row stays on screen, struck through.** Removing it leaves
+ *   somebody looking at a shorter list with no way to tell what happened.
  */
 
 export type Tab = "fits" | "unsure" | "no";
@@ -63,13 +94,79 @@ export interface ResultsProps {
   marketId: string;
   criterionId: string;
   exportCost: number;
+  /** Whether there is an account behind this screen. Both row actions post to
+   *  routes that answer 401 without one, so signed out they are not offered —
+   *  a signed-out visitor is looking at the free preview and has nothing to
+   *  mark or refund. Same gate `LeadList` used. */
+  signedIn?: boolean;
+  /** Businesses this account has already marked. The server has had these all
+   *  along: `walletFor` in `/app/page.tsx` fetched them and then dropped them
+   *  on the floor, because this prop did not exist. */
+  contactedIds?: readonly string[];
 }
 
 export default function Results(p: ResultsProps) {
   const [tab, setTab] = useState<Tab>("fits");
   const [open, setOpen] = useState<string | null>(p.rows[0]?.lead.id ?? null);
-  const [contacted, setContacted] = useState<ReadonlySet<string>>(new Set());
-  const [dropped, setDropped] = useState<ReadonlySet<string>>(new Set());
+  const [contacted, setContacted] = useState<ReadonlySet<string>>(
+    () => new Set(p.contactedIds ?? []),
+  );
+  /** id → the server's sentence about the refund. A refunded row stays in the
+   *  list and renders struck through; this is not a set of rows to hide. */
+  const [refunded, setRefunded] = useState<Readonly<Record<string, string>>>({});
+  /** id → the server's sentence about an action that did not go through. */
+  const [notes, setNotes] = useState<Readonly<Record<string, string>>>({});
+
+  const say = (id: string, what: string) => setNotes((n) => ({ ...n, [id]: what }));
+
+  /**
+   * Mark, then tell the server, then put it back if the server refused.
+   *
+   * Optimistic because the tick should follow the click, and reverted because
+   * a tick the server does not hold is worse than one that refuses.
+   */
+  async function markContacted(lead: Lead) {
+    const next = !contacted.has(lead.id);
+    setContacted((c) => {
+      const s = new Set(c);
+      if (next) s.add(lead.id);
+      else s.delete(lead.id);
+      return s;
+    });
+    setNotes((n) => ({ ...n, [lead.id]: "" }));
+    const r = await post("/api/contacted", {
+      business: lead.id,
+      contacted: next,
+      // So the contacted list can name it. An uploaded business exists nowhere
+      // else to look it up from.
+      name: lead.name,
+      site: lead.site,
+    });
+    if (!r.ok) {
+      setContacted((c) => {
+        const s = new Set(c);
+        if (next) s.delete(lead.id);
+        else s.add(lead.id);
+        return s;
+      });
+      say(lead.id, r.reason ?? "That did not go through.");
+    }
+  }
+
+  /**
+   * Hand the credit back. Not optimistic: this is money, and claiming a refund
+   * that did not happen is the exact failure this replaced.
+   */
+  async function notAFit(lead: Lead) {
+    setNotes((n) => ({ ...n, [lead.id]: "" }));
+    const r = await post("/api/refund", {
+      business: lead.id,
+      market: p.marketId,
+      criterion: p.criterionId,
+    });
+    if (r.ok) setRefunded((m) => ({ ...m, [lead.id]: r.note ?? "Refunded." }));
+    else say(lead.id, r.reason ?? "That did not go through.");
+  }
 
   const unsureTotal = useMemo(() => p.unsure.reduce((a, g) => a + g.count, 0), [p.unsure]);
   // Locked rows are counted, not listed.
@@ -80,8 +177,12 @@ export default function Results(p: ResultsProps) {
   // that fits · 4 pages read", which buries the three real ones and tells the
   // reader nothing twenty-three times. §6.4 has one place for "what this found
   // and what it takes to see it", and it is the cost bar.
-  const shown = p.rows.filter((r) => !r.lead.locked && !dropped.has(r.lead.id));
-  const fits = p.rows.filter((r) => !dropped.has(r.lead.id)).length;
+  //
+  // A refunded row is **not** filtered out here. It stays where it was, struck
+  // through, carrying what the server said. The headline count below does drop,
+  // because the credit really did come back and the row really is not a fit.
+  const shown = p.rows.filter((r) => !r.lead.locked);
+  const fits = p.rows.filter((r) => !refunded[r.lead.id]).length;
   const thing = `${p.what} in ${p.where}`;
 
   return (
@@ -171,8 +272,13 @@ export default function Results(p: ResultsProps) {
                   open={open === r.lead.id}
                   onToggle={() => setOpen(open === r.lead.id ? null : r.lead.id)}
                   contacted={contacted.has(r.lead.id)}
-                  onContacted={() => setContacted(add(contacted, r.lead.id))}
-                  onNotAFit={() => setDropped(add(dropped, r.lead.id))}
+                  refunded={refunded[r.lead.id] ?? null}
+                  note={notes[r.lead.id] || null}
+                  // Signed out there is no account to charge or credit, so the
+                  // two buttons are not offered rather than offered and 401ing.
+                  // `BizRow` disables a button whose handler is undefined.
+                  onContacted={p.signedIn ? () => void markContacted(r.lead) : undefined}
+                  onNotAFit={p.signedIn ? () => void notAFit(r.lead) : undefined}
                 />
               ))}
             </div>
@@ -450,4 +556,27 @@ function sentence(what: string, where: string, criterion: string): string {
 }
 
 const cap = (s: string) => (s ? s[0].toUpperCase() + s.slice(1) : s);
-const add = (s: ReadonlySet<string>, id: string) => new Set([...s, id]);
+
+/**
+ * One POST, and **a network failure is an answer rather than a throw.**
+ *
+ * The caller's job is to decide what to do about `ok: false`, and it can only
+ * do that if the unreachable-server case arrives in the same shape as a
+ * refusal. The previous screen's version of this was `post(...).catch(...)`
+ * at every call site, which meant the handler had to remember.
+ */
+async function post(
+  url: string,
+  payload: Record<string, unknown>,
+): Promise<{ ok?: boolean; note?: string; reason?: string }> {
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return (await res.json()) as { ok?: boolean; note?: string; reason?: string };
+  } catch {
+    return { ok: false, reason: "Could not reach the server. Nothing changed." };
+  }
+}

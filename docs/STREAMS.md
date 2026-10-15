@@ -187,22 +187,47 @@ reversals are deliberate and recorded rather than quietly overwritten.
 
 ## 4 · Files that are not rendered anywhere
 
-Nine components are imported by nothing. They are the residue of the
-pre-App-v2 app and the pre-handoff marketing, and they are listed here because
-a session can lose an hour improving a file no visitor will ever see.
+Five components are imported by nothing. They are the residue of the
+pre-handoff marketing, and they are listed here because a session can lose an
+hour improving a file no visitor will ever see.
 
 | File | Was |
 |---|---|
-| `AppNav.tsx` | The old eight-item sidebar, replaced by `components/app/Shell.tsx` |
-| `LeadList.tsx` | The old results list, replaced by `components/app/Results.tsx` |
-| `SearchBox.tsx` | The old search input, replaced by the `.bigq` on first run |
-| `Dots.tsx` | The old verdict dot field |
 | `HeroSearch.tsx`, `School.tsx`, `Bubbles.tsx`, `Explainer.tsx`, `Motion.tsx` | The pre-handoff home page |
 
-They are **not deleted** because `test_reachable.mjs` and `test_refund.mjs`
-still reference some of them, and removing them is a change with its own
-blast radius rather than a tidy-up. If you want them gone, do it as its own
-commit with the suite green on both sides.
+These five are **GTM's**, so Product does not delete them. `Motion.tsx` is
+confirmed dead twice over: `public/handoff/site.js` is what sets the `.js`
+class, and `globals.css:1495` credits `Motion.tsx` for it wrongly.
+
+### The four that were Product's are gone, 2026-10-15 — and they were not harmless
+
+`AppNav.tsx`, `LeadList.tsx`, `SearchBox.tsx` and `Dots.tsx` (the pre-App-v2
+app) were deleted. This section used to say removing them was "a change with
+its own blast radius rather than a tidy-up". That was right, and the blast
+radius was pointing the other way: **two live defects were hiding behind
+them.**
+
+- `test_refund.mjs` and `test_spent_balance.mjs` asserted real behaviour — a
+  refunded row stays struck through, a contacted tick reverts when the server
+  refuses — **against `LeadList.tsx`.** They passed. `components/app/Results.tsx`,
+  the screen customers load, had reproduced the buttons without the fetches, so
+  "Not a fit, refunds the credit" refunded nothing. A green suite reported the
+  property as held on a screen nobody sees.
+- `AppNav.tsx` carried the only link in the codebase to `/app/destinations`.
+  `test_reachable.mjs` counted it, so the CRM connector screen read as
+  reachable while being unreachable — and `PushToDestination` rendered `null`
+  until a destination existed, so the only page that adds one sat behind a
+  door that did not exist.
+
+Both are fixed, and both tests now point at the live files. `linkedFrom` in
+`test_reachable.mjs` also ignores any file the route tree does not import, so
+a door inside a dead component no longer counts as a door.
+
+**The general rule, which is worth more than the four files:** a test naming a
+file nothing imports is worse than no test, because it reports coverage of
+code that does not run. If you delete a dead file and a test breaks, the
+question is not how to keep the test passing — it is whether the live screen
+holds the property at all.
 
 ---
 
