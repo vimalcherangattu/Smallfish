@@ -11,7 +11,7 @@
  * decide, this only carries.
  */
 
-import { CAMPAIGN_NAME, STEPS } from "@/lib/sequence";
+import { type Step } from "@/lib/sequence";
 
 const API = "https://api.instantly.ai/api/v2";
 
@@ -76,7 +76,12 @@ const schedule = {
  * it; `activate` is a separate call the push route makes only past `GO_LIVE`
  * with every inbox ready.
  */
-export async function ensureCampaign(emails: string[], dailyLimit: number): Promise<Campaign> {
+export async function ensureCampaign(
+  emails: string[],
+  dailyLimit: number,
+  spec: { name: string; steps: Step[] },
+): Promise<Campaign> {
+  const { name: CAMPAIGN_NAME, steps: STEPS } = spec;
   const found = await api<{ items?: Campaign[] }>(`/campaigns?search=${encodeURIComponent(CAMPAIGN_NAME)}&limit=10`);
   const hit = found.items?.find((c) => c.name === CAMPAIGN_NAME);
   if (hit) {
@@ -123,6 +128,8 @@ export const pause = (id: string) => api(`/campaigns/${id}/pause`, { method: "PO
 
 export interface Lead {
   email: string;
+  first_name?: string;
+  last_name?: string;
   company_name: string;
   website: string;
   custom_variables: Record<string, string>;
@@ -134,7 +141,10 @@ export async function addLeads(campaignId: string, leads: Lead[]): Promise<unkno
   if (!leads.length) return null;
   return api("/leads/add", {
     method: "POST",
-    body: JSON.stringify({ campaign_id: campaignId, leads, skip_if_in_workspace: true }),
+    // Not `skip_if_in_workspace`: a SuperSearch contact already sits in its
+    // enrichment list. Skipping anyone in any *campaign* is the guarantee that
+    // matters, that nobody is written to twice.
+    body: JSON.stringify({ campaign_id: campaignId, leads, skip_if_in_campaign: true }),
   });
 }
 
@@ -198,4 +208,49 @@ export async function countLeads(filters: Record<string, unknown>): Promise<numb
     body: JSON.stringify({ search_filters: filters }),
   });
   return r?.number_of_leads ?? 0;
+}
+
+/**
+ * Buy contacts: SuperSearch people with verified work addresses, into a list.
+ * Spends one credit per verified address. Asynchronous: the list fills over
+ * the next minutes, and `listLeads` reads it on a later run.
+ */
+export async function enrich(args: {
+  filters: Record<string, unknown>;
+  limit: number;
+  listId?: string | null;
+  listName: string;
+}): Promise<{ id: string; resource_id: string }> {
+  return api("/supersearch-enrichment/enrich-leads-from-supersearch", {
+    method: "POST",
+    body: JSON.stringify({
+      search_filters: args.filters,
+      limit: args.limit,
+      work_email_enrichment: true,
+      skip_rows_without_email: true,
+      auto_update: false,
+      ...(args.listId ? { resource_id: args.listId } : { list_name: args.listName }),
+    }),
+  });
+}
+
+export interface ListLead {
+  id: string;
+  email?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  company_name?: string | null;
+  company_domain?: string | null;
+  website?: string | null;
+  job_title?: string | null;
+  verification_status?: number | null;
+  payload?: Record<string, unknown> | null;
+}
+
+export async function listLeads(listId: string, limit = 100): Promise<ListLead[]> {
+  const r = await api<{ items?: ListLead[] }>("/leads/list", {
+    method: "POST",
+    body: JSON.stringify({ list_id: listId, limit }),
+  });
+  return r.items ?? [];
 }

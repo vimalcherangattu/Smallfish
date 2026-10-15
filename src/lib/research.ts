@@ -83,3 +83,42 @@ export function ownersAt(domains: string[]): Segment {
     },
   };
 }
+
+/**
+ * One search per trade, so every contact arrives with the trade its company
+ * sells to, and no credit is spent on a company we could not write a
+ * specific email to. Hiring-reps first: the sharpest signal that a sales team
+ * needs lists now.
+ */
+const TRADE_WORDS: Record<string, string> = {
+  dental: "dental practices, dentists, dental offices, orthodontists",
+  medspa: "med spas, medical spas, aesthetic clinics, medspa",
+  hvac: "HVAC, home services, contractors, plumbers, roofers",
+  legal: "law firms, attorneys, lawyers, legal practices",
+  restaurant: "restaurants, restaurant owners, hospitality",
+  realestate: "real estate agents, realtors, brokerages",
+  salon: "salons, spas, beauty salons, barbershops",
+  chiro: "chiropractors, physical therapists, wellness clinics",
+  vet: "veterinary clinics, veterinarians, animal hospitals",
+};
+
+export function tradeSegments(): Array<Segment & { niche: string }> {
+  const sellers = ["Software & Internet", "Business Services", "Financial Services", "Telecommunications"];
+  const out: Array<Segment & { niche: string }> = [];
+  for (const hiring of [true, false]) {
+    for (const [niche, words] of Object.entries(TRADE_WORDS)) {
+      out.push({
+        id: `seller-${niche}${hiring ? "-hiring" : ""}`,
+        niche,
+        what: `companies selling to ${niche}${hiring ? ", hiring reps now" : ""}`,
+        filters: {
+          ...base,
+          industry: { include: sellers },
+          keyword_filter: { include: words, include_mode: "ANY" },
+          ...(hiring ? { jobListing: ["Sales Development Representative", "Business Development Representative", "Account Executive"] } : {}),
+        },
+      });
+    }
+  }
+  return out;
+}

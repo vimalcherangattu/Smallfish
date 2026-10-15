@@ -75,6 +75,25 @@ await test("the copy has the address, a way to stop, no dash, and no call", () =
   }
 });
 
+await test("the seller copy greets by first name and uses only supplied variables", () => {
+  const vars = S.leadVariables(ok, "https://www.getsmallfish.com", { niche: "dentists", gap: "online booking" });
+  const builtIn = new Set(["companyName", "sendingAccountFirstName", "firstName"]);
+  for (const st of S.SELLER_STEPS) {
+    for (const m of `${st.subject} ${st.body}`.matchAll(/\{\{(\w+)\}\}/g)) assert.ok(builtIn.has(m[1]) || m[1] in vars, `{{${m[1]}}}`);
+    assert.match(st.body, /Mabelle Ave/);
+    assert.doesNotMatch(`${st.subject}${st.body}`, /—/);
+    assert.doesNotMatch(st.body, /\b(demo|call|meeting|calendly)\b/i);
+  }
+  assert.equal(S.campaignFor("seller").steps, S.SELLER_STEPS);
+  assert.equal(S.campaignFor("agency").steps, S.STEPS);
+});
+
+await test("new people a day: three emails each, rounded up", () => {
+  assert.equal(S.newLeadsPerDay(0, 6), 0);
+  assert.equal(S.newLeadsPerDay(5, 6), 10);
+  assert.equal(S.newLeadsPerDay(25, 6), 50);
+});
+
 await test("nothing sends before go-live, then the ramp climbs and holds", () => {
   assert.equal(S.dailyPerInbox("2026-10-20"), 0);
   assert.equal(S.dailyPerInbox(S.GO_LIVE), S.RAMP[0]);

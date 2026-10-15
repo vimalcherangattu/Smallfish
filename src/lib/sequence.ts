@@ -22,6 +22,12 @@
  */
 
 export const CAMPAIGN_NAME = "Small Fish · agencies · v1";
+/** Named sales and growth leaders at companies that sell to small businesses,
+ *  found through SuperSearch (owner's call, 2026-10-15). Its own campaign,
+ *  because its copy speaks to a seller, not an agency. */
+export const SELLER_CAMPAIGN_NAME = "Small Fish · sellers · v1";
+
+export type Audience = "agency" | "seller";
 
 /** CASL wants a mailing address; CAN-SPAM wants a physical postal address. */
 export const POSTAL_ADDRESS = "52 Mabelle Ave, Etobicoke, ON M9A 4X9, Canada";
@@ -73,6 +79,50 @@ export const STEPS: Step[] = [
     delay: 0,
   },
 ];
+
+/**
+ * For a named person at a company that sells to the trade: greeted by first
+ * name, and the pitch is their reps' list, not their clients'.
+ */
+export const SELLER_STEPS: Step[] = [
+  {
+    subject: "{{niche}} in {{city}}",
+    body:
+      "Hi {{firstName}},<br/><br/>" +
+      "Your team sells to {{niche}}, so this might be useful. We read the websites of the " +
+      "{{count}} {{niche}} in {{city}} and pulled out the ones with no {{gap}}, each with the " +
+      "reason taken from their own site.<br/><br/>" +
+      "Here are a few, free: {{listUrl}}<br/><br/>" +
+      sign + footer,
+    delay: 3,
+  },
+  {
+    subject: "Re: {{niche}} in {{city}}",
+    body:
+      "Hi {{firstName}},<br/><br/>" +
+      "Your reps can run this for any trade in any US city, and say what to look for in plain " +
+      "words, like \"no online booking\". The first 20 that fit are free, no card: {{signUpUrl}}<br/><br/>" +
+      sign + footer,
+    delay: 4,
+  },
+  {
+    subject: "Re: {{niche}} in {{city}}",
+    body:
+      "Last note from me. If another city or another trade would be more useful, reply with it " +
+      "and I'll send that list instead.<br/><br/>" +
+      sign + footer,
+    delay: 0,
+  },
+];
+
+export const campaignFor = (a: Audience) =>
+  a === "seller"
+    ? { name: SELLER_CAMPAIGN_NAME, steps: SELLER_STEPS }
+    : { name: CAMPAIGN_NAME, steps: STEPS };
+
+/** New people a day the campaign can start: each gets three emails. */
+export const newLeadsPerDay = (perInbox: number, inboxes: number) =>
+  Math.ceil((perInbox * inboxes) / STEPS.length);
 
 export const ROLE_ADDRESS =
   /^(info|hello|hi|contact|team|office|sales|support|admin|marketing|inquiries|enquiries|customerservice|customercare|help|mail|general|studio|reception|service|booking|bookings|jobs|careers)@/i;
