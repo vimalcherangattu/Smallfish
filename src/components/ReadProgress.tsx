@@ -1,5 +1,6 @@
 "use client";
 
+import FishGame from "@/components/app/FishGame";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -246,6 +247,13 @@ export default function ReadProgress({ id, initial }: { id: string; initial: Row
           </span>
         </div>
       )}
+
+      {/* A read of a few hundred sites runs for minutes, and a progress bar
+          that creeps for four of them reads as broken however honest it is.
+          Mounted beside the counters rather than over them, and gone the
+          moment the read is: nobody should have to quit a game to see what
+          they waited for. */}
+      {row.state !== "done" && row.state !== "failed" && <FishGame />}
 
       <div className="mt-6 grid gap-3 sm:grid-cols-4">
         {/* **These four now add up, and one of them used to be our word.**
