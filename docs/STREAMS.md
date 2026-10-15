@@ -27,7 +27,7 @@ not mean nobody else may read it.
 | `public/handoff/` | The ported stylesheet and script that go with it |
 | `stage0/src/site/port_handoff.py` | The one-command port of a new designer handoff |
 | `src/app/{find,for,markets,compare,templates,why-it-exists,how-we-check,benchmark}/` | The SEO and proof surfaces |
-| `src/app/{pricing,sample,waitlist,welcome,sign-up,sign-in}/` | The doors |
+| `src/app/{pricing,sample,waitlist,welcome,sign-up,sign-in,check}/` | The doors |
 | `src/app/{bot,opt-out,privacy,terms}/` | The pages a crawled business lands on |
 | `src/app/list/[token]/` | A shared list, read-only |
 | `src/components/{MarketingChrome,HandoffPage,MarketProof,SampleForm,WaitlistForm,OptOutForm,ShareList,ReadTheRest,FreeCount,Fish}.tsx` | Marketing components |
@@ -35,7 +35,7 @@ not mean nobody else may read it.
 | `src/app/globals.css` | The marketing stylesheet — see §3 |
 | `src/app/{sitemap.ts,robots.ts}` | |
 | `stage0/tests/{test_home_copy,test_seller,test_share,test_optout,check_motion,test_prospects}.mjs` | |
-| `src/lib/{prospects,prospecting,sequence,replies,instantly,outreachauth,research,ops,contactpipe}.ts`, `src/app/api/outreach/`, `src/app/hi/[token]/`, `src/app/ops/`, `src/components/ProspectList.tsx`, `stage0/tests/test_sequence.mjs` | Small Fish's own outbound: finding agency prospects with the engine, and the sender's status (2026-10-15). Reads `providers.ts` and `read.ts`, changes neither. |
+| `src/lib/{prospects,prospecting,sequence,replies,instantly,outreachauth,research,ops,contactpipe}.ts`, `src/app/api/outreach/`, `src/app/hi/[token]/`, `src/app/ops/`, `src/components/{ProspectList,SiteCheck}.tsx`, `src/lib/sitecheck.ts`, `src/app/api/check/`, `stage0/tests/test_sequence.mjs` | Small Fish's own outbound: finding agency prospects with the engine, and the sender's status (2026-10-15). Reads `providers.ts` and `read.ts`, changes neither. |
 
 ### Product owns
 
