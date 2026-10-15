@@ -60,6 +60,17 @@ interface Campaign {
   status: number;
 }
 
+const sequencesOf = (steps: Step[]) => [
+  {
+    steps: steps.map((s) => ({
+      type: "email",
+      delay: s.delay,
+      delay_unit: "days",
+      variants: [{ subject: s.subject, body: s.body }],
+    })),
+  },
+];
+
 const schedule = {
   schedules: [
     {
@@ -85,9 +96,11 @@ export async function ensureCampaign(
   const found = await api<{ items?: Campaign[] }>(`/campaigns?search=${encodeURIComponent(CAMPAIGN_NAME)}&limit=10`);
   const hit = found.items?.find((c) => c.name === CAMPAIGN_NAME);
   if (hit) {
+    // The copy is kept in code, so a change to it reaches the live campaign on
+    // the next run instead of drifting from what the repo says we send.
     await api(`/campaigns/${hit.id}`, {
       method: "PATCH",
-      body: JSON.stringify({ email_list: emails, daily_limit: dailyLimit }),
+      body: JSON.stringify({ email_list: emails, daily_limit: dailyLimit, sequences: sequencesOf(STEPS) }),
     });
     return hit;
   }
@@ -96,16 +109,7 @@ export async function ensureCampaign(
     body: JSON.stringify({
       name: CAMPAIGN_NAME,
       campaign_schedule: schedule,
-      sequences: [
-        {
-          steps: STEPS.map((s) => ({
-            type: "email",
-            delay: s.delay,
-            delay_unit: "days",
-            variants: [{ subject: s.subject, body: s.body }],
-          })),
-        },
-      ],
+      sequences: sequencesOf(STEPS),
       email_list: emails,
       daily_limit: dailyLimit,
       stop_on_reply: true,

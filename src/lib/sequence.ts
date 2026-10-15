@@ -64,9 +64,10 @@ export const STEPS: Step[] = [
     subject: "Re: {{niche}} in {{city}}",
     body:
       "Hi again,<br/><br/>" +
-      "The full list is free to start, no card: {{signUpUrl}}<br/><br/>" +
-      "You can also ask for any trade in any US city, and say what to look for in plain words, " +
-      "like \"no online booking\" or \"no quote form\".<br/><br/>" +
+      "Something free for your own site: a one-line widget that lets your visitors check whether " +
+      "their website takes bookings online, has a quote form or live chat. The ones missing it are " +
+      "the ones who need you. {{widgetUrl}}<br/><br/>" +
+      "And the full {{niche}} list is free to start, no card: {{signUpUrl}}<br/><br/>" +
       sign + footer,
     delay: 4,
   },
@@ -186,6 +187,7 @@ export function leadVariables(
     count: count.toLocaleString("en-US"),
     gap: label.gap.replace(/^(a|an) /i, ""),
     listUrl: `${site}/hi/${p.list_token}`,
+    widgetUrl: `${site}/check/widget`,
     signUpUrl: `${site}/sign-up?${new URLSearchParams({ source, q: p.list_query ?? "" })}`,
   };
 }
