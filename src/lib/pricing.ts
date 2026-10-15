@@ -28,6 +28,60 @@
 export const COST_PER_READ = 0.0168;
 
 /**
+ * What a commissioned listing costs, on top of reading it.
+ *
+ * Apify Compass list price, $1.50 per 1,000 scraped places, read off the
+ * actor's own pricing panel on 2026-10-15. An input, not a measurement, and
+ * separate from `COST_PER_READ` for exactly that reason.
+ *
+ * Discovery only. Reviews and place details are **not** here, because they are
+ * pulled only for a business that passed the website read: a review is only
+ * ever shown on a row somebody might buy, so paying for twenty reviews of a
+ * business about to be discarded buys nothing. That one policy is worth 22
+ * points of gross margin in the worst niche (`stage0/src/economics/margin.py`).
+ */
+export const COST_PER_LISTING = 0.0015;
+
+/** Everything one business costs before it has matched anything. */
+export const COST_PER_READ_ALL_IN = COST_PER_READ + COST_PER_LISTING;
+
+/**
+ * How many reviews we pull for a business that passed the read. **Twelve.**
+ *
+ * PRD v2 says "newest and lowest-rated first, up to ~20", and twenty is the
+ * wrong number for two reasons that only showed up once the margin was
+ * modelled:
+ *
+ * - **We quote two or three.** The "Why them" line needs one complaint worth
+ *   opening with, not a corpus. Six newest and six lowest-rated finds it.
+ * - **It is a flat cost per match, so it lands hardest on the cheap niche.**
+ *   At twenty, the binding constraint was *dental* at 68.2% — the common
+ *   niche, whose match costs $0.044 and cannot absorb $0.012 of reviews
+ *   inside one credit. Banding cannot help with a cost that does not scale
+ *   with rarity. Twelve puts the floor at 70.7%, and below twelve the curve
+ *   flattens: four reviews only buys another 0.6 of a point, because by then
+ *   the read dominates.
+ *
+ * `stage0/src/economics/margin.py --reviews N` is the sweep.
+ */
+export const REVIEWS_PER_MATCH = 12;
+
+/** Apify list prices for the review pull, 2026-10-15. Per matched business. */
+export const COST_PER_MATCH_REVIEWS = 0.002 + 0.0005 * REVIEWS_PER_MATCH;
+
+/**
+ * The gross margin floor, and the target above it. Owner's mandate, 2026-10-15:
+ * *"70-80 is good to start"*.
+ *
+ * `MIN_GROSS_MARGIN` is the one that binds. Every derived constant below is
+ * set from it rather than chosen, so the mandate cannot drift by somebody
+ * editing a number that looks arbitrary — which is how `READS_PER_CREDIT`
+ * came to permit $0.185 of reading against a $0.19 credit.
+ */
+export const MIN_GROSS_MARGIN = 0.7;
+export const TARGET_GROSS_MARGIN = 0.8;
+
+/**
  * Sample match rate → credits charged per match.
  *
  * Thresholds come from the measured rates: dental at 26.0% sits well inside
@@ -35,10 +89,33 @@ export const COST_PER_READ = 0.0168;
  * 2/3 line. The band is decided from the free count's 25-business sample, so
  * it is known before the full scan starts.
  */
+/**
+ * **Re-banded 2026-10-15, from 1 / 2 / 3.**
+ *
+ * The old values were set on 2026-09-23 against a cheaper read and a
+ * different billing unit: every match the engine found was billed. PRD v2
+ * bills a **reveal the customer chose**, which decouples revenue from cost —
+ * we pay to read either way and are paid only on the rows they take — and the
+ * measured result was a 37.7% worst-niche gross margin against a 70% floor.
+ *
+ * Solved rather than picked, in `stage0/src/economics/margin.py`, at the 70%
+ * floor and a conservative 70% reveal rate: 0.9 / 3.2 / 4.1, rounded up.
+ *
+ * **A common niche does not move.** Dental needs 0.9 credits and was already
+ * charged 1. Only the niches that genuinely cost more are repriced, which is
+ * what banding was for: a flat rate set against the worst niche makes every
+ * customer in a good one overpay sixfold.
+ *
+ * Checked against the other lever, because the two constrain each other: a
+ * band has to cover the cost *and* `READS_PER_CREDIT × credits` has to stretch
+ * to the reading a match in that niche actually takes. At 3 reads a credit,
+ * band 5 buys 15 reads against HVAC's measured 10.6 per match, band 4 buys 12
+ * against med spa's 8.1, band 1 buys 3 against dental's 1.8. All three clear.
+ */
 export const BANDS = [
   { minRate: 0.15, credits: 1, label: "Common" },
-  { minRate: 0.06, credits: 2, label: "Uncommon" },
-  { minRate: 0.0, credits: 3, label: "Rare" },
+  { minRate: 0.06, credits: 4, label: "Uncommon" },
+  { minRate: 0.0, credits: 5, label: "Rare" },
 ] as const;
 
 export function bandFor(sampleMatchRate: number) {
@@ -127,6 +204,32 @@ export const VERIFICATION_PLAN: Plan = {
 export const pricePerCredit = (p: Plan) => (p.credits ? p.priceUsd / p.credits : 0);
 
 /**
+ * The least a credit is ever sold for, across the paid plans.
+ *
+ * Every margin floor is derived against this rather than against Starter,
+ * because a constant that holds the mandate on the average plan and breaks it
+ * on the cheapest is a constant that does not hold the mandate. Free is
+ * excluded: it is pure cost by design and its allowance is a marketing
+ * decision, bounded by `PLANS.free.credits`, not a margin one.
+ */
+export const cheapestCredit = (): number => {
+  const paid = PLANS.filter((p) => p.priceUsd > 0 && p.credits > 0).map(pricePerCredit);
+  return paid.length ? Math.min(...paid) : 0;
+};
+
+/**
+ * Gross margin on one credit of this plan, at a given cost per credit.
+ *
+ * The one function the mandate is expressed in, so a test can hold it rather
+ * than a spreadsheet. `costPerCredit` comes from the measured model, not from
+ * here: this file knows prices, `margin.py` knows costs.
+ */
+export const grossMargin = (p: Plan, costPerCredit: number): number => {
+  const price = pricePerCredit(p);
+  return price > 0 ? (price - costPerCredit) / price : 0;
+};
+
+/**
  * Reads a plan permits per billing period.
  *
  * This replaces the daily read cap the decision document carried, which never
@@ -195,8 +298,36 @@ export const NO_HOPE_RATE = 0.03;
  * That collision is the finding: at the no-hope floor, "let the customer spend
  * every credit" and "never lose money on a Pack" are the same constraint from
  * opposite sides, and Pack is the plan where they meet.
+ *
+ * ## Re-derived 2026-10-15, because the old derivation never mentioned money
+ *
+ * The paragraphs above are kept because the reasoning in them is still true,
+ * and because they are the evidence for what was wrong with it: every one of
+ * those constraints is about **solvency** — not losing money — and none is
+ * about margin. `1 / (3 × NO_HOPE_RATE)` is 11, and 11 reads at the all-in
+ * cost is **$0.20 against a credit sold for $0.19 on a Pack**. That is a
+ * three percent gross margin, arrived at honestly by a formula with no price
+ * in it, and it is the single largest exposure in the pricing model.
+ *
+ * It now derives from the owner's floor instead. The cheapest credit we sell
+ * sets it, so every other plan clears the mandate by more:
+ *
+ *     reads = floor( (1 − MIN_GROSS_MARGIN) × cheapest credit / cost per read )
+ *
+ * At $0.19 and $0.0183 that is 3. The old solvency reasoning is not lost —
+ * a floor derived from a 70% margin is far inside the break-even it was
+ * protecting — and `checkRunHealth` still enforces the live abort.
+ *
+ * The cost here is the customer's: three reads a credit is a tighter leash
+ * than eleven, and in a rare niche a search reaches its reading limit sooner.
+ * That is the same trade as the re-banding and it is deliberate. A product
+ * that reads eleven businesses per credit at a three percent margin is not a
+ * product, it is a subsidy.
  */
-export const READS_PER_CREDIT = Math.floor(1 / (3 * NO_HOPE_RATE)); // 11
+export const READS_PER_CREDIT = Math.max(
+  1,
+  Math.floor(((1 - MIN_GROSS_MARGIN) * cheapestCredit()) / COST_PER_READ_ALL_IN),
+);
 
 /** Businesses sampled for the free count, before any full scan. */
 export const SAMPLE_SIZE = 25;

@@ -28,6 +28,8 @@ const {
   NO_HOPE_RATE, MAX_CRITERIA, SAMPLE_SIZE, planScan, scanEconomics,
   ABORT_CHECKS, MAX_LOSS_PER_SCAN_USD, breakEvenRate, checkRunHealth,
   readAllowance, settleBand, wilsonUpper, worstCaseMonthly, quoteBand,
+  MIN_GROSS_MARGIN, COST_PER_READ_ALL_IN, cheapestCredit, grossMargin,
+  COST_PER_MATCH_REVIEWS,
 } = await load("pricing");
 
 let failures = 0;
@@ -43,35 +45,69 @@ const MEASURED = [
   { market: "hvac-tampa", rate: 0.050, costPerMatch: 0.1787 },
 ];
 
+// Those figures were measured at $0.0168 a read, before a paid provider and
+// before reviews. The all-in cost adds the Apify listing to every read, and
+// the details-plus-reviews pull **once per match** rather than once per read,
+// because reviews are only fetched for a business that passed the website
+// read. `stage0/src/economics/margin.py` is the model; these are its inputs.
+const LISTING = 0.0015;
+const REVIEWS_PER_MATCH = COST_PER_MATCH_REVIEWS;
+const allIn = (m) =>
+  m.costPerMatch * ((COST_PER_READ + LISTING) / COST_PER_READ) + REVIEWS_PER_MATCH;
+
 // --- the bands do what they exist to do
-const perCredit = MEASURED.map((m) => m.costPerMatch / bandFor(m.rate).credits);
+const perCredit = MEASURED.map((m) => allIn(m) / bandFor(m.rate).credits);
 const lo = Math.min(...perCredit), hi = Math.max(...perCredit);
 check("banding collapses the measured spread below 2.5x", hi / lo < 2.5,
   `got ${(hi / lo).toFixed(2)}x`);
-check("every measured niche lands at or under $0.07 per credit", hi <= 0.07,
+check("every measured niche lands at or under $0.05 per credit", hi <= 0.05,
   `worst ${hi.toFixed(4)}`);
 check("the unbanded spread really was over 6x, or bands solve nothing",
   Math.max(...MEASURED.map((m) => m.costPerMatch)) /
   Math.min(...MEASURED.map((m) => m.costPerMatch)) > 6);
 
+// **The bands now collapse the spread almost completely**: a measured 6.1x
+// range in cost per match becomes under 1.05x per credit. That is the whole
+// purpose of banding reached, and it is worth pinning because it is fragile
+// in one specific way.
+//
+// The review pull is a **flat** charge per match, so it does not scale with
+// rarity and banding cannot absorb it. At twenty reviews it pushed *dental* —
+// the common niche, whose match costs four cents and has one credit to pay
+// with — to 68.2% and made it the binding constraint, which is the opposite
+// of what bands are for. Twelve is what brings it back level. If this spread
+// ever widens again, `REVIEWS_PER_MATCH` is the first place to look.
+check("banding collapses cost per credit to within 10% across niches",
+  hi / lo < 1.1,
+  `dental ${perCredit[0].toFixed(4)}, med spa ${perCredit[1].toFixed(4)}, hvac ${perCredit[2].toFixed(4)}`);
+check("and the flat review cost is small enough not to invert them",
+  COST_PER_MATCH_REVIEWS < allIn(MEASURED[0]) * 0.25,
+  `reviews $${COST_PER_MATCH_REVIEWS.toFixed(4)} against a dental match at $${allIn(MEASURED[0]).toFixed(4)}`);
+
 // --- each measured niche lands in the band the decision assigned it
+// Re-banded 2026-10-15 from 1 / 2 / 3, solved in margin.py at the owner's 70%
+// floor and a conservative 70% reveal rate. Dental does not move: it needed
+// 0.9 credits and was already charged 1.
 check("dental at 26.0% is band 1", bandFor(0.26).credits === 1);
-check("med spa at 6.2% is band 2", bandFor(0.062).credits === 2);
-check("hvac at 5.0% is band 3", bandFor(0.05).credits === 3);
+check("med spa at 6.2% is band 4", bandFor(0.062).credits === 4);
+check("hvac at 5.0% is band 5", bandFor(0.05).credits === 5);
 check("bands are ordered cheapest-rate-last", BANDS.every((b, i, a) =>
   i === 0 || a[i - 1].minRate > b.minRate));
 
 // --- margins, at the worst measured band cost, no breakage
-const claimed = { starter: 72, growth: 65, agency: 65, watch: 87, pack: 63 };
-for (const p of PLANS.filter((p) => p.priceUsd > 0)) {
-  const margin = 100 * (1 - hi / pricePerCredit(p));
-  const want = claimed[p.id];
-  if (want !== undefined) {
-    check(`${p.name} clears its claimed ${want}% margin`,
-      Math.abs(margin - want) <= 2,
-      `computed ${margin.toFixed(1)}%`);
-  }
-}
+// The owner's mandate, 2026-10-15: 70% floor, 80% target. Asserted against
+// the floor for every paid plan rather than against a per-plan number somebody
+// typed in, because a claimed figure drifts and a floor does not.
+check(`every paid plan clears the ${(MIN_GROSS_MARGIN * 100).toFixed(0)}% floor at the worst credit`,
+  PLANS.filter((p) => p.priceUsd > 0)
+    .every((p) => grossMargin(p, hi) >= MIN_GROSS_MARGIN),
+  PLANS.filter((p) => p.priceUsd > 0)
+    .map((p) => `${p.name} ${(grossMargin(p, hi) * 100).toFixed(1)}%`).join(", "));
+
+check("and the cheapest credit we sell is the one that binds",
+  PLANS.filter((p) => p.priceUsd > 0)
+    .every((p) => grossMargin(p, hi) >= grossMargin({ priceUsd: 1, credits: 1 / cheapestCredit() }, hi) - 1e-9),
+  `cheapest credit $${cheapestCredit().toFixed(4)}`);
 const free = PLANS.find((p) => p.id === "free");
 check("honouring the free tier's credits costs at most $1.40",
   free.credits * hi <= 1.40, `${(free.credits * hi).toFixed(2)}`);
@@ -89,11 +125,37 @@ check("a 1% stop would NOT have cleared break-even",
   0.01 < breakEven,
   "this is why the decision document's 1% was raised to 3%");
 
-const losing = scanEconomics({ reads: 2400, matchRate: 0.015, plan: starter });
-check("the 1.5% case the old stop allowed does lose money", losing.net < 0,
-  `net ${losing.net.toFixed(2)}`);
-check("and the current stop refuses it",
+// **Retraction, 2026-10-15.** This asserted that the 1.5% case the old 1%
+// stop allowed "does lose money", over 2,400 reads. Both halves stopped being
+// true and neither failure is the test's fault:
+//
+//   · 2,400 reads is no longer reachable. At 3 reads a credit a Starter's
+//     whole balance buys 360, so the scenario the assertion describes cannot
+//     happen to a customer.
+//   · At band 5 it does not lose money anyway. Re-banding priced the rare
+//     case at what it costs, so 1.5% now clears, barely.
+//
+// So the stop's justification has moved, and saying so is the point of
+// keeping this. It is no longer break-even that refuses a 1.5% search; it is
+// that spending an entire balance to surface a handful of matches is a bad
+// thing to sell somebody, however the arithmetic lands for us.
+const reachable = scanEconomics({
+  reads: readAllowance(starter),
+  matchRate: 0.015,
+  plan: starter,
+});
+check("a 1.5% search is now break-even rather than a real loss",
+  Math.abs(reachable.net) < 0.05,
+  `net ${reachable.net.toFixed(2)} over ${readAllowance(starter)} reads`);
+check("where the old band would have lost real money over the same reads",
+  // 5 matches at 3 credits against 360 reads, which is what this used to be.
+  5 * 3 * pricePerCredit(starter) - readAllowance(starter) * COST_PER_READ < -2,
+  "re-banding is what moved it, not the allowance");
+check("but it is still refused, on the customer's behalf rather than ours",
   planScan({ sampleMatchRate: 0.015, remainingCredits: 120, criteriaCount: 2 }).start === false);
+check("and a whole balance at that rate really does buy very little",
+  (readAllowance(starter) * 0.015) < 10,
+  `${(readAllowance(starter) * 0.015).toFixed(1)} matches for the entire plan`);
 
 // --- but the stop reads a 25-business sample, so it settles far less than that
 check("the smallest sample result that passes the stop is one match in 25",
@@ -157,12 +219,39 @@ const freeWorst = worstCaseMonthly(free);
 check("and the free tier's worst case is bounded and known",
   freeWorst.costUsd < 4.0, `${freeWorst.costUsd.toFixed(2)} per free user per period`);
 
-check("the read allowance covers a legitimate run at the no-hope floor",
-  PLANS.every((p) => readAllowance(p) >= Math.floor(p.credits / (3 * NO_HOPE_RATE)) * 0.99),
-  "a customer must be able to spend the credits they bought");
-check("a more generous allowance would sink the cheapest plan",
-  PLANS.find((p) => p.id === "pack").credits * (READS_PER_CREDIT + 1) * COST_PER_READ > 19,
-  "this is why READS_PER_CREDIT floors rather than rounds");
+// **The two levers have to agree, and this is where that is held.**
+//
+// Re-banding and `READS_PER_CREDIT` constrain each other: a band has to cover
+// what a match costs, and `credits × reads-per-credit` has to stretch to the
+// reading a match in that niche actually takes. Set separately you get a plan
+// that is profitable and cannot deliver, where the solvency abort fires before
+// the customer sees a single match.
+//
+// Reads per match is measured — spend-per-match over spend-per-read from the
+// same run — not `1 / rate`, which counts businesses we never opened.
+for (const m of MEASURED) {
+  const readsPerMatch = m.costPerMatch / COST_PER_READ;
+  const allowed = bandFor(m.rate).credits * READS_PER_CREDIT;
+  check(`a ${m.market} match is reachable inside its band's reading`,
+    allowed >= readsPerMatch,
+    `band buys ${allowed} reads, a match takes ${readsPerMatch.toFixed(1)}`);
+}
+
+check("the allowance is set from the mandate, not from the abort rule",
+  READS_PER_CREDIT ===
+    Math.max(1, Math.floor(((1 - MIN_GROSS_MARGIN) * cheapestCredit()) / COST_PER_READ_ALL_IN)),
+  `${READS_PER_CREDIT} reads a credit`);
+
+check("one more read a credit would breach the floor on the cheapest plan",
+  1 - ((READS_PER_CREDIT + 1) * COST_PER_READ_ALL_IN) / cheapestCredit() < MIN_GROSS_MARGIN,
+  "this is why it floors rather than rounds");
+
+// The old derivation, kept as a check rather than a comment: `1 / (3 ×
+// NO_HOPE_RATE)` is 11, and 11 reads against the cheapest credit is the
+// three percent margin that started this.
+check("the old allowance really was the exposure it was replaced for",
+  1 - (11 * COST_PER_READ_ALL_IN) / cheapestCredit() < 0.1,
+  `11 reads leaves ${((1 - (11 * COST_PER_READ_ALL_IN) / cheapestCredit()) * 100).toFixed(1)}%`);
 
 // --- every plan is solvent at its own no-hope boundary
 for (const p of PLANS.filter((x) => x.priceUsd > 0)) {

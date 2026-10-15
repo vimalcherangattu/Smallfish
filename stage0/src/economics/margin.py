@@ -50,18 +50,21 @@ from unit_model import RUNS, measured
 APIFY_PER_PLACE = 0.0015
 APIFY_PER_DETAILS = 0.002
 APIFY_PER_REVIEW = 0.0005
-REVIEWS_PER_BUSINESS = 20
+REVIEWS_PER_BUSINESS = 12  # overridable with --reviews; see pricing.ts REVIEWS_PER_MATCH
 
 # --- the plans, from src/lib/pricing.ts ---------------------------------------
 PLANS = [("Starter", 29.0, 120), ("Growth", 79.0, 400), ("Agency", 199.0, 1000)]
 
 # --- banding, from src/lib/pricing.ts BANDS -----------------------------------
 def credits_for(match_rate: float) -> int:
+    # Re-banded 2026-10-15 from 1 / 2 / 3, solved by this script at the owner's
+    # 70% floor and a conservative 70% reveal rate. Kept in step with
+    # `src/lib/pricing.ts` BANDS by hand; `test_pricing.mjs` holds the TS side.
     if match_rate >= 0.15:
         return 1
     if match_rate >= 0.06:
-        return 2
-    return 3
+        return 4
+    return 5
 
 
 def cost_per_match(m: dict, *, reviews_on: str) -> float:
@@ -87,12 +90,16 @@ def cost_per_match(m: dict, *, reviews_on: str) -> float:
 
 
 def main() -> int:
+    global REVIEWS_PER_BUSINESS
     ap = argparse.ArgumentParser()
     ap.add_argument("--mandate", type=float, default=0.80,
                     help="minimum acceptable gross margin, 0-1")
+    ap.add_argument("--reviews", type=int, default=REVIEWS_PER_BUSINESS,
+                    help="reviews pulled per matched business")
     ap.add_argument("--reveal", type=float, default=1.0,
                     help="share of matched rows a customer actually reveals")
     args = ap.parse_args()
+    REVIEWS_PER_BUSINESS = args.reviews
 
     rows = [m for m in (measured(k) for k in RUNS) if m]
     if not rows:
@@ -165,6 +172,45 @@ def main() -> int:
               f"{credits_for(m['match_rate']):>10}"
               f"{'':>9}   " + "  ".join(f"{r:.1f}@{int(v*100)}%"
                                         for r, v in zip(row, (1.0, 0.7, 0.5))))
+
+    # --- the two levers have to agree ----------------------------------------
+    #
+    # Re-banding and `READS_PER_CREDIT` are not independent, and setting them
+    # separately is how you get a plan that is profitable and cannot deliver.
+    # A match in a 5% niche needs a certain amount of reading; if the credits
+    # charged for it multiplied by the reads each credit permits is less than
+    # that, the solvency abort fires before the customer ever sees a match.
+    # The band has to cover the cost and the allowance has to cover the work.
+    print()
+    print("Both levers at once: a band that pays, and reading that reaches a match")
+    print(f"(reviews on passed rows only, reveal {args.reveal:.0%}, "
+          f"mandate {args.mandate:.0%})")
+    print("-" * 74)
+    print(f"{'market':<17}{'reads/match':>13}{'band needed':>13}"
+          f"{'min reads/credit':>19}")
+    price_per_credit = PLANS[0][1] / PLANS[0][2]
+    floors = []
+    for m in rows:
+        per = cost_per_match(m, reviews_on="match")
+        per_read = m["cost"]["read"] + APIFY_PER_PLACE
+        reads_per_match = (per - (APIFY_PER_DETAILS
+                                  + APIFY_PER_REVIEW * REVIEWS_PER_BUSINESS)) / per_read
+        band = (per / args.reveal) / (1 - args.mandate) / price_per_credit
+        # The allowance must stretch to the reading a match actually takes.
+        need_reads_per_credit = reads_per_match / max(band, 1e-9)
+        floors.append((need_reads_per_credit, m["market"]))
+        print(f"{m['market']:<17}{reads_per_match:>13.1f}{band:>13.1f}"
+              f"{need_reads_per_credit:>19.1f}")
+
+    # The binding constraint is the niche needing the most reading per credit,
+    # and the margin ceiling is what that much reading costs.
+    need = max(f for f, _ in floors)
+    worst_read = max(m["cost"]["read"] for m in rows) + APIFY_PER_PLACE
+    gm_at = 1 - (need * worst_read) / price_per_credit
+    print()
+    print(f"READS_PER_CREDIT must be at least {need:.1f} for every niche to reach a")
+    print(f"match, and at {need:.1f} reads the floor margin is {gm_at:.1%}.")
+    print("Today it is 11." if need < 11 else "Today it is 11, which is below that.")
 
     if worst < args.mandate:
         print()
