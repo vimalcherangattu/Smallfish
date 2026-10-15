@@ -5,12 +5,13 @@ no human support. The product sells itself or it does not.
 
 ## The loop
 
-1. **Find** (`/api/outreach/prospects`, daily cron 05:41 UTC). One of the 50 largest
-   US cities a day: Overture's agency categories, each agency's own site read with
+1. **Find** (`/api/outreach/prospects`, every 30 minutes from Supabase pg_cron, see
+   migration 0027; Vercel Hobby cron was once a day and did not fire). One of the 50 largest
+   US cities per day, about 60 sites a sweep: Overture's agency categories, each agency's own site read with
    `readSite`. `prospects.ts` decides which trade it serves (needs marketing context,
    three distinct sentences or a headline) and picks an address on its own domain.
    Measured yield: about 1 to 3% of agencies read become sendable prospects.
-2. **Prepare** (`/api/outreach/push`, daily cron 13:53 UTC). Each prospect gets a
+2. **Prepare** (`/api/outreach/push`, hourly at :07 from pg_cron). Each prospect gets a
    `/hi/<token>` page and a count of its trade in its city. One count query, no reads.
 3. **Queue.** `sequence.blocked()` gates; survivors go to the Instantly campaign
    "Small Fish · agencies · v1" with their variables. Status → `queued`.

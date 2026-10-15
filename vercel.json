@@ -8,14 +8,6 @@
     {
       "path": "/api/mail/nudge",
       "schedule": "17 14 * * *"
-    },
-    {
-      "path": "/api/outreach/prospects",
-      "schedule": "41 5 * * *"
-    },
-    {
-      "path": "/api/outreach/push",
-      "schedule": "53 13 * * *"
     }
   ]
 }

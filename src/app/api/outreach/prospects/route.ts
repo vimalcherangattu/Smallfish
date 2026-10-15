@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
+import { schedulerAuthorised } from "@/lib/outreachauth";
 import { prospectCounts, sweep } from "@/lib/prospecting";
 import { resolveRegion, type Places } from "@/lib/region";
 
@@ -22,19 +23,6 @@ import { resolveRegion, type Places } from "@/lib/region";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
-
-function same(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i += 1) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
-}
-
-function authorised(req: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-  return same(req.headers.get("authorization") ?? "", `Bearer ${secret}`);
-}
 
 async function places(): Promise<Places | null> {
   try {
@@ -65,14 +53,14 @@ async function run(where: string) {
 }
 
 export async function GET(req: Request) {
-  if (!authorised(req)) return Response.json({ ok: false }, { status: 401 });
+  if (!(await schedulerAuthorised(req))) return Response.json({ ok: false }, { status: 401 });
   const p = await places();
   if (!p) return Response.json({ ok: false, reason: "places-us.json missing" }, { status: 500 });
   return run(cityForDay(p));
 }
 
 export async function POST(req: Request) {
-  if (!authorised(req)) return Response.json({ ok: false }, { status: 401 });
+  if (!(await schedulerAuthorised(req))) return Response.json({ ok: false }, { status: 401 });
   let body: { city?: unknown };
   try {
     body = (await req.json()) as typeof body;

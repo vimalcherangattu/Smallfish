@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { activate, addLeads, countLeads, ensureCampaign, ensureWebhook, inboxes, instantlyReady } from "@/lib/instantly";
 import { ownersAt, SEGMENTS } from "@/lib/research";
-import { cronAuthorised, hookSecret } from "@/lib/outreachauth";
+import { hookSecret, schedulerAuthorised } from "@/lib/outreachauth";
 import { listCriterion, logEvent, prepareList, rest, suppressedOutreach } from "@/lib/prospecting";
 import { NICHES } from "@/lib/prospects";
 import type { Places } from "@/lib/region";
@@ -36,7 +36,7 @@ const json = async <T,>(n: string) => JSON.parse(await readFile(path.join(dir, n
 type Row = Prospect & { site: string };
 
 export async function GET(req: Request) {
-  if (!cronAuthorised(req)) return Response.json({ ok: false }, { status: 401 });
+  if (!(await schedulerAuthorised(req))) return Response.json({ ok: false }, { status: 401 });
   const started = Date.now();
   const out: Record<string, unknown> = { ok: true };
 
