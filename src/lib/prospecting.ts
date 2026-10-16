@@ -128,7 +128,7 @@ async function knownDomains(): Promise<Set<string>> {
   return new Set((rows ?? []).map((r) => r.domain));
 }
 
-async function upsert(rows: ProspectRow[]): Promise<void> {
+export async function upsertProspects(rows: ProspectRow[]): Promise<void> {
   if (!rows.length) return;
   await rest("gtm_prospects?on_conflict=domain", {
     method: "POST",
@@ -264,7 +264,7 @@ export async function sweep(
     }
   });
   await Promise.all(workers);
-  await upsert(rows);
+  await upsertProspects(rows);
 
   const byStatus: Record<string, number> = {};
   for (const r of rows) byStatus[r.status] = (byStatus[r.status] ?? 0) + 1;
