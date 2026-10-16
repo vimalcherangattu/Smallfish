@@ -38,6 +38,65 @@ list worth paying for.** So:
 Where a founding document, a plan item or a screen implies the product is about
 something else, this sentence wins and the disagreement goes in the decision log.
 
+## How much effort goes where — DEW / GEW / MIW
+
+The owner's tiering, 2026-10-16, verbatim:
+
+| Tier | Means | What is in it |
+|---|---|---|
+| **DEW** | **Do Extremely Well** | Search, and the quality of leads |
+| **GEW** | **Good Enough Works** | ICP, and things like it |
+| **MIW** | **Make It Work** | Loaders, delights, the game while waiting |
+
+This is the companion to the sentence above: that one says *what the product is
+for*, this one says *where the effort goes*. Use both as the cut. The tier is a
+ceiling as well as a floor — **polishing a MIW thing past working is as wrong as
+shipping a DEW thing that merely works.**
+
+**DEW — search, and lead quality.** `supply.ts`, `trades.ts`, `region.ts`,
+`pool.ts` and the `/app/find` screen are the search half. The judge, the evidence,
+`signals.ts`, the absence rule and named contacts are the quality half. These get
+measurement, a test that asserts the property rather than the example, and a real
+number before anything is believed. Every rule under "Engineering rules" below is
+a DEW rule and none of them bends for speed.
+
+**GEW — ICP and its neighbours.** This is a demotion with consequences already in
+the repo, and they are *settled* rather than loose ends:
+
+- `/app/icp` has no front door, recorded in `test_reachable.mjs`'s
+  `NO_LINK_NEEDED`. Under GEW that is the right answer, not a gap to close.
+- **S1-22 — reading the seller's own site — is not worth unblocking.** It is
+  blocked on a model key and the flow runs on a typed offer instead. A typed
+  offer is good enough; go no further.
+- PRD v2's intake is **one skippable screen**. Skippable is the GEW shape: it must
+  work and must not be in the way.
+
+**MIW — loaders, delights, the game.** `FishGame.tsx` is built and therefore
+**done**. Do not add levels, scores or sound. The same applies to the "no rising
+pool count" deviation: a static *"Counting plumbers in Denver. Ten seconds or
+so."* is MIW satisfied, and the honest reason not to animate a number we do not
+have is already written down. **Close it as fine rather than carrying it as a
+known deviation.**
+
+### The one tension this creates, and how it resolves
+
+DEW on lead quality and the 70% margin floor pull against each other, because
+reading is the only thing that costs money. The resolution is that **quality is
+not the variable.** If a good lead needs more reading than `READS_PER_CREDIT = 3`
+buys, the credit price moves or the band moves — `pricing.ts` has `BANDS` for
+exactly this. What never happens is shipping a thinner lead to protect a margin.
+A cheap lead nobody can act on fails both mandates at once.
+
+### What this reprioritizes, today
+
+**The plain-fetch-then-headless fallback is the DEW ceiling, not a milestone-3
+line item.** Measured in production: **20 of 48 reads returned zero pages (42%)**
+— thin, one metro, and the repo says so in the decision log. But a judge handed
+zero pages can only answer "couldn't tell", so at that rate **no amount of judge
+quality lifts lead quality past about three in five candidates.** Under DEW the
+fetcher outranks polish on anything downstream of it, and it is the one piece of
+milestone 3 that is load-bearing for the tier.
+
 ## Founding documents (live, read via the Claude Docs connector)
 
 - PMM research: https://claude.ai/code/artifact/acbd9367-fb11-46b3-b0dd-d3db0a184aae
@@ -66,7 +125,7 @@ that panel if it reports "needs authentication".
 | `docs/design-system.md` | **Read before building any customer-facing screen.** Principles, type, colour and component rules, distilled from `docs/design/small-fish-design-system-v1.pdf` (the visual authority — a 13 MB PDF cannot be grepped). Its §5 records an **unresolved** divergence: the design system describes scores, tiers and weighted rubrics, the repo implements binary verdicts, and it cites an "Account Finder PRD v3" that is not among the founding documents. Do not resolve that by picking one silently. |
 | `docs/critique.md` | Review of the founding documents and the reasoning behind the plan's departures from them. |
 | `docs/stage0-coverage-report.md` | Measured results: candidate supply, website readability, technology signals, location shapes. **§7 answers gate item 1 (S0-06), and the answer is no** — read it before planning Stage 0 work. |
-| `docs/icp-discovery.md` | Design for the ICP flow. S1-23 – S1-26 are built (`src/lib/icp.ts`); S1-22, reading the seller's own site, is blocked on a model key and the flow runs on a typed offer instead. |
+| `docs/icp-discovery.md` | Design for the ICP flow. S1-23 – S1-26 are built (`src/lib/icp.ts`); S1-22, reading the seller's own site, is blocked on a model key and the flow runs on a typed offer instead. **GEW (§2), so S1-22 stays blocked on purpose** — a typed offer is good enough and that key buys nothing at this tier. `/app/icp` having no front door is the settled answer, not a gap. |
 | `stage0/src/coverage/` | Candidate extraction and the site probe. |
 | `stage0/src/engine/` | Technology detection, check plans, geometry. |
 | `stage0/tests/` | `python3 stage0/tests/run_all.py` |

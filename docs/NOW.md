@@ -32,11 +32,18 @@ Rules for whoever edits it:
 > **"I sell to small businesses but I can't find them anywhere easily."** — Vimal, 2026-10-15
 
 Finding is the problem. The gap and the proof are what make the found list worth paying for.
-Full consequences in CLAUDE.md §1; it is the cut every change is measured against.
+
+**Effort tiers, 2026-10-16.** **DEW** (Do Extremely Well): search, lead quality. **GEW** (Good
+Enough Works): ICP and its neighbours. **MIW** (Make It Work): loaders, delights, the game. The
+tier is a ceiling too, so polishing a MIW thing is as wrong as half-doing a DEW one.
+
+Both are CLAUDE.md §1–2, and together they are the cut every change is measured against.
 
 ## In flight
 
 - Milestone 3, slice 3: one migration against the PRD shape, then the judge.
+- Reordered 2026-10-16 by DEW: the headless fetcher fallback comes before judge polish, because
+  it is the ceiling on lead quality rather than one item inside the milestone.
 
 ## Where the product is
 
@@ -53,6 +60,9 @@ Full consequences in CLAUDE.md §1; it is the cut every change is measured again
 - **Fixed 2026-10-15, live for weeks:** "Not a fit, refunds the credit" refunded nothing, and
   contacted marks never reached the server. The tests were pointed at a dead file.
 - Fixed with it: the CRM push was unreachable, linked only from a dead component.
-- Known hole: 42% of reads return zero pages. The headless fallback is milestone 3.
-- Known deviation: no rising pool count. Overture gives one total; a number before it is invented.
+- **The DEW ceiling: 20 of 48 production reads returned zero pages (42%, one metro, thin).** A
+  judge handed zero pages can only say "couldn't tell", so lead quality cannot pass ~3 in 5
+  candidates until the headless fallback exists. It outranks everything downstream of it.
+- Closed as fine, not a deviation: no rising pool count. "Counting, ten seconds or so" is MIW
+  satisfied, and a number before the scan lands would be invented.
 - Not applied: migrations 0022/0023, superseded by one set written against the PRD.
