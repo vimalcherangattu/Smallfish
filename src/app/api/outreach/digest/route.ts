@@ -1,4 +1,5 @@
 import { inboxes, instantlyReady } from "@/lib/instantly";
+import { checkDomains, domainsOf } from "@/lib/mailauth";
 import { channelOf, buildDigest, type DigestStats } from "@/lib/digest";
 import { sendMail } from "@/lib/mail";
 import { schedulerAuthorised } from "@/lib/outreachauth";
@@ -48,9 +49,11 @@ export async function GET(req: Request) {
   for (const a of accounts ?? []) signups[channelOf(a.source)] = (signups[channelOf(a.source)] ?? 0) + 1;
 
   let sending = false;
-  if (instantlyReady() && dailyPerInbox(new Date().toISOString().slice(0, 10)) > 0) {
-    sending = (await inboxes().catch(() => [])).every((b) => b.ready);
-  }
+  const boxes = instantlyReady() ? await inboxes().catch(() => []) : [];
+  if (boxes.length && dailyPerInbox(new Date().toISOString().slice(0, 10)) > 0) sending = boxes.every((b) => b.ready);
+  // The sending domains' SPF and DMARC, asked of DNS every morning.
+  const auth = (await checkDomains(domainsOf(boxes.map((b) => b.email))).catch(() => []))
+    .flatMap((d) => d.problems.map((why) => ({ kind: "sending domain", who: d.domain, why })));
 
   const stats: DigestStats = {
     day: new Date().toLocaleDateString("en-CA", { timeZone: "America/Toronto", month: "short", day: "numeric" }),
@@ -74,7 +77,8 @@ export async function GET(req: Request) {
     queueReady,
     held: ev
       .filter((e) => ["reply_held", "reply_unhandled", "hook_failed", "webhook_failed", "contacts_failed", "research_failed"].includes(e.kind))
-      .map((e) => ({ kind: e.kind.replace(/_/g, " "), who: e.email ?? e.domain ?? "system", why: String(e.detail.why ?? e.detail.error ?? "").slice(0, 140) })),
+      .map((e) => ({ kind: e.kind.replace(/_/g, " "), who: e.email ?? e.domain ?? "system", why: String(e.detail.why ?? e.detail.error ?? "").slice(0, 140) }))
+      .concat(auth),
     goLive: GO_LIVE,
     sending,
   };

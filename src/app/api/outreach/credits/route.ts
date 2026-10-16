@@ -32,7 +32,7 @@ const dir = path.join(process.cwd(), "public", "data");
 const json = async <T,>(n: string) => JSON.parse(await readFile(path.join(dir, n), "utf8")) as T;
 
 const UA = "SmallFishBot/0.1 (+https://www.getsmallfish.com/bot; business listing verification)";
-const SCAN_BUDGET_MS = 34_000;
+const SCAN_BUDGET_MS = 26_000;
 const TOTAL_BUDGET_MS = 50_000;
 const CITIES = 50;
 const MIN_SITES = 2;

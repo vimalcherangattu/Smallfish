@@ -44,6 +44,7 @@ test("a network is found but not prospectable", () => {
   const c = C.creditsIn(foot(`Website powered by <a href="https://www.officite.com">Officite</a>`), site);
   assert.equal(c[0].agency, "officite.com");
   assert.equal(C.prospectable("officite.com"), false);
+  assert.equal(C.prospectable("tebra.com"), false);
   assert.equal(C.prospectable("acmeweb.co"), true);
 });
 test("one agency linked twice is one credit", () => {

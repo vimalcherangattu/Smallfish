@@ -36,7 +36,7 @@ export const PLATFORMS =
  *  credits and worth counting, but not an agency that will read a cold email:
  *  kept in the data, kept out of the prospects. */
 export const NETWORKS =
-  /(^|\.)(scorpion|hibu|thryv|yodle|prosites|officite|pbhs|televox|lighthouse360|dentalqore|smilesource|progressive-dental|einstein|dentalrevenue|roya|doctorlogic|vetstreet|lifelearn|beyondindigo|webdvm|lightspeed|ilawyermarketing|justia|findlaw|lawyers|martindale|nolo|myprovider|ihealthspot|chirotouch|chiromatrix|vetmatrix|imatrix|townsquare|yp|reachlocal|localiq|gannett|dexmedia|webstarts|websitebuilder|homeadvisor|angi|houzz|porch|contractorsites|plumbingwebmasters|hookagency|blue-corona|bluecorona|servicetitan|housecall|jobber|roofle|roofr|smartsites|webfx|boostability|web\.com|network-solutions|networksolutions|yodle)\.[a-z.]+$/i;
+  /(^|\.)(scorpion|hibu|thryv|yodle|prosites|officite|pbhs|televox|lighthouse360|dentalqore|smilesource|progressive-dental|einstein|dentalrevenue|roya|doctorlogic|vetstreet|lifelearn|beyondindigo|webdvm|lightspeed|ilawyermarketing|justia|findlaw|lawyers|martindale|nolo|myprovider|ihealthspot|chirotouch|chiromatrix|vetmatrix|imatrix|townsquare|yp|reachlocal|localiq|gannett|dexmedia|webstarts|websitebuilder|homeadvisor|angi|houzz|porch|contractorsites|plumbingwebmasters|hookagency|blue-corona|bluecorona|servicetitan|housecall|jobber|roofle|roofr|smartsites|webfx|boostability|web\.com|network-solutions|networksolutions|tebra|patientpop|weave|nexhealth|solutionreach|demandforce|lighthouse|rectanglehealth|modento|yodle)\.[a-z.]+$/i;
 
 const host = (href: string, base: string): string | null => {
   try {
