@@ -29,7 +29,11 @@ export const CAMPAIGN_NAME = "Small Fish · agencies · v1";
  *  because its copy speaks to a seller, not an agency. */
 export const SELLER_CAMPAIGN_NAME = "Small Fish · sellers · v1";
 
-export type Audience = "agency" | "seller";
+/** Agencies that serve no one trade get the widget instead of a trade list:
+ *  something free for their own site, which needs no niche to be specific. */
+export const WIDGET_CAMPAIGN_NAME = "Small Fish · agencies · widget v1";
+
+export type Audience = "agency" | "seller" | "widget";
 
 /** CASL wants a mailing address; CAN-SPAM wants a physical postal address. */
 export const POSTAL_ADDRESS = "52 Mabelle Ave, Etobicoke, ON M9A 4X9, Canada";
@@ -119,10 +123,59 @@ export const SELLER_STEPS: Step[] = [
   },
 ];
 
+/**
+ * For agencies that serve local businesses in general: give first. A free
+ * check for their own site, already set up with their domain, then the
+ * search once they have seen what it finds.
+ */
+export const WIDGET_STEPS: Step[] = [
+  {
+    subject: "a free tool for {{companyName}}'s site",
+    body:
+      "Hi {{companyName}} team,<br/><br/>" +
+      "We made a free widget for agencies' websites. Your visitors paste their own site and see " +
+      "whether it takes bookings online, has a quote form or live chat. The ones missing it are the " +
+      "ones who need you.<br/><br/>" +
+      "Here it is with your name already on it: {{previewUrl}}<br/>" +
+      "One line to put it on your site: {{widgetUrl}}<br/><br/>" +
+      sign + footer,
+    delay: 4,
+  },
+  {
+    subject: "Re: a free tool for {{companyName}}'s site",
+    body:
+      "Hi again,<br/><br/>" +
+      "The same check runs on whole cities too: every dentist, plumber or salon near you that is " +
+      `missing online booking or a quote form, with a phone and a reason to call. The first ${FREE} are free: {{signUpUrl}}<br/><br/>` +
+      sign + footer,
+    delay: 5,
+  },
+  {
+    subject: "Re: a free tool for {{companyName}}'s site",
+    body:
+      "Last note from me. If a list for one trade in one city would be more useful, reply with both " +
+      "and I'll send it.<br/><br/>" +
+      sign + footer,
+    delay: 0,
+  },
+];
+
 export const campaignFor = (a: Audience) =>
   a === "seller"
     ? { name: SELLER_CAMPAIGN_NAME, steps: SELLER_STEPS }
-    : { name: CAMPAIGN_NAME, steps: STEPS };
+    : a === "widget"
+      ? { name: WIDGET_CAMPAIGN_NAME, steps: WIDGET_STEPS }
+      : { name: CAMPAIGN_NAME, steps: STEPS };
+
+/** The widget campaign's variables: their domain, ready in the snippet. */
+export function widgetVariables(p: Pick<Prospect, "domain">, site: string): Record<string, string> {
+  const q = new URLSearchParams({ agency: p.domain });
+  return {
+    previewUrl: `${site}/embed/check?${q}`,
+    widgetUrl: `${site}/check/widget?${q}`,
+    signUpUrl: `${site}/app/find?${new URLSearchParams({ source: `outreach/widget/${p.domain}` })}`,
+  };
+}
 
 /** New people a day the campaign can start: each gets three emails. */
 export const newLeadsPerDay = (perInbox: number, inboxes: number) =>
@@ -148,7 +201,7 @@ export interface Prospect {
 /** Why this prospect may not be written to, or null when it may. Every gate
  *  is a reason a human would give for not sending, said the same way. */
 export function blocked(
-  p: Prospect,
+  p: Prospect & { audience?: string | null },
   ctx: { suppressedDomains: Set<string>; suppressedEmails: Set<string> },
 ): string | null {
   if (p.status !== "found") return `status is ${p.status}`;
@@ -156,6 +209,10 @@ export function blocked(
   // 64% of the first batch were info@ and the like. They reach an inbox nobody
   // decides from, and they hurt the domain when nobody replies.
   if (ROLE_ADDRESS.test(p.email)) return "generic address, not a person";
+  if (ctx.suppressedDomains.has(p.domain)) return "domain asked not to be contacted";
+  if (ctx.suppressedEmails.has(p.email.toLowerCase())) return "address asked not to be contacted";
+  // The widget needs no trade and no list: their own domain is the offer.
+  if (p.audience === "widget") return null;
   if (!p.niche) return "no niche strong enough to write about";
   if (!p.list_token || !p.list_query) return "their free list is not prepared";
   if (!p.city) return "no city";

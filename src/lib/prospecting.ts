@@ -61,6 +61,7 @@ export interface ProspectRow {
   outcome: string;
   pages: number;
   status: string;
+  audience?: string;
   source: string;
   read_at: string;
 }
@@ -190,7 +191,10 @@ export async function readAgency(
     niches: hits.slice(0, 6),
     niche: primary?.id ?? null,
     niche_quote: primary?.quote ?? null,
-    status: !primary ? "no_niche" : !email ? "no_email" : "found",
+    // An agency that serves no one trade but publishes a person's address is
+    // still worth writing to: it gets the widget campaign, which needs no niche.
+    status: !email ? (primary ? "no_email" : "no_niche") : "found",
+    audience: primary ? "agency" : "widget",
   };
 }
 

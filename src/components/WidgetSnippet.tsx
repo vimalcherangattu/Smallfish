@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 /** Builds the iframe snippet for an agency's domain. */
-export default function WidgetSnippet() {
-  const [domain, setDomain] = useState("");
+export default function WidgetSnippet({ initial = "" }: { initial?: string }) {
+  const [domain, setDomain] = useState(initial);
   const clean = domain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/.*$/, "");
   const ok = /^[a-z0-9.-]{3,80}\.[a-z]{2,}$/.test(clean);
   const code = `<iframe src="https://www.getsmallfish.com/embed/check${ok ? `?agency=${clean}` : ""}" width="100%" height="380" style="border:0;max-width:640px" title="Free website check" loading="lazy"></iframe>`;

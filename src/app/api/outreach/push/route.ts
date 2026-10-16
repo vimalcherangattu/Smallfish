@@ -9,7 +9,7 @@ import { hookSecret, schedulerAuthorised } from "@/lib/outreachauth";
 import { listCriterion, logEvent, prepareList, rest, suppressedOutreach } from "@/lib/prospecting";
 import { NICHES } from "@/lib/prospects";
 import type { Places } from "@/lib/region";
-import { blocked, campaignFor, companyName, dailyPerInbox, GO_LIVE, leadVariables, type Audience, type Prospect } from "@/lib/sequence";
+import { blocked, campaignFor, companyName, dailyPerInbox, GO_LIVE, leadVariables, widgetVariables, type Audience, type Prospect } from "@/lib/sequence";
 import type { Taxonomy } from "@/lib/trades";
 
 /**
@@ -44,7 +44,7 @@ export async function GET(req: Request) {
   // 1 · prepare
   const [taxo, places] = await Promise.all([json<Taxonomy>("trades.json"), json<Places>("places-us.json")]);
   const unprepared = ((await rest(
-    "gtm_prospects?status=eq.found&list_token=is.null&select=domain,niche,city,state&limit=4",
+    "gtm_prospects?status=eq.found&list_token=is.null&audience=neq.widget&select=domain,niche,city,state&limit=4",
   )) as Array<{ domain: string; niche: string | null; city: string | null; state: string | null }>) ?? [];
   let prepared = 0;
   for (const p of unprepared) {
@@ -85,13 +85,15 @@ export async function GET(req: Request) {
   // The ramp is shared: sellers carry most of it, agencies the rest.
   const total = Math.max(1, perInbox * boxes.length);
   const share: Record<Audience, number> = {
-    seller: Math.max(1, Math.ceil(total * 0.75)),
+    seller: Math.max(1, Math.ceil(total * 0.5)),
     agency: Math.max(1, Math.floor(total * 0.25)),
+    widget: Math.max(1, Math.floor(total * 0.25)),
   };
   const emails = boxes.map((b) => b.email);
   const campaigns = {
     agency: await ensureCampaign(emails, share.agency, campaignFor("agency")),
     seller: await ensureCampaign(emails, share.seller, campaignFor("seller")),
+    widget: await ensureCampaign(emails, share.widget, campaignFor("widget")),
   };
   const secret = hookSecret();
   // Third-party sources say webhooks need a higher Instantly plan. If so, the
@@ -116,10 +118,10 @@ export async function GET(req: Request) {
 
   const sup = await suppressedOutreach();
   const rows = ((await rest(
-    "gtm_prospects?status=eq.found&list_token=not.is.null&select=domain,name,email,first_name,niche,city,state,status,list_token,list_query,list_readable,list_listings,site,audience&limit=200",
+    "gtm_prospects?status=eq.found&or=(list_token.not.is.null,audience.eq.widget)&select=domain,name,email,first_name,niche,city,state,status,list_token,list_query,list_readable,list_listings,site,audience&limit=200",
   )) as Row[]) ?? [];
   type Queued = { p: Row; lead: Parameters<typeof addLeads>[1][number] };
-  const byAudience: Record<Audience, Queued[]> = { agency: [], seller: [] };
+  const byAudience: Record<Audience, Queued[]> = { agency: [], seller: [], widget: [] };
   const skipped: Record<string, number> = {};
   for (const p of rows) {
     const why = blocked(p, { suppressedDomains: sup.domains, suppressedEmails: sup.emails });
@@ -127,20 +129,27 @@ export async function GET(req: Request) {
       skipped[why] = (skipped[why] ?? 0) + 1;
       continue;
     }
-    const n = NICHES.find((x) => x.id === p.niche)!;
-    byAudience[p.audience === "seller" ? "seller" : "agency"].push({
+    const audience: Audience = p.audience === "seller" ? "seller" : p.audience === "widget" ? "widget" : "agency";
+    const vars =
+      audience === "widget"
+        ? widgetVariables(p, SITE)
+        : leadVariables(p, SITE, {
+            niche: NICHES.find((x) => x.id === p.niche)!.label,
+            gap: listCriterion(p.niche)!.label,
+          });
+    byAudience[audience].push({
       p,
       lead: {
         email: p.email!,
         ...(p.first_name ? { first_name: p.first_name } : {}),
         company_name: companyName(p.name, p.domain),
         website: p.site,
-        custom_variables: leadVariables(p, SITE, { niche: n.label, gap: listCriterion(p.niche)!.label }),
+        custom_variables: vars,
       },
     });
   }
   let queued = 0;
-  for (const a of ["agency", "seller"] as Audience[]) {
+  for (const a of ["agency", "seller", "widget"] as Audience[]) {
     const leads = byAudience[a];
     if (!leads.length) continue;
     await addLeads(campaigns[a].id, leads.map((l) => l.lead));
@@ -164,7 +173,7 @@ export async function GET(req: Request) {
   out.perInboxToday = perInbox;
   out.goLive = GO_LIVE;
   const activated: string[] = [];
-  for (const a of ["agency", "seller"] as Audience[]) {
+  for (const a of ["agency", "seller", "widget"] as Audience[]) {
     const c = campaigns[a];
     if (perInbox > 0 && allReady && c.status !== 1) {
       await activate(c.id);

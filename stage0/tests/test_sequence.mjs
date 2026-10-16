@@ -50,6 +50,25 @@ await test("a suppressed address or domain blocks", () => {
 });
 await test("a city with almost none of the trade is not worth an email", () => assert.match(S.blocked({ ...ok, list_readable: 5 }, none), /too few/));
 
+await test("a widget prospect needs a person's address, not a niche or a list", () => {
+  const w = { ...ok, audience: "widget", niche: null, list_token: null, list_query: null, list_readable: null };
+  assert.equal(S.blocked(w, none), null);
+  assert.match(S.blocked({ ...w, email: "info@acme.com" }, none), /generic/);
+  assert.match(S.blocked(w, { ...none, suppressedDomains: new Set(["acme.com"]) }), /domain asked/);
+});
+
+await test("the widget copy uses only variables we supply, and has the footer", () => {
+  const vars = S.widgetVariables(ok, "https://www.getsmallfish.com");
+  assert.equal(vars.previewUrl, "https://www.getsmallfish.com/embed/check?agency=acme.com");
+  for (const st of S.WIDGET_STEPS) {
+    for (const m of `${st.subject} ${st.body}`.matchAll(/\{\{(\w+)\}\}/g)) {
+      assert.ok(["companyName", "sendingAccountFirstName"].includes(m[1]) || m[1] in vars, `{{${m[1]}}}`);
+    }
+    assert.match(st.body, /Mabelle Ave/);
+    assert.doesNotMatch(`${st.subject}${st.body}`, /—/);
+  }
+});
+
 await test("company names are cut to the name, not the slogan", () => {
   assert.equal(S.companyName("Acme Dental Marketing | Grow your practice", "acme.com"), "Acme Dental Marketing");
   assert.equal(S.companyName("We are the best dental marketing agency in all of Arizona, period", "acme.com"), "Acme");

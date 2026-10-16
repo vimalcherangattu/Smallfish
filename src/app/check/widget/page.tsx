@@ -12,7 +12,10 @@ export const metadata = {
     "Put a free 'does your website take bookings online?' check on your agency's site. Your visitors check their site, you get the conversation. One line of code, no account.",
 };
 
-export default function Widget() {
+export default async function Widget({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const sp = await searchParams;
+  const raw = Array.isArray(sp.agency) ? sp.agency[0] : sp.agency;
+  const agency = raw && /^[a-z0-9.-]{3,80}$/i.test(raw) ? raw.toLowerCase() : "";
   return (
     <main className="mkt">
       <div className="mx-auto max-w-[860px] px-6 py-16">
@@ -25,7 +28,7 @@ export default function Widget() {
           form or live chat, with the proof. The ones missing it are the ones who need you. One
           line of code, free, no account.
         </p>
-        <WidgetSnippet />
+        <WidgetSnippet initial={agency} />
       </div>
     </main>
   );
