@@ -22,6 +22,7 @@
  */
 
 import { PLANS } from "@/lib/pricing";
+import { looksLikeAgency, looksLikePerson } from "@/lib/prospects";
 
 export const CAMPAIGN_NAME = "Small Fish · agencies · v1";
 /** Named sales and growth leaders at companies that sell to small businesses,
@@ -211,8 +212,14 @@ export function blocked(
   if (ROLE_ADDRESS.test(p.email)) return "generic address, not a person";
   if (ctx.suppressedDomains.has(p.domain)) return "domain asked not to be contacted";
   if (ctx.suppressedEmails.has(p.email.toLowerCase())) return "address asked not to be contacted";
-  // The widget needs no trade and no list: their own domain is the offer.
-  if (p.audience === "widget") return null;
+  // The widget needs no trade and no list: their own domain is the offer. With
+  // no trade quote vouching for the read, it asks more of the address and the
+  // name instead (measured: the generalist pool is noisy).
+  if (p.audience === "widget") {
+    if (!looksLikePerson(p.email)) return "address does not look like a person";
+    if (!looksLikeAgency(p.name, p.domain)) return "does not call itself an agency";
+    return null;
+  }
   if (!p.niche) return "no niche strong enough to write about";
   if (!p.list_token || !p.list_query) return "their free list is not prepared";
   if (!p.city) return "no city";

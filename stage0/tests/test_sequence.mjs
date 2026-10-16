@@ -18,7 +18,7 @@ const test = async (name, fn) => {
   catch (e) { failures += 1; console.log(`  FAIL  ${name}: ${e.message}`); }
 };
 
-const { load } = compileLib(["src/lib/sequence.ts", "src/lib/replies.ts", "src/lib/pricing.ts"], "sf-seq-");
+const { load } = compileLib(["src/lib/sequence.ts", "src/lib/replies.ts", "src/lib/pricing.ts", "src/lib/prospects.ts"], "sf-seq-");
 const S = await load("sequence");
 const R = await load("replies");
 const { PLANS } = await load("pricing");
@@ -53,6 +53,12 @@ await test("a city with almost none of the trade is not worth an email", () => a
 await test("a widget prospect needs a person's address, not a niche or a list", () => {
   const w = { ...ok, audience: "widget", niche: null, list_token: null, list_query: null, list_readable: null };
   assert.equal(S.blocked(w, none), null);
+  // measured on the backfill: role inboxes and non-agencies in the agency categories
+  for (const e of ["newbiz@acme.com", "bizdev@acme.com", "fraud@acme.com", "us232@acme.com", "jsmith@acme.com"]) {
+    assert.match(S.blocked({ ...w, email: e }, none), /person/, e);
+  }
+  assert.equal(S.blocked({ ...w, email: "lauren.smith@acme.com" }, none), null);
+  assert.match(S.blocked({ ...w, name: "Chemton Industries", domain: "chemton.net", email: "tula@chemton.net" }, none) ?? "", /agency|person/);
   assert.match(S.blocked({ ...w, email: "info@acme.com" }, none), /generic/);
   assert.match(S.blocked(w, { ...none, suppressedDomains: new Set(["acme.com"]) }), /domain asked/);
 });

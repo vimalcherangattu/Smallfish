@@ -269,3 +269,36 @@ export function token(rand: (n: number) => Uint8Array): string {
   const abc = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
   return Array.from(rand(10), (b) => abc[b % abc.length]).join("");
 }
+
+/**
+ * Does this business call itself an agency? Overture's agency categories hold
+ * printers, sign shops, a chemicals firm and an insurance rep (measured on the
+ * 2026-10-15 backfill), so the widget campaign, which has no trade quote to
+ * vouch for the read, asks the name or domain to say so.
+ */
+const AGENCY_WORD =
+  /(marketing|media|digital|design|web|creative|advertis|agency|brand|seo|studio|interactive|communicat|social|\bads?\b|ppc|growth|pixel|labs?\b|consult)/i;
+export const looksLikeAgency = (name: string | null, domain: string): boolean =>
+  AGENCY_WORD.test(name ?? "") || AGENCY_WORD.test(domain.split(".")[0]);
+
+/**
+ * Common US first names, for telling `jeremy@` from `newbiz@`. Not a census:
+ * a list long enough that a person's address usually matches, and a role
+ * mailbox never does. A miss only means the agency is not written to.
+ */
+const FIRST_NAMES = new Set(
+  (
+    "aaron adam adrian aidan alan albert alex alexa alexander alexis alice alicia allison alyssa amanda amber amy ana andrea andrew angela angie anna anne annie anthony april ari ariel ashley austin barbara barry becky ben benjamin beth betty bill billy blake bob bobby brad bradley brandon brenda brent brett brian brianna bridget brittany brooke bruce bryan caitlin calvin cameron candice carl carla carlos carmen carol caroline carrie casey cassie catherine cathy chad charles charlie chelsea cheryl chris christian christina christine christopher cindy claire clara cody colin connor corey courtney craig cristina crystal curtis cynthia dale dan dana daniel danielle danny darren dave david dawn dean debbie deborah denise dennis derek diana diane dominic don donald donna doug douglas drew dustin dylan ed eddie edward elaine elena eli elizabeth ellen emily emma eric erica erik erin ethan eugene evan frank fred gabriel gary gavin george gina glen glenn grace greg gregory hannah harry heather heidi helen henry holly ian isaac isabel jack jackie jacob jake james jamie jan jane janet janice jared jason jay jeff jeffrey jen jenna jennifer jenny jeremy jerry jesse jessica jill jim jimmy joan joanna joe joel john johnny jon jonathan jordan jose joseph josh joshua joy joyce juan judy julia julie justin kara karen kate katherine kathleen kathy katie kayla keith kelly ken kendra kenneth kerry kevin kim kimberly kristen kristin kyle lance larry laura lauren leah lee leo leslie linda lindsay lisa liz lori louis lucas luis luke lynn madison maggie marc marcus margaret maria marie marissa mark martin mary matt matthew megan melanie melissa michael michelle mike miguel mindy molly monica morgan nancy natalie nathan neil nicholas nick nicole noah nora olivia omar oscar pam pamela pat patricia patrick paul paula peter phil philip rachel randy ray raymond rebecca renee rich richard rick rob robert robin rod roger ron ronald rose ross russell ruth ryan sally sam samantha samuel sandra sara sarah scott sean seth shannon sharon shawn sheila shelby sherry sophia stacy stephanie stephen steve steven sue susan suzanne tammy tanya tara taylor ted teresa terry thomas tiffany tim timothy tina todd tom tommy tony tracy travis trevor tricia troy tyler valerie vanessa victor victoria vincent wayne wendy william zach zachary"
+  ).split(" "),
+);
+
+/** `jeremy@` and `jeremy.smith@` count; `newbiz@` and `jsmith@` do not. */
+export function looksLikePerson(email: string): boolean {
+  const local = email.split("@")[0].toLowerCase();
+  if (!/^[a-z]+([._-][a-z]+)?$/.test(local)) return false;
+  const [first] = local.split(/[._-]/);
+  if (FIRST_NAMES.has(first)) return true;
+  // "jsmith@" cannot be told from "growth@" without a surname list, so it
+  // is left out: a missed person costs one email, a role inbox costs the domain.
+  return false;
+}
