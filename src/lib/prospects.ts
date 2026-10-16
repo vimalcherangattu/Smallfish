@@ -224,7 +224,16 @@ export function domainOf(site: string): string | null {
  */
 export function pickEmail(emails: string[], domain: string | null): string | null {
   if (!domain) return null;
-  const clean = [...new Set(emails.map((e) => e.trim().toLowerCase()))].filter(
+  // Pages carry addresses URL-encoded ("%20hello@…"), which parse as a
+  // different mailbox from the one printed. Decode before judging.
+  const decoded = emails.map((e) => {
+    try {
+      return decodeURIComponent(e).trim().toLowerCase();
+    } catch {
+      return e.trim().toLowerCase();
+    }
+  });
+  const clean = [...new Set(decoded)].filter(
     (e) =>
       /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(e) &&
       (e.endsWith(`@${domain}`) || e.endsWith(`.${domain}`)) &&

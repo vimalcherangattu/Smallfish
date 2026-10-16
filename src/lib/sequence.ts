@@ -129,7 +129,7 @@ export const newLeadsPerDay = (perInbox: number, inboxes: number) =>
   Math.ceil((perInbox * inboxes) / STEPS.length);
 
 export const ROLE_ADDRESS =
-  /^(info|hello|hi|contact|team|office|sales|support|admin|marketing|inquiries|enquiries|customerservice|customercare|help|mail|general|studio|reception|service|booking|bookings|jobs|careers)@/i;
+  /^(info|hello|hi|hey|contact|connect|team|office|sales?|support|help|helpme|admin|marketing|ads|cs|inquiries|enquiries|customerservice|customercare|mail|general|studio|reception|service|booking|bookings|jobs|careers|director|dmca|legal|linkup|getbit|start|getstarted|newbusiness|partners?|media|press|billing|accounts?)@/i;
 
 export interface Prospect {
   domain: string;

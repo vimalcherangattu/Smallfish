@@ -40,6 +40,7 @@ Pricing: you pay only for businesses that fit. The first ${free.credits} are fre
 - [Benchmark](${site}/benchmark): measured accuracy and coverage
 - [Templates](${site}/templates): searches people run
 - [Compare](${site}/compare): Small Fish vs Scrap.io, Outscraper and D7
+- [MCP server](${site}/mcp): count local businesses and check websites from any AI assistant (${site}/api/mcp)
 `;
   return new Response(body, { headers: { "content-type": "text/plain; charset=utf-8" } });
 }

@@ -33,6 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/pricing`, lastModified: now, priority: 0.8 },
     { url: `${SITE}/check`, lastModified: now, priority: 0.8 },
     { url: `${SITE}/check/widget`, lastModified: now, priority: 0.6 },
+    { url: `${SITE}/mcp`, lastModified: now, priority: 0.5 },
     { url: `${SITE}/benchmark`, lastModified: now, priority: 0.8 },
     { url: `${SITE}/templates`, lastModified: now, priority: 0.8 },
     { url: `${SITE}/compare`, lastModified: now, priority: 0.7 },
