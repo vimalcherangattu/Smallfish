@@ -19,7 +19,7 @@
  *
  *   node stage0/tests/test_pricing.mjs
  */
-import { rmSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
 import { compileLib } from "./_tsmodules.mjs";
 
 const { dir, load } = compileLib(["src/lib/pricing.ts"], "sfprice-");
@@ -252,6 +252,43 @@ check("one more read a credit would breach the floor on the cheapest plan",
 check("the old allowance really was the exposure it was replaced for",
   1 - (11 * COST_PER_READ_ALL_IN) / cheapestCredit() < 0.1,
   `11 reads leaves ${((1 - (11 * COST_PER_READ_ALL_IN) / cheapestCredit()) * 100).toFixed(1)}%`);
+
+/* ------------------------------------- and the doc says what the code says -- */
+
+/**
+ * **`docs/PRICING.md` is authoritative for pricing, so it has to agree with
+ * `pricing.ts` — and for three weeks it did not.**
+ *
+ * The re-pricing of 2026-10-15 moved `READS_PER_CREDIT` from 11 to 3 and left
+ * the document stating 11, with concrete per-plan figures derived from it
+ * ("Starter 1,320"). Nothing failed, because no test read the document and the
+ * number reaches no customer-facing surface. It is exactly the shape of the
+ * 2026-10-04 defect already in the decision log: two places disagreeing about
+ * what money buys, on a product whose argument is that its numbers are
+ * measured.
+ *
+ * So the agreement is mechanical now rather than a promise — the same move
+ * `export_benchmark.py` makes for `/benchmark`, which carries no number of its
+ * own. The §4 rows are checked, not the 2026-09-23 narrative below them: that
+ * one records a decision genuinely taken with 11 and is meant to keep saying so.
+ */
+{
+  const doc = readFileSync("docs/PRICING.md", "utf8");
+  // The two live guardrail rows, by the text that introduces each number.
+  check("the doc's scan budget is the code's",
+    new RegExp(`max \\*\\*${READS_PER_CREDIT}\\*\\* candidate reads per remaining credit`).test(doc),
+    `code says ${READS_PER_CREDIT}`);
+  check("and so is its period read allowance",
+    new RegExp(`${READS_PER_CREDIT} reads per credit:`).test(doc),
+    `code says ${READS_PER_CREDIT}`);
+  // Every per-plan figure on that row, derived rather than transcribed.
+  for (const p of PLANS) {
+    const want = p.credits * READS_PER_CREDIT;
+    check(`and the doc's ${p.name} allowance is ${want.toLocaleString()}`,
+      new RegExp(`${p.name}\\s+${want.toLocaleString()}\\b`, "i").test(doc),
+      `${p.credits} credits x ${READS_PER_CREDIT}`);
+  }
+}
 
 // --- every plan is solvent at its own no-hope boundary
 for (const p of PLANS.filter((x) => x.priceUsd > 0)) {

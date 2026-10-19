@@ -165,7 +165,7 @@ check("credits render whole when whole and two-figure when not",
 // --- the read allowance is what actually bounds cost
 {
   const a = fresh();
-  check("a Starter's period allowance is 11 reads per credit",
+  check("a Starter's period allowance is READS_PER_CREDIT per credit",
     L.readsRemaining(a) === 120 * READS_PER_CREDIT);
 
   const impossible = L.spendReads(a, 5000);

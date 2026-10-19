@@ -54,7 +54,11 @@ Both are CLAUDE.md §1–2, and together they are the cut every change is measur
 - Counting is free Overture; only reading uses the paid provider. Apify keys set, not default.
 - Built, not yet on a screen: `fit.ts` (blind rows, reveal), `rules.ts` (listing pre-filter).
 - Built: supply for any US city, polite fetcher, contacts, credits, Stripe, CSV, opt-out.
-- Production: live on `main`, suite 78/78, all seven browser checks green.
+- Production: live on `main`. Suite is **81 of 82 after `npm run build`**, 1 skipped; on a
+  fresh clone with no build it is 79 of 82, 3 skipped. The skipped ones check nothing
+  without a build or a local benchmark run, and each says which.
+- Fixed 2026-10-19: `docs/PRICING.md` said 11 reads a credit for four days after the code
+  moved to 3. Reached no customer copy. A test now holds the doc against `pricing.ts`.
 - Cut 2026-10-15 for the one problem: "Contacted" out of the sidebar, the map link off results,
   the three "check a list you already have" prompts gone. Every route still works.
 - **Fixed 2026-10-15, live for weeks:** "Not a fit, refunds the credit" refunded nothing, and

@@ -68,8 +68,47 @@ def run(*args) -> str:
     return p.stdout + p.stderr
 
 
+#: The runner's "checked nothing" exit code — see `run_all.py`'s `SKIPPED`.
+SKIP = 2
+
+
+def missing_cost_logs() -> list[str]:
+    """The measured runs this test needs that are not in a fresh clone.
+
+    **`.gitignore` excludes `stage0/data/*.jsonl`**, and `unit_model.py` needs a
+    `cost-log-<market>.jsonl` per market to total real spend. So the cost logs
+    exist only in a container where the benchmark has actually been run, and
+    this file cannot check anything without them.
+
+    It used to **fail** in that case — 18 of them, because `run()` returned the
+    model's own refusal ("Missing measured runs for: …") and every assertion
+    about the table's contents then missed. That is a false report twice over:
+    nothing is broken, and the model is doing exactly what property 1 above
+    says it must. A fresh container read as eighteen defects, which is how a
+    suite stops being believed.
+    """
+    from economics.unit_model import DATA, RUNS
+
+    out = []
+    for market, run_file in RUNS.items():
+        tag = "-escalate" if "escalate" in run_file else ""
+        if not (DATA / f"cost-log-{market}{tag}.jsonl").exists():
+            out.append(market)
+    return out
+
+
 def main() -> int:
     from economics.unit_model import DEFAULT_MARGIN, RUNS, TIERS, UNITS, measured
+
+    if absent := missing_cost_logs():
+        print(
+            "  SKIP  no measured cost logs for: " + ", ".join(absent) + "\n"
+            "        `stage0/data/*.jsonl` is gitignored, so a fresh clone has\n"
+            "        none. Run `stage0/src/benchmark/run.py` for those markets\n"
+            "        to check this file. Skipping rather than failing: the model\n"
+            "        refusing to guess is the property, not a defect."
+        )
+        return SKIP
 
     # --- it refuses rather than guesses
     check("a missing market returns None, not an estimate",

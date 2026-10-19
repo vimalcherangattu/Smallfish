@@ -78,13 +78,40 @@ are a paid unlock at 0.25 credits, not a free leak.
 
 | Guardrail | Rule | Status |
 |---|---|---|
-| Scan budget | max **11** candidate reads per remaining credit | amended ² |
-| Period read allowance | 11 reads per credit: Free 220 · Starter 1,320 · Growth 4,400 · Agency 11,000 · Watch 440 · Pack 1,100 | replaces the daily caps ² |
+| Scan budget | max **3** candidate reads per remaining credit | amended ² ³ |
+| Period read allowance | 3 reads per credit: Free 60 · Starter 360 · Growth 1,200 · Agency 3,000 · Watch 120 · Pack 300 | replaces the daily caps ² ³ |
 | Sample first | every run costs a 25-business sample before the full scan | as decided |
 | No-hope stop | **<3%** matches in sample → full scan does not start | amended ² |
 | Early abort | live match rate's 80% upper bound below **break-even for the quoted band and plan**, checked at 200 / 400 / 800 / 1,600 reads | amended ² |
 | Band settlement | a completed scan bills the **cheaper** of the quoted band and the band its delivered rate earns | added ² |
 | Criteria cap | 3 max, warn on the third | as decided |
+
+³ **Amendment of 2026-10-15: the read allowance is 3 a credit, not 11.** The two rows
+above carried 11 for three weeks after the code stopped using it, which is the
+"two pages disagreeing about what money buys" failure this document exists to prevent —
+recorded rather than quietly corrected, per the repo's convention on reversals.
+
+The 11 was derived from the **abort rule**: `1 / (3 × NO_HOPE_RATE)`, the most reading a
+legitimate run can need. That is a solvency rule with no price in it, and it permitted
+about $0.20 of reading against a $0.19 credit — a 3% gross margin. The owner's mandate of
+2026-10-15 (*"we need to maintain gross margin, that's a mandate"*, floor 70%) made the
+allowance a **margin** figure instead:
+
+```
+READS_PER_CREDIT = floor( (1 − MIN_GROSS_MARGIN) × cheapest credit / cost per read )
+                 = floor( 0.30 × $0.19 / $0.0183 ) = 3
+```
+
+So every paid plan now survives a period in which nothing matches, with the floor intact:
+Free $1.10, Starter $6.59 against $29, Growth $21.96/$79, Agency $54.90/$199, Watch
+$2.20/$19, Pack $5.49/$19. One more read a credit would breach the floor on the cheapest
+plan, which is why it floors rather than rounds — `test_pricing.mjs` asserts exactly that,
+and also keeps the old 11 as a check that it *was* the exposure it was replaced for.
+
+**The 2026-09-23 narrative below is left as written.** Its figures (Starter $22.18,
+"rounding to 12 instead of 11 sinks Pack") are the record of a decision genuinely taken
+with 11, and rewriting them would erase why the number moved. Read them as history; the
+rows above are current.
 
 ¹ ² **Amendments of 2026-09-23, after the decision.** Every row marked here was
 checked against revenue and changed; the rules as originally written permit a scan to
@@ -172,8 +199,10 @@ confirm screen → flat rate priced against the worst niche. (c) Markets per use
 2. Plans: $0 / $29 / $79 / $199, plus Watch $19 and a $19 pack of 100.
 3. Margins stated without breakage; the $0.04 cost-per-match gate is RETIRED.
 4. Scan budget: ~~20 candidate reads per remaining credit, plus daily read caps~~ →
-   **11 reads per credit, as a period allowance**, plus a break-even-relative live abort.
-   Amended 2026-09-23; see §4.
+   ~~11 reads per credit~~ → **3 reads per credit, as a period allowance**, plus a
+   break-even-relative live abort. Amended 2026-09-23 and again 2026-10-15, when the
+   allowance was re-derived from the 70% gross-margin floor rather than from the abort
+   rule; see §4 and footnote ³.
 5. Non-matches and "couldn't tell" are counts and reasons only, never exportable rows.
 6. Criteria capped at 3.
 7. Free counts: sample 25, cached 7 days, 2/day anonymous.

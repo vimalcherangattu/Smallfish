@@ -187,9 +187,9 @@ async function readBatch(sites: JobSiteRow[], criterion: Criterion) {
  * What that actually costs is the customer's reading allowance rather than our
  * solvency: `READS_PER_CREDIT` **is** enforced, at job creation and per period,
  * and it keeps every paid plan solvent even if nothing ever matches (Starter:
- * 1,320 reads, $22.18, against $29). So the missing abort does not lose us
+ * 360 reads, $6.59, against $29). So the missing abort does not lose us
  * money. It lets a hopeless search quietly spend a customer's whole period of
- * reading — 1,320 sites on a question that was never going to work — instead of
+ * reading — 360 sites on a question that was never going to work — instead of
  * stopping at 200 and telling them why. One measured market in four matched
  * nothing at all, so this is a thing that happens, not a thing that might.
  *
@@ -291,8 +291,8 @@ const unclearIn = (results: Array<{ verdict: string }>) =>
  *      that has its two from reading the other ten, which is money saved rather
  *      than spent.
  *   2. **The budget**, `READS_PER_CREDIT × credits`. "Keep looking" means keep
- *      looking within what the balance pays for; eleven reads per credit is
- *      what keeps every plan solvent when nothing matches. A search that
+ *      looking within what the balance pays for; three reads per credit is
+ *      what holds the 70% margin floor when nothing matches. A search that
  *      widened for ever would be a bill that widened for ever.
  *   3. **The horizon.** Only when the region is genuinely exhausted does it
  *      widen, and only to `MAX_RADIUS_MILES`.

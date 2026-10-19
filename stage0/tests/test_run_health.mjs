@@ -22,7 +22,7 @@
  *
  * Not our solvency. `READS_PER_CREDIT` **is** enforced — at job creation in
  * `/api/jobs` and per period in `ledger.ts` — and it keeps every paid plan
- * solvent with zero matches: Starter reads at most 1,320 sites, $22.18, against
+ * solvent with zero matches: Starter reads at most 360 sites, $6.59, against
  * $29. So the missing abort lost no money.
  *
  * It let a hopeless search spend a customer's **whole period of reading** on a
