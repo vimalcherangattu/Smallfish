@@ -231,8 +231,19 @@ not being tested.
 ## Environment
 
 ```bash
-pip install duckdb "httpx[http2]"
+python3 -m pip install duckdb "httpx[http2]"
 ```
+
+**`python3 -m pip`, never bare `pip`.** Measured 2026-10-23 in a fresh container:
+`python3` is 3.11 at `/usr/local/bin/python3`, and `pip` is 3.13's at `/usr/bin/pip`. A
+bare `pip install` reports "Requirement already satisfied" while `python3 -c "import
+httpx"` still fails, because the two target different interpreters — and the Python tests
+then fail with `ModuleNotFoundError` on a working repo. `npm install` is needed too; a
+fresh container has no `node_modules`, and without it every test that compiles TypeScript
+fails on "Cannot find type definition file for 'node'".
+
+Current state of the build, the next step and the known holes live in `STATUS.md`, which
+is rewritten at the end of each session. This file holds only what does not change.
 
 ### How the API keys actually arrive — measured 2026-09-19
 
