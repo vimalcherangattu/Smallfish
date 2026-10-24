@@ -214,6 +214,37 @@ def gate(new: dict[str, int], old: dict[str, int] | None, vocab: float) -> list[
     return problems
 
 
+def prune(keep: set[str]) -> list[str]:
+    """Delete every copy under `places/` except the releases in `keep`.
+
+    Without this the bucket grows by a copy a month (1.2 GB measured, 2026-10-24)
+    and passes R2's free 10 GB in about eight months. Two are kept, the live one
+    and the one before it, so a bad promotion can be rolled back by pointing
+    `manifest.json` at the previous release. A copy that failed its contract is
+    in neither and goes too.
+
+    boto3 rather than DuckDB because DuckDB cannot delete objects. Imported here
+    so a local `--out` run needs only duckdb.
+    """
+    import boto3
+
+    s3 = boto3.client(
+        "s3",
+        endpoint_url=f"https://{os.environ['R2_ACCOUNT_ID']}.r2.cloudflarestorage.com",
+        aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"],
+        aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"],
+        region_name="auto",
+    )
+    bucket = os.environ["R2_BUCKET"]
+    gone: list[str] = []
+    for page in s3.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix="places/"):
+        doomed = [o["Key"] for o in page.get("Contents", []) if o["Key"].split("/")[1] not in keep]
+        for i in range(0, len(doomed), 1000):
+            s3.delete_objects(Bucket=bucket, Delete={"Objects": [{"Key": k} for k in doomed[i : i + 1000]]})
+        gone += doomed
+    return gone
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--release")
@@ -269,6 +300,10 @@ def main() -> int:
     problems = gate(counts, (live or {}).get("canaries"), vocab)
     if problems:
         print("CONTRACT FAILED, the live copy stays live:\n  " + "\n  ".join(problems))
+        if args.r2:
+            # The failed copy is not kept; the live one and its predecessor are.
+            keep = {r for r in ((live or {}).get("release"), (live or {}).get("previous")) if r}
+            print(f"removed {len(prune(keep))} objects of the failed copy")
         return 3
 
     manifest = {
@@ -287,6 +322,11 @@ def main() -> int:
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
             json.dump(manifest, f)
         con.execute(f"COPY (SELECT * FROM read_json('{f.name}')) TO '{base}/manifest.json' (FORMAT json)")
+        # Only after the manifest points at the new copy, so nothing live is
+        # ever deleted.
+        keep = {release} | ({manifest["previous"]} if manifest["previous"] else set())
+        gone = prune(keep)
+        print(f"kept {sorted(keep)}, removed {len(gone)} older objects")
     else:
         (Path(args.out) / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     print(f"PROMOTED {release}")

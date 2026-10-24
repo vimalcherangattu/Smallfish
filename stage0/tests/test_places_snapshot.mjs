@@ -64,6 +64,13 @@ check(
   "the manifest is written only after the contract passes",
   job.indexOf("CONTRACT FAILED") > 0 && job.indexOf("CONTRACT FAILED") < job.indexOf("manifest.json' (FORMAT json)"),
 );
+{
+  // Old copies are deleted only once the manifest points elsewhere, so the
+  // live copy is never removed, and two are kept for a rollback.
+  const promoted = job.slice(job.indexOf("manifest.json' (FORMAT json)"));
+  check("old copies are pruned only after the manifest moves", /prune\(keep\)/.test(promoted));
+  check("the previous copy is kept for a rollback", /keep = \{release\} \| \(\{manifest\["previous"\]\}/.test(job));
+}
 check(
   "an unconfigured deployment never tries the copy",
   /if \(snapshotConfigured\(\)\)/.test(supply),
