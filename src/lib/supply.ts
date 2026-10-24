@@ -182,24 +182,57 @@ function box(lat: number, lon: number, miles: number) {
  * read-only apart from `/tmp`. Without this the first query fails with a
  * permission error that reads like a DuckDB bug.
  */
-async function connect(spatial = true) {
-  const { DuckDBInstance } = await import("@duckdb/node-api");
-  const instance = await DuckDBInstance.create(":memory:", {
-    home_directory: "/tmp",
-    extension_directory: "/tmp/duckdb-extensions",
+// **One DuckDB per container, not per request** (2026-10-24). This created a
+// fresh instance and re-loaded `httpfs` and `spatial` on every request, which
+// measured ~3 CPU-s per search in Node, against **0.6 cold / 0.1 warm** for the
+// query itself. On a team whose whole Hobby budget is 4 CPU-hours a month, the
+// setup was most of the bill, and it threw away the HTTP cache the query had
+// just warmed. Now the instance, its extensions and the R2 secret are made once;
+// each request takes its own connection, because `hits` is a per-connection
+// temp table, and closes it.
+type Instance = Awaited<ReturnType<typeof import("@duckdb/node-api").DuckDBInstance.create>>;
+let instanceP: Promise<Instance> | null = null;
+let spatialP: Promise<void> | null = null;
+let secretP: Promise<void> | null = null;
+
+async function instance(): Promise<Instance> {
+  instanceP ??= (async () => {
+    const { DuckDBInstance } = await import("@duckdb/node-api");
+    const inst = await DuckDBInstance.create(":memory:", {
+      home_directory: "/tmp",
+      extension_directory: "/tmp/duckdb-extensions",
+    });
+    const con = await inst.connect();
+    await con.run("INSTALL httpfs; LOAD httpfs;");
+    con.closeSync();
+    return inst;
+  })().catch((err) => {
+    instanceP = null; // a failed start is retried by the next request
+    throw err;
   });
-  const con = await instance.connect();
-  // `spatial` is not optional, and that was worth checking rather than
-  // assuming. Overture's `bbox` looked like a cheap way to avoid the extension
-  // — for a point, `xmin` would be the longitude. **It is not a point:** of
-  // 153,497 Denver-area places, 152,785 have `xmin != xmax`. Reading `bbox.xmin`
-  // as the longitude would have put every business at the west edge of its own
-  // box and skewed every radius silently. `bbox` prunes row groups; `ST_X` and
-  // `ST_Y` give the location.
-  await con.run("INSTALL httpfs; LOAD httpfs;");
-  // Our own copy carries plain `lon`/`lat` columns, so it needs no `spatial` —
-  // one extension download fewer on a cold start.
-  if (spatial) await con.run("INSTALL spatial; LOAD spatial;");
+  return instanceP;
+}
+
+async function connect(spatial = true) {
+  const inst = await instance();
+  // `spatial` is not optional on Overture's own layout, and that was worth
+  // checking rather than assuming. Overture's `bbox` looked like a cheap way
+  // to avoid the extension — for a point, `xmin` would be the longitude. **It
+  // is not a point:** of 153,497 Denver-area places, 152,785 have
+  // `xmin != xmax`. `bbox` prunes row groups; `ST_X` and `ST_Y` give the
+  // location. Our copy carries plain `lon`/`lat` and never needs it.
+  if (spatial) {
+    spatialP ??= (async () => {
+      const c = await inst.connect();
+      await c.run("INSTALL spatial; LOAD spatial;");
+      c.closeSync();
+    })().catch((err) => {
+      spatialP = null;
+      throw err;
+    });
+    await spatialP;
+  }
+  const con = await inst.connect();
   await con.run("SET enable_progress_bar=false");
   await con.run("SET http_keep_alive=true");
   await con.run("SET http_timeout=120000");
@@ -298,13 +331,34 @@ let manifestCache: { glob: string; release: string; at: number } | null = null;
 
 async function snapshotHits(catList: string, region: Resolution, radius: number) {
   const con = await connect(false);
+  try {
+    return await snapshotQuery(con, catList, region, radius);
+  } catch (err) {
+    con.closeSync();
+    throw err;
+  }
+}
+
+async function snapshotQuery(
+  con: Awaited<ReturnType<typeof connect>>,
+  catList: string,
+  region: Resolution,
+  radius: number,
+) {
   const e = process.env;
-  await con.run(
-    `CREATE SECRET r2 (TYPE r2, KEY_ID '${e.R2_ACCESS_KEY_ID}', SECRET '${e.R2_SECRET_ACCESS_KEY}', ACCOUNT_ID '${e.R2_ACCOUNT_ID}')`,
-  );
+  secretP ??= con
+    .run(
+      `CREATE OR REPLACE SECRET r2 (TYPE r2, KEY_ID '${e.R2_ACCESS_KEY_ID}', SECRET '${e.R2_SECRET_ACCESS_KEY}', ACCOUNT_ID '${e.R2_ACCOUNT_ID}')`,
+    )
+    .then(() => undefined)
+    .catch((err) => {
+      secretP = null;
+      throw err;
+    });
+  await secretP;
   const base = `r2://${e.R2_BUCKET}`;
   if (!manifestCache || Date.now() - manifestCache.at > MANIFEST_TTL_MS) {
-    const res = await con.run(`SELECT glob, release FROM read_json('${base}/manifest.json')`);
+    const res = await con.run(`SELECT "glob", "release" FROM read_json('${base}/manifest.json')`);
     const [row] = await res.getRows();
     const glob = String(row?.[0] ?? "");
     if (!/^places\/[\w.-]+\/\*\.parquet$/.test(glob)) throw new Error(`manifest glob looks wrong: ${glob}`);
@@ -334,7 +388,8 @@ async function loadHits(catList: string, region: Resolution, radius: number) {
   const con = await connect();
   const fileList = files.map((f) => `'${f}'`).join(", ");
   const where = within(region, radius)!;
-  await con.run(`
+  try {
+    await con.run(`
     CREATE TEMP TABLE hits AS
     SELECT id,
            names.primary                 AS name,
@@ -354,6 +409,10 @@ async function loadHits(catList: string, region: Resolution, radius: number) {
     WHERE taxonomy.primary IN (${catList})
       AND ${where.sql}
   `);
+  } catch (err) {
+    con.closeSync();
+    throw err;
+  }
   return { con, source: `overture:${releaseInUse}` };
 }
 
@@ -401,51 +460,54 @@ export async function supplyFor(
   // twice: Denver dentists took 13.8s that way against roughly half of it now.
   // The budget matters — this runs inside a request.
   const { con, source } = await loadHits(catList, region, radius);
+  try {
+    // `len(websites) > 0` is **not** the same as having a website, and the
+    // difference is not small: 4,388 of 133,828 Denver-area listings with a
+    // non-empty `websites` array have a blank or null first entry — 3.3%. Counted
+    // as readable they become job rows with nothing to fetch, which the worker
+    // records as our failure, on a site that was never there.
+    const READABLE = "site IS NOT NULL AND length(trim(site)) > 3";
 
-  // `len(websites) > 0` is **not** the same as having a website, and the
-  // difference is not small: 4,388 of 133,828 Denver-area listings with a
-  // non-empty `websites` array have a blank or null first entry — 3.3%. Counted
-  // as readable they become job rows with nothing to fetch, which the worker
-  // records as our failure, on a site that was never there.
-  const READABLE = "site IS NOT NULL AND length(trim(site)) > 3";
+    const counts = await con.run(
+      `SELECT count(*), count(*) FILTER (WHERE ${READABLE}) FROM hits`,
+    );
+    // `getRows` hands back BigInt for a count. Stringify before Number, because
+    // `JSON.stringify` on a BigInt throws and the failure surfaces as "Do not know
+    // how to serialize a BigInt" from the route, nowhere near here.
+    const [countRow] = await counts.getRows();
+    const listings = Number(String(countRow[0]));
+    const withSite = Number(String(countRow[1]));
 
-  const counts = await con.run(
-    `SELECT count(*), count(*) FILTER (WHERE ${READABLE}) FROM hits`,
-  );
-  // `getRows` hands back BigInt for a count. Stringify before Number, because
-  // `JSON.stringify` on a BigInt throws and the failure surfaces as "Do not know
-  // how to serialize a BigInt" from the route, nowhere near here.
-  const [countRow] = await counts.getRows();
-  const listings = Number(String(countRow[0]));
-  const withSite = Number(String(countRow[1]));
+    let rows: Candidate[] | undefined;
+    if (opts.rows) {
+      const excluded = [...(opts.exclude ?? [])].filter((id) => /^[\w-]+$/.test(id));
+      const notThese = excluded.length
+        ? `AND id NOT IN (${excluded.map((id) => `'${id}'`).join(", ")})`
+        : "";
+      const limit = Math.max(1, Math.min(opts.limit ?? 1000, 5000));
 
-  let rows: Candidate[] | undefined;
-  if (opts.rows) {
-    const excluded = [...(opts.exclude ?? [])].filter((id) => /^[\w-]+$/.test(id));
-    const notThese = excluded.length
-      ? `AND id NOT IN (${excluded.map((id) => `'${id}'`).join(", ")})`
-      : "";
-    const limit = Math.max(1, Math.min(opts.limit ?? 1000, 5000));
+      const result = await con.run(`
+        SELECT id, name, cat, site, phone, addr, town, lon, lat
+        FROM hits
+        WHERE ${READABLE} ${notThese}
+        ORDER BY name
+        LIMIT ${limit}
+      `);
+      rows = (await result.getRows()).map((r) => ({
+        id: String(r[0]),
+        name: String(r[1] ?? ""),
+        cat: String(r[2] ?? ""),
+        site: String(r[3]),
+        phone: r[4] == null ? null : String(r[4]),
+        addr: r[5] == null ? null : String(r[5]),
+        town: r[6] == null ? null : String(r[6]),
+        lon: Number(r[7]),
+        lat: Number(r[8]),
+      }));
+    }
 
-    const result = await con.run(`
-      SELECT id, name, cat, site, phone, addr, town, lon, lat
-      FROM hits
-      WHERE ${READABLE} ${notThese}
-      ORDER BY name
-      LIMIT ${limit}
-    `);
-    rows = (await result.getRows()).map((r) => ({
-      id: String(r[0]),
-      name: String(r[1] ?? ""),
-      cat: String(r[2] ?? ""),
-      site: String(r[3]),
-      phone: r[4] == null ? null : String(r[4]),
-      addr: r[5] == null ? null : String(r[5]),
-      town: r[6] == null ? null : String(r[6]),
-      lon: Number(r[7]),
-      lat: Number(r[8]),
-    }));
+    return { listings, withSite, rows, ms: Date.now() - started, source };
+  } finally {
+    con.closeSync();
   }
-
-  return { listings, withSite, rows, ms: Date.now() - started, source };
 }

@@ -254,25 +254,30 @@ streams spend from that one budget, and the expensive thing either stream can do
 DuckDB scan of the places data inside a function. Anything that adds scans (a new cron, a
 faster schedule, a new anonymous surface) costs them here first.
 
-**Per scan, measured 2026-10-24** (DuckDB, 2 threads, from a session container; Denver
-dentists; `user + sys` CPU of the process):
+**Per search, measured 2026-10-24** on a local production build (`next start`), CPU of
+the server process (`/proc/<pid>/stat` user + sys) around one `/api/supply` request:
 
-| Scan shape | CPU per scan | Notes |
+| Path | First search in a container | Each search after |
 |---|---|---|
-| Overture direct, count, 25 mi | **~3.3 s** | `/api/supply`, MCP, `/how-many` fill, on a cache miss |
-| Overture direct, rows, 25 mi | **~2.6 s** | `/api/pool` miss, `/api/jobs`, prospecting |
-| Overture direct, rows, 100 mi | **~2.3 s** | the worker's widest top-up |
-| Our R2 copy, count, 25 mi | **~0.1 s** | once `R2_*` is set (`docs/DATA-SOURCING.md` step 1) |
-| Cache hit (`supply_counts`) | **~0** | no DuckDB; one PostgREST GET |
+| Overture read directly | **~3.2 CPU-s** | **~2.1 CPU-s** |
+| Our R2 copy (`R2_*` set) | **~1.1 CPU-s** | **~0.22 CPU-s** |
+| Cache hit (`supply_counts`) | ~0 | ~0, no DuckDB at all |
+| Request that never scans (bad trade, resolve stage) | ~0.02 | ~0.02 |
 
-Add a cold start's extension loads (`httpfs`, `spatial`) on top: one per new container,
-not per request. Production wall time is longer (12–21 s, mostly network), and wall time
-is not what is billed; CPU is. **Treat ~3 CPU-s per uncached Overture scan as the
-planning number** until the R2 copy is live, then ~0.1–0.5.
+Two things those numbers rest on, both found the same day:
 
-**The budget in scans:** 4 h = 14,400 CPU-s, so **about 4,800 uncached Overture scans a
-month, shared by twelve projects**, and everything else every function does comes out of
-the same 4 h.
+- **DuckDB is opened once per container** (`supply.ts` `instance()`). It used to be created,
+  with `httpfs` and `spatial` re-loaded, on every request, and that setup was most of the
+  cost. A standalone script ran the same R2 query for 0.08 CPU-s warm.
+- **Wall time is not what is billed.** These requests took 8–15 s from a sandbox, mostly
+  network; CPU is the number above.
+
+**Planning numbers:** ~2 CPU-s per uncached search while Overture is read directly,
+~0.25 once production reads the R2 copy.
+
+**The budget in searches:** 4 h = 14,400 CPU-s, so **about 7,000 uncached searches a month
+reading Overture directly, or about 57,000 on the R2 copy**, shared by twelve projects, and
+everything else every function does comes out of the same 4 h.
 
 **Per route, after 2026-10-24:**
 
@@ -288,4 +293,4 @@ the same 4 h.
 | `/api/outreach/credits`, prospecting (GTM) | pg_cron | 1–2 per niche × city | paused by GTM |
 
 **Rule:** a change that adds a scheduled caller states its scans per run × runs per month
-× ~3 CPU-s in its commit message, against the 14,400.
+× the planning number above in its commit message, against the 14,400.
