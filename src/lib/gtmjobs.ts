@@ -219,23 +219,32 @@ export async function runCredits(opts: { scanMs: number; totalMs: number }) {
 
 /* ---------------------------------------------------------- prospects -- */
 
-/** Today's city: the fifty largest, in turn. */
-export function cityForDay(p: Places, day = Math.floor(Date.now() / 86_400_000)): string {
+/** Hours per city: the workflow runs prospects every four hours. */
+export const SLOT_HOURS = 4;
+
+/**
+ * This slot's city: the fifty largest, in turn, a new one every four hours.
+ * It was one a day until 2026-10-24, when the 16:02 UTC run found 2 fresh
+ * agencies of New York's 6,714 listings: the first run of the day read the
+ * city and the other five had almost nothing left. Six cities a day goes round
+ * all fifty in about eight days, and the next visit reads what the last left.
+ */
+export function cityForSlot(p: Places, slot = Math.floor(Date.now() / (SLOT_HOURS * 3_600_000))): string {
   const top = bigCities(p);
-  const c = top[day % top.length];
+  const c = top[slot % top.length];
   return `${c.name}, ${c.state.replace(/^US-/, "")}`;
 }
 
 /**
- * The prospect finder: agencies in today's city (or a named one), each one's
- * own site read once. `max` caps the sites read; every run after the first
- * on the same day picks up the agencies the earlier ones did not reach.
+ * The prospect finder: agencies in this slot's city (or a named one), each
+ * one's own site read once. `max` caps the sites read; a city's next turn
+ * picks up the agencies earlier runs did not reach.
  */
 export async function runProspects(opts: { budgetMs: number; max?: number; city?: string }):
   Promise<(SweepResult & { totals: Record<string, number> | null }) | { ok: false; reason: string }> {
   const [, places] = await data();
-  // A blank city means today's: the workflow passes "" when its input is left empty.
-  const where = opts.city?.trim() || cityForDay(places);
+  // A blank city means this slot's: the workflow passes "" when its input is left empty.
+  const where = opts.city?.trim() || cityForSlot(places);
   const region = resolveRegion(places, where);
   if (!region || region.scope !== "city") return { ok: false, reason: `"${where}" is not a US city we can place.` };
   const result = await sweep(region, { budgetMs: opts.budgetMs, max: opts.max });

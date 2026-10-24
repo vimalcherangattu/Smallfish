@@ -31,7 +31,7 @@ on:
         type: choice
         options: [prospects, credits, counts]
       city:
-        description: "prospects only: a city, e.g. Austin, TX (blank for today's)"
+        description: "prospects only: a city, e.g. Austin, TX (blank for this slot's)"
         required: false
 
 permissions:

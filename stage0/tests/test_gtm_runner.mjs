@@ -67,8 +67,13 @@ await test("the runner prints counts, not rows: nothing in it logs a business", 
   for (const r of jobs.matchAll(/return \{ ok: true,([^}]*)\}/g)) assert.doesNotMatch(r[1], /\b(rows|email|domain|site)\b/, r[1]);
 });
 
-await test("a blank city from the workflow means today's city, not a city called nothing", () => {
-  assert.match(read("src/lib/gtmjobs.ts"), /opts\.city\?\.trim\(\) \|\| cityForDay/);
+await test("a blank city from the workflow means this slot's city, not a city called nothing", () => {
+  assert.match(read("src/lib/gtmjobs.ts"), /opts\.city\?\.trim\(\) \|\| cityForSlot/);
+});
+
+await test("each prospects run on the schedule gets a new city: the slot matches the cron's interval", () => {
+  const hours = Number(read("src/lib/gtmjobs.ts").match(/SLOT_HOURS = (\d+)/)[1]);
+  assert.match(read(".github/workflows/gtm-sweeps.yml"), new RegExp(`cron: "\\d+ \\*/${hours} \\* \\* \\*"\\s+# prospects`));
 });
 
 await test("a failure in the public log carries no row: the runner prints publicError, not the error", () => {
