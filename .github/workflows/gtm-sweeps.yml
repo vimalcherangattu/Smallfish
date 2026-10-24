@@ -1,0 +1,71 @@
+# The outreach sweeps, on GitHub's runners instead of Vercel (GTM, 2026-10-24).
+#
+# On 2026-10-24 these three ran inside Vercel functions on a pg_cron timer and
+# used 100% of the team's Hobby allowance of 4 hours/month of Fluid Active CPU,
+# which is team-wide: going over pauses all twelve projects. The rule since:
+# no DuckDB scan and no multi-site crawl runs inside a Vercel function on a
+# schedule. Here they write to the same Supabase tables; Vercel only serves.
+#
+# The work is src/lib/gtmjobs.ts, the same code the by-hand routes call, so the
+# crawl rules (robots.txt, per-domain throttling, the honest user agent) are
+# one implementation. The repository is public, so these logs are public: the
+# runner prints counts only, never a name, domain or address.
+#
+# Secrets (Settings > Secrets and variables > Actions):
+#   NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+#   R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET   (optional: our
+#   snapshot of the places; without them the scan reads Overture directly)
+
+name: gtm-sweeps
+
+on:
+  schedule:
+    - cron: "17 */4 * * *"   # prospects, six a day
+    - cron: "41 */6 * * *"   # credits, four a day
+    - cron: "29 5 * * *"     # counts, daily
+  workflow_dispatch:
+    inputs:
+      job:
+        description: counts, credits or prospects
+        required: true
+        type: choice
+        options: [prospects, credits, counts]
+      city:
+        description: "prospects only: a city, e.g. Austin, TX (blank for today's)"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      JOB: >-
+        ${{ github.event_name == 'workflow_dispatch' && inputs.job
+          || github.event.schedule == '17 */4 * * *' && 'prospects'
+          || github.event.schedule == '41 */6 * * *' && 'credits'
+          || 'counts' }}
+    # One run of each job at a time; a slow one is not doubled by the next tick.
+    concurrency:
+      group: gtm-${{ github.event_name == 'workflow_dispatch' && inputs.job || github.event.schedule }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Run ${{ env.JOB }}
+        run: node --conditions=react-server --import tsx scripts/gtm-runner.ts "$JOB" "$CITY"
+        env:
+          CITY: ${{ inputs.city }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}

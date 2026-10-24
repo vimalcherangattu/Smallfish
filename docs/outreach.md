@@ -5,14 +5,20 @@ no human support. The product sells itself or it does not.
 
 ## The loop
 
-1. **Find** (`/api/outreach/prospects`, every 30 minutes from Supabase pg_cron, see
-   migration 0027; Vercel Hobby cron was once a day and did not fire). One of the 50 largest
-   US cities per day, about 60 sites a sweep: Overture's agency categories, each agency's own site read with
-   `readSite`. `prospects.ts` decides which trade it serves (needs marketing context,
-   three distinct sentences or a headline) and picks an address on its own domain.
-   Measured yield: about 1 to 3% of agencies read become sendable prospects.
-2. **Prepare** (`/api/outreach/push`, hourly at :07 from pg_cron). Each prospect gets a
-   `/hi/<token>` page and a count of its trade in its city. One count query, no reads.
+1. **Find** (`scripts/gtm-runner.ts prospects`, on GitHub Actions six times a day,
+   `.github/workflows/gtm-sweeps.yml`). One of the 50 largest US cities per day, up to 120
+   sites a run: Overture's agency categories, each agency's own site read with `readSite`.
+   `prospects.ts` decides which trade it serves (needs marketing context, three distinct
+   sentences or a headline) and picks an address on its own domain. Measured yield: about
+   1 to 3% of agencies read become sendable prospects. `credits` (footer "Website by X"
+   mining, four a day) and `counts` (the /how-many pages, daily) run the same way.
+   **Not on Vercel:** until 2026-10-24 pg_cron called these routes every 30–60 minutes and
+   they used the Vercel team's whole Hobby CPU allowance, which pauses all twelve projects
+   when it runs out. The routes remain for a by-hand call; nothing schedules them
+   (migration 0032). The work is `src/lib/gtmjobs.ts`, shared by both.
+2. **Prepare** (`/api/outreach/push`, hourly at :07 from pg_cron, still on Vercel). Each
+   prospect gets a `/hi/<token>` page and a count of its trade in its city. That count is a
+   DuckDB scan, up to four a run, and only when a found prospect has no list yet.
 3. **Queue.** `sequence.blocked()` gates; survivors go to the Instantly campaign
    "Small Fish · agencies · v1" with their variables. Status → `queued`.
 4. **Send.** The campaign is created paused. It starts only after `GO_LIVE`
