@@ -14,9 +14,14 @@ and it is rewritten at the end of each session. Where the two disagree, CLAUDE.m
   and `trades.ts` uses the taxonomy's own hierarchy (dentists → orthodontics etc.).
   Canary counts, local build against S3: Denver dentists 2,396 · Denver plumbers 515 ·
   Tampa HVAC 821 · Dallas med spas 853 · Columbus vets 289.
-- **Data sourcing is re-planned: `docs/DATA-SOURCING.md`.** Step 0 (restore) is done; step 1
-  — our own snapshot, contract test, entity ids — is next and is what makes this outage
-  impossible rather than unlikely.
+- **Data sourcing is re-planned: `docs/DATA-SOURCING.md`.** Step 0 (restore) is done.
+  **Step 1, the snapshot half, is built and waiting on Cloudflare keys** (`docs/SETUP.md` §8b):
+  `snapshot_places.py` copies a release's US places to R2 (measured: 18.4M places, 1.2 GB,
+  Denver reads 11 of 361 row groups), promotes only past a contract (schema, 100% of
+  `trades.json` ids present, 15 canaries within ±15%), and a weekly GitHub Action keeps it
+  current. `supply.ts` reads the copy when `R2_*` is set and falls back to Overture
+  directly when it is not or when the copy fails. Entity ids and provenance are the
+  other half of step 1, not started.
 - Not yet migrated: `stage0/src/engine/geometry.py` and `stage0/src/coverage/overture_extract.py`
   still read `categories.primary` on `2026-08-19.0`. Stage 0 benchmark tooling only; no
   customer path. CLAUDE.md's "1,644 categories, 17.2M listings" is stale for the same reason.

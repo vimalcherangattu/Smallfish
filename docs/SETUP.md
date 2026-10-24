@@ -314,6 +314,43 @@ without a code push.
 
 ---
 
+## 8b · Cloudflare R2 — our own copy of the business listings
+
+Why: on 2026-10-24 search went down because Overture deleted the data release
+we read live. Search now reads our own copy, checked before it goes live
+(`docs/DATA-SOURCING.md`, step 1). Without these keys the app falls back to
+reading Overture directly, as before. About 10 minutes.
+
+1. **Sign in** at dash.cloudflare.com (a free account is fine). In the left
+   menu open **R2 Object Storage** and enable it. It asks for a card. The free
+   tier covers 10 GB and millions of reads a month. Our copy should fit in it;
+   if not, it costs about $0.015 per GB a month.
+2. **Create a bucket** named `smallfish-places`. Location: *Automatic*. Leave it
+   **private**; nothing in it needs a public URL.
+3. **Copy your Account ID.** It is on the R2 overview page (right side).
+4. **Make two API tokens:** R2 overview → **Manage API tokens** → **Create
+   API token**.
+   - `smallfish-read`: permission **Object Read only**, scoped to
+     `smallfish-places`. This one goes to Vercel.
+   - `smallfish-write`: permission **Object Read & Write**, scoped to
+     `smallfish-places`. This one goes to GitHub.
+
+   Each shows an **Access Key ID** and a **Secret Access Key** once. Copy both
+   before closing the page.
+5. **Vercel** → project `smallfish` → Settings → Environment Variables,
+   Production:
+   `R2_ACCOUNT_ID`, `R2_BUCKET` = `smallfish-places`, and the **read** token's
+   `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`.
+6. **GitHub** → the repository → Settings → Secrets and variables → Actions →
+   New repository secret, the same four names but the **write** token's keys.
+7. GitHub → **Actions** → *places snapshot* → **Run workflow**. It copies the
+   newest release (about 30–60 minutes), checks it and publishes it. After that
+   it runs every Monday on its own. If a run fails, the live copy keeps serving
+   and GitHub emails you.
+8. Redeploy on Vercel so it picks up the variables (§9).
+
+---
+
 ## 9 · Redeploy, then check the whole board
 
 Environment variables are baked in at build time, so nothing above is live

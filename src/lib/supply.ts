@@ -106,6 +106,9 @@ export interface Supply {
   /** How long the query took, so a slow release shows up in logs rather than
    *  as a mystery timeout. */
   ms: number;
+  /** What answered: `snapshot:<release>` for our copy, `overture:<release>`
+   *  when it read Overture directly. */
+  source?: string;
 }
 
 /**
@@ -179,7 +182,7 @@ function box(lat: number, lon: number, miles: number) {
  * read-only apart from `/tmp`. Without this the first query fails with a
  * permission error that reads like a DuckDB bug.
  */
-async function connect() {
+async function connect(spatial = true) {
   const { DuckDBInstance } = await import("@duckdb/node-api");
   const instance = await DuckDBInstance.create(":memory:", {
     home_directory: "/tmp",
@@ -194,7 +197,9 @@ async function connect() {
   // box and skewed every radius silently. `bbox` prunes row groups; `ST_X` and
   // `ST_Y` give the location.
   await con.run("INSTALL httpfs; LOAD httpfs;");
-  await con.run("INSTALL spatial; LOAD spatial;");
+  // Our own copy carries plain `lon`/`lat` columns, so it needs no `spatial` —
+  // one extension download fewer on a cold start.
+  if (spatial) await con.run("INSTALL spatial; LOAD spatial;");
   await con.run("SET enable_progress_bar=false");
   await con.run("SET http_keep_alive=true");
   await con.run("SET http_timeout=120000");
@@ -215,7 +220,27 @@ const CATEGORY = /^[a-z0-9_]+$/;
  * on screen — a state read is a sample of its largest cities and says so — so
  * the number quoted and the businesses read are the same set.
  */
-function within(r: Resolution, radiusMiles: number = RADIUS_MILES) {
+/** How a source spells a place's location, and the columns that prune by it. */
+interface Columns {
+  x: string;
+  y: string;
+  /** Prune on these, row-group statistics included. */
+  pruneX: string;
+  pruneY: string;
+}
+
+/** Overture's own layout: `bbox` prunes, the geometry locates. */
+const OVERTURE_COLS: Columns = {
+  x: "ST_X(geometry)",
+  y: "ST_Y(geometry)",
+  pruneX: "bbox.xmin",
+  pruneY: "bbox.ymin",
+};
+
+/** Our copy: flat columns, sorted along a Hilbert curve, so they do both. */
+const SNAPSHOT_COLS: Columns = { x: "lon", y: "lat", pruneX: "lon", pruneY: "lat" };
+
+function within(r: Resolution, radiusMiles: number = RADIUS_MILES, cols: Columns = OVERTURE_COLS) {
   const cities = r.sample.length ? r.sample : r.city ? [r.city] : [];
   if (!cities.length) return null;
 
@@ -230,19 +255,106 @@ function within(r: Resolution, radiusMiles: number = RADIUS_MILES) {
   const near = cities
     .map((c) => {
       const [lon, lat] = c.center;
-      return `3958.8 * 2 * ASIN(SQRT(POW(SIN(RADIANS(ST_Y(geometry) - ${lat})/2),2)
-        + COS(RADIANS(${lat})) * COS(RADIANS(ST_Y(geometry)))
-        * POW(SIN(RADIANS(ST_X(geometry) - ${lon})/2),2))) <= ${radiusMiles}`;
+      return `3958.8 * 2 * ASIN(SQRT(POW(SIN(RADIANS(${cols.y} - ${lat})/2),2)
+        + COS(RADIANS(${lat})) * COS(RADIANS(${cols.y}))
+        * POW(SIN(RADIANS(${cols.x} - ${lon})/2),2))) <= ${radiusMiles}`;
     })
     .join(" OR ");
 
   return {
     // The box prunes row groups; the haversine makes the edge exact. Both are
     // needed: the box alone turns a 25-mile radius into a 50-mile square.
-    sql: `bbox.xmin BETWEEN ${bbox.xmin} AND ${bbox.xmax}
-          AND bbox.ymin BETWEEN ${bbox.ymin} AND ${bbox.ymax}
+    sql: `${cols.pruneX} BETWEEN ${bbox.xmin} AND ${bbox.xmax}
+          AND ${cols.pruneY} BETWEEN ${bbox.ymin} AND ${bbox.ymax}
           AND (${near})`,
   };
+}
+
+/* ------------------------------------------------------------ our copy -- */
+
+/**
+ * Our own copy of the US places, in Cloudflare R2 — data sourcing step 1.
+ *
+ * Built and promoted by `stage0/src/coverage/snapshot_places.py`, which writes a
+ * release's US places as flat, location-sorted parquet and rewrites
+ * `manifest.json` only when the copy passes its contract (schema, vocabulary,
+ * fifteen canary counts within 15% of the live copy). This reads what the
+ * manifest names and nothing else, so Overture deleting or renaming a release
+ * is the snapshot job's failure, not a customer's.
+ *
+ * Unconfigured — no R2 keys on the deployment — and this is skipped: Overture
+ * answers directly, as before. Configured and failing, it logs and falls back
+ * the same way, because a search answered from Overture is better than none.
+ */
+const R2_ENV = ["R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_BUCKET"] as const;
+/** These reach a SQL string. Keys, account ids and bucket names fit this. */
+const SAFE = /^[A-Za-z0-9_.-]+$/;
+
+export const snapshotConfigured = () => R2_ENV.every((k) => SAFE.test(process.env[k] ?? ""));
+
+/** Re-read every ten minutes, so a promotion reaches warm functions. */
+const MANIFEST_TTL_MS = 10 * 60_000;
+let manifestCache: { glob: string; release: string; at: number } | null = null;
+
+async function snapshotHits(catList: string, region: Resolution, radius: number) {
+  const con = await connect(false);
+  const e = process.env;
+  await con.run(
+    `CREATE SECRET r2 (TYPE r2, KEY_ID '${e.R2_ACCESS_KEY_ID}', SECRET '${e.R2_SECRET_ACCESS_KEY}', ACCOUNT_ID '${e.R2_ACCOUNT_ID}')`,
+  );
+  const base = `r2://${e.R2_BUCKET}`;
+  if (!manifestCache || Date.now() - manifestCache.at > MANIFEST_TTL_MS) {
+    const res = await con.run(`SELECT glob, release FROM read_json('${base}/manifest.json')`);
+    const [row] = await res.getRows();
+    const glob = String(row?.[0] ?? "");
+    if (!/^places\/[\w.-]+\/\*\.parquet$/.test(glob)) throw new Error(`manifest glob looks wrong: ${glob}`);
+    manifestCache = { glob, release: String(row[1]), at: Date.now() };
+  }
+  const where = within(region, radius, SNAPSHOT_COLS)!;
+  await con.run(`
+    CREATE TEMP TABLE hits AS
+    SELECT id, name, cat, site, phone, addr, town, lon, lat
+    FROM read_parquet('${base}/${manifestCache.glob}')
+    WHERE cat IN (${catList})
+      AND ${where.sql}
+  `);
+  return { con, source: `snapshot:${manifestCache.release}` };
+}
+
+/** The matching places, into a temp table `hits`: our copy first, Overture after. */
+async function loadHits(catList: string, region: Resolution, radius: number) {
+  if (snapshotConfigured()) {
+    try {
+      return await snapshotHits(catList, region, radius);
+    } catch (err) {
+      console.error("[supply] our copy did not answer; reading Overture directly.", err);
+    }
+  }
+  const files = await placeFiles();
+  const con = await connect();
+  const fileList = files.map((f) => `'${f}'`).join(", ");
+  const where = within(region, radius)!;
+  await con.run(`
+    CREATE TEMP TABLE hits AS
+    SELECT id,
+           names.primary                 AS name,
+           taxonomy.primary              AS cat,
+           websites[1]                   AS site,
+           phones[1]                     AS phone,
+           addresses[1].freeform         AS addr,
+           -- The town, from Overture's own field rather than parsed out of the
+           -- freeform line. freeform is the STREET line, "11200 Lakeline Blvd,
+           -- Suite 100", so reading its second comma piece as the town yields
+           -- "Suite 100" and "TX 78665" -- which is exactly what the first pool
+           -- screen rendered before this column existed. See pool.ts townOf.
+           addresses[1].locality         AS town,
+           ST_X(geometry)                AS lon,
+           ST_Y(geometry)                AS lat
+    FROM read_parquet([${fileList}])
+    WHERE taxonomy.primary IN (${catList})
+      AND ${where.sql}
+  `);
+  return { con, source: `overture:${releaseInUse}` };
 }
 
 /**
@@ -278,40 +390,17 @@ export async function supplyFor(
   const cats = categories.filter((c) => CATEGORY.test(c));
   if (!cats.length) return { listings: 0, withSite: 0, ms: 0, rows: opts.rows ? [] : undefined };
 
-  const where = within(region, opts.radiusMiles ?? RADIUS_MILES);
-  if (!where) return { listings: 0, withSite: 0, ms: 0, rows: opts.rows ? [] : undefined };
+  const radius = opts.radiusMiles ?? RADIUS_MILES;
+  if (!within(region, radius)) return { listings: 0, withSite: 0, ms: 0, rows: opts.rows ? [] : undefined };
 
   const started = Date.now();
-  const files = await placeFiles();
-  const con = await connect();
-
-  const fileList = files.map((f) => `'${f}'`).join(", ");
   const catList = cats.map((c) => `'${c}'`).join(", ");
 
   // **One scan, into a temp table.** The count and the rows are two questions
   // about the same set, and asking them as two queries scanned the release
   // twice: Denver dentists took 13.8s that way against roughly half of it now.
   // The budget matters — this runs inside a request.
-  await con.run(`
-    CREATE TEMP TABLE hits AS
-    SELECT id,
-           names.primary                 AS name,
-           taxonomy.primary              AS cat,
-           websites[1]                   AS site,
-           phones[1]                     AS phone,
-           addresses[1].freeform         AS addr,
-           -- The town, from Overture's own field rather than parsed out of the
-           -- freeform line. freeform is the STREET line, "11200 Lakeline Blvd,
-           -- Suite 100", so reading its second comma piece as the town yields
-           -- "Suite 100" and "TX 78665" -- which is exactly what the first pool
-           -- screen rendered before this column existed. See pool.ts townOf.
-           addresses[1].locality         AS town,
-           ST_X(geometry)                AS lon,
-           ST_Y(geometry)                AS lat
-    FROM read_parquet([${fileList}])
-    WHERE taxonomy.primary IN (${catList})
-      AND ${where.sql}
-  `);
+  const { con, source } = await loadHits(catList, region, radius);
 
   // `len(websites) > 0` is **not** the same as having a website, and the
   // difference is not small: 4,388 of 133,828 Denver-area listings with a
@@ -358,5 +447,5 @@ export async function supplyFor(
     }));
   }
 
-  return { listings, withSite, rows, ms: Date.now() - started };
+  return { listings, withSite, rows, ms: Date.now() - started, source };
 }
