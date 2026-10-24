@@ -325,21 +325,28 @@ reading Overture directly, as before. About 10 minutes.
    menu open **R2 Object Storage** and enable it. It asks for a card. The free
    tier covers 10 GB and millions of reads a month. Our copy should fit in it;
    if not, it costs about $0.015 per GB a month.
-2. **Create a bucket** named `smallfish-places`. Location: *Automatic*. Leave it
-   **private**; nothing in it needs a public URL.
+2. **Create a bucket** named `smallfish-places-us`. Location: **Provide a location
+   hint → Eastern North America (ENAM)**, *not* Automatic. Leave it **private**;
+   nothing in it needs a public URL.
+
+   *Why not Automatic:* it places the bucket near whoever creates it. The first one
+   (2026-10-24) landed in **APAC** while Vercel's functions run in `iad1`
+   (Washington, D.C.), and an uncached search took up to 46 s, because a query makes
+   many small range reads and each one crossed the Pacific. A bucket's location cannot
+   be changed after creation.
 3. **Copy your Account ID.** It is on the R2 overview page (right side).
 4. **Make two API tokens:** R2 overview → **Manage API tokens** → **Create
    API token**.
    - `smallfish-read`: permission **Object Read only**, scoped to
-     `smallfish-places`. This one goes to Vercel.
+     `smallfish-places-us`. This one goes to Vercel.
    - `smallfish-write`: permission **Object Read & Write**, scoped to
-     `smallfish-places`. This one goes to GitHub.
+     `smallfish-places-us`. This one goes to GitHub.
 
    Each shows an **Access Key ID** and a **Secret Access Key** once. Copy both
    before closing the page.
 5. **Vercel** → project `smallfish` → Settings → Environment Variables,
    Production:
-   `R2_ACCOUNT_ID`, `R2_BUCKET` = `smallfish-places`, and the **read** token's
+   `R2_ACCOUNT_ID`, `R2_BUCKET` = `smallfish-places-us`, and the **read** token's
    `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`.
 6. **GitHub** → the repository → Settings → Secrets and variables → Actions →
    New repository secret, the same four names but the **write** token's keys.
