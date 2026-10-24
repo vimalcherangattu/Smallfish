@@ -40,7 +40,9 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { poolClaim, sampleRows, thinness } from "@/lib/pool";
+import { countKey, RATIONED, readCount, takeScan, writeCount } from "@/lib/countcache";
 import { COUNTING, findCandidates } from "@/lib/providers";
+import { RADIUS_MILES } from "@/lib/supply";
 import { resolveRegion, type Places } from "@/lib/region";
 import { matchTrade, suggestTrade, type Taxonomy } from "@/lib/trades";
 
@@ -174,6 +176,34 @@ export async function POST(req: Request) {
   }
 
   const started = Date.now();
+  const claimOf = (listings: number, withSite: number) => ({
+    listings,
+    withSite,
+    claim: poolClaim(listings, withSite, trade.best!.typed, region.label),
+    thin: thinness(listings, withSite),
+  });
+
+  // **Cached for a week, samples included** (`countcache.ts`). This is the
+  // anonymous front door, so it was the route most able to spend the team's
+  // CPU budget: every press was a DuckDB scan with rows. A hit opens nothing.
+  const key = countKey(COUNTING, categories, region, RADIUS_MILES);
+  const hit = await readCount(key, true);
+  if (hit) {
+    return Response.json({
+      ok: true,
+      stage: "count",
+      understood,
+      ...claimOf(hit.listings, hit.withSite),
+      samples: hit.samples,
+      source: COUNTING,
+      degraded: null,
+      ms: Date.now() - started,
+      measuredAt: hit.measuredAt,
+      cached: true,
+    });
+  }
+  if (!(await takeScan(req))) return Response.json(RATIONED, { status: 429 });
+
   // Counting is free and unlimited, so it is always the open data. See
   // `COUNTING` in providers.ts: on a paid provider this one anonymous button
   // would cost about $5 per press in a metro.
@@ -183,6 +213,13 @@ export async function POST(req: Request) {
   );
 
   const rows = supply.rows ?? [];
+  const samples = sampleRows(rows, 5);
+  await writeCount(key, COUNTING, {
+    listings: supply.listings,
+    withSite: supply.withSite,
+    samples,
+    ms: supply.ms,
+  });
   return Response.json({
     ok: true,
     stage: "count",
@@ -194,9 +231,11 @@ export async function POST(req: Request) {
     withSite: supply.withSite,
     claim: poolClaim(supply.listings, supply.withSite, trade.best.typed, region.label),
     thin: thinness(supply.listings, supply.withSite),
-    samples: sampleRows(rows, 5),
+    samples,
     source: supply.source,
     degraded: supply.degraded ?? null,
     ms: Date.now() - started,
+    measuredAt: new Date().toISOString(),
+    cached: false,
   });
 }

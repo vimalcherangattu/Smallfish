@@ -8,7 +8,8 @@ import { SIGNALS } from "@/lib/signals";
 import { splitQuery } from "@/lib/query";
 import { resolveRegion, type Places } from "@/lib/region";
 import { choices, matchRates, perHundred, sizeAsk } from "@/lib/sizing";
-import { COUNTING, findCandidates } from "@/lib/providers";
+import { RATIONED, takeScan } from "@/lib/countcache";
+import { COUNTING, findCandidates, Rationed } from "@/lib/providers";
 import { matchTrade, pretty, type Taxonomy } from "@/lib/trades";
 import { FREE_GRANT, toCredits } from "@/lib/wallet";
 import type { MarketIndex } from "@/lib/types";
@@ -142,12 +143,23 @@ export async function POST(req: Request) {
   const unprovable = !criterion ? (parsed.criteria[0] ?? null) : null;
 
   const acct = await account();
+  // Through the adapter, so the count comes from whichever provider will
+  // also supply the rows. A count from one and a read from another would
+  // be two different markets described as one.
+  // Free, so always the open data — `COUNTING` carries why. Cached for a week
+  // and, for a visitor with no account, rationed per address on a cache miss:
+  // `countcache.ts` carries why.
+  const supplyP = findCandidates({ categories, trade: split.what, region, rows: false }, COUNTING, {
+    allowScan: acct ? undefined : () => takeScan(req),
+  });
+  try {
+    await supplyP;
+  } catch (err) {
+    if (err instanceof Rationed) return Response.json(RATIONED, { status: 429 });
+    throw err;
+  }
   const [supply, balance, given] = await Promise.all([
-    // Through the adapter, so the count comes from whichever provider will
-    // also supply the rows. A count from one and a read from another would
-    // be two different markets described as one.
-    // Free and unlimited, so always the open data — `COUNTING` carries why.
-    findCandidates({ categories, trade: split.what, region, rows: false }, COUNTING),
+    supplyP,
     acct ? balanceOf(acct.id) : Promise.resolve(0),
     acct && criterion
       ? excludedFor(acct.id, { criterionId: `${criterion.signalId}:${criterion.type}` })
@@ -202,6 +214,9 @@ export async function POST(req: Request) {
       alreadyChecked: given.checked,
       fresh,
       ms: supply.ms,
+      /** When this count was scanned. Older than this request on a cache hit. */
+      measuredAt: supply.measuredAt ?? null,
+      cached: supply.cached ?? false,
     },
     question: criterion
       ? {

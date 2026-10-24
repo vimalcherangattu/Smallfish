@@ -44,6 +44,7 @@
  */
 
 import type { Resolution } from "@/lib/region";
+import { countKey, readCount, writeCount } from "@/lib/countcache";
 import { RADIUS_MILES, supplyFor } from "@/lib/supply";
 
 /**
@@ -121,6 +122,19 @@ export interface SupplyResult {
   source: string;
   /** Why this answer is less than it could be, in the person's terms. */
   degraded?: string | null;
+  /** When this number was measured. Set on every count; on a cache hit it is
+   *  the date of the scan it came from, which the screen says. */
+  measuredAt?: string;
+  /** True when served from `supply_counts` without opening DuckDB. */
+  cached?: boolean;
+}
+
+/** Thrown when a count missed the cache and the caller's ration of fresh
+ *  scans is spent. The route turns it into a 429 that says what still works. */
+export class Rationed extends Error {
+  constructor() {
+    super("fresh-scan ration spent");
+  }
 }
 
 export interface SupplyProvider {
@@ -384,8 +398,41 @@ export function providerFor(preferred?: string | null): SupplyProvider {
 export async function findCandidates(
   q: SupplyQuery,
   preferred?: string | null,
+  opts: {
+    /** Asked only on a cache miss, before scanning. False throws `Rationed`.
+     *  Anonymous surfaces pass `takeScan`; signed-in and scheduled ones do not. */
+    allowScan?: () => Promise<boolean>;
+  } = {},
 ): Promise<SupplyResult> {
   const chosen = providerFor(preferred);
+
+  // **A count is cached; rows are not.** Rows depend on `exclude` and `limit`,
+  // and they are what a paid read is built from, so they are always fresh. A
+  // count is the same number for everybody for a week (`countcache.ts`).
+  if (q.rows === false) {
+    const key = countKey(chosen.id, q.categories, q.region, q.radiusMiles ?? RADIUS_MILES);
+    const hit = await readCount(key);
+    if (hit) {
+      return {
+        listings: hit.listings,
+        withSite: hit.withSite,
+        ms: 0,
+        source: chosen.id,
+        measuredAt: hit.measuredAt,
+        cached: true,
+      };
+    }
+    if (opts.allowScan && !(await opts.allowScan())) throw new Rationed();
+    const fresh = await scanWith(chosen, q);
+    await writeCount(key, chosen.id, { listings: fresh.listings, withSite: fresh.withSite, ms: fresh.ms });
+    return { ...fresh, measuredAt: new Date().toISOString(), cached: false };
+  }
+
+  if (opts.allowScan && !(await opts.allowScan())) throw new Rationed();
+  return scanWith(chosen, q);
+}
+
+async function scanWith(chosen: SupplyProvider, q: SupplyQuery): Promise<SupplyResult> {
   if (chosen.id === overture.id) return overture.find(q);
   try {
     return await chosen.find(q);

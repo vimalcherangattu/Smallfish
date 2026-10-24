@@ -245,3 +245,47 @@ drop:
   copy or a component, find where it is computed first.
 - **Say so when a measurement contradicts a document**, and record the
   retraction. The decision log carries reversals already.
+
+## 6 · What a scan costs, so a schedule change is costed before it ships
+
+**Why this is here.** On 2026-10-24 the Vercel team (Hobby, 12 projects sharing it)
+reached 100% of its **4 h/month Active CPU**, and going over pauses *every* project. Both
+streams spend from that one budget, and the expensive thing either stream can do is a
+DuckDB scan of the places data inside a function. Anything that adds scans (a new cron, a
+faster schedule, a new anonymous surface) costs them here first.
+
+**Per scan, measured 2026-10-24** (DuckDB, 2 threads, from a session container; Denver
+dentists; `user + sys` CPU of the process):
+
+| Scan shape | CPU per scan | Notes |
+|---|---|---|
+| Overture direct, count, 25 mi | **~3.3 s** | `/api/supply`, MCP, `/how-many` fill, on a cache miss |
+| Overture direct, rows, 25 mi | **~2.6 s** | `/api/pool` miss, `/api/jobs`, prospecting |
+| Overture direct, rows, 100 mi | **~2.3 s** | the worker's widest top-up |
+| Our R2 copy, count, 25 mi | **~0.1 s** | once `R2_*` is set (`docs/DATA-SOURCING.md` step 1) |
+| Cache hit (`supply_counts`) | **~0** | no DuckDB; one PostgREST GET |
+
+Add a cold start's extension loads (`httpfs`, `spatial`) on top: one per new container,
+not per request. Production wall time is longer (12–21 s, mostly network), and wall time
+is not what is billed; CPU is. **Treat ~3 CPU-s per uncached Overture scan as the
+planning number** until the R2 copy is live, then ~0.1–0.5.
+
+**The budget in scans:** 4 h = 14,400 CPU-s, so **about 4,800 uncached Overture scans a
+month, shared by twelve projects**, and everything else every function does comes out of
+the same 4 h.
+
+**Per route, after 2026-10-24:**
+
+| Route | Who triggers it | Scans per call | Guard |
+|---|---|---|---|
+| `/api/pool` (count stage) | anyone, no account | 0 on a cache hit; 1 rows scan on a miss | 7-day cache incl. samples; 10/h, 30/day fresh scans per address |
+| `/api/supply` | anyone | 0 on a hit; 1 count on a miss | 7-day cache; same ration when signed out |
+| `/api/mcp` `count_businesses` | any MCP client | 0 on a hit; 1 count on a miss | 7-day cache; same ration per address |
+| `/api/jobs` | signed-in user starting a read | 1 rows scan | an account and credits |
+| `/api/worker` (cron daily, or by hand) | a job running out of sites | ≤ 3 rows scans (25 → 50 → 100 mi), once per exhaustion | a job with no sites left is not claimed again |
+| `/api/provider-check` | signed-in | 0 Overture unless Apify fails, then 1 | sign-in |
+| `/api/outreach/counts` (GTM) | pg_cron | 1 count per uncached pair | now also served from `supply_counts`; paused by GTM |
+| `/api/outreach/credits`, prospecting (GTM) | pg_cron | 1–2 per niche × city | paused by GTM |
+
+**Rule:** a change that adds a scheduled caller states its scans per run × runs per month
+× ~3 CPU-s in its commit message, against the 14,400.

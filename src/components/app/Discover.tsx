@@ -59,6 +59,8 @@ interface Supply {
     alreadyChecked: number;
     fresh: number;
     ms: number;
+    measuredAt?: string | null;
+    cached?: boolean;
   };
   question: { check: string; text: string; how: string; type: string } | null;
   refused: { why: string; source?: string } | null;
@@ -500,7 +502,10 @@ export default function Discover({
             </>
           )}
           <p className="t-s" style={{ marginTop: 14 }}>
-            Counted from the open business listings, in {(f.ms / 1000).toFixed(1)} seconds.
+            {/* A cached count is still a measured one, and says when. */}
+            {f.cached && f.measuredAt
+              ? `Counted from the open business listings on ${new Date(f.measuredAt).toLocaleDateString("en-US", { day: "numeric", month: "short", timeZone: "UTC" })}.`
+              : `Counted from the open business listings, in ${(f.ms / 1000).toFixed(1)} seconds.`}{" "}
             Nothing has been charged.
           </p>
         </div>

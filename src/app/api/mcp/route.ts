@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { findCandidates } from "@/lib/providers";
+import { takeScan } from "@/lib/countcache";
+import { findCandidates, Rationed } from "@/lib/providers";
 import { logEvent } from "@/lib/prospecting";
 import { resolveRegion, type Places } from "@/lib/region";
 import { CHECKABLE, runCheck, type Checkable } from "@/lib/sitecheck";
@@ -78,7 +79,7 @@ const text = (t: string, isError = false) => ({ content: [{ type: "text", text: 
 
 const findLink = (source: string) => `${SITE}/app/find?source=${encodeURIComponent(source)}`;
 
-async function countBusinesses(args: Record<string, unknown>) {
+async function countBusinesses(args: Record<string, unknown>, req: Request) {
   const what = String(args.business_type ?? "").trim().slice(0, 80);
   const where = String(args.area ?? "").trim().slice(0, 80);
   if (!what || !where) return text("Give a business type and a US city or state.", true);
@@ -87,7 +88,21 @@ async function countBusinesses(args: Record<string, unknown>) {
   if (!trade) return text(`"${what}" is not a kind of business in the listings. Try the trade on its own: dentists, plumbers, salons.`, true);
   const region = resolveRegion(places, where);
   if (!region) return text(`"${where}" is not a US city or state we can place. Try "City, ST".`, true);
-  const s = await findCandidates({ categories: trade.categories, trade: what, region, rows: false });
+  // Cached for a week, and a fresh scan rationed per caller address, like the
+  // page: an agent in a loop is the cheapest way to spend the CPU budget.
+  let s;
+  try {
+    s = await findCandidates(
+      { categories: trade.categories, trade: what, region, rows: false },
+      undefined,
+      { allowScan: () => takeScan(req) },
+    );
+  } catch (err) {
+    if (err instanceof Rationed) {
+      return text("Too many fresh counts from this address today. Counts already asked for still answer; try a new one within the hour.", true);
+    }
+    throw err;
+  }
   await logEvent("mcp_count", {}, { what: trade.typed, where: region.label, listings: s.listings });
   return text(
     `${s.listings.toLocaleString("en-US")} ${trade.typed} in ${region.label}, ` +
@@ -134,7 +149,7 @@ async function handle(m: Rpc, req: Request) {
       const name = String(m.params?.name ?? "");
       const args = (m.params?.arguments ?? {}) as Record<string, unknown>;
       try {
-        if (name === "count_businesses") return ok(m.id, await countBusinesses(args));
+        if (name === "count_businesses") return ok(m.id, await countBusinesses(args, req));
         if (name === "check_website") return ok(m.id, await checkWebsite(args, req));
         return fail(m.id, -32602, `Unknown tool: ${name}`);
       } catch {

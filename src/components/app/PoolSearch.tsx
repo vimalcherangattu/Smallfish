@@ -86,6 +86,8 @@ interface Counted {
   source: string;
   degraded: string | null;
   ms: number;
+  measuredAt?: string;
+  cached?: boolean;
 }
 
 type Problem = { field?: string; reason: string; hint?: string; suggest?: string | null };
@@ -147,7 +149,7 @@ export default function PoolSearch() {
         const full = await post("count");
         if (mine !== run.current) return;
         if (!full?.ok) {
-          setProblem({ reason: full?.reason ?? "We could not count that one." });
+          setProblem({ reason: full?.reason ?? "We could not count that one.", hint: full?.hint });
         } else {
           setCounted(full as Counted);
         }
@@ -311,6 +313,18 @@ export default function PoolSearch() {
                 {counted.degraded && (
                   <p className="t-s" style={{ marginTop: 8 }}>
                     {counted.degraded}
+                  </p>
+                )}
+                {/* A cached count is a measured one with its date, not a guess. */}
+                {counted.cached && counted.measuredAt && (
+                  <p className="t-s" style={{ marginTop: 8 }}>
+                    Counted from the open business listings on{" "}
+                    {new Date(counted.measuredAt).toLocaleDateString("en-US", {
+                      day: "numeric",
+                      month: "short",
+                      timeZone: "UTC",
+                    })}
+                    .
                   </p>
                 )}
 
