@@ -272,6 +272,12 @@ Two things those numbers rest on, both found the same day:
 - **Wall time is not what is billed.** These requests took 8–15 s from a sandbox, mostly
   network; CPU is the number above.
 
+**Production, 2026-10-24, after the tile layout and 16 threads:** uncached searches
+3.0–5.4 s wall (Fresno plumbers to Boston dentists; was 2.6–41 s), cached repeats under
+0.1 s. CPU per uncached search was not re-measured in production; the sandbox figures for
+the tiled copy at 16 threads were 0.3–2.1 CPU-s depending on how many tiles a city opens
+(New York opens 13).
+
 **Planning numbers:** ~2 CPU-s per uncached search while Overture is read directly,
 ~0.25 once production reads the R2 copy.
 

@@ -15,6 +15,11 @@ and it is rewritten at the end of each session. Where the two disagree, CLAUDE.m
   and `trades.ts` uses the taxonomy's own hierarchy (dentists → orthodontics etc.).
   Canary counts, local build against S3: Denver dentists 2,396 · Denver plumbers 515 ·
   Tampa HVAC 821 · Dallas med spas 853 · Columbus vets 289.
+- **Production reads our own copy** (2026-10-24): R2 bucket `smallfish-places-us` (ENAM),
+  513 tiles of 2° grid cells, tile index in the manifest, DuckDB at 16 threads. Uncached
+  searches 3.0–5.4 s, cached repeats instant (`supply_counts`, migration 0033, applied).
+  The first bucket was in APAC by mistake and is no longer read; the owner deletes it.
+  GitHub Actions secrets are set, so the Monday job keeps the copy current.
 - **Data sourcing is re-planned: `docs/DATA-SOURCING.md`.** Step 0 (restore) is done.
   **Step 1, the snapshot half, is built and waiting on Cloudflare keys** (`docs/SETUP.md` §8b):
   `snapshot_places.py` copies a release's US places to R2 (measured: 18.4M places, 1.2 GB,

@@ -23,7 +23,7 @@ Rules for whoever edits it:
 
 ## On Vimal
 
-- Cloudflare R2: bucket + two tokens, into Vercel and GitHub. `docs/SETUP.md` §8b, ~10 minutes.
+- Delete the old APAC bucket `smallfish-places`, then roll both R2 tokens (keys were pasted in chat).
 - Optional whenever you like: set `SUPPLY_PROVIDER=apify`. Safe now that counting is pinned to
   free Overture.
 
@@ -42,7 +42,7 @@ Both are CLAUDE.md §1–2, and together they are the cut every change is measur
 ## In flight
 
 - 2026-10-24: search restored after Overture deleted our pinned release.
-- Our own copy (R2) built and tested, 1.2 GB. Waiting on Vimal's Cloudflare keys: SETUP.md §8b.
+- Production reads our own copy in R2 (ENAM, tiled): uncached search 3–5 s, cached instant.
 - Data sourcing plan adopted: `docs/DATA-SOURCING.md`. Step 1 of 7 next.
 - Milestone 3, slice 3: one migration against the PRD shape, then the judge.
 - Reordered 2026-10-16 by DEW: the headless fetcher fallback comes before judge polish, because

@@ -272,6 +272,28 @@ def put_json(key: str, obj) -> None:
     )
 
 
+def read_live_manifest() -> dict | None:
+    """The manifest the app is following, or None only when there is none yet.
+
+    **Retraction, 2026-10-24.** This read the manifest with DuckDB's `read_json`
+    and treated *any* error as "first run". The first tiled promotion then could
+    not read the live schema-1 manifest, took it for a first run, compared its
+    canaries against nothing, and pruned the copy it should have kept for a
+    rollback. A missing manifest is the only state that means first run; any
+    other failure stops the job, which leaves the live copy serving.
+    """
+    from botocore.exceptions import ClientError
+
+    try:
+        body = r2_client().get_object(Bucket=os.environ["R2_BUCKET"], Key="manifest.json")["Body"].read()
+    except ClientError as err:
+        if err.response.get("Error", {}).get("Code") in ("NoSuchKey", "404"):
+            return None
+        raise
+    # Schema 1 was written as newline-delimited JSON: one object on one line.
+    return json.loads(body.decode().strip().split("\n")[0])
+
+
 def prune(keep: set[str]) -> list[str]:
     """Delete every copy under `places/` except the releases in `keep`.
 
@@ -326,11 +348,7 @@ def main() -> int:
 
     live = None
     if args.r2:
-        try:
-            live = con.execute(f"SELECT * FROM read_json('{base}/manifest.json')").fetchone()
-            live = dict(zip([d[0] for d in con.description], live))
-        except duckdb.Error:
-            live = None  # first run: nothing live to compare against
+        live = read_live_manifest()
     elif (Path(args.out) / "manifest.json").exists():
         live = json.loads((Path(args.out) / "manifest.json").read_text())
 

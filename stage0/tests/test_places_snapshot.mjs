@@ -94,6 +94,11 @@ check(
   /const SAFE = \/\^\[A-Za-z0-9_.-\]\+\$\//.test(supply),
 );
 
+check(
+  "only a missing manifest counts as a first run",
+  /NoSuchKey/.test(job) && !/except duckdb\.Error:\s*\n\s*live = None/.test(job),
+);
+
 // --- tile selection --------------------------------------------------------------
 
 {
