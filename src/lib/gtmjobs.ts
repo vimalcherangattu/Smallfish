@@ -234,7 +234,8 @@ export function cityForDay(p: Places, day = Math.floor(Date.now() / 86_400_000))
 export async function runProspects(opts: { budgetMs: number; max?: number; city?: string }):
   Promise<(SweepResult & { totals: Record<string, number> | null }) | { ok: false; reason: string }> {
   const [, places] = await data();
-  const where = opts.city ?? cityForDay(places);
+  // A blank city means today's: the workflow passes "" when its input is left empty.
+  const where = opts.city?.trim() || cityForDay(places);
   const region = resolveRegion(places, where);
   if (!region || region.scope !== "city") return { ok: false, reason: `"${where}" is not a US city we can place.` };
   const result = await sweep(region, { budgetMs: opts.budgetMs, max: opts.max });

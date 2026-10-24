@@ -67,5 +67,9 @@ await test("the runner prints counts, not rows: nothing in it logs a business", 
   for (const r of jobs.matchAll(/return \{ ok: true,([^}]*)\}/g)) assert.doesNotMatch(r[1], /\b(rows|email|domain|site)\b/, r[1]);
 });
 
+await test("a blank city from the workflow means today's city, not a city called nothing", () => {
+  assert.match(read("src/lib/gtmjobs.ts"), /opts\.city\?\.trim\(\) \|\| cityForDay/);
+});
+
 if (failures) { console.log(`\n${failures} failed`); process.exit(1); }
 console.log("\nall pass");
