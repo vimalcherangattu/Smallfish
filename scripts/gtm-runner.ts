@@ -17,7 +17,7 @@
  * or an address. Those stay in the tables.
  */
 
-import { runCounts, runCredits, runProspects } from "@/lib/gtmjobs";
+import { publicError, runCounts, runCredits, runProspects } from "@/lib/gtmjobs";
 
 const MIN = 60_000;
 
@@ -50,6 +50,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(`[gtm-runner] ${String(err).slice(0, 500)}`);
+  console.error(`[gtm-runner] ${publicError(err)}`);
   process.exit(1);
 });

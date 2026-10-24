@@ -242,3 +242,19 @@ export async function runProspects(opts: { budgetMs: number; max?: number; city?
   const totals = result.ok ? await prospectCounts().catch(() => null) : null;
   return { ...result, totals };
 }
+
+/* ------------------------------------------------------------ logging -- */
+
+/**
+ * What a failure may say in a public log. A PostgREST error echoes the failing
+ * row in `details` (a business's name, domain and phone), and on 2026-10-24 one
+ * did, in run 40089668827, whose log was deleted. So: the request line, the
+ * error code and the message, never the details or the hint.
+ */
+export function publicError(err: unknown): string {
+  const s = String(err);
+  const head = s.split(" {")[0].slice(0, 200);
+  const code = s.match(/"code":"([^"]*)"/)?.[1];
+  const msg = s.match(/"message":"([^"]*)"/)?.[1]?.slice(0, 200);
+  return [head, code && `code ${code}`, msg].filter(Boolean).join(" | ");
+}

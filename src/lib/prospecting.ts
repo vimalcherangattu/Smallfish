@@ -128,12 +128,18 @@ async function knownDomains(): Promise<Set<string>> {
   return new Set((rows ?? []).map((r) => r.domain));
 }
 
+/** The NOT NULL columns of `gtm_prospects` and their database defaults. An
+ *  explicit null is not the default, so a missing key is filled from here. */
+const PROSPECT_DEFAULTS: Record<string, unknown> = { audience: "agency", niches: [], pages: 0, status: "found", source: "overture" };
+
 /** PostgREST takes a bulk insert only when every object has the same keys
- *  (PGRST102). Fill any key one row lacks with null, so a new optional field
- *  cannot sink a batch again. */
+ *  (PGRST102). Fill any key one row lacks with the column's default, or null
+ *  where the column allows it, so a new optional field cannot sink a batch. */
 export function sameKeys<T extends object>(rows: T[]): Array<Record<string, unknown>> {
   const keys = new Set(rows.flatMap((r) => Object.keys(r)));
-  return rows.map((r) => Object.fromEntries([...keys].map((k) => [k, (r as Record<string, unknown>)[k] ?? null])));
+  return rows.map((r) =>
+    Object.fromEntries([...keys].map((k) => [k, (r as Record<string, unknown>)[k] ?? PROSPECT_DEFAULTS[k] ?? null])),
+  );
 }
 
 export async function upsertProspects(rows: ProspectRow[]): Promise<void> {
@@ -179,7 +185,9 @@ export async function readAgency(
     // Every row in one upsert must carry the same keys, or PostgREST refuses the
     // whole batch ("All object keys must match", PGRST102): an unread row without
     // `audience` threw away every found prospect beside it, 2026-10-17 to 10-19.
-    return { ...base, email: null, email_page: null, niches: [], niche: null, niche_quote: null, status: "unread", audience: null };
+    // And not null: the column is NOT NULL with default 'agency', and an explicit
+    // null is not the default (23502, first Actions run, 2026-10-24).
+    return { ...base, email: null, email_page: null, niches: [], niche: null, niche_quote: null, status: "unread", audience: "agency" };
   }
 
   // The first stretch of the home page stands in for its title and headline:

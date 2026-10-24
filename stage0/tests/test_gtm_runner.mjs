@@ -71,5 +71,16 @@ await test("a blank city from the workflow means today's city, not a city called
   assert.match(read("src/lib/gtmjobs.ts"), /opts\.city\?\.trim\(\) \|\| cityForDay/);
 });
 
+await test("a failure in the public log carries no row: the runner prints publicError, not the error", () => {
+  assert.match(runner, /console\.error\(`\[gtm-runner\] \$\{publicError\(err\)\}`\)/);
+  assert.doesNotMatch(runner, /console\.error\([^)]*String\(err\)/);
+});
+
+await test("an unread prospect row carries the audience default, never null (NOT NULL column)", () => {
+  const src = read("src/lib/prospecting.ts");
+  assert.match(src, /status: "unread", audience: "agency"/);
+  assert.doesNotMatch(src, /audience: null/);
+});
+
 if (failures) { console.log(`\n${failures} failed`); process.exit(1); }
 console.log("\nall pass");
