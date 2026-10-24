@@ -1,6 +1,7 @@
 # Status
 
-**Last updated:** 2026-10-24 · search restored after an outage; data-sourcing plan adopted.
+**Last updated:** 2026-10-24 · search restored after an outage; data-sourcing plan adopted;
+outreach sweeps moved off Vercel to GitHub Actions.
 
 `CLAUDE.md` holds the rules that do not change. This file is only the current state,
 and it is rewritten at the end of each session. Where the two disagree, CLAUDE.md wins.
@@ -26,13 +27,25 @@ and it is rewritten at the end of each session. Where the two disagree, CLAUDE.m
   still read `categories.primary` on `2026-08-19.0`. Stage 0 benchmark tooling only; no
   customer path. CLAUDE.md's "1,644 categories, 17.2M listings" is stale for the same reason.
 
+- **Outreach sweeps run on GitHub Actions, not Vercel (2026-10-24).** The pg_cron jobs
+  calling `/api/outreach/{counts,credits,prospects}` used 100% of the Vercel team's Hobby
+  CPU (4 h/month, team-wide: over it, all 12 projects pause). Those three jobs are paused
+  (migration `0032`); `.github/workflows/gtm-sweeps.yml` runs them through
+  `scripts/gtm-runner.ts` → `src/lib/gtmjobs.ts` (prospects 6×/day, credits 4×, counts
+  daily). Rule: no DuckDB scan or multi-site crawl in a Vercel function on a schedule.
+  First green run: New York, 120 sites read in 94 s, 32 found with an address. The repo
+  is public, so Actions logs are public: the runner prints counts only (`publicError`).
+  `gtm-push` (hourly) and `gtm-digest` (daily) still call Vercel. Push scans only when a
+  found prospect has no list yet.
+- **Cold email:** nothing sends before `GO_LIVE` 2026-11-02; 111 queued. Copy rewritten in
+  one person's voice (`sequence.ts`) and re-synced to Instantly hourly.
+
 - **The one problem** (CLAUDE.md §1) and the **DEW / GEW / MIW** effort tiers (§2) are the
   cut every change is measured against. Read both before planning work.
 - **PRD v2:** milestone 2 live at `/app/find` (two fields, a real Overture count, five real
   samples, no account). Milestone 3 in progress. `/app` is still the older
   single-sentence search and still works.
-- Suite: **81 of 82 after `npm run build`** (1 skipped), **79 of 82 on a bare clone**
-  (3 skipped). The skipped files check nothing without a build or a local benchmark run
+- Suite: **84 of 85 after `npm run build`** (1 skipped). The skipped files check nothing without a build or a local benchmark run
   and each says which. Eight `check_*` files need a live server and are not in that count.
 - Built and not yet on a screen: `fit.ts` (Strong/Maybe/No, blind rows, reveal spends the
   credit), `rules.ts` (the free listing pre-filter).
@@ -69,6 +82,11 @@ Nothing mid-change; the working tree is clean.
 - Migrations `0022`/`0023` are unapplied, superseded by one set written against PRD v2.
 - Three stale remote branches (`claude/product-margin`, `claude/eager-archimedes-qdetjj`,
   `claude/stage-0-benchmark-lx4tgf`) are merged or superseded and await a prune decision.
+  `claude/eager-archimedes-qdetjj` was the **repo's default branch** until 2026-10-24, which
+  is why no workflow had ever run; the default is now `main`.
+- **The daily GTM digest said "all running" through a five-day outage** of the prospect
+  finder (2026-10-19 → 24). It does not read scheduler or Actions failures.
+- CPU per call of the two daily Vercel crons (`/api/worker`, `/api/mail/nudge`) is unmeasured.
 
 ## Fresh-container setup, in this order
 
@@ -77,5 +95,6 @@ npm install
 python3 -m pip install duckdb "httpx[http2]"   # NOT bare `pip` — see CLAUDE.md
 ```
 
-A fresh container may also check out the old session branch rather than `main`. Check
-`git branch --show-current` before believing anything in `CLAUDE.md` looks missing.
+A fresh container may also check out the old session branch rather than `main` (likely
+because it was the repo default until 2026-10-24). Check `git branch --show-current`
+before believing anything in `CLAUDE.md` looks missing.
