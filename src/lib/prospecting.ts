@@ -61,7 +61,7 @@ export interface ProspectRow {
   outcome: string;
   pages: number;
   status: string;
-  audience?: string;
+  audience?: string | null;
   source: string;
   read_at: string;
 }
@@ -128,12 +128,20 @@ async function knownDomains(): Promise<Set<string>> {
   return new Set((rows ?? []).map((r) => r.domain));
 }
 
+/** PostgREST takes a bulk insert only when every object has the same keys
+ *  (PGRST102). Fill any key one row lacks with null, so a new optional field
+ *  cannot sink a batch again. */
+export function sameKeys<T extends object>(rows: T[]): Array<Record<string, unknown>> {
+  const keys = new Set(rows.flatMap((r) => Object.keys(r)));
+  return rows.map((r) => Object.fromEntries([...keys].map((k) => [k, (r as Record<string, unknown>)[k] ?? null])));
+}
+
 export async function upsertProspects(rows: ProspectRow[]): Promise<void> {
   if (!rows.length) return;
   await rest("gtm_prospects?on_conflict=domain", {
     method: "POST",
     headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
-    body: JSON.stringify(rows.map((r) => ({ ...r, updated_at: new Date().toISOString() }))),
+    body: JSON.stringify(sameKeys(rows.map((r) => ({ ...r, updated_at: new Date().toISOString() })))),
   });
 }
 
@@ -168,7 +176,10 @@ export async function readAgency(
     read_at: new Date().toISOString(),
   };
   if (read.result.outcome !== "ok") {
-    return { ...base, email: null, email_page: null, niches: [], niche: null, niche_quote: null, status: "unread" };
+    // Every row in one upsert must carry the same keys, or PostgREST refuses the
+    // whole batch ("All object keys must match", PGRST102): an unread row without
+    // `audience` threw away every found prospect beside it, 2026-10-17 to 10-19.
+    return { ...base, email: null, email_page: null, niches: [], niche: null, niche_quote: null, status: "unread", audience: null };
   }
 
   // The first stretch of the home page stands in for its title and headline:

@@ -46,11 +46,29 @@ export interface Step {
   delay: number;
 }
 
-const sign = "{{sendingAccountFirstName}}<br/>Small Fish";
+/**
+ * ## Written like one person writing to another (owner, 2026-10-24)
+ *
+ * "The emails should sound like it's coming from a human." So: first person,
+ * short lines, no "Hi {{companyName}} team", no sentence a brochure would
+ * carry, one link per email, and a sign-off that is just the sender's name.
+ * The footer is an ordinary line, not grey small print, which reads as a
+ * newsletter.
+ *
+ * And it says only what is true. The first version opened "We read the
+ * websites of the 3,147 dentists in Chicago": we *count* them, from open
+ * listings data; the `/hi` page reads a handful when it is opened. Now it says
+ * there are that many with a website, and that a few of them are in the link.
+ *
+ * Instantly re-syncs this copy onto the live campaigns every hour
+ * (`ensureCampaign`), so it may use only the variables already stored on each
+ * queued lead: no new `{{…}}` without a backfill.
+ */
+const sign = "{{sendingAccountFirstName}}";
 const FREE = PLANS.find((p) => p.id === "free")!.credits;
 const footer =
-  `<br/><br/><span style="color:#888;font-size:12px">${POSTAL_ADDRESS}. ` +
-  `Not useful? Reply "no" and we won't write again.</span>`;
+  `<br/><br/>--<br/>Small Fish, ${POSTAL_ADDRESS}<br/>` +
+  `Reply "no" and I won't write again.`;
 
 /**
  * Three steps, three to four days apart. Instantly fills `{{…}}` per lead from
@@ -60,11 +78,11 @@ export const STEPS: Step[] = [
   {
     subject: "{{niche}} in {{city}}",
     body:
-      "Hi {{companyName}} team,<br/><br/>" +
-      "You do marketing for {{niche}}, so this might be useful. We read the websites of " +
-      "the {{count}} {{niche}} in {{city}} and pulled out the ones with no {{gap}}: the ones worth " +
-      "calling this week, each with a one-line reason to reach out.<br/><br/>" +
-      "Here are a few, free: {{listUrl}}<br/><br/>" +
+      "Hi there,<br/><br/>" +
+      "I saw you do marketing for {{niche}}, so this might be handy.<br/><br/>" +
+      "There are {{count}} {{niche}} in {{city}} with a website. I pulled a few that have no " +
+      "{{gap}}, the ones I'd call first if I were you: {{listUrl}}<br/><br/>" +
+      "No sign-up to look.<br/><br/>" +
       sign + footer,
     delay: 3,
   },
@@ -72,18 +90,16 @@ export const STEPS: Step[] = [
     subject: "Re: {{niche}} in {{city}}",
     body:
       "Hi again,<br/><br/>" +
-      "Something free for your own site: a one-line widget that lets your visitors check whether " +
-      "their website takes bookings online, has a quote form or live chat. The ones missing it are " +
-      "the ones who need you. {{widgetUrl}}<br/><br/>" +
-      "And the full {{niche}} list is free to start, no card: {{signUpUrl}}<br/><br/>" +
+      "If those were useful, you can run the same search for any trade in any city. " +
+      `The first ${FREE} that fit are free, no card: {{signUpUrl}}<br/><br/>` +
       sign + footer,
     delay: 4,
   },
   {
     subject: "Re: {{niche}} in {{city}}",
     body:
-      "Last note from me. If another city or another trade would be more useful, reply with it " +
-      "and I'll send that list instead.<br/><br/>" +
+      "Last one from me. If {{city}} isn't where you work, or {{niche}} isn't your trade, " +
+      "reply with the ones that are and I'll send that list instead.<br/><br/>" +
       sign + footer,
     delay: 0,
   },
@@ -98,10 +114,10 @@ export const SELLER_STEPS: Step[] = [
     subject: "{{niche}} in {{city}}",
     body:
       "Hi {{firstName}},<br/><br/>" +
-      "Your team sells to {{niche}}, so this might be useful. We read the websites of the " +
-      "{{count}} {{niche}} in {{city}} and pulled out the ones with no {{gap}}: who to call, " +
-      "and a one-line reason to reach out now.<br/><br/>" +
-      "Here are a few, free: {{listUrl}}<br/><br/>" +
+      "Your team sells to {{niche}}, so this might be handy.<br/><br/>" +
+      "There are {{count}} {{niche}} in {{city}} with a website. I pulled a few that have no " +
+      "{{gap}}, the ones I'd have a rep call first: {{listUrl}}<br/><br/>" +
+      "No sign-up to look.<br/><br/>" +
       sign + footer,
     delay: 3,
   },
@@ -109,16 +125,16 @@ export const SELLER_STEPS: Step[] = [
     subject: "Re: {{niche}} in {{city}}",
     body:
       "Hi {{firstName}},<br/><br/>" +
-      "Your reps can run this for any trade in any US city, and say what to look for in plain " +
-      `words, like "no online booking". Fewer wasted calls. The first ${FREE} that fit are free, no card: {{signUpUrl}}<br/><br/>` +
+      "Your reps can run this themselves for any trade and city, and say what to look for in " +
+      `plain words, like "no online booking". The first ${FREE} that fit are free, no card: {{signUpUrl}}<br/><br/>` +
       sign + footer,
     delay: 4,
   },
   {
     subject: "Re: {{niche}} in {{city}}",
     body:
-      "Last note from me. If another city or another trade would be more useful, reply with it " +
-      "and I'll send that list instead.<br/><br/>" +
+      "Last one from me. If another city or trade would be more useful, reply with it and " +
+      "I'll send that list instead.<br/><br/>" +
       sign + footer,
     delay: 0,
   },
@@ -131,31 +147,31 @@ export const SELLER_STEPS: Step[] = [
  */
 export const WIDGET_STEPS: Step[] = [
   {
-    subject: "a free tool for {{companyName}}'s site",
+    subject: "something for {{companyName}}'s website",
     body:
-      "Hi {{companyName}} team,<br/><br/>" +
-      "We made a free widget for agencies' websites. Your visitors paste their own site and see " +
-      "whether it takes bookings online, has a quote form or live chat. The ones missing it are the " +
-      "ones who need you.<br/><br/>" +
-      "Here it is with your name already on it: {{previewUrl}}<br/>" +
-      "One line to put it on your site: {{widgetUrl}}<br/><br/>" +
+      "Hi there,<br/><br/>" +
+      "We made a small widget for agency websites. A visitor types in their own site and sees " +
+      "whether it takes bookings online, has a quote form or live chat. If it doesn't, that's " +
+      "a lead for you.<br/><br/>" +
+      "Here it is with your name already on it: {{previewUrl}}<br/><br/>" +
+      "Free, and one line to add if you like it.<br/><br/>" +
       sign + footer,
     delay: 4,
   },
   {
-    subject: "Re: a free tool for {{companyName}}'s site",
+    subject: "Re: something for {{companyName}}'s website",
     body:
       "Hi again,<br/><br/>" +
-      "The same check runs on whole cities too: every dentist, plumber or salon near you that is " +
-      `missing online booking or a quote form, with a phone and a reason to call. The first ${FREE} are free: {{signUpUrl}}<br/><br/>` +
+      "The same check works on a whole city: every dentist, plumber or salon near you that's " +
+      `missing online booking or a quote form, with a phone number. The first ${FREE} are free: {{signUpUrl}}<br/><br/>` +
       sign + footer,
     delay: 5,
   },
   {
-    subject: "Re: a free tool for {{companyName}}'s site",
+    subject: "Re: something for {{companyName}}'s website",
     body:
-      "Last note from me. If a list for one trade in one city would be more useful, reply with both " +
-      "and I'll send it.<br/><br/>" +
+      "Last one from me. If a list for one trade in one city would be more useful, reply with " +
+      "both and I'll send it.<br/><br/>" +
       sign + footer,
     delay: 0,
   },
