@@ -120,9 +120,10 @@ await test("new people a day: three emails each, rounded up", () => {
 });
 
 await test("nothing sends before go-live, then the ramp climbs and holds", () => {
-  assert.equal(S.dailyPerInbox("2026-10-20"), 0);
+  const day = (n) => new Date(Date.parse(S.GO_LIVE) + n * 86_400_000).toISOString().slice(0, 10);
+  assert.equal(S.dailyPerInbox(day(-1)), 0);
   assert.equal(S.dailyPerInbox(S.GO_LIVE), S.RAMP[0]);
-  assert.equal(S.dailyPerInbox("2026-11-10"), S.RAMP[1]);
+  assert.equal(S.dailyPerInbox(day(8)), S.RAMP[1]);
   assert.equal(S.dailyPerInbox("2027-06-01"), S.RAMP.at(-1));
 });
 

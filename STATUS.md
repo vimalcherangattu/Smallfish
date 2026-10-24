@@ -37,7 +37,7 @@ and it is rewritten at the end of each session. Where the two disagree, CLAUDE.m
   is public, so Actions logs are public: the runner prints counts only (`publicError`).
   `gtm-push` (hourly) and `gtm-digest` (daily) still call Vercel. Push scans only when a
   found prospect has no list yet.
-- **Cold email:** nothing sends before `GO_LIVE` 2026-11-02; 111 queued. Copy rewritten in
+- **Cold email:** nothing sends before `GO_LIVE` 2026-10-26 (moved from 11-02 by the owner, 10-24); 114 queued. Copy rewritten in
   one person's voice (`sequence.ts`) and re-synced to Instantly hourly.
 
 - **The one problem** (CLAUDE.md §1) and the **DEW / GEW / MIW** effort tiers (§2) are the

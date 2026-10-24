@@ -277,15 +277,16 @@ export function leadVariables(
 }
 
 /**
- * When sending may start, and how fast. Inboxes need two weeks of warm-up
- * before they carry cold mail; the six were created 2026-10-15 and Instantly
- * reports them still being set up, so the first send is no earlier than the
- * date below *and* only once Instantly says every inbox is ready.
+ * When sending may start, and how fast. The six inboxes were created
+ * 2026-10-15. Go-live was two weeks on (11-02); the owner moved it to 10-26
+ * (eleven days) on 2026-10-24, when Instantly showed all six Active at 100%
+ * health. The first send is no earlier than the date below *and* only once
+ * Instantly says every inbox is ready.
  *
  * Then a ramp: a new domain that jumps from nothing to its ceiling is how a
  * domain gets burned. Per inbox per day, by week since go-live.
  */
-export const GO_LIVE = "2026-11-02";
+export const GO_LIVE = "2026-10-26";
 export const RAMP = [5, 10, 15, 20, 25];
 
 export function dailyPerInbox(today: string, goLive = GO_LIVE): number {

@@ -22,7 +22,7 @@ no human support. The product sells itself or it does not.
 3. **Queue.** `sequence.blocked()` gates; survivors go to the Instantly campaign
    "Small Fish · agencies · v1" with their variables. Status → `queued`.
 4. **Send.** The campaign is created paused. It starts only after `GO_LIVE`
-   (2026-11-02) **and** once Instantly reports every inbox ready, then ramps 5 → 25
+   (2026-10-26; was 11-02 until the owner moved it on 10-24) **and** once Instantly reports every inbox ready, then ramps 5 → 25
    per inbox per day over five weeks. Three steps, 3 and 4 days apart, from the
    partners' own inboxes (Ashitha, Dhananjay, Dipti).
 5. **Click.** `/hi/<token>` shows the count and builds three businesses missing the

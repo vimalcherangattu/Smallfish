@@ -28,6 +28,7 @@ plan wins and the Decision log records why.
 
 | Stage | Status | Gate | Gate met? |
 |---|---|---|---|
+| 2026-10-24 | **Go-live moves from 2026-11-02 to Monday 2026-10-26, the owner's call.** `GO_LIVE` in `sequence.ts`; the ramp (5 → 25 per inbox per day) and the every-inbox-ready gate are unchanged. | Instantly showed all six inboxes Active at 100% health, daily limit 30, nothing sent, after nine days of warm-up. Go-live gives them eleven days against the two weeks 11-02 was set for, a risk taken knowingly: week one is 5 per inbox, and with the sellers campaign empty (no SuperSearch cap) about 14 sends a day. **The Instantly trial still ends 11-02**, mid-sequence, so the plan has to be bought before then or step 2 never goes. |
 | 0 · Prove it | **In progress** | Coverage ≥ 70% and precision ≥ 90% on 3 niches | All 3 niches measured on one engine. **Gate item 4 is retired** — it compared a measured cost against a threshold derived from an unvalidated price. Replaced by band-specific cost per credit: dental $0.0294 (band 1), med spa $0.0687 (band 2), HVAC $0.0596 (band 3), **all inside every plan's margin**. Cost per business read is flat at $0.0168 ± 0.0002 |
 | 1 · Launch | Not started | 50 paying users; live precision ≥ 90% | — |
 | 2 · Grow | Not started | 300 paying; churn ≤ 6%; **cost per credit ≤ $0.07 in every band** | — |
