@@ -45,7 +45,6 @@ import math
 import os
 import re
 import sys
-import tempfile
 import time
 import urllib.parse
 import urllib.request
@@ -59,7 +58,17 @@ TRADES = ROOT / "public" / "data" / "trades.json"
 PLACES = ROOT / "public" / "data" / "places-us.json"
 S3_BASE = "https://overturemaps-us-west-2.s3.amazonaws.com/"
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
+# Tiles: 2° grid cells (~140 miles), each cut into chunks of TILE_ROWS along a
+# Hilbert curve. Measured 2026-10-24 from a cold DuckDB, ENAM bucket, 16 threads:
+# a city search opening only the tiles whose box overlaps it took 2.0-4.6 s,
+# against 4.2-5.9 s for the five 256 MB files of schema 1 (and 11-25 s for those
+# at DuckDB's default 2 threads). The grid cell is what keeps every tile's box
+# small: Hilbert chunks alone left two tiles spanning half the continent, which
+# every search then had to open.
+GRID_DEGREES = 2
+TILE_ROWS = 100_000
+LAYOUT = "grid2"
 RADIUS_MILES = 25  # supply.ts RADIUS_MILES — the canaries must ask what the app asks
 TOLERANCE = 0.15
 VOCABULARY_FLOOR = 0.98
@@ -139,6 +148,9 @@ def build(con, files: list[str], dest: str) -> float:
     con.execute(
         f"""
         COPY (
+         SELECT * EXCLUDE (h, cell),
+                cell || '-' || ((row_number() OVER (PARTITION BY cell ORDER BY h) - 1) // {TILE_ROWS}) AS tile
+         FROM (
           SELECT id,
                  names.primary                                  AS name,
                  taxonomy.primary                               AS cat,
@@ -155,16 +167,39 @@ def build(con, files: list[str], dest: str) -> float:
                  confidence,
                  list_distinct([s.dataset FOR s IN sources])    AS datasets,
                  ST_X(geometry)                                 AS lon,
-                 ST_Y(geometry)                                 AS lat
+                 ST_Y(geometry)                                 AS lat,
+                 floor(ST_Y(geometry) / {GRID_DEGREES})::INT || '_' ||
+                   floor(ST_X(geometry) / {GRID_DEGREES})::INT  AS cell,
+                 ST_Hilbert(ST_X(geometry), ST_Y(geometry),
+                            {{'min_x': -180, 'min_y': 10, 'max_x': -60, 'max_y': 75}}::BOX_2D) AS h
           FROM read_parquet([{file_list}])
           WHERE addresses[1].country = 'US'
-          ORDER BY ST_Hilbert(ST_X(geometry), ST_Y(geometry),
-                              {{'min_x': -180, 'min_y': 10, 'max_x': -60, 'max_y': 75}}::BOX_2D)
-        ) TO '{dest}' (FORMAT parquet, COMPRESSION zstd, ROW_GROUP_SIZE 50000,
-                       FILE_SIZE_BYTES '256MB', OVERWRITE_OR_IGNORE)
+         )
+        ) TO '{dest}' (FORMAT parquet, COMPRESSION zstd, ROW_GROUP_SIZE 20000,
+                       PARTITION_BY (tile), OVERWRITE_OR_IGNORE)
         """
     )
     return time.time() - started
+
+
+def tile_index(con, dest: str) -> list[dict]:
+    """Each tile's file and bounding box, so the app opens only the tiles a search overlaps."""
+    rows = con.execute(
+        f"""
+        SELECT filename, min(lon), max(lon), min(lat), max(lat), count(*)
+        FROM read_parquet('{dest}/*/*.parquet', filename=true, hive_partitioning=false)
+        GROUP BY filename
+        """
+    ).fetchall()
+    prefix = dest.rstrip("/") + "/"
+    return [
+        {
+            "f": r[0][len(prefix):] if r[0].startswith(prefix) else r[0].split("/", 3)[-1],
+            "b": [round(r[1], 5), round(r[2], 5), round(r[3], 5), round(r[4], 5)],
+            "n": int(r[5]),
+        }
+        for r in rows
+    ]
 
 
 def family(cats: list[dict], anchor: str) -> list[str]:
@@ -214,6 +249,29 @@ def gate(new: dict[str, int], old: dict[str, int] | None, vocab: float) -> list[
     return problems
 
 
+def r2_client():
+    import boto3
+
+    return boto3.client(
+        "s3",
+        endpoint_url=f"https://{os.environ['R2_ACCOUNT_ID']}.r2.cloudflarestorage.com",
+        aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"],
+        aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"],
+        region_name="auto",
+    )
+
+
+def put_json(key: str, obj) -> None:
+    """One JSON document, byte for byte. The app parses it with JSON.parse, so it
+    must be plain JSON rather than DuckDB's newline-delimited export."""
+    r2_client().put_object(
+        Bucket=os.environ["R2_BUCKET"],
+        Key=key,
+        Body=json.dumps(obj, separators=(",", ":")).encode(),
+        ContentType="application/json",
+    )
+
+
 def prune(keep: set[str]) -> list[str]:
     """Delete every copy under `places/` except the releases in `keep`.
 
@@ -226,15 +284,7 @@ def prune(keep: set[str]) -> list[str]:
     boto3 rather than DuckDB because DuckDB cannot delete objects. Imported here
     so a local `--out` run needs only duckdb.
     """
-    import boto3
-
-    s3 = boto3.client(
-        "s3",
-        endpoint_url=f"https://{os.environ['R2_ACCOUNT_ID']}.r2.cloudflarestorage.com",
-        aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"],
-        aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"],
-        region_name="auto",
-    )
+    s3 = r2_client()
     bucket = os.environ["R2_BUCKET"]
     gone: list[str] = []
     for page in s3.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix="places/"):
@@ -268,8 +318,11 @@ def main() -> int:
 
     bucket = os.environ.get("R2_BUCKET", "")
     base = f"r2://{bucket}" if args.r2 else str(Path(args.out).resolve())
-    dest = f"{base}/places/{release}"
-    glob = f"{dest}/*.parquet"
+    # One folder per release *and* layout, so a new layout of the same release
+    # never writes over the copy that is live, and the switch is one manifest write.
+    copy_id = f"{release}.{LAYOUT}"
+    dest = f"{base}/places/{copy_id}"
+    glob = f"{dest}/*/*.parquet"
 
     live = None
     if args.r2:
@@ -281,7 +334,8 @@ def main() -> int:
     elif (Path(args.out) / "manifest.json").exists():
         live = json.loads((Path(args.out) / "manifest.json").read_text())
 
-    if args.if_new and live and live.get("release") == release:
+    live_dir = (live or {}).get("dir") or (live or {}).get("release")
+    if args.if_new and live and live_dir == copy_id:
         print(f"live copy is already {release}; nothing to do")
         return 0
     if not args.r2:
@@ -302,34 +356,41 @@ def main() -> int:
         print("CONTRACT FAILED, the live copy stays live:\n  " + "\n  ".join(problems))
         if args.r2:
             # The failed copy is not kept; the live one and its predecessor are.
-            keep = {r for r in ((live or {}).get("release"), (live or {}).get("previous")) if r}
+            keep = {r for r in (live_dir, (live or {}).get("previous")) if r}
             print(f"removed {len(prune(keep))} objects of the failed copy")
         return 3
 
+    index = tile_index(con, dest)
+    print(f"  {len(index)} tiles", flush=True)
     manifest = {
         "schema": SCHEMA_VERSION,
         "release": release,
-        "glob": f"places/{release}/*.parquet",
+        "layout": LAYOUT,
+        "dir": copy_id,
+        "index": f"places/{copy_id}/index.json",
+        "tiles": len(index),
         "rows": int(rows[0]),
         "withSite": int(rows[1]),
         "builtAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "buildSeconds": round(secs),
         "vocabulary": round(vocab, 4),
         "canaries": counts,
-        "previous": (live or {}).get("release"),
+        "previous": live_dir,
     }
     if args.r2:
-        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
-            json.dump(manifest, f)
-        con.execute(f"COPY (SELECT * FROM read_json('{f.name}')) TO '{base}/manifest.json' (FORMAT json)")
+        # The index first: the manifest is what the app follows, so it must
+        # never name an index that is not there yet.
+        put_json(f"places/{copy_id}/index.json", index)
+        put_json("manifest.json", manifest)
         # Only after the manifest points at the new copy, so nothing live is
         # ever deleted.
-        keep = {release} | ({manifest["previous"]} if manifest["previous"] else set())
+        keep = {copy_id} | ({manifest["previous"]} if manifest["previous"] else set())
         gone = prune(keep)
         print(f"kept {sorted(keep)}, removed {len(gone)} older objects")
     else:
+        (Path(args.out) / "places" / copy_id / "index.json").write_text(json.dumps(index) + "\n")
         (Path(args.out) / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
-    print(f"PROMOTED {release}")
+    print(f"PROMOTED {copy_id}")
     return 0
 
 

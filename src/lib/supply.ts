@@ -191,6 +191,7 @@ function box(lat: number, lon: number, miles: number) {
 // each request takes its own connection, because `hits` is a per-connection
 // temp table, and closes it.
 type Instance = Awaited<ReturnType<typeof import("@duckdb/node-api").DuckDBInstance.create>>;
+const DUCKDB_THREADS = 16;
 let instanceP: Promise<Instance> | null = null;
 let spatialP: Promise<void> | null = null;
 let secretP: Promise<void> | null = null;
@@ -204,6 +205,12 @@ async function instance(): Promise<Instance> {
     });
     const con = await inst.connect();
     await con.run("INSTALL httpfs; LOAD httpfs;");
+    // **Threads are for waiting, here, not computing.** A function has one or
+    // two vCPUs, so DuckDB defaulted to about two threads, and two threads is
+    // two HTTP range reads in flight. Measured cold against R2, New York gyms:
+    // 25.0 s at 2 threads, 7.8 s at 8, 4.6 s at 16, for 1.45 / 2.16 / 2.11 CPU-s.
+    // The same holds for the Overture fallback, which is also all range reads.
+    await con.run(`SET GLOBAL threads = ${DUCKDB_THREADS}`);
     con.closeSync();
     return inst;
   })().catch((err) => {
@@ -327,7 +334,68 @@ export const snapshotConfigured = () => R2_ENV.every((k) => SAFE.test(process.en
 
 /** Re-read every ten minutes, so a promotion reaches warm functions. */
 const MANIFEST_TTL_MS = 10 * 60_000;
-let manifestCache: { glob: string; release: string; at: number } | null = null;
+
+/** One tile of the copy: its file, relative to the bucket, and its box. */
+interface Tile {
+  f: string;
+  /** [minLon, maxLon, minLat, maxLat] */
+  b: [number, number, number, number];
+}
+
+/**
+ * What the live manifest names. Schema 2 (2026-10-24) is a tile index; schema
+ * 1 was one glob over five 256 MB files and is still read, so a rollback to a
+ * schema-1 copy keeps working.
+ */
+type Layout =
+  | { release: string; tiles: Tile[]; at: number }
+  | { release: string; glob: string; at: number };
+let manifestCache: Layout | null = null;
+
+/** Paths from the bucket reach a SQL string, so they are checked first. */
+const TILE_PATH = /^places\/[\w.-]+\/tile=[\w-]+\/[\w.-]+\.parquet$/;
+const GLOB_PATH = /^places\/[\w.-]+\/\*\.parquet$/;
+
+async function readText(con: Awaited<ReturnType<typeof connect>>, url: string): Promise<string> {
+  const res = await con.run(`SELECT content FROM read_text('${url}')`);
+  const [row] = await res.getRows();
+  return String(row?.[0] ?? "");
+}
+
+async function layout(con: Awaited<ReturnType<typeof connect>>, base: string): Promise<Layout> {
+  if (manifestCache && Date.now() - manifestCache.at < MANIFEST_TTL_MS) return manifestCache;
+  // Schema 1 was written as newline-delimited JSON: one object, one line.
+  const m = JSON.parse((await readText(con, `${base}/manifest.json`)).trim().split("\n")[0]) as {
+    release?: string;
+    glob?: string;
+    index?: string;
+  };
+  const release = String(m.release ?? "");
+  if (m.index) {
+    if (!/^places\/[\w.-]+\/index\.json$/.test(m.index)) throw new Error(`manifest index looks wrong: ${m.index}`);
+    const tiles = (JSON.parse(await readText(con, `${base}/${m.index}`)) as Tile[]).filter(
+      (t) => TILE_PATH.test(t.f) && Array.isArray(t.b) && t.b.length === 4 && t.b.every(Number.isFinite),
+    );
+    if (!tiles.length) throw new Error("tile index is empty");
+    manifestCache = { release, tiles, at: Date.now() };
+  } else {
+    const glob = String(m.glob ?? "");
+    if (!GLOB_PATH.test(glob)) throw new Error(`manifest glob looks wrong: ${glob}`);
+    manifestCache = { release, glob, at: Date.now() };
+  }
+  return manifestCache;
+}
+
+/** The tiles whose box overlaps any searched city's box. A state search has up
+ *  to eight cities, so it is tested per city rather than against their union,
+ *  which for Texas would be most of Texas. */
+export function tilesFor(tiles: Tile[], region: Resolution, radiusMiles: number): Tile[] {
+  const cities = region.sample.length ? region.sample : region.city ? [region.city] : [];
+  const boxes = cities.map((c) => box(c.center[1], c.center[0], radiusMiles));
+  return tiles.filter((t) =>
+    boxes.some((q) => t.b[0] <= q.xmax && t.b[1] >= q.xmin && t.b[2] <= q.ymax && t.b[3] >= q.ymin),
+  );
+}
 
 async function snapshotHits(catList: string, region: Resolution, radius: number) {
   const con = await connect(false);
@@ -357,22 +425,30 @@ async function snapshotQuery(
     });
   await secretP;
   const base = `r2://${e.R2_BUCKET}`;
-  if (!manifestCache || Date.now() - manifestCache.at > MANIFEST_TTL_MS) {
-    const res = await con.run(`SELECT "glob", "release" FROM read_json('${base}/manifest.json')`);
-    const [row] = await res.getRows();
-    const glob = String(row?.[0] ?? "");
-    if (!/^places\/[\w.-]+\/\*\.parquet$/.test(glob)) throw new Error(`manifest glob looks wrong: ${glob}`);
-    manifestCache = { glob, release: String(row[1]), at: Date.now() };
-  }
+  const copy = await layout(con, base);
   const where = within(region, radius, SNAPSHOT_COLS)!;
-  await con.run(`
-    CREATE TEMP TABLE hits AS
-    SELECT id, name, cat, site, phone, addr, town, lon, lat
-    FROM read_parquet('${base}/${manifestCache.glob}')
-    WHERE cat IN (${catList})
-      AND ${where.sql}
-  `);
-  return { con, source: `snapshot:${manifestCache.release}` };
+  let from: string | null;
+  if ("tiles" in copy) {
+    const picked = tilesFor(copy.tiles, region, radius);
+    from = picked.length ? `[${picked.map((t) => `'${base}/${t.f}'`).join(", ")}]` : null;
+  } else {
+    from = `'${base}/${copy.glob}'`;
+  }
+  if (!from) {
+    // Nowhere in the copy overlaps the search: an honest zero, not an error.
+    await con.run(
+      "CREATE TEMP TABLE hits (id VARCHAR, name VARCHAR, cat VARCHAR, site VARCHAR, phone VARCHAR, addr VARCHAR, town VARCHAR, lon DOUBLE, lat DOUBLE)",
+    );
+  } else {
+    await con.run(`
+      CREATE TEMP TABLE hits AS
+      SELECT id, name, cat, site, phone, addr, town, lon, lat
+      FROM read_parquet(${from}, hive_partitioning = false)
+      WHERE cat IN (${catList})
+        AND ${where.sql}
+    `);
+  }
+  return { con, source: `snapshot:${copy.release}` };
 }
 
 /** The matching places, into a temp table `hits`: our copy first, Overture after. */

@@ -62,14 +62,20 @@ for (const [, anchor, city, state] of canaries) {
 
 check(
   "the manifest is written only after the contract passes",
-  job.indexOf("CONTRACT FAILED") > 0 && job.indexOf("CONTRACT FAILED") < job.indexOf("manifest.json' (FORMAT json)"),
+  job.indexOf("CONTRACT FAILED") > 0 && job.indexOf("CONTRACT FAILED") < job.indexOf('put_json("manifest.json"'),
 );
 {
   // Old copies are deleted only once the manifest points elsewhere, so the
   // live copy is never removed, and two are kept for a rollback.
-  const promoted = job.slice(job.indexOf("manifest.json' (FORMAT json)"));
+  const promoted = job.slice(job.indexOf('put_json("manifest.json"'));
   check("old copies are pruned only after the manifest moves", /prune\(keep\)/.test(promoted));
-  check("the previous copy is kept for a rollback", /keep = \{release\} \| \(\{manifest\["previous"\]\}/.test(job));
+  check("the previous copy is kept for a rollback", /keep = \{copy_id\} \| \(\{manifest\["previous"\]\}/.test(job));
+  check(
+    "the tile index is written before the manifest that names it",
+    job.indexOf('put_json(f"places/{copy_id}/index.json"') > 0 &&
+      job.indexOf('put_json(f"places/{copy_id}/index.json"') < job.indexOf('put_json("manifest.json"'),
+  );
+  check("a new layout never writes over the live copy's folder", /copy_id = f"\{release\}\.\{LAYOUT\}"/.test(job));
 }
 check(
   "an unconfigured deployment never tries the copy",
@@ -87,6 +93,30 @@ check(
   "R2 settings are validated before they reach SQL",
   /const SAFE = \/\^\[A-Za-z0-9_.-\]\+\$\//.test(supply),
 );
+
+// --- tile selection --------------------------------------------------------------
+
+{
+  const { compileLib } = await import("./_tsmodules.mjs");
+  const lib = compileLib(["src/lib/supply.ts", "src/lib/region.ts"], "sf-tiles-");
+  const { tilesFor } = await lib.load("supply");
+  const tile = (f, b) => ({ f, b });
+  const T = [
+    tile("denver", [-105.2, -104.8, 39.5, 39.9]),
+    tile("boulder", [-105.4, -105.1, 39.9, 40.2]),
+    tile("miami", [-80.4, -80.0, 25.6, 25.9]),
+    tile("far", [-120, -119, 47, 48]),
+  ];
+  const denver = { label: "Denver", scope: "city", sample: [], city: { center: [-104.9903, 39.7392] } };
+  const got = tilesFor(T, denver, 25).map((t) => t.f).sort().join(",");
+  check("a city search opens the tiles its radius overlaps, and only those", got === "boulder,denver", got);
+  const state = { label: "Two cities", scope: "state", sample: [{ center: [-104.9903, 39.7392] }, { center: [-80.1918, 25.7617] }], city: null };
+  const got2 = tilesFor(T, state, 25).map((t) => t.f).sort().join(",");
+  check("a state search tests each sampled city, not their union", got2 === "boulder,denver,miami", got2);
+  check("a search nowhere near any tile opens none", tilesFor(T, { label: "x", scope: "city", sample: [], city: { center: [-70, 44] } }, 25).length === 0);
+}
+check("an empty selection is an honest zero, not an error", /CREATE TEMP TABLE hits \(id VARCHAR/.test(supply));
+check("tile paths from the bucket are checked before they reach SQL", /const TILE_PATH = /.test(supply) && /TILE_PATH\.test\(t\.f\)/.test(supply));
 
 console.log(failures ? `\n${failures} failed` : "\nall good");
 process.exit(failures ? 1 : 0);
