@@ -22,7 +22,14 @@ import { resolveRegion, type Places } from "@/lib/region";
  */
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+/**
+ * Five minutes, not sixty seconds. The Overture scan moved to the 2026-10-21
+ * taxonomy release and New York's agencies took 45s of a 42s budget on
+ * 2026-10-24: the sweep found 177 fresh agencies and read none of them. The
+ * scan cannot be made instant, so the reading gets room after it. Hobby allows
+ * 300s on Fluid compute.
+ */
+export const maxDuration = 300;
 
 async function places(): Promise<Places | null> {
   try {
@@ -47,7 +54,7 @@ async function run(where: string) {
   if (!region || region.scope !== "city") {
     return Response.json({ ok: false, reason: `"${where}" is not a US city we can place.` }, { status: 400 });
   }
-  const result = await sweep(region, { budgetMs: 42_000 });
+  const result = await sweep(region, { budgetMs: 240_000 });
   const totals = result.ok ? await prospectCounts().catch(() => null) : null;
   return Response.json({ ...result, totals }, { status: result.ok ? 200 : 503, headers: { "cache-control": "no-store" } });
 }
