@@ -48,6 +48,13 @@ export interface Category {
   n: number;
   /** Of those, how many carry a website — the ones we could read. */
   site: number;
+  /**
+   * Where the category sits in Overture's taxonomy, root first, ending with
+   * its own id: `health_care > outpatient_care_facility > dental_clinic >
+   * orthodontics`. Absent on taxonomies built before 2026-10-24, when the
+   * release replaced `categories` with `taxonomy`.
+   */
+  path?: string[];
 }
 
 export interface Taxonomy {
@@ -84,26 +91,46 @@ export interface Match {
  * nothing when tried against the real 1,817 categories.
  */
 const SYNONYM: Record<string, string> = {
+  // The 2026-10-21 taxonomy names the practice, not the practitioner:
+  // `dental_clinic`, `chiropractic`, `psychiatry`, `optometry`. Stems cannot
+  // reach those from the word people type — "dentists" agrees with
+  // `general_dentistry` before `dental_clinic` — so they are named here, and
+  // the hierarchy brings the specialties along (see `family`).
+  dentist: "dental_clinic",
+  dentists: "dental_clinic",
+  dental: "dental_clinic",
+  orthodontist: "orthodontics",
+  orthodontists: "orthodontics",
+  chiropractor: "chiropractic",
+  chiropractors: "chiropractic",
+  psychiatrist: "psychiatry",
+  psychiatrists: "psychiatry",
+  optometrist: "optometry",
+  optometrists: "optometry",
+  lawyer: "attorney_or_law_firm",
+  lawyers: "attorney_or_law_firm",
+  doctor: "doctors_office",
+  doctors: "doctors_office",
   vet: "veterinarian",
   vets: "veterinarian",
   physio: "physical_therapy",
   physios: "physical_therapy",
   physiotherapist: "physical_therapy",
   physiotherapists: "physical_therapy",
-  gp: "doctor",
-  gps: "doctor",
+  gp: "doctors_office",
+  gps: "doctors_office",
   realtor: "real_estate_agent",
   realtors: "real_estate_agent",
   cpa: "accountant",
   cpas: "accountant",
-  attorney: "lawyer",
-  attorneys: "lawyer",
-  solicitor: "lawyer",
-  solicitors: "lawyer",
-  "aircon": "hvac_services",
-  "air conditioning": "hvac_services",
-  "heating and cooling": "hvac_services",
-  "heating": "hvac_services",
+  attorney: "attorney_or_law_firm",
+  attorneys: "attorney_or_law_firm",
+  solicitor: "attorney_or_law_firm",
+  solicitors: "attorney_or_law_firm",
+  "aircon": "hvac_service",
+  "air conditioning": "hvac_service",
+  "heating and cooling": "hvac_service",
+  "heating": "hvac_service",
   "estate agent": "real_estate_agent",
   "estate agents": "real_estate_agent",
   "car repair": "automotive_repair",
@@ -124,11 +151,11 @@ const SYNONYM: Record<string, string> = {
   // "law" agrees with "lawyer" on only 3 of 6 characters, below `AGREE`, so
   // "law firm" reaches every `*_law` practice area and not the firms. Measured,
   // not guessed: it came back `personal_injury_law`.
-  "law firm": "lawyer",
-  "law firms": "lawyer",
-  "law": "lawyer",
-  "optician": "optometrist",
-  "opticians": "optometrist",
+  "law firm": "attorney_or_law_firm",
+  "law firms": "attorney_or_law_firm",
+  "law": "attorney_or_law_firm",
+  "optician": "optometry",
+  "opticians": "optometry",
 };
 
 /**
@@ -297,6 +324,14 @@ function family(cats: Category[], anchor: Category): Category[] {
   return cats.filter(
     (c) =>
       c.id === id ||
+      // **Descendants, by the taxonomy's own tree.** Since 2026-10-24 the
+      // release says that `orthodontics` and `pediatric_dentistry` sit under
+      // `dental_clinic`, which is what the word rules below were guessing at.
+      // A child is narrower than its parent by construction, so this widens
+      // only downward and can never pull a sibling or a catch-all in: the
+      // `health_and_medical` mistake needs an ancestor, and ancestors are
+      // never members.
+      (!supplier(c.id) && (c.path ?? []).slice(0, -1).includes(id)) ||
       (!supplier(c.id) &&
         (c.id.endsWith(`_${id}`) ||
           // Only for a single-word anchor. Comparing one token against a
@@ -423,7 +458,13 @@ export function matchTrade(taxo: Taxonomy | null, typed: string): Match {
     if (groups.length >= 4) break;
   }
 
-  const [best, ...near] = groups;
+  // A near miss has to be the same kind of business, by the taxonomy's root.
+  // Without this a med spa search offered `coworking_space` and
+  // `shared_office_space` as alternatives, because "space" agrees with "spas"
+  // on 3 of 5 letters. Taxonomies without a `path` keep every near miss.
+  const [best, ...rest] = groups;
+  const rootOf = (g: Group) => byId.get(g.anchor)?.path?.[0];
+  const near = rootOf(best) ? rest.filter((g) => rootOf(g) === rootOf(best)) : rest;
   return { best, near: near.slice(0, 3) };
 }
 

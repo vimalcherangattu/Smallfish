@@ -53,10 +53,23 @@ import "server-only";
 
 import type { Resolution } from "@/lib/region";
 
-/** The release this reads. One string, so the candidates and `places-us.json`
- *  — whose city centres this query measures distance from — cannot drift onto
- *  different releases. */
-export const RELEASE = "2026-08-19.0";
+/**
+ * The release this reads, and the one `public/data/trades.json` was built from,
+ * so the category ids a search sends are ids this release actually has.
+ * `test_trades.mjs` fails if the two disagree.
+ *
+ * **2026-10-24: this string took search down.** It said `2026-08-19.0`, and
+ * Overture keeps about two months of releases online; when that one was
+ * deleted every count in production returned 500. The surviving releases had
+ * also renamed the category column (`categories` → `taxonomy`) and most of its
+ * ids, so moving the pin alone would have changed nothing.
+ *
+ * What stops it happening silently again is `placeFiles`: if this release is
+ * gone it reads the newest one that has the same columns and logs that it did.
+ * That keeps search up; it is not the fix. The fix is our own snapshot —
+ * `docs/DATA-SOURCING.md`, step 1.
+ */
+export const RELEASE = "2026-10-21.0";
 
 const S3_BASE = "https://overturemaps-us-west-2.s3.amazonaws.com/";
 
@@ -105,15 +118,49 @@ export interface Supply {
  */
 let fileCache: string[] | null = null;
 
-export async function placeFiles(): Promise<string[]> {
-  if (fileCache) return fileCache;
-  const prefix = `release/${RELEASE}/theme=places/type=place/`;
+async function keysFor(release: string): Promise<string[]> {
+  const prefix = `release/${release}/theme=places/type=place/`;
   const url = `${S3_BASE}?list-type=2&prefix=${encodeURIComponent(prefix)}&max-keys=1000`;
   const xml = await (await fetch(url)).text();
-  const keys = [...xml.matchAll(/<Key>([^<]+)<\/Key>/g)]
+  return [...xml.matchAll(/<Key>([^<]+)<\/Key>/g)]
     .map((m) => m[1])
     .filter((k) => k.endsWith(".parquet"));
-  if (!keys.length) throw new Error(`No parquet files for Overture release ${RELEASE}`);
+}
+
+/** Releases still online, newest first. Release names sort as dates. */
+export async function liveReleases(): Promise<string[]> {
+  const url = `${S3_BASE}?list-type=2&prefix=release%2F&delimiter=%2F`;
+  const xml = await (await fetch(url)).text();
+  return [...xml.matchAll(/<Prefix>release\/([^<]+)\/<\/Prefix>/g)]
+    .map((m) => m[1])
+    .sort()
+    .reverse();
+}
+
+/** The release actually being read — `RELEASE`, unless it has been deleted. */
+export let releaseInUse = RELEASE;
+
+export async function placeFiles(): Promise<string[]> {
+  if (fileCache) return fileCache;
+  let keys = await keysFor(RELEASE);
+  if (!keys.length) {
+    // The pinned release is gone. Newer releases are tried rather than none,
+    // because a search that is down is worse than one a month fresher than
+    // `trades.json`. Only a release the query can run on is accepted: the
+    // columns are checked in `supplyFor`, which fails loudly if they moved.
+    for (const r of await liveReleases()) {
+      if (r <= RELEASE) continue;
+      keys = await keysFor(r);
+      if (keys.length) {
+        releaseInUse = r;
+        console.error(
+          `[supply] Overture release ${RELEASE} is gone; reading ${r}. Rebuild trades.json and move RELEASE.`,
+        );
+        break;
+      }
+    }
+  }
+  if (!keys.length) throw new Error(`No parquet files for Overture release ${RELEASE} or newer`);
   fileCache = keys.map((k) => S3_BASE + k.replace(/=/g, "%3D"));
   return fileCache;
 }
@@ -249,7 +296,7 @@ export async function supplyFor(
     CREATE TEMP TABLE hits AS
     SELECT id,
            names.primary                 AS name,
-           categories.primary            AS cat,
+           taxonomy.primary              AS cat,
            websites[1]                   AS site,
            phones[1]                     AS phone,
            addresses[1].freeform         AS addr,
@@ -262,7 +309,7 @@ export async function supplyFor(
            ST_X(geometry)                AS lon,
            ST_Y(geometry)                AS lat
     FROM read_parquet([${fileList}])
-    WHERE categories.primary IN (${catList})
+    WHERE taxonomy.primary IN (${catList})
       AND ${where.sql}
   `);
 

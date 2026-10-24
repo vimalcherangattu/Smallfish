@@ -15,8 +15,13 @@ and multiplying by sixteen. **That was wrong and the error was large**: shard 0
 holds 11,816 dentists, which predicts 189,056, against the measured 120,381.
 The shards are not uniform. Do not extrapolate from one.
 
+**2026-10-24: the taxonomy changed under us.** Overture dropped `categories`
+for `taxonomy` (`primary` plus a root-first `hierarchy`) and renamed most ids —
+`dentist` became `dental_clinic`, plumbing sits under `home_service`. This
+groups by `taxonomy.primary` and keeps the hierarchy as `path`.
+
 Usage:
-    python3 stage0/src/coverage/export_trades.py
+    python3 stage0/src/coverage/export_trades.py [release]
 """
 
 from __future__ import annotations
@@ -64,7 +69,12 @@ def list_place_files(release: str) -> list[str]:
 
 
 def main() -> int:
-    release = json.loads(FIXTURES.read_text())["overture_release"]
+    # The release is named on the command line, not read from the benchmark
+    # fixture. The fixture records which release the Stage 0 benchmark was
+    # measured on, and that release no longer exists: Overture keeps about two
+    # months online, and 2026-08-19.0 was deleted under a live product on
+    # 2026-10-24. The app reads whatever release this file names.
+    release = sys.argv[1] if len(sys.argv) > 1 else json.loads(FIXTURES.read_text())["overture_release"]
     files = list_place_files(release)
     print(f"Overture release {release}, {len(files)} place files", flush=True)
 
@@ -78,13 +88,14 @@ def main() -> int:
     started = time.time()
     rows = con.execute(
         f"""
-        SELECT categories.primary                              AS id,
+        SELECT taxonomy.primary                                AS id,
                count(*)                                        AS n,
-               count(*) FILTER (WHERE len(websites) > 0)        AS site
+               count(*) FILTER (WHERE len(websites) > 0)        AS site,
+               any_value(taxonomy.hierarchy)                   AS path
         FROM read_parquet([{file_list}])
         WHERE bbox.xmin BETWEEN {US_BBOX['xmin']} AND {US_BBOX['xmax']}
           AND bbox.ymin BETWEEN {US_BBOX['ymin']} AND {US_BBOX['ymax']}
-          AND categories.primary IS NOT NULL
+          AND taxonomy.primary IS NOT NULL
         GROUP BY 1
         HAVING count(*) >= {MIN_LISTINGS}
         ORDER BY 2 DESC
@@ -92,7 +103,13 @@ def main() -> int:
     ).fetchall()
     elapsed = round(time.time() - started)
 
-    cats = [{"id": r[0], "n": int(r[1]), "site": int(r[2])} for r in rows]
+    # `path` is the category's place in the taxonomy, root first. Kept so a
+    # search for a parent ("dental_clinic") can take its children
+    # ("orthodontics") without a second hand-kept list.
+    cats = [
+        {"id": r[0], "n": int(r[1]), "site": int(r[2]), "path": list(r[3] or [])}
+        for r in rows
+    ]
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(
         json.dumps(

@@ -41,6 +41,8 @@ Both are CLAUDE.md §1–2, and together they are the cut every change is measur
 
 ## In flight
 
+- 2026-10-24: search restored after Overture deleted our pinned release. Next: our own snapshot.
+- Data sourcing plan adopted: `docs/DATA-SOURCING.md`. Step 1 of 7 next.
 - Milestone 3, slice 3: one migration against the PRD shape, then the judge.
 - Reordered 2026-10-16 by DEW: the headless fetcher fallback comes before judge polish, because
   it is the ceiling on lead quality rather than one item inside the milestone.

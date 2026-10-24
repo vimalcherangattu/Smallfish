@@ -133,7 +133,16 @@ export default function Discover({
         if (body.ok) setData(body);
         else setFail(body);
       } catch {
-        if (live) setFail({ ok: false, reason: "We could not reach the listings just now." });
+        // Ours, and said in the first person. This is what a 500 from the route
+        // lands on, and on 2026-10-24 it was every search for hours because
+        // our pinned data release had been deleted. "Could not reach the
+        // listings" put it on them.
+        if (live)
+          setFail({
+            ok: false,
+            reason: "Our search broke on our side.",
+            hint: "We have been told. Try again in a few minutes.",
+          });
       }
     })();
     return () => {

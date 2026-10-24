@@ -62,32 +62,32 @@ check(
 // whole group — the group is asserted separately — because the anchor is the
 // claim ("this is what you meant") and the group follows from it.
 const ANCHORS = [
-  ["dentists", "dentist"],
-  ["dental practices", "dentist"],
+  ["dentists", "dental_clinic"],
+  ["dental practices", "dental_clinic"],
   ["plumbers", "plumbing"],
-  ["HVAC companies", "hvac_services"],
+  ["HVAC companies", "hvac_service"],
   ["roofers", "roofing"],
   ["vets", "veterinarian"],
   ["veterinary clinics", "veterinarian"],
   ["med spas", "medical_spa"],
   ["medical spas", "medical_spa"],
-  ["spas", "spas"],
+  ["spas", "spa"],
   ["electricians", "electrician"],
-  ["chiropractors", "chiropractor"],
+  ["chiropractors", "chiropractic"],
   ["accountants", "accountant"],
   ["landscapers", "landscaping"],
   ["pest control", "pest_control_service"],
   ["carpenters", "carpenter"],
   ["yoga studios", "yoga_studio"],
   ["coffee shops", "coffee_shop"],
-  ["psychiatrists", "psychiatrist"],
+  ["psychiatrists", "psychiatry"],
   ["garage door companies", "garage_door_service"],
   ["pool cleaners", "pool_cleaning"],
   ["barbers", "barber"],
   ["florists", "florist"],
   ["physios", "physical_therapy"],
   ["realtors", "real_estate_agent"],
-  ["law firms", "lawyer"],
+  ["law firms", "attorney_or_law_firm"],
   ["gyms", "gym"],
 ];
 
@@ -105,7 +105,7 @@ for (const [typed, want] of ANCHORS) {
 const med = matchTrade(taxo, "med spas");
 check(
   "med spas does not scan generic spas",
-  !med.best.categories.includes("spas"),
+  !med.best.categories.includes("spa"),
   `categories: ${med.best.categories.join(", ")}`,
 );
 check(
@@ -115,9 +115,45 @@ check(
 );
 check(
   "med spas offers generic spas as a near miss rather than hiding the choice",
-  med.near.some((g) => g.categories.includes("spas")),
+  med.near.some((g) => g.categories.includes("spa")),
   `near: ${med.near.map((g) => g.anchor).join(", ") || "none"}`,
 );
+check(
+  "med spas offers only near misses of the same kind of business",
+  med.near.every((g) => !/space|office/.test(g.anchor)),
+  `near: ${med.near.map((g) => g.anchor).join(", ") || "none"}`,
+);
+
+// --------------------------------------------- the taxonomy's own hierarchy --
+//
+// Since 2026-10-24 the release says which categories sit under which. A search
+// for the parent takes its children; it never takes a parent or a sibling.
+const dent = matchTrade(taxo, "dentists");
+check(
+  "dentists takes the specialties under dental_clinic",
+  ["orthodontics", "pediatric_dentistry", "general_dentistry"].every((c) => dent.best.categories.includes(c)),
+  `categories: ${dent.best.categories.join(", ")}`,
+);
+check(
+  "dentists does not take the dental lab or the supply store",
+  !dent.best.categories.some((c) => ["b2b_dental_lab", "dental_supply_store"].includes(c)),
+  `categories: ${dent.best.categories.join(", ")}`,
+);
+check(
+  "a child category never takes its parent",
+  !matchTrade(taxo, "orthodontists").best.categories.includes("dental_clinic"),
+  `categories: ${matchTrade(taxo, "orthodontists").best.categories.join(", ")}`,
+);
+
+// The app reads the release `trades.json` was built from, or the ids it sends
+// may not exist in what it reads. This is the drift that took search down on
+// 2026-10-24.
+{
+  const supplySrc = readFileSync("src/lib/supply.ts", "utf8");
+  const pinned = supplySrc.match(/export const RELEASE = "([^"]+)"/)?.[1];
+  check("supply.ts reads the release trades.json was built from", pinned === taxo.release, `supply.ts ${pinned}, trades.json ${taxo.release}`);
+}
+
 check(
   "med spas does not swallow the health_and_medical catch-all",
   !med.best.categories.includes("health_and_medical") && med.best.n < 100_000,
