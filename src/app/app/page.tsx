@@ -21,6 +21,7 @@ import { evidenceFor, prettyDay } from "@/lib/appview";
 import { PLANS } from "@/lib/pricing";
 import { suppressedIds } from "@/lib/db";
 import { buildLeads, composeEmail, marketFor, type Contacts } from "@/lib/leads";
+import { readCarry } from "@/lib/intake";
 import { splitQuery } from "@/lib/query";
 import { nearestCity, resolveRegion, type Places } from "@/lib/region";
 import type { Business, Criterion, Market, MarketIndex } from "@/lib/types";
@@ -130,9 +131,13 @@ async function json<T>(name: string): Promise<T | null> {
 export default async function App({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { q = "" } = await searchParams;
+  const sp = await searchParams;
+  const q = typeof sp.q === "string" ? sp.q : "";
+  // What `/app/find` and the doors carry: the categories already chosen, the
+  // door, and what they sell. See `intake.ts`.
+  const carry = readCarry(sp);
   const query = q.trim();
 
   const [index, places] = await Promise.all([
@@ -215,7 +220,7 @@ export default async function App({
   // hand. `NotRead` now covers only the case below it, a place we could not
   // place at all.
   if (!result && region) {
-    return <Discover query={query} signedIn={await isSignedIn()} />;
+    return <Discover query={query} signedIn={await isSignedIn()} carry={carry} />;
   }
 
   // We could not place what they typed. Nothing to count and nothing to offer

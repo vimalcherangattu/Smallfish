@@ -65,7 +65,9 @@ Nothing mid-change; the working tree is clean.
 1. ~~Headless fetcher~~ → **read reliability, built 1 Nov** (decision log, 2026-11-01). One read per
    website, chains (5+ listings on one site) left out, one retry on temporary failures, home page
    when a deep link fails, outcomes `unsure.ts` can explain. Headless dropped on the measurement.
-2. "Get specific": one skippable "what do you sell" screen; carry categories and `?source=`.
+2. ~~"Get specific"~~ **built 1 Nov**: optional "What do you sell?" (`intake.ts` over `icp.ts`), and
+   source / categories / offer carried to sign-up. Also fixed: plural offers ("website redesigns")
+   matched no signal in `signals.ts`.
 3. Strong / Maybe / No and the two-sentence judge on the results screen (`fit.ts`).
 4. Named contacts: person, then role mailbox, then withheld.
 5. `rules.ts`: free listing rules before any paid read.
@@ -85,10 +87,10 @@ Older list, still true:
 
 ## Known issues
 
-- **`?source=` is dropped on arrival.** GTM's doors send `?source=home`, `?source=check…`
-  and `?source=outreach/<token>` to `/app/find`; `find/page.tsx` renders `<PoolSearch />`
-  with no props and never reads `searchParams`. Attribution is lost, and it blocks the
-  PostHog funnel work. Open task, due 23 Oct, not started.
+- ~~`?source=` is dropped on arrival~~ **Fixed 1 Nov** (plan item 2): `/app/find` reads `?what=&where=&source=`
+  and counts on arrival; "Get specific" carries source and the counted categories; Discover has the
+  optional "What do you sell?" field and its sign-up link keeps `source` and `sells`. PostHog funnel
+  work is unblocked.
 - **Zero-page reads were 42% with one chain in the sample, 20% without it** (decision log 2026-11-01).
   Couldn't-tell is still 62% without the chain, mostly on four-page reads: the judge, plan item 3.
 - **Instantly returns 402 "no active paid plan" since 29 Oct**: cold email has not queued a lead

@@ -6,6 +6,7 @@ import Link from "next/link";
 
 import { Arrow, Clock } from "@/components/app/icons";
 import { agree } from "@/lib/appview";
+import { appHref, fitOffer, signUpHref, type Carry } from "@/lib/intake";
 import { splitQuery } from "@/lib/query";
 
 /**
@@ -98,14 +99,20 @@ function spell(lowSec: number, highSec: number): string {
 export default function Discover({
   query,
   signedIn,
+  carry = {},
 }: {
   query: string;
   signedIn: boolean;
+  /** What `/app/find` or a door sent along. See `intake.ts`. */
+  carry?: Carry;
 }) {
   const router = useRouter();
   const [data, setData] = useState<Supply | null>(null);
   const [fail, setFail] = useState<Fail | null>(null);
-  const [cats, setCats] = useState<string[] | null>(null);
+  // Start from the categories `/app/find` counted, so a "did you mean" the
+  // customer picked there is still the thing being counted here.
+  const [cats, setCats] = useState<string[] | null>(carry.cats ?? null);
+  const [sells, setSells] = useState(carry.sells ?? "");
   const [want, setWant] = useState<number | null>(null);
   const [typed, setTyped] = useState("");
   const [starting, setStarting] = useState(false);
@@ -345,27 +352,18 @@ export default function Discover({
         )}
 
         {!d.question ? (
-          <div className="col" style={{ gap: 12 }}>
-            <p className="t-h3">What should we look for?</p>
-            <div className="exs">
-              {d.canCheck.map((c) => (
-                <Link
-                  className="chip"
-                  key={c.check}
-                  href={`/app?q=${encodeURIComponent(
-                    `${d.trade.typed} in ${d.region.label.split(",")[0]} that ${c.text}`,
-                  )}`}
-                  prefetch={false}
-                >
-                  {c.text}
-                </Link>
-              ))}
-            </div>
-            <p className="t-s" style={{ maxWidth: "60ch" }}>
-              These are the things we can settle off a website and prove with a sentence from
-              it. Anything else, we would be guessing.
-            </p>
-          </div>
+          <Intake
+            sells={sells}
+            setSells={setSells}
+            menu={d.canCheck}
+            href={(text) =>
+              appHref(`${d.trade.typed} in ${d.region.label.split(",")[0]} that ${text}`, {
+                source: carry.source,
+                sells,
+                cats: d.trade.categories.map((c) => c.id),
+              })
+            }
+          />
         ) : (
           <>
             {/* --------------------------------------------------- how many -- */}
@@ -451,7 +449,7 @@ export default function Discover({
               {!haveAccount && (
                 <p className="t-s" style={{ maxWidth: "58ch" }}>
                   A read is queued against a workspace, so this needs an account, {" "}
-                  <Link className="lnk" href={`/sign-up?q=${encodeURIComponent(query)}`}>
+                  <Link className="lnk" href={signUpHref(query, { source: carry.source, sells })}>
                     sign up and these {n(picked)} are free
                   </Link>
                   . No card.
@@ -587,6 +585,82 @@ function Arithmetic({
             )}
           </>
         )}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * "Tell us what you sell" — the promise `/app/find` makes, kept in one
+ * optional field (GEW: it must work and must not be in the way). Typing an
+ * offer puts the checks it implies first and marks them; skipping it is just
+ * picking a chip. `fitOffer` uses `icp.ts`, so what a website cannot show is
+ * refused out loud rather than turned into a check we cannot honour.
+ */
+function Intake({
+  sells,
+  setSells,
+  menu,
+  href,
+}: {
+  sells: string;
+  setSells: (v: string) => void;
+  menu: Array<{ check: string; text: string; label: string }>;
+  href: (text: string) => string;
+}) {
+  const fit = useMemo(() => fitOffer(sells, menu), [sells, menu]);
+  return (
+    <div className="col" style={{ gap: 12 }}>
+      <label className="t-h3" htmlFor="sells">
+        What do you sell?{" "}
+        <span className="t-s" style={{ fontWeight: 400 }}>
+          Optional
+        </span>
+      </label>
+      <input
+        id="sells"
+        className="chip ghost"
+        value={sells}
+        onChange={(e) => setSells(e.target.value)}
+        placeholder="e.g. online booking software, website redesigns, review management"
+        maxLength={80}
+        style={{ width: "100%", maxWidth: 520, font: "inherit", textAlign: "left" }}
+      />
+      {fit.fits.size > 0 && (
+        <p className="t-s" style={{ maxWidth: "60ch" }}>
+          The businesses that need that are the ones missing it, so we put those checks first.
+        </p>
+      )}
+      {fit.refused.map((r) => (
+        <p className="t-s" key={r.label} style={{ maxWidth: "60ch" }}>
+          We can&rsquo;t yet tell from a website whether a business has {r.label}, so we
+          won&rsquo;t pretend to check for it.
+        </p>
+      ))}
+      {fit.nothingObservable && (
+        <p className="t-s" style={{ maxWidth: "60ch" }}>
+          Nothing on a website tells us who needs that. Pick what to look for below.
+        </p>
+      )}
+
+      <p className="t-h3" style={{ marginTop: 6 }}>
+        What should we look for?
+      </p>
+      <div className="exs">
+        {fit.checks.map((c) => (
+          <Link
+            className={`chip${fit.fits.has(c.check) ? " on" : ""}`}
+            key={c.check}
+            href={href(c.text)}
+            prefetch={false}
+          >
+            {c.text}
+          </Link>
+        ))}
+      </div>
+      <p className="t-s" style={{ maxWidth: "60ch" }}>
+        These are the things we can settle off a website and prove with a sentence from it.
+        Anything else, we would be guessing.
       </p>
     </div>
   );

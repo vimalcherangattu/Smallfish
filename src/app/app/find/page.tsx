@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import PoolSearch from "@/components/app/PoolSearch";
+import { readCarry } from "@/lib/intake";
 
 /**
  * PRD v2's entry screen, at its own route while the flow is built.
@@ -30,6 +31,17 @@ export const metadata: Metadata = {
     "How many of a kind of business exist in a US city, and how many have a website we can read. No account.",
 };
 
-export default function FindPage() {
-  return <PoolSearch />;
+export default async function FindPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const one = (k: string) => {
+    const v = sp[k];
+    return ((Array.isArray(v) ? v[0] : v) ?? "").trim().slice(0, 80);
+  };
+  return (
+    <PoolSearch initialTrade={one("what")} initialWhere={one("where")} source={readCarry(sp).source} />
+  );
 }

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Arrow } from "@/components/app/icons";
+import { appHref } from "@/lib/intake";
 
 /**
  * Two fields, then a real number (PRD v2, steps 1 and 2).
@@ -92,10 +93,25 @@ interface Counted {
 
 type Problem = { field?: string; reason: string; hint?: string; suggest?: string | null };
 
-export default function PoolSearch() {
+/**
+ * `what`, `where` and `source` arrive from GTM's doors (`?source=home`,
+ * `?source=outreach/<token>`). They used to be dropped on arrival: the page
+ * rendered this with no props, so a link that promised "plumbers in Denver"
+ * landed on two empty fields, and the signup it led to could not be traced to
+ * the door. Read by `find/page.tsx`, validated by `readCarry`.
+ */
+export default function PoolSearch({
+  initialTrade = "",
+  initialWhere = "",
+  source = null,
+}: {
+  initialTrade?: string;
+  initialWhere?: string;
+  source?: string | null;
+} = {}) {
   const router = useRouter();
-  const [trade, setTrade] = useState("");
-  const [where, setWhere] = useState("");
+  const [trade, setTrade] = useState(initialTrade);
+  const [where, setWhere] = useState(initialWhere);
   const [understood, setUnderstood] = useState<Understood | null>(null);
   const [counted, setCounted] = useState<Counted | null>(null);
   const [counting, setCounting] = useState(false);
@@ -168,9 +184,22 @@ export default function PoolSearch() {
   /** Step 3 is the intake and is not built yet, so the one button hands over to
    *  the flow that does work today, with both fields carried. Said plainly on
    *  the screen rather than dressed as the finished thing. */
+  // A link that names both fields counts straight away: the count is free and
+  // usually cached, and making somebody press the button a link already
+  // pressed for them is a step that exists for no one. Once, on arrival.
+  const arrived = useRef(false);
+  useEffect(() => {
+    if (arrived.current || !initialTrade.trim() || !initialWhere.trim()) return;
+    arrived.current = true;
+    void ask();
+  }, [ask, initialTrade, initialWhere]);
+
+  // The categories the count used travel with the question — including a
+  // "did you mean" the customer picked, which re-resolving the text on the
+  // next screen would quietly undo — and so does the door they came in by.
   const onward = () => {
     const q = `${trade.trim()} in ${where.trim()}`;
-    router.push(`/app?q=${encodeURIComponent(q)}`);
+    router.push(appHref(q, { source, cats: understood?.categories ?? null }));
   };
 
   const [exTrade, exWhere] = EXAMPLES[example] ?? EXAMPLES[0]!;

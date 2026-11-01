@@ -135,7 +135,7 @@ export const SIGNALS: ObservableSignal[] = [
       "means rebuilding it rather than editing it",
     inCriterion: /\b(wix|squarespace|godaddy|webflow|shopify|website builder|drag[- ]and[- ]drop|template site)\b/i,
     inOffer:
-      /\b(web ?site design|web design|redesign|rebuild (their|the)? ?(web ?site)?|new web ?site|wix|squarespace|webflow)\b/i,
+      /\b(web ?site designs?|web designs?|redesigns?|rebuild(s|ing)? (their|the)? ?(web ?sites?)?|new web ?sites?|wix|squarespace|webflow)\b/i,
   },
 
   {
@@ -205,7 +205,7 @@ export const SIGNALS: ObservableSignal[] = [
     costsWhenMissing:
       "most of the traffic arrives on a phone and bounces",
     inCriterion: /\b(mobile|responsive|viewport)\b/i,
-    inOffer: /\b(redesign|web ?design|rebuild|modern\w* (the )?site|mobile)\b/i,
+    inOffer: /\b(redesigns?|web ?designs?|rebuild(s|ing)?|modern\w* (the )?sites?|mobile)\b/i,
     wouldTake:
       "a viewport-meta and stylesheet check in the probe. Cheap, but unbuilt, " +
       "and a viewport tag is weak evidence of a site that actually works on a phone.",
