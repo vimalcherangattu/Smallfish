@@ -98,8 +98,12 @@ export async function GET(req: Request) {
   const secret = hookSecret();
   // Third-party sources say webhooks need a higher Instantly plan. If so, the
   // send still runs; replies then wait in Instantly's inbox, and this says why.
+  // Without CRON_SECRET there is no hook secret, so nothing registers and no
+  // send, reply or bounce ever reaches us. Until 2026-11-01 this still said
+  // "registered", and 56 sends went untracked.
   try {
-    if (secret) await ensureWebhook(`${SITE}/api/outreach/hook`, secret);
+    if (!secret) throw new Error("CRON_SECRET is not set on this deployment, so the webhook cannot be authorised");
+    await ensureWebhook(`${SITE}/api/outreach/hook`, secret);
     out.webhook = "registered";
   } catch (err) {
     out.webhook = `not registered: ${String(err).slice(0, 160)}`;
@@ -175,13 +179,16 @@ export async function GET(req: Request) {
   const activated: string[] = [];
   for (const a of ["agency", "seller", "widget"] as Audience[]) {
     const c = campaigns[a];
-    if (perInbox > 0 && allReady && c.status !== 1) {
+    // Instantly marks a campaign with no leads left Completed (3). Turning an
+    // empty one back on every hour does nothing (sellers, 23 times, 26-28 Oct).
+    const empty = c.status === 3 && !byAudience[a].length;
+    if (perInbox > 0 && allReady && c.status !== 1 && !empty) {
       await activate(c.id);
       await logEvent("campaign_activated", {}, { campaign: c.id, audience: a, perInbox });
       activated.push(a);
     } else if (c.status === 1) activated.push(a);
   }
   out.activated = activated;
-  if (!activated.length) out.waiting = perInbox === 0 ? `warm-up until ${GO_LIVE}` : "inboxes still being set up";
+  if (!activated.length) out.waiting = perInbox === 0 ? `warm-up until ${GO_LIVE}` : "inboxes paused or still being set up";
   return Response.json(out, { headers: { "cache-control": "no-store" } });
 }

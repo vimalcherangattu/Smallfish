@@ -33,6 +33,17 @@ test("replies, signups and held items lead the subject", () => {
 test("before go-live it says when sending starts", () => {
   assert.match(D.buildDigest(base).text, /Sending starts 2026-11-02/);
 });
+test("past go-live with paused inboxes, the subject says NOT SENDING", () => {
+  const m = D.buildDigest({ ...base, pastGoLive: true, sending: false, inboxes: { active: 0, total: 6 } });
+  assert.match(m.subject, /NOT SENDING/);
+  assert.doesNotMatch(m.subject, /all running/);
+  assert.match(m.text, /6 of 6 inboxes are paused/);
+});
+test("past go-live and sending, no alarm", () => {
+  const m = D.buildDigest({ ...base, pastGoLive: true, sending: true, inboxes: { active: 6, total: 6 } });
+  assert.doesNotMatch(m.subject, /NOT SENDING/);
+  assert.match(m.text, /Sending is on/);
+});
 test("no em dashes and a link to the dashboard", () => {
   const m = D.buildDigest({ ...base, held: [{ kind: "x", who: "y", why: "z" }] });
   assert.doesNotMatch(m.subject + m.text, /—/);

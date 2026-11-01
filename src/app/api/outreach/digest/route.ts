@@ -18,6 +18,10 @@ export const maxDuration = 60;
 
 type Ev = { kind: string; email: string | null; domain: string | null; detail: Record<string, unknown> };
 
+/** The push runs hourly, so one fault logs 24 times a day: say it once. */
+const dedupe = <T extends { kind: string; why: string }>(xs: T[]) =>
+  xs.filter((x, i) => xs.findIndex((y) => y.kind === x.kind && y.why === x.why) === i);
+
 export async function GET(req: Request) {
   if (!(await schedulerAuthorised(req))) return Response.json({ ok: false }, { status: 401 });
   const to = (process.env.OPS_EMAILS ?? "").split(",")[0]?.trim();
@@ -50,7 +54,8 @@ export async function GET(req: Request) {
 
   let sending = false;
   const boxes = instantlyReady() ? await inboxes().catch(() => []) : [];
-  if (boxes.length && dailyPerInbox(new Date().toISOString().slice(0, 10)) > 0) sending = boxes.every((b) => b.ready);
+  const pastGoLive = dailyPerInbox(new Date().toISOString().slice(0, 10)) > 0;
+  if (boxes.length && pastGoLive) sending = boxes.every((b) => b.ready);
   // The sending domains' SPF and DMARC, asked of DNS every morning.
   const auth = (await checkDomains(domainsOf(boxes.map((b) => b.email))).catch(() => []))
     .flatMap((d) => d.problems.map((why) => ({ kind: "sending domain", who: d.domain, why })));
@@ -75,12 +80,14 @@ export async function GET(req: Request) {
     signups,
     paying: (accounts ?? []).filter((a) => a.plan_id !== "free").length,
     queueReady,
-    held: ev
+    held: dedupe(ev
       .filter((e) => ["reply_held", "reply_unhandled", "hook_failed", "webhook_failed", "contacts_failed", "research_failed"].includes(e.kind))
       .map((e) => ({ kind: e.kind.replace(/_/g, " "), who: e.email ?? e.domain ?? "system", why: String(e.detail.why ?? e.detail.error ?? "").slice(0, 140) }))
-      .concat(auth),
+      .concat(auth)),
     goLive: GO_LIVE,
     sending,
+    pastGoLive: pastGoLive && instantlyReady(),
+    inboxes: { active: boxes.filter((b) => b.ready).length, total: boxes.length },
   };
   const msg = buildDigest(stats);
   const r = await sendMail(to, msg);

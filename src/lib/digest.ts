@@ -32,6 +32,10 @@ export interface DigestStats {
   held: Array<{ kind: string; who: string; why: string }>;
   goLive: string;
   sending: boolean;
+  /** Past go-live: inboxes that can send, of all. When fewer than all, nothing
+   *  is sending and the subject says so instead of "all running". */
+  inboxes?: { active: number; total: number };
+  pastGoLive?: boolean;
 }
 
 const line = (label: string, n: number) => `${label}: ${n.toLocaleString("en-US")}`;
@@ -43,10 +47,21 @@ export function buildDigest(s: DigestStats, site = "https://www.getsmallfish.com
     totalSignups ? `${totalSignups} signup${totalSignups === 1 ? "" : "s"}` : null,
     s.held.length ? `${s.held.length} to look at` : null,
   ].filter(Boolean);
+  const stalled = Boolean(s.pastGoLive && !s.sending);
+  if (stalled) heads.unshift("NOT SENDING");
   const subject = `Small Fish, ${s.day}: ${heads.length ? heads.join(", ") : "quiet day, all running"}`;
 
   const out: string[] = [];
-  out.push(s.sending ? "Sending is on." : `Sending starts ${s.goLive}. Until then the machine finds and queues.`);
+  if (stalled) {
+    const b = s.inboxes;
+    out.push(
+      b && b.total
+        ? `NOT SENDING. ${b.total - b.active} of ${b.total} inboxes are paused or in error in Instantly. Resume them there.`
+        : "NOT SENDING. Instantly reports no inbox that can send.",
+    );
+  } else {
+    out.push(s.sending ? "Sending is on." : `Sending starts ${s.goLive}. Until then the machine finds and queues.`);
+  }
   out.push("");
   out.push("OUTREACH");
   out.push(line("New prospects found", s.found));

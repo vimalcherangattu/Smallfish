@@ -41,15 +41,26 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 
 export interface Inbox {
   email: string;
+  /** Out of setup and active, so it can actually send. */
   ready: boolean;
+  /** Instantly's account status: 1 active, 2 paused, negative an error. */
+  status: number | null;
 }
 
-/** The sending inboxes, and whether each is out of setup. Instantly does not
- *  document its status enums, so "ready" is the one thing it does say plainly:
- *  `setup_pending` is false. Warm-up age is held by `GO_LIVE` instead. */
+/** Can this account send? Out of setup is not enough: on 2026-10-30 the trial
+ *  lapsed, Instantly paused all six inboxes, and this said "ready" for days
+ *  because it only read `setup_pending`. The digest said "all running" while
+ *  nothing sent. Status 1 is active; 2 is paused; negatives are errors. */
+export const canSend = (a: Record<string, unknown>) => a.setup_pending === false && a.status === 1;
+
+/** The sending inboxes, and whether each can send. Warm-up age is held by `GO_LIVE`. */
 export async function inboxes(): Promise<Inbox[]> {
   const r = await api<{ items?: Array<Record<string, unknown>> }>("/accounts?limit=100");
-  return (r.items ?? []).map((a) => ({ email: String(a.email), ready: a.setup_pending === false }));
+  return (r.items ?? []).map((a) => ({
+    email: String(a.email),
+    ready: canSend(a),
+    status: typeof a.status === "number" ? a.status : null,
+  }));
 }
 
 /* --------------------------------------------------------- campaign -- */
