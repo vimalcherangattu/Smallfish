@@ -18,6 +18,9 @@
  */
 
 import { publicError, runCounts, runCredits, runProspects } from "@/lib/gtmjobs";
+import { setRenderer } from "@/lib/read";
+
+import { headlessRenderer } from "./render";
 
 const MIN = 60_000;
 
@@ -42,8 +45,12 @@ async function main() {
       process.exit(2);
     }
   }
+  // Pages that are empty until a browser runs them are rendered here, and only
+  // here: Vercel never runs a browser. Without one they are `js_shell`.
+  const headless = name === "prospects" ? await headlessRenderer() : null;
+  if (headless) setRenderer(headless.render);
   const started = Date.now();
-  const result = await job(arg);
+  const result = await job(arg).finally(() => headless?.close());
   // `counted` is a list of page slugs (trade-in-city), not businesses.
   console.log(JSON.stringify({ job: name, seconds: Math.round((Date.now() - started) / 1000), ...result }));
   process.exit(result.ok ? 0 : 1);

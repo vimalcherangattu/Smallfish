@@ -3,6 +3,7 @@ import "server-only";
 import { flat, MAX_PAGES, robotsAllows, safeUrl } from "@/lib/seller";
 import { signalForCriterion } from "@/lib/signals";
 import { contactsFrom } from "@/lib/contacts";
+import { failKind, HttpStatus, nextTry, NotHtml, outcomeFor, publicDnsSaysDead, SHELL_CHARS, visibleChars } from "@/lib/fetchoutcome";
 import type { Criterion, ReadResult, Verdict, VerdictKind } from "@/lib/types";
 
 /**
@@ -40,6 +41,18 @@ const PAGE_TIMEOUT_MS = 12_000;
 export const PER_DOMAIN_DELAY_MS = 1500;
 
 const lastHit = new Map<string, number>();
+
+/**
+ * A page that is empty until a browser runs its script can only be read by a
+ * browser. The Next.js app never ships one: a renderer is injected by the
+ * caller that has one (the GitHub Actions runner, `scripts/render.ts`). With
+ * none, such a page is reported as `js_shell`, which is the truth.
+ */
+export type Renderer = (url: string, ua: string) => Promise<string | null>;
+let renderer: Renderer | null = null;
+export function setRenderer(r: Renderer | null) {
+  renderer = r;
+}
 
 /** Wait out this host's share of the politeness delay. */
 async function throttle(host: string) {
@@ -236,42 +249,72 @@ export async function readSite(
   if (!url) return empty("bad_url");
   if (!(await robotsAllows(url))) return empty("robots_disallow");
 
-  const get = async (u: string) => {
+  const get = async (u: string, slow = false) => {
     await throttle(new URL(u).hostname);
     const res = await fetch(u, {
       headers: { "user-agent": UA, accept: "text/html,application/xhtml+xml" },
       redirect: "follow",
-      signal: AbortSignal.timeout(PAGE_TIMEOUT_MS),
+      signal: AbortSignal.timeout(slow ? PAGE_TIMEOUT_MS * 2 : PAGE_TIMEOUT_MS),
     });
-    if (!res.ok) throw new Error(String(res.status));
+    if (!res.ok) throw new HttpStatus(res.status);
     const ct = res.headers.get("content-type") ?? "";
-    if (!/text\/html/i.test(ct)) throw new Error("not_html");
+    if (!/text\/html/i.test(ct)) throw new NotHtml();
     return await res.text();
   };
 
-  let first: string;
-  try {
-    first = await get(url.toString());
-  } catch (err) {
-    // Distinguish *their* refusal from *our* failure. A 403 is the site
-    // blocking us; a timeout is as likely to be our network, and the coverage
-    // report's rule is that our failures never count against a business.
-    const msg = String(err);
-    const outcome = /40[13]|429/.test(msg)
-      ? "blocked"
-      : /timeout|abort/i.test(msg)
-        ? "our_timeout"
-        : "fetch_failed";
-    return empty(outcome);
+  // The home page, with the retries a different second request can fix (see
+  // `fetchoutcome.ts`): a moved deep link goes to the root, a broken
+  // certificate goes to plain http, a timeout gets one slower try. Every retry
+  // is still robots-checked, throttled and honestly identified.
+  let first = "";
+  let base = url;
+  {
+    const tried = new Set<string>();
+    let attempt: { url: string; slow?: boolean } | null = { url: url.toString() };
+    let kind: ReturnType<typeof failKind> | null = null;
+    while (attempt) {
+      tried.add(attempt.url);
+      try {
+        const at = new URL(attempt.url);
+        if (at.toString() !== url.toString() && !(await robotsAllows(at))) return empty("robots_disallow");
+        first = await get(attempt.url, attempt.slow);
+        base = at;
+        kind = null;
+        break;
+      } catch (err) {
+        kind = failKind(err);
+        attempt = nextTry(kind, new URL(attempt.url), tried);
+      }
+    }
+    if (kind) {
+      const dead = kind === "dns" ? await publicDnsSaysDead(url.hostname) : null;
+      return empty(outcomeFor(kind, dead));
+    }
+  }
+
+  // An empty frame that a browser fills in. Render it if a renderer was
+  // given; otherwise say what it is rather than judge a blank page.
+  let rendered = false;
+  if (visibleChars(first) < SHELL_CHARS) {
+    const html = renderer ? await renderer(base.toString(), UA).catch(() => null) : null;
+    if (html && visibleChars(html) >= SHELL_CHARS) {
+      first = html;
+      rendered = true;
+    } else {
+      return empty("js_shell");
+    }
   }
 
   const htmls = [first];
-  const fetched = [url.toString()];
-  const targets = pagesFor(first, url, criterion);
+  const fetched = [base.toString()];
+  const targets = pagesFor(first, base, criterion);
   let reached = 0;
   for (const link of targets) {
     try {
-      htmls.push(await get(link));
+      let html = await get(link);
+      // A site whose home page needed a browser needs one for its other pages too.
+      if (rendered && renderer && visibleChars(html) < SHELL_CHARS) html = (await renderer(link, UA).catch(() => null)) ?? html;
+      htmls.push(html);
       fetched.push(link);
       reached += 1;
     } catch {
