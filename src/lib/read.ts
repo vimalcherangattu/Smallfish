@@ -180,6 +180,11 @@ function detect(html: string) {
   if (/shopify/i.test(html)) cms.push("shopify");
   if (/webflow/i.test(html)) cms.push("webflow");
   if (/godaddy|starfield/i.test(html)) cms.push("godaddy_website_builder");
+  // The two the Python catalogue (`tech_signals.py`) already fingerprints and
+  // this reader did not. Now that "no builder found" settles a verdict, a
+  // builder this list misses is a false "not on a builder", so it errs wide.
+  if (/dudamobile\.com|duda_website|multiscreensite\.com/i.test(html)) cms.push("duda");
+  if (/weebly\.com|editmysite\.com/i.test(html)) cms.push("weebly");
 
   // Only a **vendor script** counts as booking detected.
   //
@@ -446,6 +451,29 @@ export async function judge(
         ? `${r.vendors.join(", ")} found on the page`
         : `${signal.label} found on the page`,
       reason: `technology detection settled this without a model call`,
+    };
+  }
+
+  // **Evidence that lives in the source of every page.** When the builder's
+  // markup was found, the detection branches settle it as present; the
+  // `!detected` test below is what keeps this branch from ever answering
+  // first. Reaching it with pages read means the markup was looked for in each
+  // page's HTML and was not there.
+  // That is positive proof of absence for this signal, and the model could
+  // not have added to it: it is given the text, and the markup is the evidence.
+  if (
+    signal?.inSource &&
+    !signal.detected?.(r) &&
+    r.pages > 0 &&
+    (r.outcome === "ok" || r.outcome === "js_shell")
+  ) {
+    const n = read.pagesFetched.length;
+    return {
+      verdict: (criterion.type === "presence" ? "no_match" : "match") as VerdictKind,
+      proof:
+        `No website-builder markup in the source of ${n === 1 ? "the one page we read" : `${n} pages`}: ` +
+        `${read.pagesFetched.join(", ")}.`,
+      reason: "read the page source; a builder leaves its markup on every page it serves",
     };
   }
 

@@ -68,7 +68,8 @@ Nothing mid-change; the working tree is clean.
 2. ~~"Get specific"~~ **built 1 Nov**: optional "What do you sell?" (`intake.ts` over `icp.ts`), and
    source / categories / offer carried to sign-up. Also fixed: plural offers ("website redesigns")
    matched no signal in `signals.ts`.
-3. Strong / Maybe / No and the two-sentence judge on the results screen (`fit.ts`).
+3. Strong / Maybe / No and the two-sentence judge on the results screen (`fit.ts`). **First part
+   built 1 Nov:** builder questions settle from the page source (17 of 20 couldn't-tells with pages).
 4. Named contacts: person, then role mailbox, then withheld.
 5. `rules.ts`: free listing rules before any paid read.
 6. Search nits: "dog groomers" → "mens grooming salon" as a near category; metro samples under a city label.

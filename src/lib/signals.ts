@@ -25,7 +25,7 @@ import type { ReadResult } from "@/lib/types";
  * DIY one, so "on WordPress" says nothing about who built it, and a criterion
  * that fires on half the web is not a criterion.
  */
-const BUILDERS = new Set(["wix", "squarespace", "godaddy_website_builder", "webflow", "shopify"]);
+const BUILDERS = new Set(["wix", "squarespace", "godaddy_website_builder", "webflow", "shopify", "duda", "weebly"]);
 
 export interface ObservableSignal {
   id: string;
@@ -64,6 +64,20 @@ export interface ObservableSignal {
    * website builder", which is the opposite of the ask.
    */
   offerNeeds?: "absence" | "presence";
+  /**
+   * The evidence is in the **source of every page**, not on one page a link
+   * leads to. A website builder stamps its own markup into whatever it serves,
+   * so the HTML we already fetched settles the question both ways: found is
+   * present, not found on the pages read is absent, with no model call.
+   *
+   * Why this needs saying (measured 2026-11-01): the judge hands the model the
+   * page *text*, with scripts and markup stripped, so for a builder question
+   * the model is shown everything except the evidence. Of the 20 production
+   * reads that opened pages and still came back "couldn't tell", 17 were
+   * builder questions. The absence rule is not bent: the relevant pages for
+   * this signal are any page's source, and those were read.
+   */
+  inSource?: boolean;
 }
 
 export const SIGNALS: ObservableSignal[] = [
@@ -125,7 +139,8 @@ export const SIGNALS: ObservableSignal[] = [
     // cannot come back "couldn't tell" — `icpplan.ts` reports it as `observed`
     // rather than `read` for exactly that reason.
     detected: (r) => r.cms.some((c) => BUILDERS.has(c)),
-    how: "Looks for the builder's own markup in the page source: Wix, Squarespace, GoDaddy, Webflow or Shopify.",
+    inSource: true,
+    how: "Looks for the builder's own markup in the page source: Wix, Squarespace, GoDaddy, Webflow, Shopify, Duda or Weebly.",
     absenceText: "is not on a website builder",
     presenceText: "is on a website builder",
     // An offer about websites wants the ones that *are* on a builder.
