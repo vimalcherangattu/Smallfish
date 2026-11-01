@@ -3,6 +3,15 @@ import "server-only";
 import { flat, MAX_PAGES, robotsAllows, safeUrl } from "@/lib/seller";
 import { signalForCriterion } from "@/lib/signals";
 import { contactsFrom } from "@/lib/contacts";
+import {
+  classify,
+  emptiness,
+  failureOf,
+  retryable,
+  rootOf,
+  tryRootAfter,
+  type FetchFailure,
+} from "@/lib/fetchoutcome";
 import type { Criterion, ReadResult, Verdict, VerdictKind } from "@/lib/types";
 
 /**
@@ -232,37 +241,73 @@ export async function readSite(
     coverage: { targeted: 0, reached: 0 },
   });
 
-  const url = safeUrl(rawUrl);
-  if (!url) return empty("bad_url");
-  if (!(await robotsAllows(url))) return empty("robots_disallow");
+  let url = safeUrl(rawUrl);
+  // A listing with no usable address has no site of ours to read. Recorded as
+  // `dead` — the vocabulary `unsure.ts` explains — rather than a word only
+  // this file knows, which the screen used to file under "thin".
+  if (!url) return empty("dead");
+  if (!(await robotsAllows(url))) return empty("robots_blocked");
 
-  const get = async (u: string) => {
+  /** A failed fetch carries what went wrong, not just a string to regex. */
+  const fail = (failure: FetchFailure) => Object.assign(new Error(failure.kind), { failure });
+
+  const getOnce = async (u: string) => {
     await throttle(new URL(u).hostname);
     const res = await fetch(u, {
       headers: { "user-agent": UA, accept: "text/html,application/xhtml+xml" },
       redirect: "follow",
       signal: AbortSignal.timeout(PAGE_TIMEOUT_MS),
     });
-    if (!res.ok) throw new Error(String(res.status));
+    if (!res.ok) throw fail({ kind: "status", status: res.status });
     const ct = res.headers.get("content-type") ?? "";
-    if (!/text\/html/i.test(ct)) throw new Error("not_html");
+    if (!/text\/html/i.test(ct)) throw fail({ kind: "not_html" });
     return await res.text();
+  };
+
+  /** One retry, after the politeness delay, for what can answer differently a
+   *  moment later. `retryable` never says yes to a refusal. */
+  const get = async (u: string) => {
+    try {
+      return await getOnce(u);
+    } catch (err) {
+      if (!retryable(failureOf(err))) throw err;
+      return await getOnce(u);
+    }
   };
 
   let first: string;
   try {
     first = await get(url.toString());
   } catch (err) {
-    // Distinguish *their* refusal from *our* failure. A 403 is the site
-    // blocking us; a timeout is as likely to be our network, and the coverage
-    // report's rule is that our failures never count against a business.
-    const msg = String(err);
-    const outcome = /40[13]|429/.test(msg)
-      ? "blocked"
-      : /timeout|abort/i.test(msg)
-        ? "our_timeout"
-        : "fetch_failed";
-    return empty(outcome);
+    // The listing's URL did not work. If it was a deep link — a retired
+    // location page, a tracking URL — the site's own front door may well, and
+    // that is where a person would go next. Not after a refusal: a 403 on a
+    // deep page is the site saying no.
+    const f = failureOf(err);
+    const root = tryRootAfter(f) ? rootOf(url) : null;
+    if (!root) return empty(classify(f));
+    if (!(await robotsAllows(root))) return empty("robots_blocked");
+    try {
+      first = await get(root.toString());
+      url = root;
+    } catch (again) {
+      return empty(classify(failureOf(again)));
+    }
+  }
+
+  // **A page with nothing on it.** The HTML is a shell a browser fills in, so
+  // the model would be paid to read a few hundred characters of menu and say
+  // "couldn't tell". Detection still runs — a booking vendor's script is in
+  // the shell even when the words are not — and `judge` uses it; everything
+  // else is labelled and left unjudged.
+  const firstText = textOf(first);
+  if (emptiness(firstText.length, (first.match(/<script\b/gi) ?? []).length) === "js_shell") {
+    return {
+      result: { outcome: "js_shell", pages: 1, chars: firstText.length, ...detect(first) },
+      text: firstText,
+      pagesFetched: [url.toString()],
+      coverage: { targeted: 0, reached: 0 },
+    };
   }
 
   const htmls = [first];
@@ -390,13 +435,27 @@ export async function judge(
   const signal = signalForCriterion(criterion.text);
   const r = read.result;
 
-  if (r.outcome !== "ok" || r.pages === 0) {
+  // An empty shell can still be settled for free when a vendor's script is in
+  // it. Only for presence-type evidence: detection proves something is there,
+  // never that it is missing, and one empty page proves nothing is absent.
+  if (r.outcome === "js_shell" && signal?.detected?.(r)) {
+    const present = criterion.type === "presence";
     return {
-      verdict: (r.outcome === "blocked" ? "blocked" : "couldnt_tell") as VerdictKind,
-      reason:
-        r.outcome === "blocked"
-          ? "the site refused automated reading"
-          : `the site could not be read (${r.outcome})`,
+      verdict: (present ? "match" : "no_match") as VerdictKind,
+      proof: r.vendors.length
+        ? `${r.vendors.join(", ")} found on the page`
+        : `${signal.label} found on the page`,
+      reason: `technology detection settled this without a model call`,
+    };
+  }
+
+  if (r.outcome !== "ok" || r.pages === 0) {
+    const refused = r.outcome === "blocked" || r.outcome === "robots_blocked";
+    return {
+      verdict: (refused ? "blocked" : "couldnt_tell") as VerdictKind,
+      reason: refused
+        ? "the site refused automated reading"
+        : `the site could not be read (${r.outcome})`,
     };
   }
 

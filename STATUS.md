@@ -61,6 +61,18 @@ Nothing mid-change; the working tree is clean.
 
 ## Next step
 
+**Build plan of 1 Nov (owner asked for all six, one by one; tracked in Task Hub, sf-product):**
+1. ~~Headless fetcher~~ → **read reliability, built 1 Nov** (decision log, 2026-11-01). One read per
+   website, chains (5+ listings on one site) left out, one retry on temporary failures, home page
+   when a deep link fails, outcomes `unsure.ts` can explain. Headless dropped on the measurement.
+2. "Get specific": one skippable "what do you sell" screen; carry categories and `?source=`.
+3. Strong / Maybe / No and the two-sentence judge on the results screen (`fit.ts`).
+4. Named contacts: person, then role mailbox, then withheld.
+5. `rules.ts`: free listing rules before any paid read.
+6. Search nits: "dog groomers" → "mens grooming salon" as a near category; metro samples under a city label.
+
+Older list, still true:
+
 0. **Data sourcing step 1** (`docs/DATA-SOURCING.md`): snapshot, adapter contract test,
    entity ids, provenance. Outranks the fetcher because search being up outranks search
    being good.
@@ -77,7 +89,12 @@ Nothing mid-change; the working tree is clean.
   and `?source=outreach/<token>` to `/app/find`; `find/page.tsx` renders `<PoolSearch />`
   with no props and never reads `searchParams`. Attribution is lost, and it blocks the
   PostHog funnel work. Open task, due 23 Oct, not started.
-- **42% of reads return zero pages** — see Next step 1.
+- **Zero-page reads were 42% with one chain in the sample, 20% without it** (decision log 2026-11-01).
+  Couldn't-tell is still 62% without the chain, mostly on four-page reads: the judge, plan item 3.
+- **Instantly returns 402 "no active paid plan" since 29 Oct**: cold email has not queued a lead
+  since. A billing decision for the owner. The digest does not report it.
+- **The R2 copy's tile index intermittently reads empty** (24 times 24 Oct – 1 Nov); search falls
+  back to Overture directly and takes ~11 s. Needs the R2 keys to diagnose.
 - **S0-16 labelling is THIN:** 142 labels across one market (`dental-phoenix`, 72 + 70).
   Gate item 2 (precision) needs 3 × 100 and cannot be measured until then. A tracker entry
   says "2 × 100 done" on 21 Oct; no label file has been committed, so that output never

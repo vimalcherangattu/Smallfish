@@ -78,9 +78,16 @@ check(
   /const assertsPresent = assertsPresence\(criterion\.type, verdict\)/.test(src),
   "an absence cannot be proved by quoting a page",
 );
+// The rule itself lives in `fetchoutcome.ts` and `test_fetchoutcome.mjs` holds
+// it case by case. What this file can check is that the reader routes every
+// failure through it rather than inventing its own words again — the old
+// `our_timeout` / `fetch_failed` matched nothing in `unsure.ts`, so a customer
+// was told "we read their site but not enough of it" about our own timeout.
 check(
   "our own failures are not recorded as the site refusing us",
-  /our_timeout/.test(src) && /40\[13\]\|429/.test(src),
+  /return empty\(classify\(f\)\)/.test(src) &&
+    !/our_timeout|fetch_failed/.test(src.replace(/\/\/.*$/gm, "")),
+  "every failure outcome comes from classify()",
 );
 check(
   "robots.txt is consulted before anything is fetched",

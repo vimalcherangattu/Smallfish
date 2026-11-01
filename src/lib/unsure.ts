@@ -73,7 +73,7 @@ const GROUPS: Array<{
 }> = [
   {
     id: "blocked",
-    outcomes: ["blocked"],
+    outcomes: ["blocked", "robots_blocked"],
     headline: "Their site asked us not to read it",
     detail:
       "Their site publishes a note asking automated readers to stay out, or it turned us away at the door. We stopped rather than work around it.",

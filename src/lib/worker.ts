@@ -164,7 +164,7 @@ async function readBatch(sites: JobSiteRow[], criterion: Criterion) {
           verdict: "couldnt_tell",
           proof: null,
           pages: 0,
-          outcome: "error",
+          outcome: "probe_error",
           contacts: null,
         };
       }

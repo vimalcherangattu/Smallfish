@@ -23,6 +23,7 @@ import { findCandidates, readable } from "@/lib/providers";
 import { RADIUS_MILES } from "@/lib/supply";
 import { matchTrade, type Taxonomy } from "@/lib/trades";
 import { toCredits } from "@/lib/wallet";
+import { workList } from "@/lib/worklist";
 import type { Market, MarketIndex } from "@/lib/types";
 
 const email = (body: { email?: unknown }) =>
@@ -135,7 +136,10 @@ export async function POST(req: Request) {
   const hit = marketFor(index, split.what, split.where);
   if (hit) {
     const market = await json<Market>(`${hit.market.id}.json`);
-    const rest = market ? unreadIn(market) : [];
+    // One read per website, and no chains: see `worklist.ts`. Applied before
+    // anything is counted, so the number the customer is shown is the number
+    // we will read.
+    const rest = market ? workList(unreadIn(market), { dropChains: true }).rows : [];
 
     if (!body.deepen || !rest.length) {
       return Response.json({
@@ -300,8 +304,10 @@ export async function POST(req: Request) {
     limit: budget,
     exclude: given,
   });
-  // Narrowed to candidates with a website: the product reads one.
-  const rows = readable(supply.rows);
+  // Narrowed to candidates with a website: the product reads one. Then one
+  // read per website, and no chains — 32 of the first 72 production reads were
+  // one gym chain, ten of them in a single twelve-site job (`worklist.ts`).
+  const rows = workList(readable(supply.rows), { dropChains: true }).rows;
 
   if (!rows.length) {
     return Response.json(
