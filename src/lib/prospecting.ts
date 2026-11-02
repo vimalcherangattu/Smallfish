@@ -17,6 +17,7 @@
  */
 
 import { canWrite, currentEnv } from "@/lib/db";
+import { withDeadline } from "@/lib/deadline";
 import { findCandidates, readable } from "@/lib/providers";
 import {
   AGENCY_CATEGORIES,
@@ -412,7 +413,7 @@ export async function prepareList(
 
 export type BuildResult =
   | { ok: true; rows: ListRow[]; read: number }
-  | { ok: false; reason: "unknown" | "capped" | "no_niche" | "nothing_found"; read?: number };
+  | { ok: false; reason: "unknown" | "capped" | "no_niche" | "nothing_found" | "busy"; read?: number };
 
 /**
  * The paid half, run on the first visit. Reads the niche in the agency's city
@@ -448,14 +449,31 @@ export async function buildList(
   const queue = readable(s.rows ?? []).filter((r) => !data.suppressed.has(r.id)).slice(0, MAX_READS);
   const rows: ListRow[] = [];
   let read = 0;
+  let outOfTime = false;
   await Promise.all(
     Array.from({ length: 8 }, async () => {
       while (queue.length && rows.length < WANT && Date.now() - started < budgetMs) {
         const b = queue.shift()!;
         read += 1;
         try {
-          const r = await readSite(b.site, c.criterion, { name: b.name, phone: b.phone ?? null, addr: b.addr ?? null });
-          const v = await judge(r, c.criterion);
+          // **Raced against what is left of the budget.** A read that started
+          // at 44 s used to run on past Vercel's 60 s limit, and the visitor —
+          // somebody who clicked our cold email — got "Something went wrong"
+          // (seen 2026-11-02 on /hi/GcJSwmwZmC). A single read can now take
+          // longer than it used to (retry, home-page fallback, DNS check), so
+          // the loop's own check is not enough: the read itself must stop.
+          const left = budgetMs - (Date.now() - started);
+          const v = await withDeadline(
+            (async () => {
+              const r = await readSite(b.site, c.criterion, { name: b.name, phone: b.phone ?? null, addr: b.addr ?? null });
+              return judge(r, c.criterion);
+            })(),
+            left,
+          );
+          if (!v) {
+            outOfTime = true;
+            continue;
+          }
           if (v.verdict === "match" && rows.length < WANT) {
             rows.push({ name: b.name ?? domainOf(b.site) ?? b.site, site: b.site, phone: b.phone ?? null, proof: v.proof ?? v.reason });
           }
@@ -465,6 +483,14 @@ export async function buildList(
       }
     }),
   );
+
+  // Out of time with nothing found is not "nothing found": saving it would
+  // show this prospect an empty list for a week (the check at the top). Leave
+  // it unsaved so the next visit tries again.
+  if (!rows.length && (outOfTime || (queue.length && Date.now() - started >= budgetMs))) {
+    await logEvent("list_timed_out", { domain: p.domain }, { read });
+    return { ok: false, reason: "busy", read };
+  }
 
   // Keep a partial list rather than throw away what it cost. A visit that
   // found two shows two, and says it stopped looking.

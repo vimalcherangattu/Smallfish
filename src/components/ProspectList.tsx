@@ -22,6 +22,9 @@ export default function ProspectList({ token, initial, gap }: { token: string; i
       .then((r) => r.json())
       .then((r) => {
         if (r.ok) set({ kind: "rows", rows: r.rows });
+        // Ran out of time before finding any: their sites were slow, not empty.
+        // Nothing is saved, so a refresh carries on rather than repeating this.
+        else if (r.reason === "busy") set({ kind: "none", reason: "Their websites are slow to answer right now. Refresh in a minute and we'll keep reading." });
         else if (r.reason === "capped") set({ kind: "none", reason: "We've read as much as we can for today. Come back tomorrow and your list will be here." });
         else set({ kind: "none", reason: `We didn't find any without ${gap} in the first sites we read. The full search reads further.` });
       })
