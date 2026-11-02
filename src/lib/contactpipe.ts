@@ -165,12 +165,21 @@ export async function buyContacts(inboxCount: number, now = new Date()): Promise
   const segs = tradeSegments();
   const lists = (await getState<Lists>("supersearch_lists")) ?? {};
   let i = (await getState<number>("supersearch_rotation")) ?? 0;
-  for (let tries = 0; tries < segs.length; tries += 1, i += 1) {
+  // Fill the day's need across segments. The narrow ones come first in the
+  // rotation ("hiring reps now"), and on 2026-11-01 they held 9 and 6 people:
+  // stopping at the first segment bought 15 contacts in two days against a
+  // ramp that wanted ~45. Each segment is its own list and its own filters,
+  // so two buys in one run never double-spend the same people.
+  let want = Math.min(perDay * 3 - backlog, room, 100);
+  let usedNow = used;
+  const bought: Array<{ segment: string; limit: number }> = [];
+  for (let tries = 0; tries < segs.length && want > 0; tries += 1, i += 1) {
     const seg = segs[i % segs.length];
     const available = await countLeads(seg.filters).catch(() => 0);
     if (available === 0) continue;
-    const limit = Math.min(perDay * 3 - backlog, available, room, 100);
-    await setState("supersearch_spent", { month, contacts: used + limit });
+    const limit = Math.min(want, available);
+    usedNow += limit;
+    await setState("supersearch_spent", { month, contacts: usedNow });
     const r = await enrich({
       filters: seg.filters,
       limit,
@@ -178,11 +187,13 @@ export async function buyContacts(inboxCount: number, now = new Date()): Promise
       listName: `Small Fish · ${seg.id}`,
     });
     lists[seg.id] = r.resource_id;
-    await setState("supersearch_lists", lists);
-    await setState("supersearch_rotation", i + 1);
-    await setState("supersearch_last_buy", { day: today, segment: seg.id, limit });
     await logEvent("contacts_bought", {}, { segment: seg.id, limit, available });
-    return { bought: limit, segment: seg.id, available };
+    bought.push({ segment: seg.id, limit });
+    want -= limit;
   }
-  return { bought: 0, why: "no segment has anyone left" };
+  if (!bought.length) return { bought: 0, why: "no segment has anyone left" };
+  await setState("supersearch_lists", lists);
+  await setState("supersearch_rotation", i);
+  await setState("supersearch_last_buy", { day: today, segments: bought.map((b) => b.segment), limit: usedNow - used });
+  return { bought: usedNow - used, segments: bought };
 }
