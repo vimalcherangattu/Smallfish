@@ -1,6 +1,6 @@
 # Status
 
-**Last updated:** 2026-10-24 · search restored after an outage; data-sourcing plan adopted;
+**Last updated:** 2026-11-02 (build plan section; the rest still reads as of 2026-10-24) · search restored after an outage; data-sourcing plan adopted;
 outreach sweeps moved off Vercel to GitHub Actions.
 
 `CLAUDE.md` holds the rules that do not change. This file is only the current state,
@@ -70,7 +70,15 @@ Nothing mid-change; the working tree is clean.
    matched no signal in `signals.ts`.
 3. Strong / Maybe / No and the two-sentence judge on the results screen (`fit.ts`). **First part
    built 1 Nov:** builder questions settle from the page source (17 of 20 couldn't-tells with pages).
-4. Named contacts: person, then role mailbox, then withheld.
+4. ~~Named contacts~~ **built 2 Nov** (3acf516, migration 0035): 6 of 35 real sites now name a
+   decision-maker (from 0). CSV/CRM push and GTM's prospect store do not carry the person yet.
+
+**Also built 2 Nov, from the GTM session's measurements:** headless rendering in the GitHub runner
+(never Vercel), public DNS before "dead", http retry after a bad certificate (00cda03); the
+criterion "has a website that is down or insecure" (ea8caa5, polarity fix 72ea51a); `/app/find`
+counts only live sites as readable (de7146b, migration 0034).
+**Still open from item 3:** Strong / Maybe / No needs multi-rule jobs and changes what a credit
+buys. Heads-up given in chat 1 Nov; waiting on the owner's go.
 5. `rules.ts`: free listing rules before any paid read.
 6. Search nits: "dog groomers" → "mens grooming salon" as a near category; metro samples under a city label.
 
