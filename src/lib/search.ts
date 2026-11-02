@@ -261,7 +261,10 @@ export function parseSearch(raw: string): ParsedSearch {
   for (const s of SIGNALS) {
     const all = new RegExp(s.inCriterion.source, s.inCriterion.flags + "g");
     for (const m of q.matchAll(all)) {
-      const c = criterionFrom(s, isNegated(q, m.index), m[0]);
+      // A word that names the absence itself ("down", "insecure") flips it;
+      // see `inverse` in signals.ts.
+      const flip = s.inverse?.test(m[0]) ?? false;
+      const c = criterionFrom(s, isNegated(q, m.index) !== flip, m[0]);
       if (!out.criteria.some((x) => x.id === c.id)) out.criteria.push(c);
     }
   }

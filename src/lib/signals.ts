@@ -85,6 +85,15 @@ export interface ObservableSignal {
    */
   fromHealth?: boolean;
   /**
+   * Words that name this signal's **absence** without a negation word in
+   * them. "Down", "broken", "insecure" mean *no* working, secure site, and the
+   * parser finds absence only by looking for "no"/"not"/"without", so without
+   * this "has a website that is down" was parsed as the opposite — caught on
+   * production 2026-11-02, minutes after the criterion shipped. Combined with
+   * negation by exclusive-or, so "is not down" still means working.
+   */
+  inverse?: RegExp;
+  /**
    * The row's "why", when the generic template would garble it. Generalised:
    * it names no business, quotes nothing, and is shown on locked rows. Keyed by
    * the criterion type that matched.
@@ -146,6 +155,7 @@ export const SIGNALS: ObservableSignal[] = [
     question: "Does their website still exist, and does it load without a security warning?",
     provable: true,
     fromHealth: true,
+    inverse: /^(down|offline|broken|insecure|not secure|dead)/i,
     detected: (r) => r.health?.httpsOk === true && !r.health?.tls && !r.health?.dns,
     how: "Checks the listed address against public DNS and checks its security certificate when we open it.",
     absenceText: "has a website that is down or insecure",
@@ -158,7 +168,7 @@ export const SIGNALS: ObservableSignal[] = [
       "anyone who looks them up finds nothing, or a browser warning, and most " +
       "people leave rather than call",
     inCriterion:
-      /\b(down|offline|broken|insecure|not secure|ssl|https|certificates?|secure (web ?)?site|working (web ?)?site|dead (web ?)?site)\b/i,
+      /\b(down|offline|broken|insecure|not secure|ssl|https|certificates?|secure (web ?)?sites?|working (web ?)?sites?|dead (web ?)?sites?)\b/i,
     inOffer:
       /\b(hosting|ssl|https|certificates?|domains?|web ?site (maintenance|care|support|management|security)|website security|uptime)\b/i,
   },

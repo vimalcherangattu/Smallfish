@@ -344,7 +344,12 @@ check("a real https endpoint is accepted", D.safeEndpoint("https://hooks.example
   let tamperFailed = false;
   try {
     const [v, iv, tag, body] = sealed.split(".");
-    D.openSecret([v, iv, tag, body.slice(0, -2) + "AA"].join("."));
+    // Change the *first* character, and to a different one. This used to
+    // overwrite the last two with "AA", which tampered with nothing when they
+    // already were "AA" or were padding and ignored bits — a random IV made the
+    // test fail about once in a few thousand runs (seen 2026-11-02).
+    const altered = (body[0] === "A" ? "B" : "A") + body.slice(1);
+    D.openSecret([v, iv, tag, altered].join("."));
   } catch {
     tamperFailed = true;
   }

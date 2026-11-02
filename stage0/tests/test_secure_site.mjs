@@ -113,5 +113,44 @@ for (const [host, want, name] of cases) {
   check("any other criterion never makes the extra https request", !asked.some((u) => u.startsWith("https:")), asked.join(", "));
 }
 
+/* ------------------------------------------- the parser's polarity -- */
+// Caught on production 2026-11-02, minutes after shipping: "has a website that
+// is down or insecure" parsed as "has a working, secure website", because the
+// parser only finds absence through "no"/"not"/"without". Every phrasing a
+// person or a chip produces is run through the real parser here.
+{
+  const { load: loadQ } = compileLib(["src/lib/search.ts", "src/lib/signals.ts", "src/lib/types.ts"], "sf-secure-q-");
+  const Q = await loadQ("search");
+  const typeOf = (q) => {
+    const cs = Q.parseSearch(q).criteria.filter((c) => c.signalId === "secure_site");
+    const types = [...new Set(cs.map((c) => c.type))];
+    return types.length === 1 ? types[0] : types.join("+") || "none";
+  };
+  const cases = [
+    ["roofers in Omaha that has a website that is down or insecure", "absence"], // the chip
+    ["roofers in Omaha that has a working, secure website", "presence"], // the other chip
+    ["dentists in Austin whose website is down", "absence"],
+    ["plumbers in Tampa with broken websites", "absence"],
+    ["gyms with an insecure site", "absence"],
+    ["salons with a site that is not secure", "absence"],
+    ["vets with dead websites", "absence"],
+    ["vets whose site is offline", "absence"],
+    ["dentists whose website is not down", "presence"],
+    ["dentists with a secure website", "presence"],
+    ["dentists with no secure website", "absence"],
+  ];
+  for (const [q, want] of cases) {
+    const got = typeOf(q);
+    check(`"${q}" → ${want}`, got === want, got);
+  }
+  // And the chips: whatever text the screen offers must parse back to itself.
+  for (const s of S.SIGNALS.filter((x) => x.provable)) {
+    for (const [text, type] of [[s.absenceText, "absence"], [s.presenceText, "presence"]]) {
+      const cs = Q.parseSearch(`plumbers in Denver that ${text}`).criteria.filter((c) => c.signalId === s.id);
+      check(`chip "${text}" parses back as ${s.id}:${type}`, cs.length > 0 && cs.every((c) => c.type === type), cs.map((c) => c.type).join(","));
+    }
+  }
+}
+
 console.log(`\n${failures} failure(s)`);
 process.exit(failures ? 1 : 0);
