@@ -46,6 +46,24 @@ export interface ReadResult {
    * publish nothing": `withheld` inside it is how the second thing is said.
    */
   contacts?: SiteContacts;
+  /**
+   * What we learned about the site itself being broken, kept even when the
+   * read went on to succeed — a certificate that failed over https while the
+   * same pages answered over http is still a site that warns its visitors off.
+   * Only ever set from **positive evidence**: public DNS saying the name does
+   * not exist or points nowhere, or a certificate error naming its fault.
+   * Absent means nothing broken was observed, not that we checked and it is
+   * fine (`judge` needs an https page that loaded for that).
+   */
+  health?: {
+    dns?: "nxdomain" | "no_address";
+    /** The certificate error code, e.g. `CERT_HAS_EXPIRED`. */
+    tls?: string;
+    /** We loaded at least one page over https with a certificate that passed. */
+    httpsOk?: boolean;
+    /** The home page was an empty frame, filled in by a browser we ran. */
+    rendered?: boolean;
+  };
 }
 
 export interface Business {

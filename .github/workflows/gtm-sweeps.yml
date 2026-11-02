@@ -58,6 +58,9 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci --no-audit --no-fund
+      # The headless half of the fetcher, for pages a plain fetch gets empty.
+      - if: env.JOB == 'prospects'
+        run: npx playwright install --with-deps chromium
       - name: Run ${{ env.JOB }}
         run: node --conditions=react-server --import tsx scripts/gtm-runner.ts "$JOB" "$CITY"
         env:

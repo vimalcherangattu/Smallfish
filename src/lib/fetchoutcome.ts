@@ -66,28 +66,44 @@ export function failureOf(err: unknown): FetchFailure {
   return { kind: "error", code, message };
 }
 
-/** DNS answers that mean "this name does not exist" — the site is gone. */
-const GONE_CODES = /^(ENOTFOUND|ERR_NAME_NOT_RESOLVED)$/;
+/** Our resolver could not find the name. **Not yet a fact about them**: it is
+ *  confirmed against public DNS (`publicDns`) before anything is called dead.
+ *  Measured by the GTM stream, 2026-11-01: 25 of 50 "fetch_failed" agency
+ *  domains really do not exist, and 8–14% of listed sites in customer trades. */
+const UNRESOLVED = /^(ENOTFOUND|ERR_NAME_NOT_RESOLVED)$/;
 /** Network failures that are as likely ours as theirs: a resolver hiccup, a
  *  dropped connection, our proxy. These are retried and never blamed on them. */
 const OUR_CODES = /^(EAI_AGAIN|ECONNRESET|EPIPE|UND_ERR_SOCKET|UND_ERR_CLOSED|ECONNABORTED)$/;
 const TIMEOUT = /timeout|abort/i;
-/** The server is there and refuses the connection, or the certificate is
- *  broken: a live business can have either, and neither is our fault. */
-const THEIR_CODES = /^(ECONNREFUSED|EHOSTUNREACH|ENETUNREACH|CERT_|ERR_TLS|DEPTH_ZERO|UNABLE_TO|SELF_SIGNED|ERR_SSL)/;
+/** The host answers and refuses the connection: their server, not ours. */
+const REFUSED = /^(ECONNREFUSED|EHOSTUNREACH|ENETUNREACH)$/;
+/** Their certificate is expired, mismatched or self-signed. GTM measured 7 of
+ *  50 failures like this; the same site usually answers over plain http. */
+const TLS_CODES = /^(CERT_|ERR_TLS|ERR_SSL|DEPTH_ZERO|UNABLE_TO|SELF_SIGNED|HOSTNAME_MISMATCH)/;
 
-/** The outcome a failure is recorded as. */
-export function classify(f: FetchFailure): string {
-  if (f.kind === "status") {
-    if (BLOCKED_STATUSES.has(f.status)) return "blocked";
-    if (f.status === 404 || f.status === 410) return "dead";
-    return "http_error";
-  }
+export const isTls = (f: FetchFailure): boolean =>
+  f.kind === "error" && (TLS_CODES.test(f.code) || /certificate|\bssl\b|\btls\b/i.test(f.message));
+
+export const isUnresolved = (f: FetchFailure): boolean => f.kind === "error" && UNRESOLVED.test(f.code);
+
+/**
+ * The outcome a failure is recorded as.
+ *
+ * `dns` is what public DNS said about the host, and matters only for a name
+ * our resolver could not find: `"nxdomain"` or `"no_address"` make it dead;
+ * anything else — it resolves publicly, or we could not ask — is ours.
+ *
+ * A 404 is `http_error`, not `dead`, as in `site_probe.py`: the host is there
+ * and a page is not. `dead` is kept for "the address leads nowhere", which is
+ * what `unsure.ts` tells the customer it means.
+ */
+export function classify(f: FetchFailure, dns: PublicDns = null): string {
+  if (f.kind === "status") return BLOCKED_STATUSES.has(f.status) ? "blocked" : "http_error";
   if (f.kind === "not_html") return "http_error";
-  if (GONE_CODES.test(f.code)) return "dead";
+  if (isUnresolved(f)) return dns === "nxdomain" || dns === "no_address" ? "dead" : "probe_error";
   if (TIMEOUT.test(f.code) || TIMEOUT.test(f.message)) return "timeout";
   if (OUR_CODES.test(f.code)) return "probe_error";
-  if (THEIR_CODES.test(f.code)) return "dead";
+  if (isTls(f) || REFUSED.test(f.code)) return "http_error";
   // Unknown is ours. Saying "their site is broken" about something we cannot
   // name is the expensive direction to be wrong in.
   return "probe_error";
@@ -103,6 +119,9 @@ export function classify(f: FetchFailure): string {
 export function retryable(f: FetchFailure): boolean {
   if (f.kind === "status") return f.status >= 500 && f.status <= 504;
   if (f.kind === "not_html") return false;
+  // Asking the same question twice does not change a certificate or create a
+  // domain: those go to `plainHttpOf` and `publicDns` instead.
+  if (isTls(f) || isUnresolved(f)) return false;
   const o = classify(f);
   return o === "timeout" || o === "probe_error";
 }
@@ -123,8 +142,42 @@ export function rootOf(url: URL): URL | null {
 /** Falling back to the root is for a URL that did not work, not for one that
  *  refused us: a 403 on a deep page is the site saying no, not a broken link. */
 export function tryRootAfter(f: FetchFailure): boolean {
-  const o = classify(f);
-  return o === "dead" || o === "http_error";
+  // Not after a certificate failure: the home page carries the same certificate.
+  return classify(f) === "http_error" && !isTls(f);
+}
+
+/** The same address over plain http, for a site whose certificate failed. */
+export function plainHttpOf(url: URL): URL | null {
+  return url.protocol === "https:" ? new URL(`http://${url.host}${url.pathname}${url.search}`) : null;
+}
+
+/* ----------------------------------------------------- public DNS check -- */
+
+/** `"nxdomain"`: the name does not exist. `"no_address"`: it exists and points
+ *  at nothing. `"resolves"`: public DNS finds it, so our resolver was wrong.
+ *  `null`: we could not ask — never evidence either way. */
+export type PublicDns = "nxdomain" | "no_address" | "resolves" | null;
+
+/**
+ * Ask Google's public resolver about a host our own resolver could not find,
+ * so our resolver's bad day is never recorded as their dead website. Same
+ * check the GTM stream measured with (`dns.google/resolve`).
+ */
+export async function publicDns(host: string, fetcher: typeof fetch = fetch): Promise<PublicDns> {
+  try {
+    const r = await fetcher(`https://dns.google/resolve?name=${encodeURIComponent(host)}&type=A`, {
+      headers: { accept: "application/dns-json" },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!r.ok) return null;
+    const j = (await r.json()) as { Status?: number; Answer?: Array<{ type: number }> };
+    if (j.Status === 3) return "nxdomain";
+    if (j.Status !== 0) return null; // SERVFAIL and friends: their DNS is broken, or ours is; not proof
+    // A (1), CNAME (5) or AAAA (28) is somewhere to go.
+    return (j.Answer ?? []).some((a) => a.type === 1 || a.type === 5 || a.type === 28) ? "resolves" : "no_address";
+  } catch {
+    return null;
+  }
 }
 
 /**

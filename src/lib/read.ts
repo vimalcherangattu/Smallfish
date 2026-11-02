@@ -7,8 +7,13 @@ import {
   classify,
   emptiness,
   failureOf,
+  isTls,
+  isUnresolved,
+  plainHttpOf,
+  publicDns,
   retryable,
   rootOf,
+  SHELL_TEXT_CHARS,
   tryRootAfter,
   type FetchFailure,
 } from "@/lib/fetchoutcome";
@@ -49,6 +54,21 @@ const PAGE_TIMEOUT_MS = 12_000;
 export const PER_DOMAIN_DELAY_MS = 1500;
 
 const lastHit = new Map<string, number>();
+
+/**
+ * Something that runs a page's script and returns the HTML a browser would
+ * show. **Never set inside the Next.js app**: Vercel runs no browser and the
+ * team's CPU allowance is shared (STATUS, 2026-10-24). The GitHub Actions
+ * runner injects one (`scripts/render.ts`), so a read done there can fill in
+ * the empty script shells a plain fetch gets — 10 of 100 HVAC Tampa listings,
+ * 5 of them recovered (GTM stream, 2026-11-01). Only ever called after the
+ * plain fetch, robots.txt and the throttle, with our own user agent.
+ */
+export type Renderer = (url: string, ua: string) => Promise<string | null>;
+let renderer: Renderer | null = null;
+export function setRenderer(r: Renderer | null) {
+  renderer = r;
+}
 
 /** Wait out this host's share of the politeness delay. */
 async function throttle(host: string) {
@@ -253,6 +273,14 @@ export async function readSite(
   if (!url) return empty("dead");
   if (!(await robotsAllows(url))) return empty("robots_blocked");
 
+  /** What we learn about the site being broken, kept whatever the read does. */
+  const health: NonNullable<ReadResult["health"]> = {};
+  const failed = (outcome: string): SiteRead => {
+    const e = empty(outcome);
+    if (Object.keys(health).length) e.result.health = health;
+    return e;
+  };
+
   /** A failed fetch carries what went wrong, not just a string to regex. */
   const fail = (failure: FetchFailure) => Object.assign(new Error(failure.kind), { failure });
 
@@ -266,6 +294,9 @@ export async function readSite(
     if (!res.ok) throw fail({ kind: "status", status: res.status });
     const ct = res.headers.get("content-type") ?? "";
     if (!/text\/html/i.test(ct)) throw fail({ kind: "not_html" });
+    // A page that loaded over https proves the certificate passed: the one
+    // piece of positive evidence "this site is secure" can rest on.
+    if (res.url.startsWith("https:")) health.httpsOk = true;
     return await res.text();
   };
 
@@ -280,39 +311,86 @@ export async function readSite(
     }
   };
 
-  let first: string;
-  try {
-    first = await get(url.toString());
-  } catch (err) {
+  /**
+   * The home page, by the route a person would take when the first one fails.
+   * Each fallback answers one specific failure; none of them answers a refusal.
+   */
+  const firstPage = async (): Promise<{ html: string; url: URL } | { outcome: string }> => {
+    let f: FetchFailure;
+    try {
+      return { html: await get(url!.toString()), url: url! };
+    } catch (err) {
+      f = failureOf(err);
+    }
+
+    // Their certificate failed. The site is still theirs and usually answers
+    // over plain http; what we learned about the certificate is kept either way.
+    if (isTls(f)) {
+      health.tls = f.kind === "error" ? f.code || "certificate error" : "certificate error";
+      const plain = plainHttpOf(url!);
+      if (!plain) return { outcome: classify(f) };
+      if (!(await robotsAllows(plain))) return { outcome: "robots_blocked" };
+      try {
+        return { html: await get(plain.toString()), url: plain };
+      } catch (again) {
+        return { outcome: classify(failureOf(again)) };
+      }
+    }
+
+    // Our resolver could not find the name. Public DNS decides whether that is
+    // their dead domain or our bad day.
+    if (isUnresolved(f)) {
+      const dns = await publicDns(url!.hostname);
+      if (dns === "nxdomain" || dns === "no_address") health.dns = dns;
+      return { outcome: classify(f, dns) };
+    }
+
     // The listing's URL did not work. If it was a deep link — a retired
     // location page, a tracking URL — the site's own front door may well, and
     // that is where a person would go next. Not after a refusal: a 403 on a
     // deep page is the site saying no.
-    const f = failureOf(err);
-    const root = tryRootAfter(f) ? rootOf(url) : null;
-    if (!root) return empty(classify(f));
-    if (!(await robotsAllows(root))) return empty("robots_blocked");
+    const root = tryRootAfter(f) ? rootOf(url!) : null;
+    if (!root) return { outcome: classify(f) };
+    if (!(await robotsAllows(root))) return { outcome: "robots_blocked" };
     try {
-      first = await get(root.toString());
-      url = root;
+      return { html: await get(root.toString()), url: root };
     } catch (again) {
-      return empty(classify(failureOf(again)));
+      return { outcome: classify(failureOf(again)) };
     }
-  }
+  };
 
-  // **A page with nothing on it.** The HTML is a shell a browser fills in, so
-  // the model would be paid to read a few hundred characters of menu and say
-  // "couldn't tell". Detection still runs — a booking vendor's script is in
-  // the shell even when the words are not — and `judge` uses it; everything
-  // else is labelled and left unjudged.
-  const firstText = textOf(first);
+  const got = await firstPage();
+  if ("outcome" in got) return failed(got.outcome);
+  let first = got.html;
+  url = got.url;
+
+  // **A page with nothing on it.** The HTML is a shell a browser fills in. If
+  // a renderer was injected — the GitHub Actions runner does, the Vercel app
+  // never does — the browser fills it in and the read carries on as normal.
+  // Otherwise the model would be paid to read a few hundred characters of
+  // menu, so it is labelled `js_shell` and left unjudged; detection still
+  // runs, because a vendor's script is in the shell even when the words are not.
+  let firstText = textOf(first);
   if (emptiness(firstText.length, (first.match(/<script\b/gi) ?? []).length) === "js_shell") {
-    return {
-      result: { outcome: "js_shell", pages: 1, chars: firstText.length, ...detect(first) },
-      text: firstText,
-      pagesFetched: [url.toString()],
-      coverage: { targeted: 0, reached: 0 },
-    };
+    const rendered = renderer ? await renderer(url.toString(), UA).catch(() => null) : null;
+    if (rendered && textOf(rendered).length >= SHELL_TEXT_CHARS) {
+      first = rendered;
+      firstText = textOf(rendered);
+      health.rendered = true;
+    } else {
+      return {
+        result: {
+          outcome: "js_shell",
+          pages: 1,
+          chars: firstText.length,
+          ...detect(first),
+          ...(Object.keys(health).length ? { health } : {}),
+        },
+        text: firstText,
+        pagesFetched: [url.toString()],
+        coverage: { targeted: 0, reached: 0 },
+      };
+    }
   }
 
   const htmls = [first];
@@ -321,7 +399,13 @@ export async function readSite(
   let reached = 0;
   for (const link of targets) {
     try {
-      htmls.push(await get(link));
+      let html = await get(link);
+      // A site whose home page needed a browser builds its other pages the same
+      // way; render those too, and only those.
+      if (health.rendered && renderer && textOf(html).length < SHELL_TEXT_CHARS) {
+        html = (await renderer(link, UA).catch(() => null)) ?? html;
+      }
+      htmls.push(html);
       fetched.push(link);
       reached += 1;
     } catch {
@@ -362,7 +446,14 @@ export async function readSite(
   });
 
   return {
-    result: { outcome: "ok", pages: htmls.length, chars: text.length, ...d, contacts },
+    result: {
+      outcome: "ok",
+      pages: htmls.length,
+      chars: text.length,
+      ...d,
+      contacts,
+      ...(Object.keys(health).length ? { health } : {}),
+    },
     text,
     pagesFetched: fetched,
     coverage: { targeted: targets.length, reached },

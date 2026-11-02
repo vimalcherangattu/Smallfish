@@ -85,7 +85,8 @@ check(
 // was told "we read their site but not enough of it" about our own timeout.
 check(
   "our own failures are not recorded as the site refusing us",
-  /return empty\(classify\(f\)\)/.test(src) &&
+  /return \{ outcome: classify\(f(, dns)?\) \}/.test(src) &&
+    /return failed\(got\.outcome\)/.test(src) &&
     !/our_timeout|fetch_failed/.test(src.replace(/\/\/.*$/gm, "")),
   "every failure outcome comes from classify()",
 );

@@ -28,8 +28,44 @@ const net = (code, message = "fetch failed") => ({ kind: "error", code, message 
 const thrown = (code) => Object.assign(new TypeError("fetch failed"), { cause: { code } });
 
 /* --------------------------------------------- the five real failures -- */
-check("a business.site page that answers 404 is dead", F.classify(status(404)) === "dead");
-check("a domain that no longer resolves is dead", F.classify(F.failureOf(thrown("ENOTFOUND"))) === "dead");
+// Corrected 2026-11-02: this file first asserted a 404 was "dead". The Python
+// probe and the GTM stream's measurement both say otherwise — the host is
+// there, a page is not — and `unsure.ts` tells the customer "dead" means the
+// address leads nowhere.
+check("a business.site page that answers 404 is an http error, not dead", F.classify(status(404)) === "http_error");
+
+/* ------------------------------------- dead needs public DNS to say so -- */
+const unresolved = F.failureOf(thrown("ENOTFOUND"));
+check("a name our resolver cannot find is ours until public DNS agrees", F.classify(unresolved) === "probe_error");
+check("public DNS NXDOMAIN makes it dead", F.classify(unresolved, "nxdomain") === "dead");
+check("a name that exists and points nowhere is dead", F.classify(unresolved, "no_address") === "dead");
+check("a name public DNS resolves was our resolver's fault", F.classify(unresolved, "resolves") === "probe_error");
+check("and a lookup we could not make is evidence of nothing", F.classify(unresolved, null) === "probe_error");
+check("asking our resolver again is not how this is settled", !F.retryable(unresolved));
+{
+  const fake = (status, body) => async () => ({ ok: status === 200, json: async () => body });
+  const cases = [
+    [fake(200, { Status: 3 }), "nxdomain", "Status 3 is NXDOMAIN"],
+    [fake(200, { Status: 0, Answer: [{ type: 1 }] }), "resolves", "an A record resolves"],
+    [fake(200, { Status: 0, Answer: [{ type: 5 }] }), "resolves", "a CNAME resolves"],
+    [fake(200, { Status: 0, Answer: [] }), "no_address", "no address records is nowhere to go"],
+    [fake(200, { Status: 2 }), null, "SERVFAIL proves nothing"],
+    [fake(503, {}), null, "dns.google failing proves nothing"],
+    [async () => { throw new Error("offline"); }, null, "no network proves nothing"],
+  ];
+  for (const [fetcher, want, name] of cases) {
+    check(`publicDns: ${name}`, (await F.publicDns("example.invalid", fetcher)) === want);
+  }
+}
+
+/* ----------------------------------------------- broken certificates -- */
+const expired = F.failureOf(thrown("CERT_HAS_EXPIRED"));
+check("an expired certificate is recognised as a TLS failure", F.isTls(expired) && F.isTls(F.failureOf(thrown("ERR_TLS_CERT_ALTNAME_INVALID"))));
+check("and is not retried as-is: the same request gets the same certificate", !F.retryable(expired));
+check("it is retried over plain http instead", F.plainHttpOf(new URL("https://acme.com/a?b=1"))?.toString() === "http://acme.com/a?b=1");
+check("a plain http address has no plainer form", F.plainHttpOf(new URL("http://acme.com/")) === null);
+check("nor does it send us to the home page, which carries the same certificate", !F.tryRootAfter(expired));
+check("a site refusing the connection is an http error, not a dead domain", F.classify(net("ECONNREFUSED")) === "http_error");
 check(
   "an Under Construction page answering 503 is an http error, and worth one retry",
   F.classify(status(503)) === "http_error" && F.retryable(status(503)),
@@ -72,8 +108,8 @@ check(
   F.classify(net("ECONNRESET")) === "probe_error",
 );
 check(
-  "a refused connection or a broken certificate is theirs",
-  F.classify(net("ECONNREFUSED")) === "dead" && F.classify(net("CERT_HAS_EXPIRED")) === "dead",
+  "a refused connection or a broken certificate is theirs, and neither is called dead",
+  F.classify(net("ECONNREFUSED")) === "http_error" && F.classify(net("CERT_HAS_EXPIRED")) === "http_error",
 );
 
 /* ------------------------------------------ the vocabulary is shared -- */
@@ -93,6 +129,7 @@ check(
       F.classify(net(c)),
     ),
     F.classify(net("", "timeout")),
+    F.classify(net("ENOTFOUND"), "nxdomain"),
     "robots_blocked",
     "js_shell",
     "thin",
@@ -113,7 +150,7 @@ check(
   F.rootOf(new URL("https://example.com/")) === null && F.rootOf(new URL("https://example.com")) === null,
 );
 check(
-  "the root is tried after a dead or broken page, not after a timeout",
+  "the root is tried after a broken page, not after a timeout",
   F.tryRootAfter(status(404)) && F.tryRootAfter({ kind: "not_html" }) && !F.tryRootAfter(net("", "timeout")),
   "a timeout is retried in place; trying another page of a slow site is just slower",
 );
