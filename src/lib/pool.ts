@@ -221,6 +221,7 @@ export function poolClaim(
   withSite: number,
   trade: string,
   where: string,
+  live: LiveCount | null = null,
 ): string {
   if (listings === 0) return `We found no ${trade} in ${where}.`;
   const n = listings.toLocaleString("en-US");
@@ -228,7 +229,51 @@ export function poolClaim(
   if (withSite === 0) {
     return `${n} ${trade} in ${where}, and none of them has a website we can read.`;
   }
-  return `${n} ${trade} in ${where}. ${w} have a website we can read.`;
+  // Without a liveness measurement the honest claim is what the listings say,
+  // not what we can read: 8–14% of listed sites in customer trades are dead
+  // domains (GTM, 2026-11-01).
+  if (!live) return `${n} ${trade} in ${where}. ${w} list a website.`;
+  if (live.live === 0) return `${n} ${trade} in ${where}, and none of their listed websites is still there.`;
+  const l = live.live.toLocaleString("en-US");
+  return `${n} ${trade} in ${where}. ${live.exact ? "" : "About "}${l} have a live website we can read.`;
+}
+
+/**
+ * How many listed websites are actually there (DEW: the number `/app/find`
+ * leads with). From a check of `checked` listed sites against public DNS, of
+ * which `dead` do not exist or point nowhere.
+ *
+ * When every listed site was checked the number is exact; otherwise it is the
+ * sample's live share applied to the whole, and the screen says "about".
+ * Never rounds a pool with live sites in it down to zero.
+ */
+export interface LiveCount {
+  live: number;
+  exact: boolean;
+  checked: number;
+  dead: number;
+}
+
+export function liveSites(withSite: number, check: { checked: number; dead: number } | null): LiveCount | null {
+  if (!check || check.checked <= 0 || withSite <= 0) return null;
+  const dead = Math.min(check.dead, check.checked);
+  if (check.checked >= withSite) {
+    return { live: Math.max(0, withSite - dead), exact: true, checked: check.checked, dead };
+  }
+  const share = 1 - dead / check.checked;
+  const live = Math.round(withSite * share);
+  return { live: share > 0 ? Math.max(1, live) : 0, exact: false, checked: check.checked, dead };
+}
+
+/** The measurement, said once, under the claim it qualifies. */
+export function liveNote(c: LiveCount): string {
+  if (c.dead === 0) {
+    return c.exact
+      ? `We checked all ${c.checked} listed websites against public DNS, and every one is there.`
+      : `We checked ${c.checked} of the listed websites at random against public DNS, and every one is there.`;
+  }
+  const which = c.exact ? `all ${c.checked} listed websites` : `${c.checked} of the listed websites at random`;
+  return `We checked ${which} against public DNS: ${c.dead} no longer exist${c.dead === 1 ? "s" : ""}, so they are not counted.`;
 }
 
 /**

@@ -214,7 +214,12 @@ test("a blank or one-character town is treated as absent", () => {
 test("the claim carries both numbers, market and readable", () => {
   const said = P.poolClaim(2048, 1838, "dentists", "Austin");
   assert.match(said, /2,048 dentists in Austin/);
-  assert.match(said, /1,838 have a website/);
+  // Unmeasured, the second number is what the listings claim, said as that:
+  // since 2026-11-02 "can read" is only said of sites public DNS confirmed
+  // (GTM: 8–14% of listed sites in customer trades are dead). `test_liveness`
+  // holds the measured wording.
+  assert.match(said, /1,838 list a website/);
+  assert.doesNotMatch(said, /can read/);
 });
 
 test("and the readable number is never dropped, which is the overclaim", () => {

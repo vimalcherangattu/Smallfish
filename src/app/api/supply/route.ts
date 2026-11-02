@@ -12,6 +12,7 @@ import { RATIONED, takeScan } from "@/lib/countcache";
 import { COUNTING, findCandidates, Rationed } from "@/lib/providers";
 import { matchTrade, pretty, type Taxonomy } from "@/lib/trades";
 import { FREE_GRANT, toCredits } from "@/lib/wallet";
+import { liveNote, liveSites } from "@/lib/pool";
 import type { MarketIndex } from "@/lib/types";
 
 /**
@@ -179,7 +180,12 @@ export async function POST(req: Request) {
   // Businesses this workspace has already been given come off what is left to
   // find, so the number on screen is the number of *new* names — which is the
   // only number that means anything to somebody on their second search.
-  const fresh = Math.max(0, supply.withSite - given.ids.size);
+  //
+  // And from the **live** sites when that was measured: a dead domain is not
+  // something we can read, so sizing a request against it promises reads that
+  // cannot happen (GTM: 8–14% of listed sites in customer trades are dead).
+  const live = liveSites(supply.withSite, supply.live ?? null);
+  const fresh = Math.max(0, (live?.live ?? supply.withSite) - given.ids.size);
 
   const sized = rates ? sizeAsk({ want: credits, withSite: fresh, rates }) : null;
 
@@ -201,6 +207,9 @@ export async function POST(req: Request) {
     found: {
       listings: supply.listings,
       withSite: supply.withSite,
+      /** How many of those public DNS says are there. Null when unmeasured. */
+      live,
+      liveNote: live ? liveNote(live) : null,
       /** Already unlocked by this workspace. Yours, and never charged twice. */
       alreadyYours: given.held,
       /**

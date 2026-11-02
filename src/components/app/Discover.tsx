@@ -56,6 +56,8 @@ interface Supply {
   found: {
     listings: number;
     withSite: number;
+    live: { live: number; exact: boolean; checked: number; dead: number } | null;
+    liveNote: string | null;
     alreadyYours: number;
     alreadyChecked: number;
     fresh: number;
@@ -299,8 +301,20 @@ export default function Discover({
             {n(f.listings)} {d.trade.typed || "businesses"} in {d.region.label}.
           </h1>
           <p className="t-b" style={{ marginTop: 12, color: "#36404C", maxWidth: "56ch" }}>
-            <b style={{ color: "#0E1520" }}>{n(f.withSite)}</b> of them have a website we can
-            read.
+            {/* The live number when public DNS was asked; otherwise only what
+                the listings claim, said as that. `pool.ts` `poolClaim` is the
+                same rule on /app/find, so the two screens agree. */}
+            {f.live ? (
+              <>
+                {f.live.exact ? "" : "About "}
+                <b style={{ color: "#0E1520" }}>{n(f.live.live)}</b> of them have a live website we
+                can read.
+              </>
+            ) : (
+              <>
+                <b style={{ color: "#0E1520" }}>{n(f.withSite)}</b> of them list a website.
+              </>
+            )}
             {(f.alreadyYours > 0 || f.alreadyChecked > 0) && (
               <>
                 {/* **This said "N you have had before ... you never pay for the

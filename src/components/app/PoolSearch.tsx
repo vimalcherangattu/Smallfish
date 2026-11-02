@@ -81,6 +81,9 @@ interface Sample {
 interface Counted {
   listings: number;
   withSite: number;
+  /** How many listed sites public DNS says are there; null when unmeasured. */
+  live?: { live: number; exact: boolean; checked: number; dead: number } | null;
+  liveNote?: string | null;
   claim: string;
   thin: string | null;
   samples: Sample[];
@@ -332,6 +335,11 @@ export default function PoolSearch({
                 <p className="t-b" style={{ marginTop: 4 }}>
                   {counted.claim}
                 </p>
+                {counted.liveNote && (
+                  <p className="t-s" style={{ marginTop: 4, maxWidth: "62ch" }}>
+                    {counted.liveNote}
+                  </p>
+                )}
 
                 {counted.thin && (
                   <div className="evbox" style={{ marginTop: 14 }}>

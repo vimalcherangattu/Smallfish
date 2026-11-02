@@ -39,7 +39,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { poolClaim, sampleRows, thinness } from "@/lib/pool";
+import { liveNote, liveSites, poolClaim, sampleRows, thinness } from "@/lib/pool";
+import { measureLiveness } from "@/lib/liveness";
 import { countKey, RATIONED, readCount, takeScan, writeCount } from "@/lib/countcache";
 import { COUNTING, findCandidates } from "@/lib/providers";
 import { RADIUS_MILES } from "@/lib/supply";
@@ -176,12 +177,20 @@ export async function POST(req: Request) {
   }
 
   const started = Date.now();
-  const claimOf = (listings: number, withSite: number) => ({
-    listings,
-    withSite,
-    claim: poolClaim(listings, withSite, trade.best!.typed, region.label),
-    thin: thinness(listings, withSite),
-  });
+  // `withSite` stays the listed number, which is what every downstream size
+  // was built on; `live` is how many of those are really there, and the claim
+  // the visitor reads is made from it (DEW: a dead domain is not readable).
+  const claimOf = (listings: number, withSite: number, check: { checked: number; dead: number } | null) => {
+    const live = liveSites(withSite, check);
+    return {
+      listings,
+      withSite,
+      live,
+      liveNote: live ? liveNote(live) : null,
+      claim: poolClaim(listings, withSite, trade.best!.typed, region.label, live),
+      thin: thinness(listings, live?.live ?? withSite),
+    };
+  };
 
   // **Cached for a week, samples included** (`countcache.ts`). This is the
   // anonymous front door, so it was the route most able to spend the team's
@@ -193,7 +202,7 @@ export async function POST(req: Request) {
       ok: true,
       stage: "count",
       understood,
-      ...claimOf(hit.listings, hit.withSite),
+      ...claimOf(hit.listings, hit.withSite, hit.live),
       samples: hit.samples,
       source: COUNTING,
       degraded: null,
@@ -214,11 +223,15 @@ export async function POST(req: Request) {
 
   const rows = supply.rows ?? [];
   const samples = sampleRows(rows, 5);
+  // About a second, on a miss only: a random sample of the listed sites asked
+  // of public DNS. Kept with the count so every screen says the same number.
+  const check = await measureLiveness(rows.map((r) => r.site));
   await writeCount(key, COUNTING, {
     listings: supply.listings,
     withSite: supply.withSite,
     samples,
     ms: supply.ms,
+    live: check,
   });
   return Response.json({
     ok: true,
@@ -227,10 +240,7 @@ export async function POST(req: Request) {
     // The two numbers that matter, and both of them. `listings` is the market,
     // `withSite` is what we can actually read, and the second is the one every
     // downstream claim is about.
-    listings: supply.listings,
-    withSite: supply.withSite,
-    claim: poolClaim(supply.listings, supply.withSite, trade.best.typed, region.label),
-    thin: thinness(supply.listings, supply.withSite),
+    ...claimOf(supply.listings, supply.withSite, check),
     samples,
     source: supply.source,
     degraded: supply.degraded ?? null,

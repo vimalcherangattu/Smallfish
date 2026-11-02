@@ -127,6 +127,9 @@ export interface SupplyResult {
   measuredAt?: string;
   /** True when served from `supply_counts` without opening DuckDB. */
   cached?: boolean;
+  /** Listed sites checked against public DNS, from the cached count. Null or
+   *  absent when unmeasured; see `liveness.ts` and migration 0034. */
+  live?: { checked: number; dead: number } | null;
 }
 
 /** Thrown when a count missed the cache and the caller's ration of fresh
@@ -420,6 +423,7 @@ export async function findCandidates(
         source: chosen.id,
         measuredAt: hit.measuredAt,
         cached: true,
+        live: hit.live,
       };
     }
     if (opts.allowScan && !(await opts.allowScan())) throw new Rationed();

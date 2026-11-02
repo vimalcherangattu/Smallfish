@@ -47,6 +47,9 @@ export interface CachedCount {
   ms: number | null;
   /** ISO timestamp of the scan this number came from. */
   measuredAt: string;
+  /** Listed websites checked against public DNS, and how many were dead.
+   *  Null when this count was never measured for liveness (migration 0034). */
+  live: { checked: number; dead: number } | null;
 }
 
 function conn() {
@@ -97,6 +100,10 @@ export async function readCount(key: string, needSamples = false): Promise<Cache
       release: (row.release as string) ?? null,
       ms: row.ms == null ? null : Number(row.ms),
       measuredAt: String(row.computed_at),
+      live:
+        row.live_checked == null
+          ? null
+          : { checked: Number(row.live_checked), dead: Number(row.live_dead ?? 0) },
     };
   } catch {
     return null;
@@ -107,7 +114,14 @@ export async function readCount(key: string, needSamples = false): Promise<Cache
 export async function writeCount(
   key: string,
   provider: string,
-  v: { listings: number; withSite: number; samples?: unknown[] | null; release?: string | null; ms?: number },
+  v: {
+    listings: number;
+    withSite: number;
+    samples?: unknown[] | null;
+    release?: string | null;
+    ms?: number;
+    live?: { checked: number; dead: number } | null;
+  },
 ): Promise<void> {
   const c = conn();
   if (!c) return;
@@ -123,6 +137,9 @@ export async function writeCount(
         with_site: v.withSite,
         samples: v.samples ?? null,
         ms: v.ms ?? null,
+        // Only sent when measured, so a write from a path with no site list
+        // (a bare count) never wipes a measurement taken by one that had it.
+        ...(v.live ? { live_checked: v.live.checked, live_dead: v.live.dead } : {}),
         computed_at: new Date().toISOString(),
       }),
       cache: "no-store",
