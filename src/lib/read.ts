@@ -327,6 +327,7 @@ export async function readSite(
     // over plain http; what we learned about the certificate is kept either way.
     if (isTls(f)) {
       health.tls = f.kind === "error" ? f.code || "certificate error" : "certificate error";
+      health.host = url!.hostname;
       const plain = plainHttpOf(url!);
       if (!plain) return { outcome: classify(f) };
       if (!(await robotsAllows(plain))) return { outcome: "robots_blocked" };
@@ -341,7 +342,10 @@ export async function readSite(
     // their dead domain or our bad day.
     if (isUnresolved(f)) {
       const dns = await publicDns(url!.hostname);
-      if (dns === "nxdomain" || dns === "no_address") health.dns = dns;
+      if (dns === "nxdomain" || dns === "no_address") {
+        health.dns = dns;
+        health.host = url!.hostname;
+      }
       return { outcome: classify(f, dns) };
     }
 
@@ -363,6 +367,28 @@ export async function readSite(
   if ("outcome" in got) return failed(got.outcome);
   let first = got.html;
   url = got.url;
+
+  // **Is it secure?** Asked only when that is the question: a site that
+  // answered over plain http and never sent us to https gets one request to
+  // its https address. Without it, every http-only listing would be "couldn't
+  // tell" for the one criterion that is about exactly this.
+  if (signalForCriterion(criterion.text)?.fromHealth && !health.httpsOk && !health.tls) {
+    const secure = new URL(`https://${url.host}/`);
+    try {
+      await getOnce(secure.toString());
+    } catch (err) {
+      const f = failureOf(err);
+      if (isTls(f)) {
+        health.tls = f.kind === "error" ? f.code || "certificate error" : "certificate error";
+        health.host = url.hostname;
+      } else if (f.kind === "error" && f.code === "ECONNREFUSED") {
+        health.noHttps = true;
+        health.host = url.hostname;
+      }
+      // Anything else — a timeout, a 403 on the https side, our network —
+      // proves nothing about their certificate, and is left unrecorded.
+    }
+  }
 
   // **A page with nothing on it.** The HTML is a shell a browser fills in. If
   // a renderer was injected — the GitHub Actions runner does, the Vercel app
@@ -530,6 +556,11 @@ export async function judge(
 ): Promise<Verdict> {
   const signal = signalForCriterion(criterion.text);
   const r = read.result;
+
+  // **About the site itself, not its words.** Settled from public DNS and the
+  // certificate, before anything else, because a dead site's outcome is
+  // `dead` and every branch below would call that "couldn't tell".
+  if (signal?.fromHealth) return healthVerdict(read, criterion, signal);
 
   // An empty shell can still be settled for free when a vendor's script is in
   // it. Only for presence-type evidence: detection proves something is there,
@@ -712,5 +743,67 @@ export async function judge(
     verdict: verdict as VerdictKind,
     proof: absenceProof(label, read.pagesFetched),
     reason: out.reason ?? `read ${read.pagesFetched.length} pages and found no ${label}`,
+  };
+}
+
+/**
+ * The verdict for a criterion about the site itself being down or insecure.
+ *
+ * Both directions need positive evidence, and both are written as a sentence a
+ * customer can check for themselves:
+ *
+ *   - **broken** — public DNS has no record of the name, or it points nowhere;
+ *     the certificate failed with a named error; or the host refused https.
+ *   - **working** — a page loaded over https and its certificate passed.
+ *
+ * Everything else — a timeout, our resolver, a lookup we could not make, a
+ * site that refused us — proves neither, and is "couldn't tell" (or "blocked")
+ * exactly as for any other criterion. Pure: it reads only what `readSite`
+ * recorded, so `test_secure_site.mjs` holds it without a network.
+ */
+export function healthVerdict(
+  read: SiteRead,
+  criterion: Criterion,
+  signal: { detected?: (r: ReadResult) => boolean },
+): Verdict {
+  const r = read.result;
+  const h = r.health ?? {};
+  const host = h.host ?? "their listed address";
+  const broken =
+    h.dns === "nxdomain"
+      ? `Public DNS (dns.google) has no record of ${host}: the name does not exist.`
+      : h.dns === "no_address"
+        ? `${host} is registered but public DNS points it at no server.`
+        : h.tls
+          ? `The security certificate for https://${host} failed (${h.tls}), so browsers warn visitors away.`
+          : h.noHttps
+            ? `${host} refuses secure (https) connections, so browsers mark it "Not secure".`
+            : null;
+
+  // A "has a website that is down or insecure" criterion is the absence of a
+  // working, secure site, so broken evidence is its match.
+  const wantsBroken = criterion.type === "absence";
+
+  if (broken) {
+    return {
+      verdict: (wantsBroken ? "match" : "no_match") as VerdictKind,
+      proof: broken,
+      reason: "public DNS or the site's own certificate settled this",
+    };
+  }
+  if (signal.detected?.(r)) {
+    const page = read.pagesFetched.find((p) => p.startsWith("https:")) ?? "its https address";
+    return {
+      verdict: (wantsBroken ? "no_match" : "match") as VerdictKind,
+      proof: `${page} loaded over https with a valid certificate.`,
+      reason: "the site loaded securely",
+    };
+  }
+  const refused = r.outcome === "blocked" || r.outcome === "robots_blocked";
+  return {
+    verdict: (refused ? "blocked" : "couldnt_tell") as VerdictKind,
+    reason: refused
+      ? "the site refused automated reading"
+      : `we could not confirm the site's address or certificate either way (${r.outcome})`,
   };
 }

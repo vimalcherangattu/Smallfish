@@ -252,7 +252,7 @@ test("and the plan's decision log agrees with the catalogue it describes", () =>
   // regex miss and the hardcoded 7 fail, and the failure pointed at the test
   // rather than at the sentence that had gone stale. The coupling worth having
   // is the log against the catalogue, so that is the only one asserted.
-  const WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
+  const WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15 };
   const num = (w) => WORDS[String(w).toLowerCase()] ?? Number(w);
   const claim = plan.match(/(\w+) of the (\w+) catalogued signals cannot be settled/);
   assert.ok(claim, "the decision log no longer states how many signals cannot be settled");

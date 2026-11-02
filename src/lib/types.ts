@@ -63,6 +63,11 @@ export interface ReadResult {
     httpsOk?: boolean;
     /** The home page was an empty frame, filled in by a browser we ran. */
     rendered?: boolean;
+    /** The host refused a secure (https) connection outright. A browser marks
+     *  such a site "Not secure". A timeout never sets this: it could be ours. */
+    noHttps?: boolean;
+    /** The host the evidence above is about, for the proof sentence. */
+    host?: string;
   };
 }
 

@@ -259,6 +259,11 @@ const firstValue = (v: PublishedValue[] | undefined): string | null =>
  * line somebody reads.
  */
 function plainWhy(c: Criterion, b: Business): string {
+  // A signal that says it in its own words: the template below garbles some
+  // ("is not on a website builder" became "No on a website builder…"), and one
+  // is not about pages at all (`secure_site`).
+  const own = signalForCriterion(c.text)?.matchWhy;
+  if (own) return own[c.type];
   const pages = b.read?.pages ?? 0;
   const where = host(b.site) ?? "their site";
   if (c.type === "absence") {
@@ -280,6 +285,9 @@ function plainWhy(c: Criterion, b: Business): string {
  * makes the claim checkable in shape, and it names nobody.
  */
 function maskedWhy(c: Criterion, b: Business): string {
+  // `matchWhy` is written to name nobody, so it is safe on a locked row as is.
+  const own = signalForCriterion(c.text)?.matchWhy;
+  if (own) return own[c.type];
   const pages = b.read?.pages ?? 0;
   const read = `${pages} page${pages === 1 ? "" : "s"} read`;
   if (c.type === "absence") {

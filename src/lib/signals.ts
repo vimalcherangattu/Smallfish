@@ -78,6 +78,18 @@ export interface ObservableSignal {
    * this signal are any page's source, and those were read.
    */
   inSource?: boolean;
+  /**
+   * Settled from what the read learned about the **site itself** — public DNS
+   * and the security certificate (`ReadResult.health`) — never from its words,
+   * and never by a model. See `secure_site`.
+   */
+  fromHealth?: boolean;
+  /**
+   * The row's "why", when the generic template would garble it. Generalised:
+   * it names no business, quotes nothing, and is shown on locked rows. Keyed by
+   * the criterion type that matched.
+   */
+  matchWhy?: { absence: string; presence: string };
 }
 
 export const SIGNALS: ObservableSignal[] = [
@@ -115,6 +127,42 @@ export const SIGNALS: ObservableSignal[] = [
     inOffer: /\b(quote|estimate|lead (capture|form|gen\w*)|enquir\w+|inquir\w+|intake)\b/i,
   },
   {
+    // **Proposed by the GTM stream, 2026-11-02, from its own measurements:**
+    // 8–14% of the websites listed for businesses in customer trades do not
+    // exist any more, and 7 of 50 failed reads were broken certificates. For
+    // anyone selling websites, hosting or marketing that is the strongest lead
+    // there is, and it costs nothing to prove: the read already asks.
+    //
+    // **The signal is the working, secure site**, so the lead is its absence,
+    // as with every gap here. Both verdicts need positive proof, and neither is
+    // ever "couldn't tell" dressed up:
+    //   - missing  ← public DNS says the name does not exist or points nowhere,
+    //               or the certificate failed with a named error;
+    //   - present  ← a page loaded over https and the certificate passed.
+    // Our own failures (a timeout, our resolver, a lookup we could not make)
+    // prove neither and stay "couldn't tell".
+    id: "secure_site",
+    label: "a working, secure website",
+    question: "Does their website still exist, and does it load without a security warning?",
+    provable: true,
+    fromHealth: true,
+    detected: (r) => r.health?.httpsOk === true && !r.health?.tls && !r.health?.dns,
+    how: "Checks the listed address against public DNS and checks its security certificate when we open it.",
+    absenceText: "has a website that is down or insecure",
+    presenceText: "has a working, secure website",
+    matchWhy: {
+      absence: "Their listed website is down, or warns visitors that it is not secure.",
+      presence: "Their website loads securely.",
+    },
+    costsWhenMissing:
+      "anyone who looks them up finds nothing, or a browser warning, and most " +
+      "people leave rather than call",
+    inCriterion:
+      /\b(down|offline|broken|insecure|not secure|ssl|https|certificates?|secure (web ?)?site|working (web ?)?site|dead (web ?)?site)\b/i,
+    inOffer:
+      /\b(hosting|ssl|https|certificates?|domains?|web ?site (maintenance|care|support|management|security)|website security|uptime)\b/i,
+  },
+  {
     id: "chat",
     label: "live chat",
     question: "Is there a chat widget or instant reply on the site?",
@@ -140,6 +188,10 @@ export const SIGNALS: ObservableSignal[] = [
     // rather than `read` for exactly that reason.
     detected: (r) => r.cms.some((c) => BUILDERS.has(c)),
     inSource: true,
+    matchWhy: {
+      absence: "Not built on a DIY website builder.",
+      presence: "Built on a DIY website builder such as Wix or Squarespace.",
+    },
     how: "Looks for the builder's own markup in the page source: Wix, Squarespace, GoDaddy, Webflow, Shopify, Duda or Weebly.",
     absenceText: "is not on a website builder",
     presenceText: "is on a website builder",
@@ -234,7 +286,7 @@ export const SIGNALS: ObservableSignal[] = [
     absenceText: "has a site that looks abandoned",
     presenceText: "has a recently updated site",
     costsWhenMissing: "the site reads as abandoned to anyone who lands on it",
-    inCriterion: /\b(stale|outdated|abandoned|old site|copyright year)\b/i,
+    inCriterion: /\b(stale|outdated|abandoned|old site|copyright year|recently updated)\b/i,
     inOffer: /\b(redesign|refresh|outdated|modernis|moderniz)\w*/i,
     wouldTake:
       "a copyright-year and Last-Modified read. Both are easy to fake and often " +

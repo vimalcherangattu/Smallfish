@@ -121,11 +121,13 @@ test("the catalogue is as small as it is, out loud", () => {
   // a decision somebody makes rather than a drift. It has moved twice in one
   // day and caught both: three that morning, four once `builder` exposed the
   // platform detection that was already running, six once the live read
-  // started extracting contacts and "has a phone number" became a search.
+  // started extracting contacts and "has a phone number" became a search,
+  // seven on 2026-11-02 when `secure_site` ("website is down or insecure")
+  // turned the read's DNS and certificate evidence into a criterion.
   const everything = P.planFromOffer("I sell a helpline to gyms");
   assert.equal(
     everything.available.length,
-    6,
+    7,
     "the provable catalogue changed size, which changes what an ICP can ask for",
   );
 });
