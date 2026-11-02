@@ -36,6 +36,9 @@ export interface ReadResult {
   quote: boolean;
   chat: boolean;
   cms: string[];
+  /** Something chat-like in the source that no known vendor explains. Holds
+   *  back a "no live chat" verdict from the source alone. */
+  chatHint?: boolean;
   /**
    * What the site publishes about reaching them, found while we were on it.
    *

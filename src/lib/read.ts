@@ -171,6 +171,20 @@ function pagesFor(html: string, base: URL, criterion: Criterion): string[] {
   return out;
 }
 
+/** Chat and messaging widgets, by the hosts and globals they leave in a page. */
+const CHAT_VENDORS = new RegExp(
+  [
+    "intercom", "drift\\.com", "driftt", "tawk\\.to", "crisp\\.chat", "zopim", "zdassets", "livechatinc",
+    "tidio", "podium\\.com", "birdeye", "usemessages\\.com", "olark", "gorgias", "ngageics", "apexchat",
+    "intaker", "smith\\.ai", "purechat", "snapengage", "userlike", "chatra", "jivosite", "jivochat",
+    "smartsupp", "freshchat", "wchat\\.", "comm100", "livehelpnow", "leadconnectorhq", "msgsndr",
+    "customerchat", "chatbot\\.com", "landbot", "manychat", "botpress", "liveperson", "lpsnmedia",
+    "wa\\.me/", "api\\.whatsapp\\.com", "whatsapp-?(?:widget|button|chat)", "helpcrunch", "reamaze",
+    "kustomer", "gladly", "chat-widget", "chatwidget", "webchat", "juvoleads", "lawmatics", "callrail.*chat",
+  ].join("|"),
+  "i",
+);
+
 /** The pages where a small business names who runs it. */
 const PEOPLE_PAGE = /\b(about|team|staff|our-?story|meet|who-?we-?are|leadership|owners?|founders?|bios?|people)\b/i;
 
@@ -247,7 +261,20 @@ function detect(html: string) {
     cms,
     booking: vendors.length > 0,
     quote: /action=["'][^"']*(quote|estimate)|id=["'][^"']*(quote|estimate)-?form/i.test(html),
-    chat: /intercom|drift\.com|tawk\.to|livechat|crisp\.chat|tidio/i.test(html),
+    // Measured 2026-11-02 on 25 Sacramento law firms, against a rendered page:
+    // 6 had chat, and the old list (intercom, drift, tawk, livechat, crisp,
+    // tidio) caught **none** of them — they ran JuvoLeads, ApexChat, Lawmatics,
+    // a WhatsApp widget, a generic chat-widget. Every outreach list built for
+    // law firms came back empty. Errs wide: a missed widget is a false match.
+    chat: CHAT_VENDORS.test(html),
+    // Something chat-like we cannot name. Not proof of chat, but enough that
+    // "no chat" must not be settled from the source alone.
+    chatHint:
+      /<(?:script|iframe)[^>]*(?:chat|messenger)[^>]*>|class=["'][^"']*\bchat/i.test(html) ||
+      /\b(live chat|chat with (?:us|an?)|chat now|text us)\b/i.test(html.replace(/<[^>]+>/g, " ")) ||
+      // WhatsApp shows up as share links, contact links and runtime widgets
+      // alike; 2 of the 3 wrong "no chat" calls on 2026-11-02 mentioned it.
+      /whatsapp/i.test(html),
   };
 }
 
@@ -628,16 +655,18 @@ export async function judge(
   if (
     signal?.inSource &&
     !signal.detected?.(r) &&
+    !signal.sourceHint?.(r) &&
     r.pages > 0 &&
     (r.outcome === "ok" || r.outcome === "js_shell")
   ) {
     const n = read.pagesFetched.length;
+    const what = (signal.label ?? "it").replace(/^(a|an) /i, "");
     return {
       verdict: (criterion.type === "presence" ? "no_match" : "match") as VerdictKind,
       proof:
-        `No website-builder markup in the source of ${n === 1 ? "the one page we read" : `${n} pages`}: ` +
+        `No ${what} in the source of ${n === 1 ? "the one page we read" : `${n} pages`}: ` +
         `${read.pagesFetched.join(", ")}.`,
-      reason: "read the page source; a builder leaves its markup on every page it serves",
+      reason: "read the page source; this is loaded on every page that has it",
     };
   }
 

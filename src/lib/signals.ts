@@ -79,6 +79,12 @@ export interface ObservableSignal {
    */
   inSource?: boolean;
   /**
+   * For an `inSource` signal: something in the source that might be this
+   * signal under a name we do not know. When it fires, absence is **not**
+   * settled from the source and the read goes to the model as before.
+   */
+  sourceHint?: (r: ReadResult) => boolean;
+  /**
    * Settled from what the read learned about the **site itself** — public DNS
    * and the security certificate (`ReadResult.health`) — never from its words,
    * and never by a model. See `secure_site`.
@@ -178,6 +184,12 @@ export const SIGNALS: ObservableSignal[] = [
     question: "Is there a chat widget or instant reply on the site?",
     provable: true,
     detected: (r) => r.chat,
+    // A chat widget is a script on every page, and the judge shows the model
+    // text with the scripts stripped, so it could never see one. Measured on 25
+    // law firms against a rendered page: settling "no chat" from the source
+    // was right for 19 of 20; the 20th loaded WhatsApp from script at runtime.
+    inSource: true,
+    sourceHint: (r) => r.chatHint === true,
     how: "Looks for a chat widget or messaging script in the page source.",
     absenceText: "has no live chat",
     presenceText: "has live chat",
