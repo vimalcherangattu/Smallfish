@@ -263,9 +263,17 @@ export interface ListLead {
 }
 
 export async function listLeads(listId: string, limit = 100): Promise<ListLead[]> {
-  const r = await api<{ items?: ListLead[] }>("/leads/list", {
-    method: "POST",
-    body: JSON.stringify({ list_id: listId, limit }),
-  });
-  return r.items ?? [];
+  // A page is at most 100; a list of owners bought in one go is 300+.
+  const out: ListLead[] = [];
+  let after: string | undefined;
+  while (out.length < limit) {
+    const r = await api<{ items?: ListLead[]; next_starting_after?: string }>("/leads/list", {
+      method: "POST",
+      body: JSON.stringify({ list_id: listId, limit: Math.min(100, limit - out.length), ...(after ? { starting_after: after } : {}) }),
+    });
+    out.push(...(r.items ?? []));
+    if (!r.next_starting_after || !(r.items ?? []).length) break;
+    after = r.next_starting_after;
+  }
+  return out;
 }

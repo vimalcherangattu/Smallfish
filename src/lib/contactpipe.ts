@@ -21,7 +21,7 @@ import { countLeads, enrich, listLeads, type ListLead } from "@/lib/instantly";
 import { logEvent, rest } from "@/lib/prospecting";
 import { domainOf } from "@/lib/prospects";
 import type { Places } from "@/lib/region";
-import { tradeSegments } from "@/lib/research";
+import { ownersAt, tradeSegments } from "@/lib/research";
 import { dailyPerInbox, newLeadsPerDay, ROLE_ADDRESS } from "@/lib/sequence";
 
 export async function getState<T>(key: string): Promise<T | null> {
@@ -126,7 +126,86 @@ export async function importContacts(places: Places): Promise<number> {
     }
   }
   if (added) await logEvent("contacts_imported", {}, { rows: added });
+  added += await importOwners(lists);
   return added;
+}
+
+/* --------------------------------------- owners at agencies we read -- */
+
+const OWNERS = "owners-at-read-agencies";
+
+/** Agencies the finder read and wrote a trade for, whose own site gave us no
+ *  person: no address, or only info@ and the like. 61 of the 69 agencies
+ *  with a trade on 2026-11-01 were exactly this. */
+async function agenciesWithoutAPerson(): Promise<Array<{ domain: string; email: string | null }>> {
+  const rows = ((await rest(
+    "gtm_prospects?audience=eq.agency&niche=not.is.null&status=in.(found,no_email)&select=domain,email&limit=2000",
+  )) ?? []) as Array<{ domain: string; email: string | null }>;
+  return rows.filter((r) => !r.email || ROLE_ADDRESS.test(r.email));
+}
+
+/**
+ * Put a named founder on those agencies' own rows. Not a new prospect: the
+ * agency, its trade and its free list are already ours, so the person
+ * replaces info@ on the row and the agency campaign can write to them.
+ */
+async function importOwners(lists: Lists): Promise<number> {
+  const listId = lists[OWNERS];
+  if (!listId) return 0;
+  const people = await listLeads(listId, 1000).catch(() => [] as ListLead[]);
+  const open = new Map((await agenciesWithoutAPerson()).map((r) => [r.domain, r]));
+  let named = 0;
+  for (const l of people) {
+    const email = l.email?.trim().toLowerCase();
+    const domain = (l.company_domain && domainOf(l.company_domain)) || email?.split("@")[1];
+    // The push route is a 60-second Vercel function: a hundred rows a run,
+    // the rest on the next hourly run.
+    if (named >= 100) break;
+    if (!email || !domain || ROLE_ADDRESS.test(email) || !open.has(domain)) continue;
+    await rest(`gtm_prospects?domain=eq.${encodeURIComponent(domain)}`, {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({
+        email,
+        first_name: l.first_name ?? null,
+        contact_name: [l.first_name, l.last_name].filter(Boolean).join(" ") || null,
+        contact_title: l.job_title ?? null,
+        status: "found",
+        updated_at: new Date().toISOString(),
+      }),
+    });
+    open.delete(domain);
+    named += 1;
+  }
+  if (named) await logEvent("owners_named", {}, { rows: named });
+  return named;
+}
+
+/**
+ * Buy the founders at agencies without a person, each agency once. Inside the
+ * owner's monthly cap like every other buy; these come first because the
+ * agency is already read, already has a trade and a free list, and only
+ * lacked someone to write to.
+ */
+async function buyOwners(room: number, month: string, used: number): Promise<number> {
+  if (room <= 0) return 0;
+  const tried = new Set((await getState<string[]>("owners_tried")) ?? []);
+  const domains = (await agenciesWithoutAPerson()).map((r) => r.domain).filter((d) => !tried.has(d)).slice(0, 500);
+  if (!domains.length) return 0;
+  const seg = ownersAt(domains);
+  const filters = { ...seg.filters, skip_owned_leads: true };
+  const available = await countLeads(filters).catch(() => 0);
+  for (const d of domains) tried.add(d);
+  await setState("owners_tried", [...tried]);
+  if (available === 0) return 0;
+  const limit = Math.min(available, room, 400);
+  await setState("supersearch_spent", { month, contacts: used + limit });
+  const lists = (await getState<Lists>("supersearch_lists")) ?? {};
+  const r = await enrich({ filters, limit, listId: lists[OWNERS] ?? null, listName: `Small Fish · ${OWNERS}` });
+  lists[OWNERS] = r.resource_id;
+  await setState("supersearch_lists", lists);
+  await logEvent("contacts_bought", {}, { segment: OWNERS, limit, available, agencies: domains.length });
+  return limit;
 }
 
 /**
@@ -137,11 +216,6 @@ export async function buyContacts(inboxCount: number, now = new Date()): Promise
   const ahead = new Date(now.getTime() + 2 * 86_400_000).toISOString().slice(0, 10);
   const perDay = newLeadsPerDay(dailyPerInbox(ahead), inboxCount);
   if (perDay === 0) return { bought: 0, why: "warm-up: nothing to send yet" };
-
-  const backlog = ((await rest(
-    "gtm_prospects?audience=eq.seller&status=eq.found&select=domain&limit=1000",
-  )) as unknown[] | null)?.length ?? 0;
-  if (backlog >= perDay * 3) return { bought: 0, why: `backlog of ${backlog} covers three days` };
 
   // **Spending needs the owner's say-so.** Nothing is bought unless the owner
   // has set a monthly cap in `gtm_state.supersearch_budget` ({"monthly": N},
@@ -156,11 +230,22 @@ export async function buyContacts(inboxCount: number, now = new Date()): Promise
     return { bought: 0, why: budget?.monthly ? `monthly cap of ${budget.monthly} reached` : "no budget approved yet" };
   }
 
+  // Founders at agencies we already read go first (see `buyOwners`). Each
+  // agency is tried once, so this does not need the once-a-day guard, and it
+  // does not wait on the sellers' backlog.
+  const owners = await buyOwners(room, month, used);
+  if (owners >= room) return { bought: owners, owners, why: "monthly cap reached on agency owners" };
+
+  const backlog = ((await rest(
+    "gtm_prospects?audience=eq.seller&status=eq.found&select=domain&limit=1000",
+  )) as unknown[] | null)?.length ?? 0;
+  if (backlog >= perDay * 3) return { bought: owners, owners, why: `backlog of ${backlog} covers three days` };
+
   // Once a day is enough: enrichment is asynchronous and a second buy before
   // the first lands would double-spend.
   const last = await getState<{ day: string }>("supersearch_last_buy");
   const today = now.toISOString().slice(0, 10);
-  if (last?.day === today) return { bought: 0, why: "already bought today" };
+  if (last?.day === today) return { bought: owners, owners, why: "already bought today" };
 
   const segs = tradeSegments();
   const lists = (await getState<Lists>("supersearch_lists")) ?? {};
@@ -170,8 +255,8 @@ export async function buyContacts(inboxCount: number, now = new Date()): Promise
   // stopping at the first segment bought 15 contacts in two days against a
   // ramp that wanted ~45. Each segment is its own list and its own filters,
   // so two buys in one run never double-spend the same people.
-  let want = Math.min(perDay * 3 - backlog, room, 100);
-  let usedNow = used;
+  let want = Math.min(perDay * 3 - backlog, room - owners, 100);
+  let usedNow = used + owners;
   const bought: Array<{ segment: string; limit: number }> = [];
   for (let tries = 0; tries < segs.length && want > 0; tries += 1, i += 1) {
     const seg = segs[i % segs.length];
@@ -191,9 +276,9 @@ export async function buyContacts(inboxCount: number, now = new Date()): Promise
     bought.push({ segment: seg.id, limit });
     want -= limit;
   }
-  if (!bought.length) return { bought: 0, why: "no segment has anyone left" };
+  if (!bought.length) return { bought: owners, owners, why: "no segment has anyone left" };
   await setState("supersearch_lists", lists);
   await setState("supersearch_rotation", i);
-  await setState("supersearch_last_buy", { day: today, segments: bought.map((b) => b.segment), limit: usedNow - used });
-  return { bought: usedNow - used, segments: bought };
+  await setState("supersearch_last_buy", { day: today, segments: bought.map((b) => b.segment), limit: usedNow - used - owners });
+  return { bought: usedNow - used, owners, segments: bought };
 }
