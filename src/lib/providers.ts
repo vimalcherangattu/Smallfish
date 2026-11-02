@@ -43,6 +43,7 @@
  * looked at it. Flagged rather than quietly shipped.
  */
 
+import { isStreetAddress } from "@/lib/worklist";
 import type { Resolution } from "@/lib/region";
 import { countKey, readCount, writeCount } from "@/lib/countcache";
 import { RADIUS_MILES, supplyFor } from "@/lib/supply";
@@ -99,7 +100,10 @@ export interface Candidate {
  * The compiler caught both call sites the moment the adapter went in.
  */
 export const readable = (rows: Candidate[] = []): Array<Candidate & { site: string }> =>
-  rows.filter((r): r is Candidate & { site: string } => Boolean(r.site && r.site.trim().length > 3));
+  rows.filter(
+    (r): r is Candidate & { site: string } =>
+      Boolean(r.site && r.site.trim().length > 3) && !isStreetAddress(r.name),
+  );
 
 export interface SupplyQuery {
   /** Overture taxonomy ids. Providers that take words use `trade` instead. */

@@ -89,5 +89,13 @@ check("five is a chain", W.workList(many(5), { dropChains: true }).rows.length =
   check("but is still read once per site", up.duplicates === 7);
 }
 
+/* ------------------------------------- a street address is not a name -- */
+for (const n of ["2710 Gateway Oaks Drive Suite 150N", "123 Main St", "45 N. Elm Street, Ste 200", "9000 W Sunset Blvd #4", "1200 Park Avenue"]) {
+  check(`"${n}" is a street address, not a business`, W.isStreetAddress(n));
+}
+for (const n of ["16 Park Dental Care", "170th Dental", "123 Plumbing", "1-800-Plumber", "24 Hour Plumbers Plano", "Main Street Dental", "Abbott and Kindermann LLP", "5and2", null]) {
+  check(`"${n}" stays`, !W.isStreetAddress(n));
+}
+
 console.log(`\n${failures} failure(s)`);
 process.exit(failures ? 1 : 0);

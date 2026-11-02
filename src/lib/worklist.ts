@@ -38,6 +38,18 @@
  * on it is too big for them would be overruling them.
  */
 
+/**
+ * A listing whose **whole name** is a street address is not a business we can
+ * name to anybody. Seen on a live outreach list, 2026-11-02: "2710 Gateway Oaks
+ * Drive Suite 150N" at a junk `.info` domain, shown to a prospect as a law
+ * firm. Only the whole name counts — "16 Park Dental Care", "170th Dental" and
+ * "123 Plumbing" are real businesses and stay.
+ */
+const STREET =
+  /^\d{1,6}[A-Za-z]?\s+(?:[NSEW]\.?\s+)?(?:[A-Za-z0-9.'-]+\s+){0,4}(?:drive|dr|street|st|avenue|ave|road|rd|boulevard|blvd|lane|ln|way|court|ct|place|pl|parkway|pkwy|highway|hwy|circle|cir|terrace|ter|plaza|square|sq)\.?(?:\s*,?\s*(?:suite|ste|unit|apt|#)\s*[A-Za-z0-9-]+)?\s*$/i;
+
+export const isStreetAddress = (name: string | null | undefined): boolean => !!name && STREET.test(name.trim());
+
 /** Listings sharing one website, at or above which the site is a chain. */
 export const CHAIN_MIN = 5;
 
