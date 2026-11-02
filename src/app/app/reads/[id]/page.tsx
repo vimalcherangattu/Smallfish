@@ -136,10 +136,13 @@ export default async function Read({ params }: { params: Promise<{ id: string }>
       query: job.query,
       index: null,
       market,
-      // A job has no published-contacts file: `supply.ts` stores the listed
-      // phone and nothing else, and inventing an address from a domain is the
-      // thing this product refuses to do. The row falls back to `b.phone`.
-      contacts: {} as Contacts,
+      // What each read found on the site itself — emails, phones and named
+      // people — stored on the row since migration 0035. A row read before that
+      // has none and falls back to the listed `b.phone`; inventing an address
+      // from a domain is the thing this product refuses to do.
+      contacts: Object.fromEntries(
+        rows.filter((r) => r.contacts).map((r) => [r.business_id, r.contacts!]),
+      ) as Contacts,
       suppressed: sup.ids,
       unlocked,
       only: criterion,

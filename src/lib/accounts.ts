@@ -1137,6 +1137,9 @@ export interface JobSiteRow {
   proof: string | null;
   pages: number;
   read_outcome: string | null;
+  /** What the read found to reach them with, named people included. Absent
+   *  before migration 0035, and null when not looked for. */
+  contacts?: import("@/lib/contacts").SiteContacts | null;
 }
 
 /**

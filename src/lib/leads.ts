@@ -58,7 +58,13 @@ export interface Lead {
    * row without giving it away.
    */
   locked: boolean;
-  has: { phone: boolean; email: boolean; message: boolean };
+  has: { phone: boolean; email: boolean; message: boolean; person: boolean };
+  /**
+   * The person to ask for, as their own site names them: "Maria Lopez, Owner".
+   * A name identifies the business, so it is null on a locked row and
+   * `has.person` says one is there.
+   */
+  person: string | null;
 }
 
 export interface LeadResult {
@@ -244,6 +250,8 @@ export type Contacts = Record<
     phones?: PublishedValue[];
     contactPage?: string | null;
     withheld?: string | null;
+    /** Owners, founders and credentialed staff named on their site. */
+    people?: Array<{ name: string; role: string | null; email: string | null }>;
   }
 >;
 
@@ -696,7 +704,9 @@ export function buildLeads({
     // `outreachFor` holds the veto; this writes the sentence. A draft is only
     // produced when it would have produced one.
     const message = o.withheld ? null : composeMessage(b, criterion);
-    const has = { phone: !!phone, email: !!email, message: !!message };
+    const who = usable ? (c.people ?? [])[0] ?? null : null;
+    const person = who ? (who.role ? `${who.name}, ${who.role}` : who.name) : null;
+    const has = { phone: !!phone, email: !!email, message: !!message, person: !!person };
 
     // A row nobody has paid for. Everything that could name the business is
     // dropped here rather than hidden by the component — a field that reaches
@@ -721,6 +731,7 @@ export function buildLeads({
         pagesRead: b.read?.pages ?? 0,
         locked: true,
         has,
+        person: null,
       };
     }
 
@@ -739,6 +750,7 @@ export function buildLeads({
       pagesRead: b.read?.pages ?? 0,
       locked: false,
       has,
+      person,
     };
   });
 

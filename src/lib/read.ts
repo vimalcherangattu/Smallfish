@@ -171,6 +171,27 @@ function pagesFor(html: string, base: URL, criterion: Criterion): string[] {
   return out;
 }
 
+/** The pages where a small business names who runs it. */
+const PEOPLE_PAGE = /\b(about|team|staff|our-?story|meet|who-?we-?are|leadership|owners?|founders?|bios?|people)\b/i;
+
+/** The site's own About or Team page, by path or by link text. */
+function aboutLink(html: string, base: URL): string | null {
+  for (const m of html.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]{0,120}?)<\/a>/gi)) {
+    try {
+      const u = new URL(m[1], base);
+      if (u.hostname !== base.hostname) continue;
+      const label = m[2].replace(/<[^>]+>/g, " ");
+      if (PEOPLE_PAGE.test(u.pathname) || /\b(about|our team|meet|who we are|our story)\b/i.test(label)) {
+        const clean = `${u.origin}${u.pathname}`;
+        if (clean !== `${base.origin}${base.pathname}`) return clean;
+      }
+    } catch {
+      /* a malformed href is not worth failing a read over */
+    }
+  }
+  return null;
+}
+
 /** Cheap technology detection, the same optimisation the Python side makes: a
  *  catalogued vendor script settles a presence question without a model call.
  *  It is never a precondition — a site with no detectable vendor still gets
@@ -448,6 +469,27 @@ export async function readSite(
   }));
   const text = perPage.map((p) => p.text).join(" \n ");
 
+  // **Who runs it.** One About or Team page, opened for the contacts and for
+  // nothing else: it is not added to the text the judge reads (no model cost)
+  // nor to the absence rule's coverage (no verdict changes). GTM, 2026-11-02:
+  // zero of 3,700+ prospects carried a person's name, and owners are named on
+  // exactly these pages. Skipped when a page already read is one.
+  const peoplePages = [...perPage];
+  if (!fetched.some((f) => PEOPLE_PAGE.test(new URL(f).pathname))) {
+    const about = aboutLink(first, url);
+    if (about) {
+      try {
+        let html = await get(about);
+        if (health.rendered && renderer && textOf(html).length < SHELL_TEXT_CHARS) {
+          html = (await renderer(about, UA).catch(() => null)) ?? html;
+        }
+        peoplePages.push({ url: about, text: textOf(html), links: linksOf(html, about) });
+      } catch {
+        /* no About page is not a failed read */
+      }
+    }
+  }
+
   // **Contacts, while we are already on the page.**
   //
   // The read used to throw this away: it fetched the pages, judged the
@@ -466,7 +508,7 @@ export async function readSite(
   // stranger's phone number beside somebody's name — and an `addr` column on
   // `job_sites` would recover the difference.
   const contacts = contactsFrom({
-    pages: perPage,
+    pages: peoplePages,
     business: { name: business?.name ?? null, addr: business?.addr ?? null, site: url.toString() },
     listedPhone: business?.phone ?? null,
   });

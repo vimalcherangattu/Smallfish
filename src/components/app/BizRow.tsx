@@ -119,6 +119,9 @@ export default function BizRow({
           <p className="bname">{lead.locked ? "A business that fits" : lead.name}</p>
           {lead.town && <p className="btown">{lead.town}</p>}
           <p className="reason">{lead.why}</p>
+          {/* Who to ask for, as their own site names them. Unlocked rows only:
+              a name identifies the business. */}
+          {lead.person && <p className="btown">Ask for {lead.person}</p>}
 
           {open && !lead.locked && (
             <>

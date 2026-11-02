@@ -101,6 +101,27 @@ export interface Published {
   page: string;
   /** How it was confirmed. Never "a regex matched". */
   how: string;
+  /**
+   * For an email: whose mailbox it is, as far as the page shows. `person` —
+   * the local part is a human name, best when it is a named person's on the
+   * page; `role` — info@, office@, frontdesk@, which for a three-person salon
+   * may well *be* the owner, so kept; `other` — neither. The owner's decision
+   * of 2026-10-15: never conflated.
+   */
+  tier?: EmailTier;
+}
+
+export type EmailTier = "person" | "role" | "other";
+
+/** A named person printed on the business's own site, with their role. */
+export interface Person {
+  name: string;
+  /** As printed: "Owner", "Founder & CEO". Null only for "founded by" phrasing. */
+  role: string | null;
+  /** Their own address, when one on the site is plainly theirs. */
+  email: string | null;
+  page: string;
+  how: string;
 }
 
 export interface SiteContacts {
@@ -112,6 +133,12 @@ export interface SiteContacts {
   withheld: string | null;
   /** "named" | "town-only" | null — how the page was attributed. */
   attribution: "named" | "town-only" | null;
+  /**
+   * Owners, founders and managers named on the site (GTM, 2026-11-02: zero of
+   * 3,700+ agency prospects carried a person's name). Optional because
+   * contacts read before this have none recorded, which is not "nobody".
+   */
+  people?: Person[];
 }
 
 export interface SitePage {
@@ -265,7 +292,210 @@ export function contactsFrom(args: {
     if (contactPage === null && /\/contact|\/get-in-touch|\/reach/i.test(url)) contactPage = url;
   }
 
-  return { emails, phones, contactPage, socials, attribution, withheld: null };
+  // People, then whose mailbox each address is. Emails are ordered person,
+  // then other, then role, so every surface that takes "the first email" now
+  // takes the most personal one without knowing about tiers.
+  const people = peopleIn(pages);
+  for (const e of emails) e.tier = emailTier(e.value, people);
+  for (const person of people) person.email = emailFor(person.name, emails);
+  const rank: Record<EmailTier, number> = { person: 0, other: 1, role: 2 };
+  emails.sort((a, b) => rank[a.tier ?? "other"] - rank[b.tier ?? "other"]);
+
+  return { emails, phones, contactPage, socials, attribution, withheld: null, people };
+}
+
+/* ----------------------------------------------------------------- people -- */
+
+/**
+ * Roles that decide whether a small business buys something. Deliberately not
+ * "partner" or "director" on their own: "Director of Marketing" and "Partner
+ * Network" are not owners, and a wrong name in an opener ("Hi Services,") is
+ * worse than none.
+ */
+const ROLE =
+  "(?:co-?)?owner(?:\\s*(?:&|and)\\s*operator)?|proprietor|(?:co-?)?founder(?:\\s*(?:&|and)\\s*(?:ceo|president|owner))?" +
+  "|ceo|chief executive officer|president|principal|managing (?:partner|director)" +
+  "|general manager|(?:office|practice) manager";
+
+/** Words that are never part of a person's name on a business site. */
+const NOT_A_NAME = new Set(
+  `
+  about all and appointment appointments avenue ave blog book call care careers center centre clinic
+  company contact copyright cosmetic customer dental dentistry dds directions dr emergency family find
+  first for free from get group heating help here home hours inc llc location locations map meet menu
+  more new news now office our owner patient patients plumbing policy president privacy quote read
+  request reserved reviews rights road roofing salon schedule service services smile spa staff street
+  studio suite team terms testimonials the today welcome with your us we north south east west
+  monday tuesday wednesday thursday friday saturday sunday january february march april may june july
+  august september october november december founder ceo manager principal proprietor partner director
+  cooling air electric fitness gym law firm medical health wellness auto repair construction
+  `.trim().split(/\s+/),
+);
+
+// O'Brien, McDonald and MacLeod have a capital after the first letter; a plain
+// [A-Z][a-z]+ splits or rejects them. Longest alternative first.
+const TOKEN = "(?:Ma?c[A-Z][a-z]+|[A-Z]'[A-Z][a-z]+|[A-Z][a-z]+)(?:-[A-Z][a-z]+)?";
+const NAME = `(?:Dr\\.?\\s+)?${TOKEN}(?:\\s+[A-Z]\\.)?\\s+${TOKEN}(?:\\s+${TOKEN})?`;
+const SUFFIX = "(?:,?\\s+(?:DDS|DMD|MD|DO|DC|DVM|CPA|PE|Esq\\.?|Jr\\.?|Sr\\.?|II|III))?";
+
+/** Patterns, from most to least explicit. `tight` ones need punctuation or a
+ *  verb between name and role; the loose one (card layouts, where markup is
+ *  gone and only a space separates them) needs a known first name too. */
+const PATTERNS: Array<{ re: RegExp; how: string; loose?: boolean; roleFirst?: boolean; by?: boolean }> = [
+  { re: new RegExp(`(${NAME})${SUFFIX}\\s*[,–—|(-]\\s*(${ROLE})\\b`, "gi"), how: "printed beside their role" },
+  { re: new RegExp(`\\b(${ROLE})\\s*[:–—-]\\s*(${NAME})`, "gi"), how: "printed after their role", roleFirst: true },
+  { re: new RegExp(`(${NAME})${SUFFIX}\\s+is\\s+(?:the\\s+|our\\s+)?(${ROLE})\\b`, "gi"), how: "named as the role" },
+  { re: new RegExp(`\\b(?:founded|owned(?:\\s+and\\s+operated)?|started)\\s+by\\s+(${NAME})`, "gi"), how: "named as founder or owner", by: true },
+  { re: new RegExp(`(${NAME})${SUFFIX}\\s+(${ROLE})\\b`, "gi"), how: "printed beside their role", loose: true },
+];
+
+/**
+ * A name with a professional credential attached is a named, reachable person
+ * even when no page says "owner" — and on dental, medical, vet and accounting
+ * sites it is the only way they are named ("Dr. Ahmed Jaheen DDS", "Antonio
+ * Cutlatsakes, D.D.S."). Case-sensitive, so "do" is never "DO". MD, DO, DC and
+ * OD are also state abbreviations ("Downtown Baltimore, MD"), so those count
+ * only after "Dr.".
+ */
+const CREDENTIAL: Array<{ re: RegExp; role: string; needsDr: boolean }> = [
+  { re: /D\.?\s?D\.?\s?S\.?|D\.?\s?M\.?\s?D\.?/, role: "Dentist", needsDr: false },
+  { re: /D\.?V\.?M\.?/, role: "Veterinarian", needsDr: false },
+  { re: /C\.?P\.?A\.?/, role: "CPA", needsDr: false },
+  { re: /Esq\.?/, role: "Attorney", needsDr: false },
+  { re: /M\.?D\.?|D\.?O\.?/, role: "Physician", needsDr: true },
+  { re: /D\.?C\.?/, role: "Chiropractor", needsDr: true },
+  { re: /O\.?D\.?/, role: "Optometrist", needsDr: true },
+];
+const CREDENTIALED = new RegExp(
+  `(${NAME})\\s*,?\\s*(${CREDENTIAL.map((c) => c.re.source).join("|")})(?![A-Za-z])`,
+  "g",
+);
+
+/** Is this run of capitalised words plausibly a person's name? */
+export function plausibleName(raw: string, loose = false): string | null {
+  const name = raw.replace(/\s+/g, " ").trim();
+  const words = name.replace(/^Dr\.?\s+/i, "").split(" ").filter((w) => !/^[A-Z]\.$/.test(w));
+  if (words.length < 2 || words.length > 3) return null;
+  if (words.some((w) => NOT_A_NAME.has(w.toLowerCase()) || GENERIC.has(w.toLowerCase()))) return null;
+  if (loose && !GIVEN_NAMES.has(words[0].toLowerCase()) && !/^Dr\b/.test(name)) return null;
+  return name;
+}
+
+/**
+ * Is any word of this name used as an ordinary word on the page?
+ *
+ * A real surname is almost never printed in lower case in a site's own prose;
+ * "experienced", "consultation" and "oversight" are. Measured 2026-11-02 on
+ * 35 real sites: the credential pattern read "Consultation Experienced, CPA"
+ * off a CPA firm's page, and this is what removes it. Lower-case uses inside
+ * an address or a URL ("annie.fairchild@…") do not count, and a known first
+ * name is exempt, because "Mark" and "Grace" are words too.
+ */
+function wordOnPage(name: string, text: string): boolean {
+  const words = name.replace(/^Dr\.?\s+/i, "").split(" ").filter((w) => !/^[A-Z]\.$/.test(w));
+  return words.some((w, i) => {
+    const low = w.toLowerCase();
+    if (i === 0 && GIVEN_NAMES.has(low)) return false;
+    return new RegExp(`(?<![@./\\w-])${low.replace(/[^a-z'-]/g, "")}(?![\\w@])`).test(text);
+  });
+}
+
+/** Owners, founders and managers named on these pages. At most three. */
+export function peopleIn(pages: SitePage[]): Person[] {
+  const out: Person[] = [];
+  for (const page of pages) {
+    // Pattern case-insensitivity is for the role words; the name must still
+    // be capitalised as written, so the name is re-checked against TOKEN.
+    for (const p of PATTERNS) {
+      for (const m of (page.text ?? "").matchAll(p.re)) {
+        const rawName = p.by ? m[1] : p.roleFirst ? m[2] : m[1];
+        const rawRole = p.by ? null : p.roleFirst ? m[1] : m[2];
+        // The role words need a case-insensitive match, which lets the name
+        // pattern swallow a neighbour ("team Maria Lopez", "James O'Brien
+        // Call"). So the 2- and 3-word spans **nearest the role** are tried,
+        // each re-checked case-sensitively.
+        const name = nearestName(rawName, p.roleFirst || p.by ? "start" : "end", p.loose);
+        if (!name || wordOnPage(name, page.text ?? "")) continue;
+        if (out.some((x) => x.name.toLowerCase() === name.toLowerCase())) continue;
+        out.push({
+          name,
+          role: rawRole ? tidyRole(rawRole) : "Founder or owner",
+          email: null,
+          page: page.url ?? "",
+          how: p.how,
+        });
+        if (out.length >= 3) return out;
+      }
+    }
+    for (const m of (page.text ?? "").matchAll(CREDENTIALED)) {
+      const cred = CREDENTIAL.find((c) => new RegExp(`^(?:${c.re.source})$`).test(m[2].trim()));
+      if (!cred) continue;
+      const name = nearestName(m[1], "end");
+      if (!name || (cred.needsDr && !/^Dr\b/.test(name)) || wordOnPage(name, page.text ?? "")) continue;
+      if (out.some((x) => x.name.toLowerCase().replace(/^dr\.?\s+/, "") === name.toLowerCase().replace(/^dr\.?\s+/, ""))) continue;
+      out.push({ name, role: cred.role, email: null, page: page.url ?? "", how: "printed with their credential" });
+      if (out.length >= 3) return out;
+    }
+  }
+  return out;
+}
+
+function nearestName(raw: string, side: "start" | "end", loose = false): string | null {
+  const exact = new RegExp(`^${NAME}$`);
+  const words = raw.replace(/\s+/g, " ").trim().split(" ");
+  const dr = /^Dr\.?$/.test(words[0]);
+  for (const n of [2, 3, 4]) {
+    if (n > words.length) break;
+    const span = side === "start" ? words.slice(0, n) : words.slice(words.length - n);
+    // Keep "Dr." when the span starts right after it.
+    const text = (side === "end" && dr && span.length === words.length - 1 ? "Dr. " : "") + span.join(" ");
+    if (!exact.test(text)) continue;
+    const ok = plausibleName(text, loose);
+    if (ok) return ok;
+  }
+  return null;
+}
+
+const tidyRole = (r: string) =>
+  r
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b(ceo)\b/gi, "CEO")
+    .replace(/^./, (c) => c.toUpperCase());
+
+/** Mailboxes that belong to a function, not a person. */
+const ROLE_MAILBOX =
+  /^(info|hello|hi|office|frontdesk|front\.desk|reception|contact|contactus|admin|appointments?|bookings?|schedul\w*|sales|support|team|help|service|enquiries|inquiries|mail|email|general|billing|accounts?|marketing|hr|jobs|careers|clinic|care|customerservice|orders|estimates?|quotes?)$/i;
+
+const localOf = (email: string) => email.split("@")[0].toLowerCase();
+
+/** The address on the page that is plainly this person's, if any. */
+export function emailFor(name: string, emails: Published[]): string | null {
+  const words = name.replace(/^Dr\.?\s+/i, "").toLowerCase().split(" ").filter((w) => !/^[a-z]\.$/.test(w));
+  const first = words[0];
+  const last = words[words.length - 1];
+  const forms = [first, last, `${first}.${last}`, `${first}${last}`, `${first[0]}${last}`, `${first}_${last}`, `${first[0]}.${last}`]
+    .filter((f) => f.length >= 3);
+  const hit = emails.find((e) => {
+    const local = localOf(e.value).replace(/[0-9]+$/, "");
+    return forms.includes(local);
+  });
+  return hit?.value ?? null;
+}
+
+/** Whose mailbox an address is. */
+export function emailTier(email: string, people: Person[]): EmailTier {
+  const local = localOf(email).replace(/[0-9]+$/, "");
+  if (ROLE_MAILBOX.test(local)) return "role";
+  if (people.some((p) => emailFor(p.name, [{ value: email, page: "", how: "" }]))) return "person";
+  // A local part that is a first name, or first.last, is a person's mailbox
+  // even when the page does not name them.
+  const parts = local.split(/[._-]/);
+  if (GIVEN_NAMES.has(parts[0]) && parts.length <= 2) return "person";
+  // first.last is the convention for a person's own mailbox, whatever the
+  // first name is: "rob.gerwing@" is somebody, "info@" is a desk.
+  if (/^[a-z]{2,}[._][a-z]{2,}$/.test(local)) return "person";
+  return "other";
 }
 
 /** Is there a way to reach this business that we actually found? */
