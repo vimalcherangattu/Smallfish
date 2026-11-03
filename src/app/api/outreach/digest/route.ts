@@ -3,7 +3,7 @@ import { checkDomains, domainsOf } from "@/lib/mailauth";
 import { channelOf, buildDigest, type DigestStats } from "@/lib/digest";
 import { sendMail } from "@/lib/mail";
 import { schedulerAuthorised } from "@/lib/outreachauth";
-import { logEvent, rest } from "@/lib/prospecting";
+import { logEvent, rest, restAll } from "@/lib/prospecting";
 import { blocked, dailyPerInbox, GO_LIVE, type Prospect } from "@/lib/sequence";
 import { suppressedOutreach } from "@/lib/prospecting";
 
@@ -29,16 +29,16 @@ export async function GET(req: Request) {
 
   const since = new Date(Date.now() - 86_400_000).toISOString();
   const [events, checks, counts, total, accounts, ready] = await Promise.all([
-    rest(`gtm_events?at=gte.${since}&select=kind,email,domain,detail&limit=10000`) as Promise<Ev[]>,
-    rest(`gtm_checks?at=gte.${since}&select=ref&limit=5000`) as Promise<Array<{ ref: string | null }>>,
-    rest(`gtm_counts?computed_at=gte.${since}&select=slug&limit=5000`) as Promise<unknown[]>,
-    rest(`gtm_counts?select=slug&limit=5000`) as Promise<unknown[]>,
+    restAll<Ev>(`gtm_events?at=gte.${since}&select=kind,email,domain,detail&order=id`),
+    restAll<{ ref: string | null }>(`gtm_checks?at=gte.${since}&select=ref&order=at`),
+    restAll(`gtm_counts?computed_at=gte.${since}&select=slug&order=slug`),
+    restAll(`gtm_counts?select=slug&order=slug`),
     rest(`accounts?created_at=gte.${since}&select=source,plan_id&limit=1000`).catch(() => []) as Promise<
       Array<{ source: string | null; plan_id: string }>
     >,
-    rest(
-      "gtm_prospects?status=eq.found&select=domain,name,email,niche,city,state,status,list_token,list_query,list_readable,list_listings,audience&limit=5000",
-    ) as Promise<Array<Prospect & { audience: string }>>,
+    restAll<Prospect & { audience: string }>(
+      "gtm_prospects?status=eq.found&select=domain,name,email,niche,city,state,status,list_token,list_query,list_readable,list_listings,audience&order=domain",
+    ),
   ]);
   const ev = events ?? [];
   const k = (kind: string) => ev.filter((e) => e.kind === kind).length;

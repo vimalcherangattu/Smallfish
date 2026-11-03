@@ -1,4 +1,4 @@
-import { rest } from "@/lib/prospecting";
+import { rest, restAll } from "@/lib/prospecting";
 
 /** Reading the counted rows for the /how-many pages. Service-role reads of
  *  public numbers; nothing here names a business. */
@@ -35,5 +35,5 @@ export async function countsForCity(city: string, state: string): Promise<CountR
 }
 
 export async function allCounts(): Promise<CountRow[]> {
-  return ((await rest(`gtm_counts?select=${COLS}&order=listings.desc&limit=5000`).catch(() => null)) as CountRow[]) ?? [];
+  return (await restAll<CountRow>(`gtm_counts?select=${COLS}&order=listings.desc,slug`).catch(() => null)) ?? [];
 }

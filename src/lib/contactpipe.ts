@@ -18,7 +18,7 @@
  */
 
 import { countLeads, enrich, listLeads, type ListLead } from "@/lib/instantly";
-import { logEvent, rest } from "@/lib/prospecting";
+import { logEvent, rest, restAll } from "@/lib/prospecting";
 import { domainOf } from "@/lib/prospects";
 import type { Places } from "@/lib/region";
 import { ownersAt, tradeSegments } from "@/lib/research";
@@ -138,9 +138,9 @@ const OWNERS = "owners-at-read-agencies";
  *  person: no address, or only info@ and the like. 61 of the 69 agencies
  *  with a trade on 2026-11-01 were exactly this. */
 async function agenciesWithoutAPerson(): Promise<Array<{ domain: string; email: string | null }>> {
-  const rows = ((await rest(
-    "gtm_prospects?audience=eq.agency&niche=not.is.null&status=in.(found,no_email)&select=domain,email&limit=2000",
-  )) ?? []) as Array<{ domain: string; email: string | null }>;
+  const rows = await restAll<{ domain: string; email: string | null }>(
+    "gtm_prospects?audience=eq.agency&niche=not.is.null&status=in.(found,no_email)&select=domain,email&order=domain",
+  );
   return rows.filter((r) => !r.email || ROLE_ADDRESS.test(r.email));
 }
 

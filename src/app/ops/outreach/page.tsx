@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { inboxes, instantlyReady } from "@/lib/instantly";
 import { opsViewer } from "@/lib/ops";
-import { rest } from "@/lib/prospecting";
+import { restAll } from "@/lib/prospecting";
 import { dailyPerInbox, GO_LIVE } from "@/lib/sequence";
 
 /**
@@ -23,7 +23,8 @@ type Prospect = {
 };
 type Event = { id: number; kind: string; domain: string | null; email: string | null; detail: Record<string, unknown>; at: string };
 
-const get = async <T,>(path: string): Promise<T> => ((await rest(path).catch(() => null)) as T) ?? ([] as unknown as T);
+// Every row, not the first 1,000: the API caps a page whatever `limit` says.
+const get = async <T,>(path: string): Promise<T> => ((await restAll(path).catch(() => null)) as T) ?? ([] as unknown as T);
 
 function count<T>(rows: T[], key: (r: T) => string | null | undefined) {
   return new Set(rows.map(key).filter(Boolean)).size;
@@ -43,10 +44,10 @@ export default async function Outreach() {
 
   const [prospects, events, accounts, boxes, checks] = await Promise.all([
     get<Prospect[]>("gtm_prospects?select=domain,name,email,niche,city,state,status,list_token,updated_at,niche_quote&order=updated_at.desc&limit=5000"),
-    get<Event[]>("gtm_events?select=id,kind,domain,email,detail,at&order=at.desc&limit=5000"),
+    get<Event[]>("gtm_events?select=id,kind,domain,email,detail,at&order=at.desc,id.desc"),
     get<Array<{ source: string | null; plan_id: string }>>("accounts?source=like.outreach*&select=source,plan_id&limit=5000"),
     instantlyReady() ? inboxes().catch(() => []) : Promise.resolve([]),
-    get<Array<{ ref: string | null; verdict: string | null }>>("gtm_checks?select=ref,verdict&order=at.desc&limit=5000"),
+    get<Array<{ ref: string | null; verdict: string | null }>>("gtm_checks?select=ref,verdict&order=at.desc,id.desc"),
   ]);
   const embeds = Object.entries(
     checks.filter((c) => c.ref).reduce<Record<string, number>>((a, c) => ((a[c.ref!] = (a[c.ref!] ?? 0) + 1), a), {}),

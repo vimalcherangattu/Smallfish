@@ -88,6 +88,27 @@ export async function rest(path: string, init?: RequestInit): Promise<unknown> {
   return body ? JSON.parse(body) : null;
 }
 
+/**
+ * Every row a GET matches, a page at a time.
+ *
+ * Supabase's API answers at most 1,000 rows per request whatever `limit`
+ * says. `?limit=20000` therefore returned the first 1,000 domains of 3,700,
+ * so the credits job thought 89 agencies were new and re-read and re-upserted
+ * them every six hours, resetting `queued` to `found` (measured 2026-11-03:
+ * 1,246 promotions of 89 domains). Any read that must be complete — a
+ * duplicate check, a suppression list, a count — goes through here.
+ */
+export async function restAll<T = unknown>(path: string, page = 1000): Promise<T[]> {
+  const base = path.replace(/([?&])limit=\d+&?/, "$1").replace(/[?&]$/, "");
+  const sep = base.includes("?") ? "&" : "?";
+  const out: T[] = [];
+  for (let offset = 0; ; offset += page) {
+    const rows = ((await rest(`${base}${sep}limit=${page}&offset=${offset}`)) as T[] | null) ?? [];
+    out.push(...rows);
+    if (rows.length < page) return out;
+  }
+}
+
 /** One line in the outreach log. Never throws: a tracking write that fails
  *  must not stop a send or a reply. */
 export async function logEvent(
@@ -108,7 +129,7 @@ export async function logEvent(
 
 /** Addresses and domains that asked us to stop. */
 export async function suppressedOutreach(): Promise<{ emails: Set<string>; domains: Set<string> }> {
-  const rows = ((await rest("gtm_suppressed?select=value&limit=50000")) as Array<{ value: string }> | null) ?? [];
+  const rows = await restAll<{ value: string }>("gtm_suppressed?select=value&order=value");
   const emails = new Set<string>();
   const domains = new Set<string>();
   for (const r of rows) (r.value.includes("@") ? emails : domains).add(r.value.toLowerCase());
@@ -125,8 +146,8 @@ export async function suppressOutreach(value: string, why: string): Promise<void
 
 /** Every domain already stored. A few thousand short strings at most. */
 async function knownDomains(): Promise<Set<string>> {
-  const rows = (await rest("gtm_prospects?select=domain&limit=20000")) as Array<{ domain: string }> | null;
-  return new Set((rows ?? []).map((r) => r.domain));
+  const rows = await restAll<{ domain: string }>("gtm_prospects?select=domain&order=domain");
+  return new Set(rows.map((r) => r.domain));
 }
 
 /** The NOT NULL columns of `gtm_prospects` and their database defaults. An
@@ -143,18 +164,20 @@ export function sameKeys<T extends object>(rows: T[]): Array<Record<string, unkn
   );
 }
 
-export async function upsertProspects(rows: ProspectRow[]): Promise<void> {
+export async function upsertProspects(rows: ProspectRow[], opts: { keepExisting?: boolean } = {}): Promise<void> {
   if (!rows.length) return;
   await rest("gtm_prospects?on_conflict=domain", {
     method: "POST",
-    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+    // `keepExisting`: a row we already hold is never overwritten. A queued,
+    // replied or suppressed agency must not come back as `found`.
+    headers: { Prefer: `resolution=${opts.keepExisting ? "ignore" : "merge"}-duplicates,return=minimal` },
     body: JSON.stringify(sameKeys(rows.map((r) => ({ ...r, updated_at: new Date().toISOString() })))),
   });
 }
 
 /** Counts by status, for the status route and the daily control email. */
 export async function prospectCounts(): Promise<Record<string, number>> {
-  const rows = (await rest("gtm_prospects?select=status&limit=20000")) as Array<{ status: string }> | null;
+  const rows = await restAll<{ status: string }>("gtm_prospects?select=status&order=domain");
   const out: Record<string, number> = {};
   for (const r of rows ?? []) out[r.status] = (out[r.status] ?? 0) + 1;
   return out;

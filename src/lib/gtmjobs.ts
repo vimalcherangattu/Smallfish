@@ -29,7 +29,7 @@ import path from "node:path";
 import { getState, setState } from "@/lib/contactpipe";
 import { creditsIn, prospectable } from "@/lib/credits";
 import { slugFor, TRADES } from "@/lib/howmany";
-import { logEvent, prospectCounts, readAgency, rest, sweep, upsertProspects, type SweepResult } from "@/lib/prospecting";
+import { logEvent, prospectCounts, readAgency, rest, restAll, sweep, upsertProspects, type SweepResult } from "@/lib/prospecting";
 import { NICHES, domainOf } from "@/lib/prospects";
 import { findCandidates, readable } from "@/lib/providers";
 import { resolveRegion, type Places } from "@/lib/region";
@@ -57,7 +57,7 @@ export async function runCounts(budgetMs: number) {
   const started = Date.now();
   const [taxo, places] = await data();
   const have = new Map(
-    (((await rest("gtm_counts?select=slug,computed_at&limit=5000")) as Array<{ slug: string; computed_at: string }>) ?? []).map(
+    (await restAll<{ slug: string; computed_at: string }>("gtm_counts?select=slug,computed_at&order=slug")).map(
       (r) => [r.slug, Date.parse(r.computed_at)],
     ),
   );
@@ -176,12 +176,13 @@ export async function runCredits(opts: { scanMs: number; totalMs: number }) {
   if (!left) await setState("credits_cursor", { i: cursor + 1 });
 
   /* -- promote: agencies credited on two or more sites ---------------- */
-  const all = ((await rest("gtm_credits?select=agency_domain,agency_name,trade,city,state&agency_domain=not.is.null&limit=50000")) ??
-    []) as Array<{ agency_domain: string; agency_name: string | null; trade: string; city: string; state: string }>;
+  const all = await restAll<{ agency_domain: string; agency_name: string | null; trade: string; city: string; state: string }>(
+    "gtm_credits?select=agency_domain,agency_name,trade,city,state&agency_domain=not.is.null&order=site_domain",
+  );
   const by = new Map<string, typeof all>();
   for (const r of all) if (prospectable(r.agency_domain)) by.set(r.agency_domain, [...(by.get(r.agency_domain) ?? []), r]);
   const known = new Set(
-    (((await rest("gtm_prospects?select=domain&limit=20000")) ?? []) as Array<{ domain: string }>).map((r) => r.domain),
+    (await restAll<{ domain: string }>("gtm_prospects?select=domain&order=domain")).map((r) => r.domain),
   );
   const ready = [...by.entries()]
     .filter(([d, rs]) => rs.length >= MIN_SITES && !known.has(d))
@@ -209,7 +210,7 @@ export async function runCredits(opts: { scanMs: number; totalMs: number }) {
       row.audience = "agency";
       row.status = row.email ? "found" : "no_email";
     }
-    await upsertProspects([row]);
+    await upsertProspects([row], { keepExisting: true });
     await logEvent("credit_promoted", { domain }, { sites: rs.length, trade: tradeId, city, status: row.status });
     promoted.push(domain);
   }
