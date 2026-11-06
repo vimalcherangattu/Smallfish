@@ -122,6 +122,10 @@ check(
 }
 check("an empty selection is an honest zero, not an error", /CREATE TEMP TABLE hits \(id VARCHAR/.test(supply));
 check("tile paths from the bucket are checked before they reach SQL", /const TILE_PATH = /.test(supply) && /TILE_PATH\.test\(t\.f\)/.test(supply));
+// A LIMIT after ORDER BY name reads one end of the alphabet and nothing else:
+// every cold-email list and every paid job drew from "04 Dental" to "C…".
+check("candidate rows are a stable shuffle, never the head of the alphabet",
+  !/ORDER BY name\b/.test(supply) && /ORDER BY md5\(id\)/.test(supply));
 
 console.log(failures ? `\n${failures} failed` : "\nall good");
 process.exit(failures ? 1 : 0);

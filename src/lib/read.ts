@@ -598,7 +598,9 @@ export const absenceProof = (label: string, pages: string[]): string => {
   const bare = label.replace(/^(a|an) /i, "");
   return (
     `No ${bare} on ${pages.length === 1 ? "the one page this site has" : `${pages.length} pages`}: ` +
-    `${pages.join(", ")}. No ${bare} script on any of them.`
+    // Was "No a way to request a quote online script on any of them" once the
+    // label had a verb in it. Say what was checked, without the label again.
+    `${pages.join(", ")}. Nothing for it in the page source either.`
   );
 };
 

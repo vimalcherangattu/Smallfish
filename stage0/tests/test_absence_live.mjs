@@ -97,7 +97,13 @@ test("the absence proof is the pages we opened, not a sentence off them", () => 
   const p = R.absenceProof("live chat", ["https://gym.com/", "https://gym.com/contact"]);
   assert.match(p, /No live chat on 2 pages/);
   assert.match(p, /https:\/\/gym\.com\/contact/);
-  assert.match(p, /No live chat script on any of them/);
+  assert.match(p, /Nothing for it in the page source either/);
+});
+
+test("the proof stays grammatical for a label with a verb in it", () => {
+  const p = R.absenceProof("a way to request a quote online", ["https://hvac.com/"]);
+  assert.doesNotMatch(p, /online script/);
+  assert.doesNotMatch(p, /No a /);
 });
 
 test("and it reads correctly for a one-page site", () => {

@@ -566,7 +566,12 @@ export async function supplyFor(
         SELECT id, name, cat, site, phone, addr, town, lon, lat
         FROM hits
         WHERE ${READABLE} ${notThese}
-        ORDER BY name
+        -- A stable shuffle, not the alphabet. Sorting by name under a LIMIT meant
+        -- every read in a city of 6,905 dentists came from names starting with
+        -- a digit or "A" — the cold-email lists read like the top of a phone
+        -- book (2026-11-06), and a paid job read A–C and stopped. md5 of the
+        -- id is deterministic, so a job's next slice (exclude) still advances.
+        ORDER BY md5(id)
         LIMIT ${limit}
       `);
       rows = (await result.getRows()).map((r) => ({
