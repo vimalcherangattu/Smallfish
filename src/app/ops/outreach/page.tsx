@@ -58,7 +58,7 @@ export default async function Outreach() {
   const funnel: [string, number, string][] = [
     ["Agencies read", prospects.length, "every agency site the finder opened"],
     ["Serve a trade we can list", prospects.filter((p) => p.niche).length, "a niche, with a sentence from their site"],
-    ["Ready to email", status(["found"]), "niche, address and free list all in place"],
+    ["Ready to email", status(["found"]), "niche, address and search link all in place"],
     ["Queued in Instantly", by("queued").length, "handed to the campaign"],
     ["Emails sent", by("email_sent").length, "Instantly's count, every step"],
     ["Opened their list", count(by("visited"), (e) => e.domain), "distinct agencies that loaded /hi"],

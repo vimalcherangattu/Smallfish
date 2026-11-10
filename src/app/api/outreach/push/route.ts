@@ -9,7 +9,8 @@ import { hookSecret, schedulerAuthorised } from "@/lib/outreachauth";
 import { listCriterion, logEvent, prepareList, rest, suppressedOutreach } from "@/lib/prospecting";
 import { NICHES } from "@/lib/prospects";
 import type { Places } from "@/lib/region";
-import { blocked, campaignFor, companyName, dailyPerInbox, GO_LIVE, leadVariables, widgetVariables, type Audience, type Prospect } from "@/lib/sequence";
+import { blocked, campaignFor, companyName, dailyPerInbox, GO_LIVE, leadVariables, tryUrl, widgetVariables, type Audience, type Prospect } from "@/lib/sequence";
+import { seedsFrom } from "@/lib/stoprule";
 import type { Taxonomy } from "@/lib/trades";
 
 /**
@@ -170,6 +171,29 @@ export async function GET(req: Request) {
   }
   out.queued = queued;
   out.skipped = skipped;
+
+  // Seeds: our own addresses, in every campaign, so a person can see whether
+  // the same email from the same inboxes lands in the inbox or in spam.
+  // `skip_if_in_campaign` makes this once per campaign; the hook ignores them
+  // and `stoprule.ts` leaves them out of every count.
+  const seeds = seedsFrom(process.env.OUTREACH_SEEDS);
+  if (seeds.length) {
+    const demo = { niche: "dental", city: "Phoenix", state: "AZ" };
+    const vars: Record<Audience, Record<string, string>> = {
+      agency: { ...leadVariables({ ...demo, domain: "seed", name: null, email: null, status: "found", list_token: "seed", list_query: "seed", list_readable: 1200, list_listings: null }, SITE, { niche: "dentists", gap: listCriterion("dental")!.label }), listUrl: tryUrl(SITE, demo, "seed") },
+      seller: {},
+      widget: widgetVariables({ domain: "seed.example" }, SITE),
+    };
+    vars.seller = vars.agency;
+    for (const a of ["agency", "seller", "widget"] as Audience[]) {
+      try {
+        await addLeads(campaigns[a].id, seeds.map((email) => ({ email, first_name: "there", company_name: "Seed Test", website: SITE, custom_variables: vars[a] })));
+      } catch (err) {
+        await logEvent("seed_failed", {}, { audience: a, error: String(err).slice(0, 300) });
+      }
+    }
+    out.seeds = seeds.length;
+  }
 
   // 3 · go live
   const allReady = boxes.length > 0 && boxes.every((b) => b.ready);

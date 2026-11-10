@@ -66,7 +66,7 @@ export function factSheet(c: ReplyContext): string {
     `It works in any US city. It does not cover outside the US yet.`,
     `Exports: CSV, and pushing to a CRM from inside the app.`,
     `There are no calls or demos; everything is self-serve at ${c.site}.`,
-    `This prospect's free list: ${c.listUrl}`,
+    `Their search, already set up for their trade and city: ${c.listUrl}`,
     `Search any trade in any US city, free: ${c.signUpUrl}`,
   ].join("\n");
 }

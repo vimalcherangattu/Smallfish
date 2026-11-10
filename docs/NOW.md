@@ -23,6 +23,7 @@ Rules for whoever edits it:
 
 ## On Vimal
 
+- Set `OUTREACH_SEEDS` in Vercel (2–3 addresses you own: Gmail, Outlook), then check where the emails land.
 - Delete the old APAC bucket `smallfish-places`, then roll both R2 tokens (keys were pasted in chat).
 - Optional whenever you like: set `SUPPLY_PROVIDER=apify`. Safe now that counting is pinned to
   free Overture.
@@ -41,6 +42,7 @@ Both are CLAUDE.md §1–2, and together they are the cut every change is measur
 
 ## In flight
 
+- 2026-11-10: cold email links straight into the product. Stop rule: 500 reached, nobody wants it → stop.
 - 2026-10-24: search restored after Overture deleted our pinned release.
 - Production reads our own copy in R2 (ENAM, tiled): uncached search 3–5 s, cached instant.
 - Data sourcing plan adopted: `docs/DATA-SOURCING.md`. Step 1 of 7 next.

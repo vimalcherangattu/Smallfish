@@ -55,5 +55,16 @@ test("channels collapse to their first segment", () => {
   assert.equal(D.channelOf(null), "direct");
 });
 
+test("the stopping rule is reported every day, and says when seeds are missing", () => {
+  const testing = { reached: 120, wanted: 0, signups: 0, verdict: "testing", line: "120 of 500 people reached since 2026-11-10." };
+  const t = D.buildDigest({ ...base, stop: testing, seeds: 0 }).text;
+  assert.match(t, /IS COLD EMAIL WORKING\?/);
+  assert.match(t, /120 of 500/);
+  assert.match(t, /No seed addresses set/);
+  assert.match(D.buildDigest({ ...base, stop: testing, seeds: 2 }).text, /2 seed addresses/);
+  const stop = { ...testing, reached: 500, verdict: "stop", line: "STOP POINT REACHED" };
+  assert.match(D.buildDigest({ ...base, stop }).subject, /^Small Fish, [^:]+: STOP POINT REACHED/);
+});
+
 if (failures) { console.log(`\n${failures} failed`); process.exit(1); }
 console.log("\nall pass");

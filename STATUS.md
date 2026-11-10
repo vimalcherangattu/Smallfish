@@ -1,12 +1,19 @@
 # Status
 
-**Last updated:** 2026-11-02 (build plan section; the rest still reads as of 2026-10-24) · search restored after an outage; data-sourcing plan adopted;
+**Last updated:** 2026-11-10 (cold email; build plan section as of 11-02; the rest as of 2026-10-24) · search restored after an outage; data-sourcing plan adopted;
 outreach sweeps moved off Vercel to GitHub Actions.
 
 `CLAUDE.md` holds the rules that do not change. This file is only the current state,
 and it is rewritten at the end of each session. Where the two disagree, CLAUDE.md wins.
 
 ## Current state
+
+- **2026-11-10: cold email measured, and changed.** 2–10 Nov: 210 people, 352 emails, 0 human
+  replies, 0 sign-ups (`accounts`: 4 ever, last 4 Oct). Now every email links straight into
+  `/app/find` with their trade and city typed (`/hi/<token>` is a logging redirect); the free
+  list page and the widget offer are gone. **Stopping rule** (`stoprule.ts`, top of the digest):
+  500 people reached since 11-10 with nobody wanting it → stop or change. **Seeds**
+  (`OUTREACH_SEEDS`, not yet set) show whether the mail lands in spam; DKIM is now checked daily.
 
 - **2026-10-24: search was down** (every count 500) because Overture deleted the release
   `supply.ts` pinned, and the surviving releases renamed the category column and its ids.
@@ -102,8 +109,7 @@ Older list, still true:
   work is unblocked.
 - **Zero-page reads were 42% with one chain in the sample, 20% without it** (decision log 2026-11-01).
   Couldn't-tell is still 62% without the chain, mostly on four-page reads: the judge, plan item 3.
-- **Instantly returns 402 "no active paid plan" since 29 Oct**: cold email has not queued a lead
-  since. A billing decision for the owner. The digest does not report it.
+- ~~Instantly returns 402 since 29 Oct~~ **Retracted 10 Nov:** leads queued daily 1–10 Nov (822), 352 emails sent. Billing is fine.
 - **The R2 copy's tile index intermittently reads empty** (24 times 24 Oct – 1 Nov); search falls
   back to Overture directly and takes ~11 s. Needs the R2 keys to diagnose.
 - **S0-16 labelling is THIN:** 142 labels across one market (`dental-phoenix`, 72 + 70).

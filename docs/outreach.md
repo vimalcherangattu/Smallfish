@@ -17,7 +17,7 @@ no human support. The product sells itself or it does not.
    when it runs out. The routes remain for a by-hand call; nothing schedules them
    (migration 0032). The work is `src/lib/gtmjobs.ts`, shared by both.
 2. **Prepare** (`/api/outreach/push`, hourly at :07 from pg_cron, still on Vercel). Each
-   prospect gets a `/hi/<token>` page and a count of its trade in its city. That count is a
+   prospect gets a `/hi/<token>` link and a count of its trade in its city. That count is a
    DuckDB scan, up to four a run, and only when a found prospect has no list yet.
 3. **Queue.** `sequence.blocked()` gates; survivors go to the Instantly campaign
    "Small Fish · agencies · v1" with their variables. Status → `queued`.
@@ -25,15 +25,20 @@ no human support. The product sells itself or it does not.
    (2026-10-26; was 11-02 until the owner moved it on 10-24) **and** once Instantly reports every inbox ready, then ramps 5 → 25
    per inbox per day over five weeks. Three steps, 3 and 4 days apart, from the
    partners' own inboxes (Ashitha, Dhananjay, Dipti).
-5. **Click.** `/hi/<token>` shows the count and builds three businesses missing the
-   thing the agency sells, on the first visit only (≤40 model reads, ~$0.09 to $0.21,
-   20 lists a day across all tokens). One button into sign-up with the search typed,
-   `source=outreach/<token>`.
+5. **Click.** `/hi/<token>` logs `visited` and redirects into `/app/find` with the
+   prospect's trade and city typed (`sequence.tryUrl`), so the real search runs on
+   arrival, no account. Until 2026-11-10 it was a free list page that read up to 40 sites
+   on the first visit; that page, and the widget offer, are gone (decision log).
 6. **Reply.** Instantly's webhook → `/api/outreach/hook`. Every event is logged.
    Replies are answered by `replies.ts` from a fact sheet built from `PLANS`. Stop
    words block everywhere before the model is asked. A draft with an invented price or
    an offer of a call is held, not sent. Three answers per thread at most.
-7. **Track.** `/ops/outreach`, owner only (`OPS_EMAILS`). Funnel from read to paid,
+7. **Seeds.** `OUTREACH_SEEDS` (comma-separated addresses we own) are added to every
+   campaign each push. They get the real sequence from the real inboxes: look at where it
+   landed. The hook ignores them; no count includes them.
+8. **Stopping rule.** `stoprule.ts`: 500 people reached since 2026-11-10 and nobody wanting
+   it means stop or change. Top of the morning digest every day.
+9. **Track.** `/ops/outreach`, owner only (`OPS_EMAILS`). Funnel from read to paid,
    replies and what we said, held items, every prospect with its list.
 
 ## Tables (Small Fish Supabase)

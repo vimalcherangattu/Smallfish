@@ -8,6 +8,7 @@
  */
 
 import type { Message } from "@/lib/mail";
+import type { StopStatus } from "@/lib/stoprule";
 
 export interface DigestStats {
   day: string;
@@ -36,6 +37,11 @@ export interface DigestStats {
    *  is sending and the subject says so instead of "all running". */
   inboxes?: { active: number; total: number };
   pastGoLive?: boolean;
+  /** The written-down stopping rule (`stoprule.ts`), counted since the copy changed. */
+  stop?: StopStatus;
+  /** How many of our own seed addresses are in the campaigns. Zero means the
+   *  stop rule cannot tell a spam folder from a product nobody wants. */
+  seeds?: number;
 }
 
 const line = (label: string, n: number) => `${label}: ${n.toLocaleString("en-US")}`;
@@ -43,6 +49,7 @@ const line = (label: string, n: number) => `${label}: ${n.toLocaleString("en-US"
 export function buildDigest(s: DigestStats, site = "https://www.getsmallfish.com"): Message {
   const totalSignups = Object.values(s.signups).reduce((a, b) => a + b, 0);
   const heads = [
+    s.stop?.verdict === "stop" ? "STOP POINT REACHED" : null,
     s.replied ? `${s.replied} repl${s.replied === 1 ? "y" : "ies"}` : null,
     totalSignups ? `${totalSignups} signup${totalSignups === 1 ? "" : "s"}` : null,
     s.held.length ? `${s.held.length} to look at` : null,
@@ -62,17 +69,27 @@ export function buildDigest(s: DigestStats, site = "https://www.getsmallfish.com
   } else {
     out.push(s.sending ? "Sending is on." : `Sending starts ${s.goLive}. Until then the machine finds and queues.`);
   }
+  if (s.stop) {
+    out.push("");
+    out.push("IS COLD EMAIL WORKING?");
+    out.push(s.stop.line);
+    out.push(
+      s.seeds
+        ? `${s.seeds} seed address${s.seeds === 1 ? "" : "es"} of ours get every email. Check they landed in the inbox, not spam.`
+        : "No seed addresses set (OUTREACH_SEEDS), so nobody can see whether these land in spam.",
+    );
+  }
   out.push("");
   out.push("OUTREACH");
   out.push(line("New prospects found", s.found));
   out.push(line("Queued in Instantly", s.queued));
   out.push(line("Emails sent", s.sent));
-  out.push(line("Opened their free list", s.visits));
+  out.push(line("Clicked through to the search", s.visits));
   out.push(line("Replies", s.replied));
   out.push(line("Answered automatically", s.autoReplied));
   if (s.unsubscribed || s.bounced) out.push(`Asked to stop: ${s.unsubscribed}, bounced: ${s.bounced}`);
   out.push(
-    `Ready to send: ${s.queueReady.agency} agencies by trade, ${s.queueReady.widget} widget, ${s.queueReady.seller} sellers`,
+    `Ready to send: ${s.queueReady.agency} agencies by trade, ${s.queueReady.widget} general agencies, ${s.queueReady.seller} sellers`,
   );
   out.push("");
   out.push("FREE TOOLS AND PAGES");

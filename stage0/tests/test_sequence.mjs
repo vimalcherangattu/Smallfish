@@ -63,16 +63,42 @@ await test("a widget prospect needs a person's address, not a niche or a list", 
   assert.match(S.blocked(w, { ...none, suppressedDomains: new Set(["acme.com"]) }), /domain asked/);
 });
 
-await test("the widget copy uses only variables we supply, and has the footer", () => {
+await test("the general-agency copy links only to the search, never a widget", () => {
   const vars = S.widgetVariables(ok, "https://www.getsmallfish.com");
-  assert.equal(vars.previewUrl, "https://www.getsmallfish.com/embed/check?agency=acme.com");
+  assert.deepEqual(Object.keys(vars), ["signUpUrl"]);
+  assert.match(vars.signUpUrl, /\/app\/find\?source=outreach%2Fwidget%2Facme\.com$/);
   for (const st of S.WIDGET_STEPS) {
     for (const m of `${st.subject} ${st.body}`.matchAll(/\{\{(\w+)\}\}/g)) {
       assert.ok(["companyName", "sendingAccountFirstName"].includes(m[1]) || m[1] in vars, `{{${m[1]}}}`);
     }
     assert.match(st.body, /Mabelle Ave/);
     assert.doesNotMatch(`${st.subject}${st.body}`, /—/);
+    assert.doesNotMatch(`${st.subject}${st.body}`, /widget|embed|snippet/i, "the widget is no longer offered");
   }
+});
+
+await test("every step of every campaign offers the product, not a free list (owner, 2026-11-10)", () => {
+  for (const steps of [S.STEPS, S.SELLER_STEPS, S.WIDGET_STEPS]) {
+    for (const st of steps) {
+      assert.doesNotMatch(st.body, /free list|I pulled|pulled a few|here (it|they) (is|are)/i);
+      assert.ok((st.body.match(/\{\{(listUrl|signUpUrl)\}\}/g) ?? []).length <= 1, "one link per email");
+    }
+    assert.match(steps[0].body, /\{\{(listUrl|signUpUrl)\}\}/, "the first email links to the search");
+    assert.match(steps[0].body, /No sign-up to search/);
+  }
+});
+
+await test("the link lands on the search with their trade and city typed in", () => {
+  const u = new URL(S.tryUrl("https://www.getsmallfish.com", { niche: "dental", city: "Phoenix", state: "AZ" }, "AbCdEfGhJk"));
+  assert.equal(u.pathname, "/app/find");
+  assert.equal(u.searchParams.get("what"), "dentists");
+  assert.equal(u.searchParams.get("where"), "Phoenix, AZ");
+  assert.equal(u.searchParams.get("source"), "outreach/AbCdEfGhJk");
+  // No trade we know, or no city: no half-typed search, just the source.
+  const bare = new URL(S.tryUrl("https://x", { niche: null, city: "Phoenix", state: "AZ" }, "t"));
+  assert.equal(bare.searchParams.get("what"), null);
+  assert.equal(bare.searchParams.get("source"), "outreach/t");
+  assert.match(S.tryUrl("", { niche: "plumbing", city: "Denver", state: null }, "t"), /^\/app\/find\?what=plumbers&where=Denver&/);
 });
 
 await test("company names are cut to the name, not the slogan", () => {

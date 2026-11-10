@@ -4,6 +4,7 @@ import { listCriterion, logEvent, rest, suppressOutreach } from "@/lib/prospecti
 import { NICHES } from "@/lib/prospects";
 import { decide, otherListReply, type ReplyContext } from "@/lib/replies";
 import { companyName } from "@/lib/sequence";
+import { seedsFrom } from "@/lib/stoprule";
 
 /**
  * Instantly's webhook (GTM, outreach A4).
@@ -122,6 +123,11 @@ export async function POST(req: Request) {
   // keeps what happened, `answer` fetches the text when it needs it.
   const detail = Object.fromEntries(Object.entries(h).filter(([k]) => !/body|html/i.test(k)));
   await logEvent(kind, { domain, email }, detail);
+
+  // Our own seed addresses (OUTREACH_SEEDS) are logged and nothing else: never
+  // answered, never suppressed. A seed at gmail.com that "unsubscribed" would
+  // otherwise suppress every gmail.com prospect.
+  if (email && seedsFrom(process.env.OUTREACH_SEEDS).includes(email)) return Response.json({ ok: true, seed: true });
 
   try {
     if (email && kind === "reply_received") await answer(email);

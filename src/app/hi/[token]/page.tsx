@@ -1,75 +1,30 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
-import ProspectList from "@/components/ProspectList";
-import { listByToken, listCriterion, logEvent } from "@/lib/prospecting";
-import { NICHES } from "@/lib/prospects";
+import { listByToken, logEvent } from "@/lib/prospecting";
+import { tryUrl } from "@/lib/sequence";
 
 /**
- * The page a cold email links to (GTM, outreach A2).
+ * The link in a cold email. It goes straight into the product.
  *
- * An agency that serves a trade gets three real businesses in that trade, in
- * its own city, missing the thing the agency sells, with the proof off each
- * business's own site. Then one button into the product with the search
- * already typed. No demo, no call: the owner's decision of 2026-10-15 is that
- * the product sells itself or it does not.
+ * Until 2026-11-10 this was a free list page: three businesses we had read for
+ * the prospect, then a button into the product. 210 people were emailed it
+ * and nobody replied (owner's call, 2026-11-10: "directly get them to try the
+ * product"). Now it records the click, which is the only click signal outreach
+ * has (the emails carry no tracking), and lands them on `/app/find` with their
+ * trade and city already typed, so the search runs on arrival.
  *
- * Not indexed. It names three businesses who did not ask to be in a search
- * result, the same rule `/list/[token]` follows.
+ * Kept as a redirect rather than deleted because every email already sent
+ * links here.
  */
 
 export const dynamic = "force-dynamic";
-export const metadata = {
-  title: "Your list | Small Fish",
-  robots: { index: false, follow: false },
-};
+export const metadata = { robots: { index: false, follow: false } };
 
 export default async function Hi({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   const p = await listByToken(token).catch(() => null);
-  if (!p || !p.list_query) notFound();
-  // A mail scanner opening the link counts too; the list itself is only built
-  // by the page's script, which scanners do not run.
-  await logEvent("visited", { domain: p.domain });
-
-  const niche = NICHES.find((n) => n.id === p.niche);
-  const gap = listCriterion(p.niche)?.label ?? "it";
-  const city = p.city ?? "your city";
-  const count = p.list_readable ?? p.list_listings;
-  const signUp = `/app/find?${new URLSearchParams({ source: `outreach/${token}` })}`;
-
-  return (
-    <main className="mkt">
-      <div className="mx-auto max-w-[860px] px-6 py-16">
-        {p.name && (
-          <div className="mono text-[12px] uppercase tracking-wider text-[var(--ink-3)]">For {p.name}</div>
-        )}
-        <h1 className="dsp mt-6 max-w-[22ch] text-[clamp(32px,5vw,56px)]">
-          {count ? `${count.toLocaleString()} ` : ""}
-          {niche?.label ?? "businesses"} in {city}. Here are some with no {gap}.
-        </h1>
-        <p className="mt-6 max-w-[56ch] text-[17px] leading-relaxed text-[var(--ink-2)]">
-          Who to contact, and a reason to reach out now. We read each business&rsquo;s own
-          website and kept only the ones that fit.
-        </p>
-
-        <ProspectList token={token} initial={p.list_rows} gap={gap} />
-
-        <div className="mt-12 flex flex-wrap items-center gap-5">
-          <Link
-            href={signUp}
-            className="rounded-full bg-[var(--ink)] px-6 py-3.5 text-[15px] font-semibold text-[var(--paper)]"
-          >
-            Search any trade, any city →
-          </Link>
-          <span className="text-[14px] text-[var(--ink-3)]">No card. You only pay for the ones that fit.</span>
-        </div>
-
-        <p className="mt-20 max-w-[60ch] text-[13px] leading-relaxed text-[var(--ink-3)]">
-          You&rsquo;re seeing this because we wrote to {p.name ?? "you"}. Not for you? Reply
-          &ldquo;no&rdquo; to the email and we won&rsquo;t write again.
-        </p>
-      </div>
-    </main>
-  );
+  if (!p) notFound();
+  // A mail scanner opening the link counts too.
+  await logEvent("visited", { domain: p.domain }).catch(() => undefined);
+  redirect(tryUrl("", p, token));
 }

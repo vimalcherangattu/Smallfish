@@ -36,5 +36,17 @@ test("domains are taken once from the inbox addresses", () => {
   assert.deepEqual(M.domainsOf(["a@Try-Fish.com", "b@try-fish.com", "c@fishmail.co"]), ["fishmail.co", "try-fish.com"]);
 });
 
+test("a domain with a DKIM key at a usual selector is sound", () => {
+  assert.deepEqual(M.authProblems({ root: [SPF], dmarc: [DMARC], dkim: ["v=DKIM1; k=rsa; p=MIIBIjAN"] }), []);
+  // Some providers publish the key without the version tag.
+  assert.deepEqual(M.authProblems({ root: [SPF], dmarc: [DMARC], dkim: ["k=rsa; p=MIIBIjAN"] }), []);
+});
+test("no DKIM key at any usual selector is named", () => {
+  assert.match(M.authProblems({ root: [SPF], dmarc: [DMARC], dkim: [] })[0], /no DKIM/);
+});
+test("DKIM not looked up says nothing, rather than a false alarm", () => {
+  assert.deepEqual(M.authProblems({ root: [SPF], dmarc: [DMARC] }), []);
+});
+
 if (failures) { console.log(`\n${failures} failing`); process.exit(1); }
 console.log("\nall pass");

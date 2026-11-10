@@ -16,7 +16,15 @@ export interface DnsTxt {
   root: string[];
   /** TXT records at `_dmarc.<domain>`. */
   dmarc: string[];
+  /** TXT records found at the usual DKIM selectors (`DKIM_SELECTORS`), or
+   *  undefined when not looked up. A CNAME to the provider's key resolves
+   *  through to its TXT, so this covers delegated keys too. */
+  dkim?: string[];
 }
+
+/** Google Workspace, Microsoft 365, and the common defaults. A provider with a
+ *  custom selector would read as missing here, so the sentence says "usual". */
+export const DKIM_SELECTORS = ["google", "selector1", "selector2", "default", "k1", "s1", "s2", "dkim", "mail"];
 
 /** What is wrong, in a sentence each, or nothing. */
 export function authProblems(t: DnsTxt): string[] {
@@ -28,6 +36,9 @@ export function authProblems(t: DnsTxt): string[] {
   const dmarc = t.dmarc.filter((r) => /^v=DMARC1\b/i.test(r.trim()));
   if (!dmarc.length) out.push("no DMARC record; Google and Yahoo want one from bulk senders");
   else if (dmarc.length > 1) out.push("more than one DMARC record, which counts as none");
+  if (t.dkim && !t.dkim.some((r) => /(^|;)\s*(v=DKIM1|p=)/i.test(r))) {
+    out.push(`no DKIM key at the usual selectors (${DKIM_SELECTORS.slice(0, 3).join(", ")}); unsigned mail is the first thing Gmail sends to spam`);
+  }
   return out;
 }
 
@@ -48,9 +59,15 @@ export async function checkDomains(domains: string[]): Promise<Array<{ domain: s
   };
   return Promise.all(
     domains.map(async (domain) => {
-      const [root, dmarc] = await Promise.all([txt(domain), txt(`_dmarc.${domain}`)]);
+      const [root, dmarc, ...keys] = await Promise.all([
+        txt(domain),
+        txt(`_dmarc.${domain}`),
+        ...DKIM_SELECTORS.map((sel) => txt(`${sel}._domainkey.${domain}`)),
+      ]);
       if (root === null || dmarc === null) return { domain, problems: [] };
-      return { domain, problems: authProblems({ root, dmarc }) };
+      // Any selector we could not ask about means we cannot say "none".
+      const dkim = keys.some((k) => k === null) ? undefined : keys.flatMap((k) => k ?? []);
+      return { domain, problems: authProblems({ root, dmarc, dkim }) };
     }),
   );
 }

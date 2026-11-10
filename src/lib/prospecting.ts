@@ -17,7 +17,6 @@
  */
 
 import { canWrite, currentEnv } from "@/lib/db";
-import { withDeadline } from "@/lib/deadline";
 import { findCandidates, readable } from "@/lib/providers";
 import {
   AGENCY_CATEGORIES,
@@ -30,7 +29,7 @@ import {
   primaryNiche,
   token,
 } from "@/lib/prospects";
-import { judge, readSite } from "@/lib/read";
+import { readSite } from "@/lib/read";
 import { resolveRegion, type Places, type Resolution } from "@/lib/region";
 import { SIGNAL_BY_ID } from "@/lib/signals";
 import { matchTrade, type Taxonomy } from "@/lib/trades";
@@ -354,14 +353,6 @@ export interface ListRow {
   proof: string;
 }
 
-/** Lists built per UTC day, at most. A bot that follows every link in every
- *  email would otherwise spend the model budget for us. */
-export const DAILY_LIST_CAP = 20;
-/** Stop reading once this many fit: the page shows three. */
-const WANT = 3;
-/** And never read more than this many for one list. */
-const MAX_READS = 40;
-
 const pick =
   "list_token,domain,name,niche,city,state,list_query,list_listings,list_readable,list_read,list_rows,list_at";
 
@@ -374,13 +365,6 @@ export async function listByToken(t: string): Promise<ProspectList | null> {
   return r ? { ...r, token: r.list_token } : null;
 }
 
-async function listsBuiltToday(): Promise<number> {
-  const since = new Date(new Date().toISOString().slice(0, 10)).toISOString();
-  const rows = (await rest(
-    `gtm_prospects?list_at=gte.${since}&list_rows=not.is.null&select=id&limit=${DAILY_LIST_CAP + 1}`,
-  )) as unknown[] | null;
-  return rows?.length ?? 0;
-}
 
 const where = (p: { city: string | null; state: string | null }) =>
   [p.city, p.state].filter(Boolean).join(", ");
@@ -434,94 +418,3 @@ export async function prepareList(
   return out;
 }
 
-export type BuildResult =
-  | { ok: true; rows: ListRow[]; read: number }
-  | { ok: false; reason: "unknown" | "capped" | "no_niche" | "nothing_found" | "busy"; read?: number };
-
-/**
- * The paid half, run on the first visit. Reads the niche in the agency's city
- * with exactly the read and judge a customer's job uses, stops at three that
- * fit, and keeps our verdict and the proof, nothing else.
- *
- * Suppressed businesses are skipped before they are read: a business that
- * asked to be left out does not turn up in our own marketing either.
- */
-export async function buildList(
-  t: string,
-  data: { taxo: Taxonomy; places: Places; suppressed: Set<string> },
-  budgetMs = 45_000,
-): Promise<BuildResult> {
-  const started = Date.now();
-  const p = await listByToken(t);
-  if (!p) return { ok: false, reason: "unknown" };
-  if (p.list_rows?.length) return { ok: true, rows: p.list_rows, read: p.list_read ?? 0 };
-  // Tried and found nothing: say so again rather than paying to find nothing
-  // twice. A week later the sites may have changed, so it may try once more.
-  if (p.list_at && p.list_rows && Date.now() - new Date(p.list_at).getTime() < 7 * 86_400_000) {
-    return { ok: false, reason: "nothing_found", read: p.list_read ?? 0 };
-  }
-  if ((await listsBuiltToday()) >= DAILY_LIST_CAP) return { ok: false, reason: "capped" };
-
-  const n = NICHES.find((x) => x.id === p.niche);
-  const c = listCriterion(p.niche);
-  const region = resolveRegion(data.places, where(p));
-  const trade = n ? matchTrade(data.taxo, n.trade).best : null;
-  if (!n || !c || !region || !trade) return { ok: false, reason: "no_niche" };
-
-  const s = await findCandidates({ categories: trade.categories, trade: n.trade, region, rows: true, limit: 200 });
-  const queue = readable(s.rows ?? []).filter((r) => !data.suppressed.has(r.id)).slice(0, MAX_READS);
-  const rows: ListRow[] = [];
-  let read = 0;
-  let outOfTime = false;
-  await Promise.all(
-    Array.from({ length: 8 }, async () => {
-      while (queue.length && rows.length < WANT && Date.now() - started < budgetMs) {
-        const b = queue.shift()!;
-        read += 1;
-        try {
-          // **Raced against what is left of the budget.** A read that started
-          // at 44 s used to run on past Vercel's 60 s limit, and the visitor —
-          // somebody who clicked our cold email — got "Something went wrong"
-          // (seen 2026-11-02 on /hi/GcJSwmwZmC). A single read can now take
-          // longer than it used to (retry, home-page fallback, DNS check), so
-          // the loop's own check is not enough: the read itself must stop.
-          const left = budgetMs - (Date.now() - started);
-          const v = await withDeadline(
-            (async () => {
-              const r = await readSite(b.site, c.criterion, { name: b.name, phone: b.phone ?? null, addr: b.addr ?? null });
-              return judge(r, c.criterion);
-            })(),
-            left,
-          );
-          if (!v) {
-            outOfTime = true;
-            continue;
-          }
-          if (v.verdict === "match" && rows.length < WANT) {
-            rows.push({ name: b.name ?? domainOf(b.site) ?? b.site, site: b.site, phone: b.phone ?? null, proof: v.proof ?? v.reason });
-          }
-        } catch {
-          /* one site failing does not fail the list */
-        }
-      }
-    }),
-  );
-
-  // Out of time with nothing found is not "nothing found": saving it would
-  // show this prospect an empty list for a week (the check at the top). Leave
-  // it unsaved so the next visit tries again.
-  if (!rows.length && (outOfTime || (queue.length && Date.now() - started >= budgetMs))) {
-    await logEvent("list_timed_out", { domain: p.domain }, { read });
-    return { ok: false, reason: "busy", read };
-  }
-
-  // Keep a partial list rather than throw away what it cost. A visit that
-  // found two shows two, and says it stopped looking.
-  await rest(`gtm_prospects?list_token=eq.${t}`, {
-    method: "PATCH",
-    headers: { Prefer: "return=minimal" },
-    body: JSON.stringify({ list_rows: rows, list_read: read, list_at: new Date().toISOString(), updated_at: new Date().toISOString() }),
-  });
-  await logEvent("list_built", { domain: p.domain }, { found: rows.length, read });
-  return rows.length ? { ok: true, rows, read } : { ok: false, reason: "nothing_found", read };
-}

@@ -6,6 +6,7 @@ import { schedulerAuthorised } from "@/lib/outreachauth";
 import { logEvent, rest, restAll } from "@/lib/prospecting";
 import { blocked, dailyPerInbox, GO_LIVE, type Prospect } from "@/lib/sequence";
 import { suppressedOutreach } from "@/lib/prospecting";
+import { seedsFrom, STOP_RULE, stopStatus, type StopEvent } from "@/lib/stoprule";
 
 /**
  * The owner's morning email (GTM). pg_cron, once a day. Counts the last 24
@@ -41,6 +42,16 @@ export async function GET(req: Request) {
     ),
   ]);
   const ev = events ?? [];
+
+  // The stopping rule counts everything since the copy changed, not just today.
+  const seeds = seedsFrom(process.env.OUTREACH_SEEDS);
+  const [stopEvents, outreachAccounts] = await Promise.all([
+    restAll<StopEvent>(
+      `gtm_events?at=gte.${STOP_RULE.since}&kind=in.(email_sent,email_bounced,reply_classified)&select=kind,email,detail&order=id`,
+    ).catch(() => [] as StopEvent[]),
+    (rest(`accounts?created_at=gte.${STOP_RULE.since}&source=like.outreach*&select=id&limit=1000`).catch(() => []) as Promise<unknown[]>),
+  ]);
+  const stop = stopStatus(stopEvents ?? [], seeds, (outreachAccounts ?? []).length);
   const k = (kind: string) => ev.filter((e) => e.kind === kind).length;
   const sup = await suppressedOutreach();
   const queueReady = { agency: 0, seller: 0, widget: 0 };
@@ -88,6 +99,8 @@ export async function GET(req: Request) {
     sending,
     pastGoLive: pastGoLive && instantlyReady(),
     inboxes: { active: boxes.filter((b) => b.ready).length, total: boxes.length },
+    stop,
+    seeds: seeds.length,
   };
   const msg = buildDigest(stats);
   const r = await sendMail(to, msg);

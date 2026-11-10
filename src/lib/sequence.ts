@@ -22,7 +22,7 @@
  */
 
 import { PLANS } from "@/lib/pricing";
-import { looksLikeAgency, looksLikePerson } from "@/lib/prospects";
+import { looksLikeAgency, looksLikePerson, NICHES } from "@/lib/prospects";
 
 export const CAMPAIGN_NAME = "Small Fish · agencies · v1";
 /** Named sales and growth leaders at companies that sell to small businesses,
@@ -71,8 +71,22 @@ const footer =
   `Reply "no" and I won't write again.`;
 
 /**
- * Three steps, three to four days apart. Instantly fills `{{…}}` per lead from
- * `leadVariables`. Short on purpose: the first one fits on a phone screen.
+ * ## Straight into the product (owner, 2026-11-10)
+ *
+ * Until 2026-11-10 the first email offered a free list we had built for the
+ * agency, and the widget campaign offered a free widget. 210 people received
+ * one or the other in the first eight days and nobody replied. The owner's
+ * call: "directly get them to try the product". So every email has one link,
+ * and it is the search itself, already typed with their trade and city, which
+ * runs on arrival and needs no account. No list built for them, no widget.
+ *
+ * `{{listUrl}}` keeps its name because every lead already in Instantly carries
+ * it, and the copy is re-synced onto live campaigns hourly. It points at
+ * `/hi/<token>`, which now records the click and redirects into `/app/find`.
+ *
+ * Three steps, three to four days apart. Short on purpose: the first one fits
+ * on a phone screen. The last one asks a question a person can answer in one
+ * line, because a reply is worth more to us than a click right now.
  */
 export const STEPS: Step[] = [
   {
@@ -80,9 +94,10 @@ export const STEPS: Step[] = [
     body:
       "Hi there,<br/><br/>" +
       "I saw you do marketing for {{niche}}, so this might be handy.<br/><br/>" +
-      "There are {{count}} {{niche}} in {{city}} with a website. I pulled a few that have no " +
-      "{{gap}}, the ones I'd call first if I were you: {{listUrl}}<br/><br/>" +
-      "No sign-up to look.<br/><br/>" +
+      "We built a search that finds local businesses by trade and city. It reads each one's " +
+      "website and tells you which have no {{gap}}. There are {{count}} {{niche}} in {{city}} " +
+      "with a website, and I've set it up for them: {{listUrl}}<br/><br/>" +
+      `No sign-up to search. The first ${FREE} that fit are free.<br/><br/>` +
       sign + footer,
     delay: 3,
   },
@@ -90,16 +105,16 @@ export const STEPS: Step[] = [
     subject: "Re: {{niche}} in {{city}}",
     body:
       "Hi again,<br/><br/>" +
-      "If those were useful, you can run the same search for any trade in any city. " +
-      `The first ${FREE} that fit are free, no card: {{signUpUrl}}<br/><br/>` +
+      "It isn't only {{niche}} or {{city}}. Type any trade and any US city and it counts " +
+      "them in about ten seconds: {{listUrl}}<br/><br/>" +
       sign + footer,
     delay: 4,
   },
   {
     subject: "Re: {{niche}} in {{city}}",
     body:
-      "Last one from me. If {{city}} isn't where you work, or {{niche}} isn't your trade, " +
-      "reply with the ones that are and I'll send that list instead.<br/><br/>" +
+      "Last one from me. How do you find new {{niche}} to pitch today? One line back would " +
+      "help me a lot, even if the answer is \"we don't need to\".<br/><br/>" +
       sign + footer,
     delay: 0,
   },
@@ -107,7 +122,7 @@ export const STEPS: Step[] = [
 
 /**
  * For a named person at a company that sells to the trade: greeted by first
- * name, and the pitch is their reps' list, not their clients'.
+ * name, and the pitch is their reps' prospect list.
  */
 export const SELLER_STEPS: Step[] = [
   {
@@ -115,9 +130,10 @@ export const SELLER_STEPS: Step[] = [
     body:
       "Hi {{firstName}},<br/><br/>" +
       "Your team sells to {{niche}}, so this might be handy.<br/><br/>" +
-      "There are {{count}} {{niche}} in {{city}} with a website. I pulled a few that have no " +
-      "{{gap}}, the ones I'd have a rep call first: {{listUrl}}<br/><br/>" +
-      "No sign-up to look.<br/><br/>" +
+      "We built a search that finds local businesses by trade and city. It reads each one's " +
+      "website and tells your reps which have no {{gap}}. There are {{count}} {{niche}} in " +
+      "{{city}} with a website, and I've set it up for them: {{listUrl}}<br/><br/>" +
+      `No sign-up to search. The first ${FREE} that fit are free.<br/><br/>` +
       sign + footer,
     delay: 3,
   },
@@ -125,53 +141,52 @@ export const SELLER_STEPS: Step[] = [
     subject: "Re: {{niche}} in {{city}}",
     body:
       "Hi {{firstName}},<br/><br/>" +
-      "Your reps can run this themselves for any trade and city, and say what to look for in " +
-      `plain words, like "no online booking". The first ${FREE} that fit are free, no card: {{signUpUrl}}<br/><br/>` +
+      "Your reps can run it for any trade and city, and say what to look for in plain words, " +
+      "like \"no online booking\": {{listUrl}}<br/><br/>" +
       sign + footer,
     delay: 4,
   },
   {
     subject: "Re: {{niche}} in {{city}}",
     body:
-      "Last one from me. If another city or trade would be more useful, reply with it and " +
-      "I'll send that list instead.<br/><br/>" +
+      "Last one from me. How do your reps find which {{niche}} to call today? One line back " +
+      "would help me a lot.<br/><br/>" +
       sign + footer,
     delay: 0,
   },
 ];
 
 /**
- * For agencies that serve local businesses in general: give first. A free
- * check for their own site, already set up with their domain, then the
- * search once they have seen what it finds.
+ * Agencies that serve local businesses in general, with no one trade to name.
+ * The campaign name and the `widget` audience stay because 58 people are part
+ * way through it; the widget itself is no longer offered.
  */
 export const WIDGET_STEPS: Step[] = [
   {
-    subject: "something for {{companyName}}'s website",
+    subject: "finding clients for {{companyName}}",
     body:
       "Hi there,<br/><br/>" +
-      "We made a small widget for agency websites. A visitor types in their own site and sees " +
-      "whether it takes bookings online, has a quote form or live chat. If it doesn't, that's " +
-      "a lead for you.<br/><br/>" +
-      "Here it is with your name already on it: {{previewUrl}}<br/><br/>" +
-      "Free, and one line to add if you like it.<br/><br/>" +
+      "We built a search that finds local businesses to pitch. Type a trade and a US city and it " +
+      "lists the ones with a website, then reads each site and tells you which have no online " +
+      "booking, quote form or live chat: {{signUpUrl}}<br/><br/>" +
+      `No sign-up to search. The first ${FREE} that fit are free.<br/><br/>` +
       sign + footer,
     delay: 4,
   },
   {
-    subject: "Re: something for {{companyName}}'s website",
+    subject: "Re: finding clients for {{companyName}}",
     body:
       "Hi again,<br/><br/>" +
-      "The same check works on a whole city: every dentist, plumber or salon near you that's " +
-      `missing online booking or a quote form, with a phone number. The first ${FREE} are free: {{signUpUrl}}<br/><br/>` +
+      "Try it on the trade you'd most like more clients in, and your own city. It counts them in " +
+      "about ten seconds: {{signUpUrl}}<br/><br/>" +
       sign + footer,
     delay: 5,
   },
   {
-    subject: "Re: something for {{companyName}}'s website",
+    subject: "Re: finding clients for {{companyName}}",
     body:
-      "Last one from me. If a list for one trade in one city would be more useful, reply with " +
-      "both and I'll send it.<br/><br/>" +
+      "Last one from me. How do you find new local businesses to pitch today? One line back " +
+      "would help me a lot.<br/><br/>" +
       sign + footer,
     delay: 0,
   },
@@ -184,14 +199,29 @@ export const campaignFor = (a: Audience) =>
       ? { name: WIDGET_CAMPAIGN_NAME, steps: WIDGET_STEPS }
       : { name: CAMPAIGN_NAME, steps: STEPS };
 
-/** The widget campaign's variables: their domain, ready in the snippet. */
+/** The general-agency campaign's variables: one link, into the search. */
 export function widgetVariables(p: Pick<Prospect, "domain">, site: string): Record<string, string> {
-  const q = new URLSearchParams({ agency: p.domain });
   return {
-    previewUrl: `${site}/embed/check?${q}`,
-    widgetUrl: `${site}/check/widget?${q}`,
     signUpUrl: `${site}/app/find?${new URLSearchParams({ source: `outreach/widget/${p.domain}` })}`,
   };
+}
+
+/** `/app/find` with the prospect's trade and city typed in, so the search runs
+ *  on arrival. What `/hi/<token>` redirects to. Relative when `site` is "". */
+export function tryUrl(
+  site: string,
+  p: { niche: string | null; city: string | null; state: string | null },
+  token: string,
+): string {
+  const trade = NICHES.find((n) => n.id === p.niche)?.trade;
+  const where = p.city ? (p.state ? `${p.city}, ${p.state}` : p.city) : "";
+  const q = new URLSearchParams();
+  if (trade && where) {
+    q.set("what", trade);
+    q.set("where", where);
+  }
+  q.set("source", `outreach/${token}`);
+  return `${site}/app/find?${q}`;
 }
 
 /** New people a day the campaign can start: each gets three emails. */
@@ -237,7 +267,7 @@ export function blocked(
     return null;
   }
   if (!p.niche) return "no niche strong enough to write about";
-  if (!p.list_token || !p.list_query) return "their free list is not prepared";
+  if (!p.list_token || !p.list_query) return "their search is not prepared";
   if (!p.city) return "no city";
   const count = p.list_readable ?? p.list_listings ?? 0;
   if (count < 20) return "too few businesses in their niche and city to be worth a list";
@@ -269,8 +299,8 @@ export function leadVariables(
     city: p.city ?? "",
     count: count.toLocaleString("en-US"),
     gap: label.gap.replace(/^(a|an) /i, ""),
+    // Records the click, then redirects into the search (see `tryUrl`).
     listUrl: `${site}/hi/${p.list_token}`,
-    widgetUrl: `${site}/check/widget`,
     // PRD v2's entry is the two-field search; `source` names the email.
     signUpUrl: `${site}/app/find?${new URLSearchParams({ source })}`,
   };
