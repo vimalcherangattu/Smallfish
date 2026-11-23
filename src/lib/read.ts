@@ -1,5 +1,6 @@
 import "server-only";
 
+import { observeAnthropic } from "@/lib/posthog-ai";
 import { flat, MAX_PAGES, robotsAllows, safeUrl } from "@/lib/seller";
 import { signalForCriterion } from "@/lib/signals";
 import { contactsFrom } from "@/lib/contacts";
@@ -732,14 +733,21 @@ export async function judge(
     `--- PAGE TEXT (${read.pagesFetched.length} pages) ---\n${body}`;
 
   let out: ModelVerdict;
+  const observer = observeAnthropic(key);
   try {
     const { default: Anthropic } = await import("@anthropic-ai/sdk");
-    const client = new Anthropic({ apiKey: key });
-    const res = await client.messages.create({
-      model: MODEL,
-      max_tokens: 600,
-      messages: [{ role: "user", content: prompt }],
-    });
+    const res = observer
+      ? await observer.client.messages.create({
+          model: MODEL,
+          max_tokens: 600,
+          messages: [{ role: "user", content: prompt }],
+          ...observer.callProperties,
+        })
+      : await new Anthropic({ apiKey: key }).messages.create({
+          model: MODEL,
+          max_tokens: 600,
+          messages: [{ role: "user", content: prompt }],
+        });
     const txt = res.content.map((c) => ("text" in c ? c.text : "")).join("");
     const m = txt.match(/\{[\s\S]*\}/);
     if (!m) throw new Error("no json");
@@ -747,6 +755,8 @@ export async function judge(
   } catch {
     // Our failure, not theirs.
     return { verdict: "couldnt_tell" as VerdictKind, reason: "the model call did not return a usable answer" };
+  } finally {
+    await observer?.flush();
   }
 
   const verdict = out.verdict;

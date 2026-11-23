@@ -59,7 +59,13 @@ export function scrub(props: EventProps): { props: EventProps; dropped: string[]
 export type Sink = (event: Event) => void;
 
 const sinks: Sink[] = [];
-export const addSink = (s: Sink) => sinks.push(s);
+export const addSink = (s: Sink) => {
+  sinks.push(s);
+  return () => {
+    const index = sinks.indexOf(s);
+    if (index >= 0) sinks.splice(index, 1);
+  };
+};
 export const clearSinks = () => sinks.splice(0, sinks.length);
 
 export function track(name: EventName, props: EventProps = {}): Event {

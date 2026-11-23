@@ -1,9 +1,17 @@
 "use client";
 
+import { useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import posthog from "posthog-js";
+import { useEffect } from "react";
 
 import { Card, Fish, List, Plus, Tick } from "@/components/app/icons";
+import { addSink } from "@/lib/events";
+
+const posthogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
 
 /**
  * The App v2 shell: a 252px sidebar, a 64px appbar, and the content column.
@@ -95,6 +103,7 @@ const ITEMS = [
 
 export default function Shell({ children, here, bare, credits = null, signedIn = false, freeGrant = 0 }: ShellProps) {
   const path = usePathname();
+  const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
   // §4: the first-run screen has no rail — but only when there is nothing
   // behind it. A returning account has lists, saved searches and a balance, and
   // hiding the one piece of navigation in the product from them to satisfy a
@@ -104,6 +113,8 @@ export default function Shell({ children, here, bare, credits = null, signedIn =
   const at = here ?? derive(path);
   return (
     <div className="sf">
+      {posthogConfigured && <PostHogEventSink />}
+      {posthogConfigured && clerkEnabled && <ClerkIdentity />}
       {/* **With no rail this had no class at all**, so it lost `.appwrap`'s
           `min-height: 100dvh` along with its grid, and `.appmain` became as
           tall as whatever was in it. Every short signed-out screen — first
@@ -223,6 +234,37 @@ export default function Shell({ children, here, bare, credits = null, signedIn =
       )}
     </div>
   );
+}
+
+/** Forwards the product's privacy-safe event contract through the browser SDK. */
+function PostHogEventSink() {
+  useEffect(() => addSink(({ name, props }) => posthog.capture(name, props)), []);
+  return null;
+}
+
+/** Synchronizes PostHog with Clerk at the authentication boundary. */
+function ClerkIdentity() {
+  const { isLoaded, user } = useUser();
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const identifiedUserId = posthog.get_property("$user_id");
+    if (!user) {
+      if (identifiedUserId) posthog.reset();
+      return;
+    }
+
+    if (identifiedUserId === user.id) return;
+    if (identifiedUserId) posthog.reset();
+
+    posthog.identify(user.id, {
+      ...(user.primaryEmailAddress?.emailAddress ? { email: user.primaryEmailAddress.emailAddress } : {}),
+      ...(user.fullName ? { name: user.fullName } : {}),
+    });
+  }, [isLoaded, user]);
+
+  return null;
 }
 
 function pct(left: number, of: number): number {

@@ -1,3 +1,7 @@
+import { after } from "next/server";
+
+import { loggerProvider } from "../../../../instrumentation";
+import { logSellerRead } from "@/lib/posthog-logs";
 import { readSeller, profileToDescription } from "@/lib/seller";
 
 /** Read a seller's own site (S1-22).
@@ -23,7 +27,26 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, reason: "Send JSON with a `url`." }, { status: 400 });
   }
 
+  const startedAt = performance.now();
   const result = await readSeller(url);
+  const durationMs = Math.round(performance.now() - startedAt);
+
+  if (result.ok) {
+    logSellerRead({
+      ok: true,
+      durationMs,
+      pagesRead: result.profile.pagesRead.length,
+      droppedFields: result.profile.dropped.length,
+      costUsd: result.profile.costUsd,
+    });
+  } else {
+    logSellerRead({ ok: false, durationMs, stage: result.stage });
+  }
+
+  // Route handlers may be frozen after their response; flush after it is sent
+  // and never let telemetry delivery affect the seller read itself.
+  after(() => loggerProvider?.forceFlush().catch(() => {}));
+
   if (!result.ok) return Response.json(result);
 
   return Response.json({

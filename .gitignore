@@ -40,3 +40,4 @@ stage0/data/labelling/
 # mutated bytecode and the restored source appeared to still fail.
 __pycache__/
 *.pyc
+.env.local

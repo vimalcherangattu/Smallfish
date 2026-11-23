@@ -33,6 +33,8 @@
  * information. A guessed one is a lie that reads like a finding.
  */
 
+import { observeAnthropic } from "@/lib/posthog-ai";
+
 const MODEL = process.env.SMALLFISH_MODEL_WORKER ?? "claude-sonnet-5";
 
 /** How much of a site to read. Four pages is what the measured crawl averages
@@ -263,7 +265,8 @@ export async function readSeller(rawUrl: string): Promise<SellerResult> {
 
   // --- extract -----------------------------------------------------------
   const { default: Anthropic } = await import("@anthropic-ai/sdk");
-  const client = new Anthropic({ apiKey: key });
+  const observer = observeAnthropic(key);
+  const client = observer ? null : new Anthropic({ apiKey: key });
 
   const prompt = `Below is the text of a business's own website.
 
@@ -288,11 +291,18 @@ ${corpus.slice(0, MAX_CHARS)}`;
   let raw = "";
   let costUsd = 0;
   try {
-    const msg = await client.messages.create({
-      model: MODEL,
-      max_tokens: 1200,
-      messages: [{ role: "user", content: prompt }],
-    });
+    const msg = observer
+      ? await observer.client.messages.create({
+          model: MODEL,
+          max_tokens: 1200,
+          messages: [{ role: "user", content: prompt }],
+          ...observer.callProperties,
+        })
+      : await client!.messages.create({
+          model: MODEL,
+          max_tokens: 1200,
+          messages: [{ role: "user", content: prompt }],
+        });
     raw = msg.content.map((c) => ("text" in c ? c.text : "")).join("");
     // Sonnet 5 list pricing, per million tokens. Reported rather than hidden,
     // because this product tells customers what things cost.
@@ -306,6 +316,8 @@ ${corpus.slice(0, MAX_CHARS)}`;
         err instanceof Error ? err.message : String(err)
       }`,
     };
+  } finally {
+    await observer?.flush();
   }
 
   let parsed: Record<string, { value?: string; quote?: string } | null>;
