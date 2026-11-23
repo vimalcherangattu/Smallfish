@@ -1,4 +1,7 @@
+import { createHash } from "node:crypto";
+
 import { block, reply, thread, type Email } from "@/lib/instantly";
+import { observeAnthropic } from "@/lib/posthog-ai";
 import { hookAuthorised } from "@/lib/outreachauth";
 import { listCriterion, logEvent, rest, suppressOutreach } from "@/lib/prospecting";
 import { NICHES } from "@/lib/prospects";
@@ -55,11 +58,26 @@ async function stop(email: string, domain: string | null, why: string) {
   await logEvent("suppressed", { domain, email }, { why });
 }
 
-async function ask(prompt: string): Promise<string> {
+async function ask(prompt: string, sessionId: string): Promise<string> {
   const { default: Anthropic } = await import("@anthropic-ai/sdk");
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  const res = await client.messages.create({ model: MODEL, max_tokens: 700, messages: [{ role: "user", content: prompt }] });
-  return res.content.map((c) => ("text" in c ? c.text : "")).join("");
+  const observer = observeAnthropic(process.env.ANTHROPIC_API_KEY, sessionId);
+  try {
+    const res = observer
+      ? await observer.client.messages.create({
+          model: MODEL,
+          max_tokens: 700,
+          messages: [{ role: "user", content: prompt }],
+          ...observer.callProperties,
+        })
+      : await new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }).messages.create({
+          model: MODEL,
+          max_tokens: 700,
+          messages: [{ role: "user", content: prompt }],
+        });
+    return res.content.map((c) => ("text" in c ? c.text : "")).join("");
+  } finally {
+    await observer?.flush();
+  }
 }
 
 const textOf = (e: Email) =>
@@ -93,7 +111,8 @@ async function answer(email: string) {
   };
   const history = ours.slice(0, 3).map((m) => fresh(textOf(m))).reverse().join("\n---\n");
   const said = fresh(textOf(incoming));
-  const d = await decide(ctx, history, said, prior, ask);
+  const sessionId = `outreach-${createHash("sha256").update(email).digest("hex")}`;
+  const d = await decide(ctx, history, said, prior, (prompt) => ask(prompt, sessionId));
   await logEvent("reply_classified", { domain, email }, { intent: d.intent, held: d.held ?? null, said: said.slice(0, 1000) });
 
   if (d.intent === "unsubscribe" || d.intent === "wrong_person") {

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { track } from "@/lib/events";
+
 /** The buy button (S1-08).
  *
  *  It posts a plan id and nothing else. The workspace comes from the signed-in
@@ -32,6 +34,7 @@ export default function BuyPlan({ planId, name }: { planId: string; name: string
         signIn?: string;
       };
       if (data.ok && data.url) {
+        track("checkout_started", { plan: planId });
         window.location.href = data.url;
         return;
       }
